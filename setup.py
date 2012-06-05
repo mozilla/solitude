@@ -3,7 +3,7 @@ import os
 from setuptools import setup, find_packages
 
 
-setup(name='project',
+setup(name='solitude',
       version='1.0',
       description='Django application.',
       long_description='',
