@@ -1,13 +1,10 @@
 ========================================
-Welcome to this project's documentation!
+Solitude
 ========================================
 
-This is a documentation template for a **web application based on Playdoh**.
-Feel free to change this to your liking.
 
-
-About playdoh
--------------
+Solitude is a Payments Server for processing payments for Mozilla's Marketplace
+and Addons site.
 
 This project is based on **playdoh**. Mozilla's Playdoh is an open source
 web application template based on `Django <http://www.djangoproject.com/>`_.
