@@ -19,3 +19,12 @@ MIDDLEWARE_CLASSES = (
 
 SESSION_COOKIE_SECURE = True
 LOGGING = dict(loggers=dict(playdoh = {'level': logging.DEBUG}))
+
+# PayPal values.
+AUTH = {'USER': '', 'PASSWORD': '', 'SIGNATURE': ''}
+# Note all URLs should end with a trailing slash.
+ADAPTIVE_ROOT = ''
+SERVICES_ROOT = ''
+CGI_ROOT = ''
+CHAINS = ()
+CERT = '/tmp'
