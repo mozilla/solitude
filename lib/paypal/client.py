@@ -10,6 +10,7 @@ import requests
 from .errors import errors, AuthError, PaypalError
 
 urls = {
+    'get-permission': (settings.SERVICES_ROOT + 'Permissions/GetPermissions'),
     'request-permission': (settings.SERVICES_ROOT +
                            'Permissions/RequestPermissions'),
 }
@@ -124,3 +125,16 @@ class Client(object):
         return (settings.CGI_ROOT +
                 'cgi-bin/webscr?cmd=_grant-permission&request_token=' +
                 res['token'])
+
+    def check_permission(self, token, permissions):
+        """
+        Asks PayPal whether the PayPal ID for this account has granted
+        the permissions requested to us. Permissions are strings from the
+        PayPal documentation.
+        Documentation: http://bit.ly/zlhXlT
+        """
+        res = self.call('get-permission', {'token': token})
+        # In the future we may ask for other permissions so let's just
+        # make sure REFUND is one of them.
+        result = [v for (k, v) in res.iteritems() if k.startswith('scope')]
+        return set(permissions).issubset(set(result))
