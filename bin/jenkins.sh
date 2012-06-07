@@ -37,6 +37,7 @@ pip install -q -r requirements/dev.txt
 cat > solitude/settings/local.py <<SETTINGS
 from solitude.settings.base import *
 
+DEBUG = True
 SECRET_KEY = 'not-blank-honest'
 ROOT_URLCONF = 'solitude.urls'
 LOG_LEVEL = logging.ERROR
