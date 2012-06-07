@@ -12,6 +12,8 @@ from .urls import urls, roots
 
 log = commonware.log.getLogger('s.paypal')
 
+# The length of time we'll wait for PayPal.
+timeout = getattr(settings, 'PAYPAL_TIMEOUT', 10)
 
 class Client(object):
 
@@ -84,9 +86,9 @@ class Client(object):
         nvp = self.nvp(data)
         try:
             # This will check certs if settings.PAYPAL_CERT is specified.
-            result = requests.post(url, headers=headers, timeout=10,
-                            data=nvp, verify=True,
-                            cert=settings.PAYPAL_CERT)
+            result = requests.post(url, cert=settings.PAYPAL_CERT, data=nvp,
+                                   headers=headers, timeout=timeout,
+                                   verify=True)
         except AuthError, error:
             log.error('Authentication error: %s' % error)
             raise
