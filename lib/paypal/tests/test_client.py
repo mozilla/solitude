@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 from django.conf import settings
 
@@ -35,6 +36,53 @@ class TestClient(BaseCase):
                                      whitelist=('http://foo', 'http://bar'))
         with self.assertRaises(ValueError):
             self.paypal.whitelist(['http://foo.com'], whitelist=())
+
+    def test_split(self):
+        res = self.paypal.receivers('a@a.com', Decimal('1.99'), '123',
+                                    chains=((30, 'us@moz.com'),))
+        eq_(res['receiverList.receiver(1).amount'], '0.60')
+        eq_(res['receiverList.receiver(1).email'], 'us@moz.com')
+        eq_(res['receiverList.receiver(0).amount'], '1.99')
+        eq_(res['receiverList.receiver(0).email'], 'a@a.com')
+
+    def test_multiple_split(self):
+        res = self.paypal.receivers('a@a.com', Decimal('1.99'), '123',
+                                    chains=((30, 'us@moz.com'),
+                                            (10, 'me@moz.com')))
+        eq_(res['receiverList.receiver(2).amount'], '0.20')
+        eq_(res['receiverList.receiver(1).amount'], '0.60')
+        eq_(res['receiverList.receiver(0).amount'], '1.99')
+
+    def test_no_split(self):
+        res = self.paypal.receivers('a@a.com', Decimal('1.99'), '123',
+                                    chains=())
+        eq_(res['receiverList.receiver(0).amount'], '1.99')
+
+#    @mock.patch('paypal._call')
+#    def test_dict_no_split(self, _call):
+#        data = self.data.copy()
+#        _call.return_value = {'payKey': '123', 'paymentExecStatus': ''}
+#        self.paypal.get_paykey(data)
+#        eq_(_call.call_args[0][1]['receiverList.receiver(0).amount'], '10')
+#
+#    @mock.patch('paypal._call')
+#    def test_dict_split(self, _call):
+#        data = self.data.copy()
+#        data['chains'] = ((13.4, 'us@moz.com'),)
+#        _call.return_value = {'payKey': '123', 'paymentExecStatus': ''}
+#        paypal.get_paykey(data)
+#        eq_(_call.call_args[0][1]['receiverList.receiver(0).amount'], '10')
+#        eq_(_call.call_args[0][1]['receiverList.receiver(1).amount'], '1.34')
+
+    def test_primary_fees(self):
+        res = self.paypal.receivers('a@a.com', Decimal('1.99'), '123',
+                                    chains=())
+        assert 'feesPayer' not in res
+
+    def test_split_fees(self):
+        res = self.paypal.receivers('a@a.com', Decimal('1.99'), '123',
+                                    chains=((30, 'us@moz.com'),))
+        eq_(res['feesPayer'], 'SECONDARYONLY')
 
 
 @mock.patch.object(Client, '_call')

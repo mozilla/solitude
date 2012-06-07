@@ -1,4 +1,7 @@
+from decimal import Decimal, InvalidOperation
+import hashlib
 import urlparse
+import uuid
 
 from django.conf import settings
 from django.utils.http import urlquote
@@ -7,7 +10,7 @@ import commonware.log
 from django_statsd.clients import statsd
 import requests
 
-from .errors import errors, AuthError, PaypalError
+from .errors import errors, AuthError, PaypalDataError, PaypalError
 from .urls import urls
 
 log = commonware.log.getLogger('s.paypal')
@@ -17,6 +20,9 @@ timeout = getattr(settings, 'PAYPAL_TIMEOUT', 10)
 
 
 class Client(object):
+
+    def uuid(self):
+        return hashlib.md5(str(uuid.uuid4())).hexdigest()
 
     def whitelist(self, urls, whitelist=None):
         """
@@ -43,6 +49,49 @@ class Client(object):
                 out.append(escape(k, v))
 
         return '&'.join(out)
+
+    def receivers(self, seller_email, amount, preapproval, chains=None):
+        """
+        Split a payment down into multiple receivers using the chains
+        passed in.
+        """
+        chains = chains or settings.PAYPAL_CHAINS
+        try:
+            remainder = Decimal(str(amount))
+        except (UnicodeEncodeError, InvalidOperation), msg:
+            raise PaypalDataError(msg)
+
+        result = {}
+        for number, chain in enumerate(chains, 1):
+            percent, destination = chain
+            this = (Decimal(str(float(amount) * (percent / 100.0)))
+                    .quantize(Decimal('.01')))
+            remainder = remainder - this
+            key = 'receiverList.receiver(%s)' % number
+            result.update({
+                '%s.email' % key: destination,
+                '%s.amount' % key: str(this),
+                '%s.primary' % key: 'false',
+                # This is only done if there is a chained payment. Otherwise
+                # it does not need to be set.
+                'receiverList.receiver(0).primary': 'true',
+                # Mozilla pays the fees, because we've got a special rate.
+                'feesPayer': 'SECONDARYONLY'
+            })
+            if not preapproval:
+                result['%s.paymentType' % key] = 'DIGITALGOODS'
+
+        result.update({
+            'receiverList.receiver(0).email': seller_email,
+            'receiverList.receiver(0).amount': str(amount),
+            'receiverList.receiver(0).invoiceID': 'mozilla-%s' % uuid
+        })
+
+        # Adding DIGITALGOODS to a pre-approval triggers an error in PayPal.
+        if not preapproval:
+            result['receiverList.receiver(0).paymentType'] = 'DIGITALGOODS'
+
+        return result
 
     def call(self, service, paypal_data):
         """
