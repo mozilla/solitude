@@ -130,3 +130,12 @@ class Client(object):
         # make sure REFUND is one of them.
         result = [v for (k, v) in res.iteritems() if k.startswith('scope')]
         return set(permissions).issubset(set(result))
+
+    def get_permission_token(self, token, code):
+        """
+        Send request for permissions token, after user has granted the
+        requested permissions via the PayPal page we redirected them to.
+        Documentation: http://bit.ly/Mjh51D
+        """
+        res = self.call('get-permission-token', {'token': token, 'code': code})
+        return {'token': res['token'], 'secret': res['tokenSecret']}

@@ -9,7 +9,10 @@ ROOT_URLCONF = '%s.urls' % PROJECT_MODULE
 
 INSTALLED_APPS = (
     'funfactory',
+    'django_nose',
 )
+
+TEST_RUNNER = 'test_utils.runner.RadicalTestSuiteRunner'
 
 MIDDLEWARE_CLASSES = (
     'funfactory.middleware.LocaleURLMiddleware',

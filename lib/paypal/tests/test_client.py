@@ -1,5 +1,3 @@
-import urllib
-
 import test_utils
 import mock
 from nose.tools import eq_
@@ -7,7 +5,7 @@ from nose.tools import eq_
 from ..client import Client
 from ..errors import PaypalError
 
-good_token = urllib.urlencode({'token': 'foo', 'secret': 'bar'})
+good_token = {'token': 'foo', 'secret': 'bar'}
 
 
 @mock.patch.object(Client, '_call')
@@ -42,6 +40,10 @@ class TestRefundPermissions(test_utils.TestCase):
         _call.side_effect = PaypalError
         with self.assertRaises(PaypalError):
             self.paypal.check_permission(good_token, ['REFUND'])
+
+    def test_get_permissions_token(self, _call):
+        _call.return_value = {'token': 'foo', 'tokenSecret': 'bar'}
+        eq_(self.paypal.get_permission_token('foo', ''), good_token)
 
     def test_get_permissions_subset(self, _call):
         _call.return_value = {'scope(0)': 'REFUND', 'scope(1)': 'HAM'}

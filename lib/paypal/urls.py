@@ -21,5 +21,6 @@ if settings.PAYPAL_USE_SANDBOX:
 urls = {
     'get-permission': roots['permissions'] + 'GetPermissions',
     'request-permission': roots['permissions'] + 'RequestPermissions',
+    'get-permission-token': roots['permissions'] + 'GetAccessToken',
     'grant-permission': roots['cgi'] + '?cmd=_grant-permission&request_token=',
 }
