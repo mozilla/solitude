@@ -35,7 +35,7 @@ pip install -q -r requirements/compiled.txt
 pip install -q -r requirements/dev.txt
 
 cat > solitude/settings/local.py <<SETTINGS
-from settings.base import *
+from solitude.settings.base import *
 
 ROOT_URLCONF = 'workspace.urls'
 LOG_LEVEL = logging.ERROR
