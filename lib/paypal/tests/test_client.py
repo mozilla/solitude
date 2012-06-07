@@ -8,6 +8,20 @@ from ..errors import PaypalError
 good_token = {'token': 'foo', 'secret': 'bar'}
 
 
+class TestClient(test_utils.TestCase):
+
+    def setUp(self):
+        self.paypal = Client()
+
+    def test_nvp(self):
+        eq_(self.paypal.nvp({'foo': 'bar'}), 'foo=bar')
+        eq_(self.paypal.nvp({'foo': 'ba r'}), 'foo=ba%20r')
+        eq_(self.paypal.nvp({'foo': 'bar', 'bar': 'foo'}),
+                                  'bar=foo&foo=bar')
+        eq_(self.paypal.nvp({'foo': ['bar', 'baa']}),
+                                  'foo(0)=bar&foo(1)=baa')
+
+
 @mock.patch.object(Client, '_call')
 class TestRefundPermissions(test_utils.TestCase):
 
