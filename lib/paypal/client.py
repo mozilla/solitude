@@ -8,12 +8,7 @@ from django_statsd.clients import statsd
 import requests
 
 from .errors import errors, AuthError, PaypalError
-
-urls = {
-    'get-permission': (settings.SERVICES_ROOT + 'Permissions/GetPermissions'),
-    'request-permission': (settings.SERVICES_ROOT +
-                           'Permissions/RequestPermissions'),
-}
+from .urls import urls, roots
 
 log = commonware.log.getLogger('s.paypal')
 
@@ -52,10 +47,10 @@ class Client(object):
         These are the headers we need to make a paypal call.
         """
         # TODO (andym): set up the appropriate headers.
-        auth = settings.AUTH
+        auth = settings.PAYPAL_AUTH
         headers = {}
         for key, value in [
-                ('application-id', settings.APP_ID),
+                ('application-id', settings.PAYPAL_APP_ID),
                 ('request-data-format', 'NV'),
                 ('response-data-format', 'NV'),
                 ('security-userid', auth['USER']),
@@ -88,10 +83,10 @@ class Client(object):
         # be sorted and the key should not be escaped.
         nvp = self.nvp(data)
         try:
-            # This will check certs if settings.CERT is specified.
+            # This will check certs if settings.PAYPAL_CERT is specified.
             result = requests.post(url, headers=headers, timeout=10,
                             data=nvp, verify=True,
-                            cert=settings.CERT if settings.CERT else None)
+                            cert=settings.PAYPAL_CERT)
         except AuthError, error:
             log.error('Authentication error: %s' % error)
             raise
@@ -121,10 +116,7 @@ class Client(object):
         """
         res = self.call('request-permission',
                         {'scope': scope, 'callback': url})
-        # TODO (andym): should do some more checking.
-        return (settings.CGI_ROOT +
-                'cgi-bin/webscr?cmd=_grant-permission&request_token=' +
-                res['token'])
+        return urls['grant-permission'] + res['token']
 
     def check_permission(self, token, permissions):
         """
