@@ -23,6 +23,6 @@ LOGGING = dict(loggers=dict(playdoh = {'level': logging.DEBUG}))
 # PayPal values.
 PAYPAL_AUTH = {'USER': '', 'PASSWORD': '', 'SIGNATURE': ''}
 PAYPAL_USE_SANDBOX = True
-PAYPAL_APP_ID = 'APP-80W284485P519543T'
+PAYPAL_APP_ID = ''
 PAYPAL_CHAINS = ()
 PAYPAL_CERT = None
