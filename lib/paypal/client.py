@@ -8,14 +8,25 @@ from django_statsd.clients import statsd
 import requests
 
 from .errors import errors, AuthError, PaypalError
-from .urls import urls, roots
+from .urls import urls
 
 log = commonware.log.getLogger('s.paypal')
 
 # The length of time we'll wait for PayPal.
 timeout = getattr(settings, 'PAYPAL_TIMEOUT', 10)
 
+
 class Client(object):
+
+    def whitelist(self, urls, whitelist=None):
+        """
+        Ensure that URLs that are sent through to to PayPal are in our
+        whitelist and not some nasty site.
+        """
+        for url in urls:
+            if not url.startswith(whitelist or settings.PAYPAL_URL_WHITELIST):
+                raise ValueError('URL not in the white list: %s' % url)
+        return True
 
     def nvp(self, data):
         """
@@ -40,7 +51,7 @@ class Client(object):
         """
         # Lookup the URL given the service.
         url = urls[service]
-        with statsd.timer('solitude.paypal.service'):
+        with statsd.timer('solitude.paypal.%s' % service):
             log.info('Calling service: %s' % service)
             return self._call(url, paypal_data)
 
@@ -141,3 +152,25 @@ class Client(object):
         """
         res = self.call('get-permission-token', {'token': token, 'code': code})
         return {'token': res['token'], 'secret': res['tokenSecret']}
+
+    def get_preapproval_key(self, start, end, return_url, cancel_url):
+        """
+        Get a preapproval key from PayPal. If this passes, you get a key that
+        you can use in a redirect to PayPal. We will limit the max amount
+        per payment and period.
+        Documentation: http://bit.ly/Kj6AGQ
+        """
+        assert self.whitelist([return_url, cancel_url])
+        data = {
+            'cancelUrl': cancel_url,
+            'currencyCode': 'USD',
+            'endingDate': end.strftime('%Y-%m-%d'),
+            'maxTotalAmountOfAllPayments': '2000',
+            'maxAmountPerPayment': 15,
+            'maxNumberOfPaymentsPerPeriod': 15,
+            'paymentPeriod': 'DAILY',
+            'returnUrl': return_url,
+            'startingDate': start.strftime('%Y-%m-%d'),
+        }
+        res = self.call('get-preapproval-key', data)
+        return {'key': res['preapprovalKey']}
