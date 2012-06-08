@@ -181,7 +181,7 @@ class Client(object):
         """
         res = self.call('request-permission',
                         {'scope': scope, 'callback': url})
-        return urls['grant-permission'] + res['token']
+        return {'token': urls['grant-permission'] + res['token']}
 
     def check_permission(self, token, permissions):
         """
@@ -194,7 +194,7 @@ class Client(object):
         # In the future we may ask for other permissions so let's just
         # make sure REFUND is one of them.
         result = [v for (k, v) in res.iteritems() if k.startswith('scope')]
-        return set(permissions).issubset(set(result))
+        return {'status': set(permissions).issubset(set(result))}
 
     def get_permission_token(self, token, code):
         """
@@ -230,6 +230,10 @@ class Client(object):
     def get_pay_key(self, seller_email, amount, ipn_url, cancel_url,
                     return_url, currency='USD', preapproval=None, memo='',
                     uuid=None):
+        """
+        Gets a payment key, or processes payments with preapproval.
+        Documentation: http://bit.ly/vWV525
+        """
         assert self.whitelist([return_url, cancel_url, ipn_url])
         data = {
             'cancelUrl': cancel_url,
@@ -245,3 +249,11 @@ class Client(object):
         res = self.call('get-pay-key', data)
         return {'pay_key': res['payKey'],
                 'status': res['paymentExecStatus']}
+
+    def check_purchase(self, pay_key):
+        """
+        Checks when a purchase is complete.
+        Documentation: http://bit.ly/K6oNwz
+        """
+        res = self.call('check-purchase', {'payKey': pay_key})
+        return {'status': res['status']}

@@ -21,10 +21,11 @@ if settings.PAYPAL_USE_SANDBOX:
 
 # A mapping of a names to urls.
 urls = {
+    'check-purchase': roots['pay'] + 'PaymentDetails',
+    'get-pay-key': roots['pay'] + 'Pay',
     'get-permission': roots['permissions'] + 'GetPermissions',
-    'request-permission': roots['permissions'] + 'RequestPermissions',
     'get-permission-token': roots['permissions'] + 'GetAccessToken',
     'get-preapproval-key': roots['pay'] + 'Preapproval',
-    'get-pay-key': roots['pay'] + 'Pay',
     'grant-permission': roots['cgi'] + '?cmd=_grant-permission&request_token=',
+    'request-permission': roots['permissions'] + 'RequestPermissions',
 }

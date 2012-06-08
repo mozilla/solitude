@@ -80,7 +80,7 @@ class TestRefundPermissions(BaseCase):
 
     def test_get_permissions_url(self, _call):
         _call.return_value = {'token': 'foo'}
-        assert 'foo' in self.paypal.get_permission_url('', [])
+        assert 'foo' in self.paypal.get_permission_url('', [])['token']
 
     def test_get_permissions_url_error(self, _call):
         _call.side_effect = PaypalError
@@ -94,11 +94,13 @@ class TestRefundPermissions(BaseCase):
 
     def test_check_permission_fail(self, _call):
         _call.return_value = {'scope(0)': 'HAM_SANDWICH'}
-        assert not self.paypal.check_permission(good_token, ['REFUND'])
+        eq_(self.paypal.check_permission(good_token, ['REFUND']),
+            {'status': False})
 
     def test_check_permission(self, _call):
         _call.return_value = {'scope(0)': 'REFUND'}
-        eq_(self.paypal.check_permission(good_token, ['REFUND']), True)
+        eq_(self.paypal.check_permission(good_token, ['REFUND']),
+            {'status': True})
 
     def test_check_permission_error(self, _call):
         _call.side_effect = PaypalError
@@ -111,9 +113,12 @@ class TestRefundPermissions(BaseCase):
 
     def test_get_permissions_subset(self, _call):
         _call.return_value = {'scope(0)': 'REFUND', 'scope(1)': 'HAM'}
-        eq_(self.paypal.check_permission(good_token, ['REFUND', 'HAM']), True)
-        eq_(self.paypal.check_permission(good_token, ['REFUND', 'JAM']), False)
-        eq_(self.paypal.check_permission(good_token, ['REFUND']), True)
+        eq_(self.paypal.check_permission(good_token, ['REFUND', 'HAM']),
+            {'status': True})
+        eq_(self.paypal.check_permission(good_token, ['REFUND', 'JAM']),
+            {'status': False})
+        eq_(self.paypal.check_permission(good_token, ['REFUND']),
+            {'status': True})
 
 good_preapproval_string = {
     'responseEnvelope.build': '2279004',
@@ -279,3 +284,19 @@ class TestCall(BaseCase):
             eq_(error.id, '559044')
         else:
             raise ValueError('No PaypalError was raised')
+
+good_check_purchase = ('status=CREATED')
+
+
+class TestPurchase(BaseCase):
+
+    @mock.patch('requests.post')
+    def test_check_purchase(self, post):
+        post.return_value.text = good_check_purchase
+        eq_(self.paypal.check_purchase('some-paykey'), {'status': 'CREATED'})
+
+    @mock.patch('requests.post')
+    def test_check_purchase_fails(self, post):
+        post.return_value.text = other_error
+        with self.assertRaises(PaypalError):
+            self.paypal.check_purchase('some-paykey')
