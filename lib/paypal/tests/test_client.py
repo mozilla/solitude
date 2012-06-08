@@ -300,3 +300,66 @@ class TestPurchase(BaseCase):
         post.return_value.text = other_error
         with self.assertRaises(PaypalError):
             self.paypal.check_purchase('some-paykey')
+
+good_personal_basic = {
+        'response.personalData(0).personalDataKey':
+            'http://axschema.org/contact/country/home',
+        'response.personalData(0).personalDataValue': 'US',
+        'response.personalData(1).personalDataValue': 'batman@gmail.com',
+        'response.personalData(1).personalDataKey':
+            'http://axschema.org/contact/email',
+        'response.personalData(2).personalDataValue': 'man'}
+
+good_personal_advanced = {
+        'response.personalData(0).personalDataKey':
+            'http://schema.openid.net/contact/street1',
+        'response.personalData(0).personalDataValue': '1 Main St',
+        'response.personalData(1).personalDataKey':
+            'http://schema.openid.net/contact/street2',
+        'response.personalData(2).personalDataValue': 'San Jose',
+        'response.personalData(2).personalDataKey':
+            'http://axschema.org/contact/city/home'}
+
+
+@mock.patch.object(Client, '_call')
+class TestPersonalLookup(BaseCase):
+
+    def setUp(self):
+        super(TestPersonalLookup, self).setUp()
+        self.data = {'GetBasicPersonalData': good_personal_basic,
+                     'GetAdvancedPersonalData': good_personal_advanced}
+
+    def test_personal_works(self, _call):
+        _call.return_value = good_personal_basic
+        eq_(self.paypal.get_personal_basic('foo')['email'], 'batman@gmail.com')
+
+    def test_personal_absent(self, _call):
+        _call.return_value = good_personal_basic
+        eq_(self.paypal.get_personal_basic('foo').get('last_name'), None)
+
+    def test_personal_advanced(self, _call):
+        _call.return_value = good_personal_advanced
+        eq_(self.paypal.get_personal_basic('foo')['address_one'], '1 Main St')
+
+    def test_personal_unicode(self, _call):
+        personal = good_personal_basic.copy()
+        value =  u'Österreich'
+        personal['response.personalData(1).personalDataValue'] = value
+        _call.return_value = personal
+        eq_(self.paypal.get_personal_basic('foo')['email'], value)
+
+
+@mock.patch('requests.post')
+@mock.patch.object(settings, 'PAYPAL_AUTH',
+                   {'USER': 'a', 'PASSWORD': 'b', 'SIGNATURE': 'c'})
+class TestAuthWithToken(BaseCase):
+
+    def test_token_header(self, opener):
+        opener.return_value.text = good_response
+        self.paypal._call('http://some.url', {}, auth_token=good_token)
+        assert 'X-PAYPAL-AUTHORIZATION' in opener.call_args[1]['headers']
+
+    def test_normal_header(self, opener):
+        opener.return_value.text = good_response
+        self.paypal._call('http://some.url', {})
+        assert 'X-PAYPAL-SECURITY-PASSWORD' in opener.call_args[1]['headers']

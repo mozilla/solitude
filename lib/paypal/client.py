@@ -10,6 +10,8 @@ import commonware.log
 from django_statsd.clients import statsd
 import requests
 
+from .header import get_auth_header
+from .constants import PAYPAL_PERSONAL, PAYPAL_PERSONAL_LOOKUP
 from .errors import errors, AuthError, PaypalDataError, PaypalError
 from .urls import urls
 
@@ -107,42 +109,40 @@ class Client(object):
             log.info('Calling service: %s' % service)
             return self._call(url, data)
 
-    def headers(self):
+    def headers(self, url, auth_token=None):
         """
         These are the headers we need to make a paypal call.
         """
-        # TODO (andym): set up the appropriate headers.
         auth = settings.PAYPAL_AUTH
-        headers = {}
-        for key, value in [
-                ('application-id', settings.PAYPAL_APP_ID),
-                ('request-data-format', 'NV'),
-                ('response-data-format', 'NV'),
-                ('security-userid', auth['USER']),
-                ('security-password', auth['PASSWORD']),
-                ('security-signature', auth['SIGNATURE'])]:
-            headers['X-PAYPAL-%s' % key.upper()] = value
+        headers = {
+            'X-PAYPAL-APPLICATION-ID': settings.PAYPAL_APP_ID,
+            'X-PAYPAL-REQUEST-DATA-FORMAT': 'NV',
+            'X-PAYPAL-RESPONSE-DATA-FORMAT': 'NV',
+        }
+
+        if auth_token:
+            ts, sig = get_auth_header(auth['USER'], auth['PASSWORD'],
+                    auth_token['token'], auth_token['secret'], 'POST', url)
+
+            headers['X-PAYPAL-AUTHORIZATION'] = (
+                    'timestamp=%s,token=%s,signature=%s' %
+                    (ts, auth_token['token'], sig))
+
+        else:
+            headers.update({
+                'X-PAYPAL-SECURITY-USERID': auth['USER'],
+                'X-PAYPAL-SECURITY-PASSWORD': auth['PASSWORD'],
+                'X-PAYPAL-SECURITY-SIGNATURE': auth['SIGNATURE'],
+            })
 
         return headers
 
-    def _call(self, url, data):
+    def _call(self, url, data, auth_token=None):
         if 'requestEnvelope.errorLanguage' not in data:
             data['requestEnvelope.errorLanguage'] = 'en_US'
 
-        headers = self.headers()
-        # If we've got a token, we need to auth using the token which uses the
-        # paypalx lib. This is primarily for the GetDetails API.
-        #if token:
-        #   token = dict(urlparse.parse_qsl(token))
-        #   ts, sig = get_auth_header(auth['USER'], auth['PASSWORD'],
-        #                          token['token'], token['secret'],
-        #                          'POST', url)
-        #   headers['X-PAYPAL-AUTHORIZATION'] = ('timestamp=%s,token=%s,'
-        #                                        'signature=%s' %
-        #                                        (ts, token['token'], sig))
-
-        #if ip:
-        #    headers['X-PAYPAL-DEVICE-IPADDRESS'] = ip
+        # Figure out the headers using the token.
+        headers = self.headers(url, auth_token=auth_token)
 
         # Warning, a urlencode will not work with chained payments, it must
         # be sorted and the key should not be escaped.
@@ -257,3 +257,32 @@ class Client(object):
         """
         res = self.call('check-purchase', {'payKey': pay_key})
         return {'status': res['status']}
+
+    def parse(self, data):
+        result = {}
+        for k, v in data.items():
+            if k.endswith('personalDataKey'):
+                k_ = k.rsplit('.', 1)[0]
+                v_ = PAYPAL_PERSONAL_LOOKUP[v]
+                result[v_] = data.get(k_ + '.personalDataValue', '')
+        return result
+
+    def get_personal_basic(self, token):
+        """
+        Ask PayPal for basic personal data based on the token.
+        Documentation: http://bit.ly/xy5BTs
+        """
+        keys = ['first_name', 'last_name', 'email', 'full_name',
+                'company', 'country', 'payerID']
+        data = {'attributeList.attribute': [PAYPAL_PERSONAL[k] for k in keys]}
+        return self.parse(self.call('get-personal', data))
+
+    def get_personal_advanced(self, token):
+        """
+        Ask PayPal for basic personal data based on the token.
+        Documentation: http://bit.ly/yRYbRx
+        """
+        keys = ['post_code', 'address_one', 'address_two', 'city', 'state',
+                'phone']
+        data = {'attributeList.attribute': [PAYPAL_PERSONAL[k] for k in keys]}
+        return self.parse(self.call('get-personal', data))
