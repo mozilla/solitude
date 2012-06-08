@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 from decimal import Decimal
 
@@ -8,7 +9,7 @@ import mock
 from nose.tools import eq_
 
 from ..client import Client
-from ..errors import PaypalError
+from ..errors import AuthError, CurrencyError, PaypalDataError, PaypalError
 
 good_token = {'token': 'foo', 'secret': 'bar'}
 
@@ -19,6 +20,7 @@ class BaseCase(test_utils.TestCase):
         self.paypal = Client()
 
 
+@mock.patch.object(settings, 'PAYPAL_URL_WHITELIST', ('http://foo'))
 class TestClient(BaseCase):
 
     def test_nvp(self):
@@ -35,7 +37,7 @@ class TestClient(BaseCase):
         assert self.paypal.whitelist(['http://foo.ba'],
                                      whitelist=('http://foo', 'http://bar'))
         with self.assertRaises(ValueError):
-            self.paypal.whitelist(['http://foo.com'], whitelist=())
+            self.paypal.whitelist(['http://foo.com'], whitelist=('http://bar'))
 
     def test_split(self):
         res = self.paypal.receivers('a@a.com', Decimal('1.99'), '123',
@@ -58,21 +60,9 @@ class TestClient(BaseCase):
                                     chains=())
         eq_(res['receiverList.receiver(0).amount'], '1.99')
 
-#    @mock.patch('paypal._call')
-#    def test_dict_no_split(self, _call):
-#        data = self.data.copy()
-#        _call.return_value = {'payKey': '123', 'paymentExecStatus': ''}
-#        self.paypal.get_paykey(data)
-#        eq_(_call.call_args[0][1]['receiverList.receiver(0).amount'], '10')
-#
-#    @mock.patch('paypal._call')
-#    def test_dict_split(self, _call):
-#        data = self.data.copy()
-#        data['chains'] = ((13.4, 'us@moz.com'),)
-#        _call.return_value = {'payKey': '123', 'paymentExecStatus': ''}
-#        paypal.get_paykey(data)
-#        eq_(_call.call_args[0][1]['receiverList.receiver(0).amount'], '10')
-#        eq_(_call.call_args[0][1]['receiverList.receiver(1).amount'], '1.34')
+    def test_string(self):
+        with self.assertRaises(PaypalDataError):
+            self.paypal.receivers('a@a.com', 'xyz', '123')
 
     def test_primary_fees(self):
         res = self.paypal.receivers('a@a.com', Decimal('1.99'), '123',
@@ -168,3 +158,120 @@ class TestPreApproval(BaseCase):
         with self.assertRaises(ValueError):
             data = self.get_data()
             self.paypal.get_preapproval_key(*data)
+
+good_response = ('responseEnvelope.timestamp='
+            '2011-01-28T06%3A16%3A33.259-08%3A00&responseEnvelope.ack=Success'
+            '&responseEnvelope.correlationId=7377e6ae1263c'
+            '&responseEnvelope.build=1655692'
+            '&payKey=AP-9GD76073HJ780401K&paymentExecStatus=CREATED')
+
+auth_error = ('error(0).errorId=520003'
+            '&error(0).message=Authentication+failed.+API+'
+            'credentials+are+incorrect.')
+
+
+@mock.patch.object(settings, 'PAYPAL_URL_WHITELIST', ('http://foo'))
+class TestPayKey(BaseCase):
+
+    def setUp(self):
+        super(TestPayKey, self).setUp()
+        self.data = ['someone@somewhere.com', 10, 'http://foo/i',
+                     'http://foo/c', 'http://foo/r']
+
+    @mock.patch.object(Client, '_call')
+    def test_dict_no_split(self, _call):
+        _call.return_value = {'payKey': '123', 'paymentExecStatus': ''}
+        self.paypal.get_pay_key(*self.data)
+        eq_(_call.call_args[0][1]['receiverList.receiver(0).amount'], '10')
+
+    @mock.patch.object(Client, '_call')
+    @mock.patch.object(settings, 'PAYPAL_CHAINS', ((13.4, 'us@moz.com'),))
+    def test_dict_split(self, _call):
+        _call.return_value = {'payKey': '123', 'paymentExecStatus': ''}
+        self.paypal.get_pay_key(*self.data)
+        eq_(_call.call_args[0][1]['receiverList.receiver(0).amount'], '10')
+        eq_(_call.call_args[0][1]['receiverList.receiver(1).amount'], '1.34')
+
+    @mock.patch('requests.post')
+    def test_get_key(self, post):
+        post.return_value.text = good_response
+        eq_(self.paypal.get_pay_key(*self.data),
+            {'pay_key': 'AP-9GD76073HJ780401K', 'status': 'CREATED'})
+
+    @mock.patch.object(Client, '_call')
+    def test_not_preapproval_key(self, _call):
+        self.paypal.get_pay_key(*self.data)
+        assert 'preapprovalKey' not in _call.call_args[0][1]
+
+    @mock.patch.object(Client, '_call')
+    def test_preapproval_key(self, _call):
+        self.paypal.get_pay_key(*self.data, preapproval='xyz')
+        eq_(_call.call_args[0][1]['preapprovalKey'], 'xyz')
+
+    @mock.patch.object(Client, '_call')
+    def test_usd_default(self, _call):
+        self.paypal.get_pay_key(*self.data)
+        eq_(_call.call_args[0][1]['currencyCode'], 'USD')
+
+    @mock.patch.object(Client, '_call')
+    def test_other_currency(self, _call):
+        self.paypal.get_pay_key(*self.data, currency='EUR')
+        eq_(_call.call_args[0][1]['currencyCode'], 'EUR')
+
+    def test_error_currency_junk(self):
+        for v in [u'\u30ec\u30b9', 'xysxdfsfd', '¹'.decode('utf8')]:
+            self.assertRaises(PaypalDataError,
+                              self.paypal.receivers,
+                              [], 'f@foo.com', v, '')
+
+other_error = ('error(0).errorId=520001&error(0).message=Foo')
+
+
+class TestCall(BaseCase):
+
+    def test_no_url(self):
+        with self.assertRaises(KeyError):
+            self.paypal.call('foo', {})
+
+    @mock.patch('requests.post')
+    def test_auth_fails(self, post):
+        post.side_effect = AuthError
+        with self.assertRaises(AuthError):
+            self.paypal.call('get-pay-key', {})
+
+    @mock.patch('requests.post')
+    def test_other_fails(self, post):
+        post.side_effect = ZeroDivisionError
+        with self.assertRaises(PaypalError):
+            self.paypal.call('get-pay-key', {})
+
+    @mock.patch('requests.post')
+    def test_error_raised(self, post):
+        post.return_value.text = other_error.replace('520001', '589023')
+        try:
+            self.paypal.call('get-pay-key', {})
+        except PaypalError as error:
+            eq_(error.id, '589023')
+        else:
+            raise ValueError('No PaypalError was raised')
+
+    @mock.patch('requests.post')
+    def test_error_one_currency(self, opener):
+        opener.return_value.text = other_error.replace('520001', '559044')
+        try:
+            self.paypal.call('get-pay-key', {'currencyCode': 'BRL'})
+        except PaypalError as error:
+            eq_(error.id, '559044')
+            assert 'Brazilian Real' in str(error)
+        else:
+            raise ValueError('No PaypalError was raised')
+
+    @mock.patch('requests.post')
+    def test_error_no_currency(self, opener):
+        opener.return_value.text = other_error.replace('520001', '559044')
+        try:
+            self.paypal.call('get-pay-key', {})
+        except PaypalError as error:
+            eq_(error.id, '559044')
+        else:
+            raise ValueError('No PaypalError was raised')

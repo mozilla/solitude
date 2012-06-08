@@ -25,5 +25,6 @@ urls = {
     'request-permission': roots['permissions'] + 'RequestPermissions',
     'get-permission-token': roots['permissions'] + 'GetAccessToken',
     'get-preapproval-key': roots['pay'] + 'Preapproval',
+    'get-pay-key': roots['pay'] + 'Pay',
     'grant-permission': roots['cgi'] + '?cmd=_grant-permission&request_token=',
 }

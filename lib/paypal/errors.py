@@ -1,3 +1,6 @@
+from .constants import PAYPAL_CURRENCIES
+
+
 class PaypalError(Exception):
     # The generic Paypal error and message.
     def __init__(self, message='', id=None, paypal_data=None):
@@ -31,19 +34,17 @@ class PreApprovalError(PaypalError):
     pass
 
 
-#class CurrencyError(PaypalError):
+class CurrencyError(PaypalError):
     # This currency was bad.
 
-#    def __str__(self):
-#        default = _('There was an error with this currency.')
-#        if self.paypal_data and 'currencyCode' in self.paypal_data:
-#            try:
-#                return (messages.get(self.id) %
-#                    amo.PAYPAL_CURRENCIES[self.paypal_data['currencyCode']])
-#                # TODO: figure this out.
-#            except:
-#                pass
-#        return default
+    def __str__(self):
+        if self.paypal_data and 'currencyCode' in self.paypal_data:
+            try:
+                return PAYPAL_CURRENCIES[self.paypal_data['currencyCode']]
+                # TODO: figure this out.
+            except:
+                pass
+        return 'Unknown currency'
 
 
 errors = {'520003': AuthError}
@@ -53,5 +54,6 @@ errors = {'520003': AuthError}
 for number in ['569017', '569018', '569019', '569016', '579014', '579024',
                '579025', '579026', '579027', '579028', '579030', '579031']:
     errors[number] = PreApprovalError
-#for number in ['559044', '580027', '580022']:
-#    errors[number] = CurrencyError
+
+for number in ['559044', '580027', '580022']:
+    errors[number] = CurrencyError

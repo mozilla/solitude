@@ -29,8 +29,11 @@ class Client(object):
         Ensure that URLs that are sent through to to PayPal are in our
         whitelist and not some nasty site.
         """
+        whitelist = whitelist or settings.PAYPAL_URL_WHITELIST
+        if not whitelist:
+            raise ValueError('URL white list is required.')
         for url in urls:
-            if not url.startswith(whitelist or settings.PAYPAL_URL_WHITELIST):
+            if not url.startswith(whitelist):
                 raise ValueError('URL not in the white list: %s' % url)
         return True
 
@@ -93,7 +96,7 @@ class Client(object):
 
         return result
 
-    def call(self, service, paypal_data):
+    def call(self, service, data):
         """
         Wrapper around calling the requested paypal service using
         data provided. Adds in timing and logging.
@@ -102,7 +105,7 @@ class Client(object):
         url = urls[service]
         with statsd.timer('solitude.paypal.%s' % service):
             log.info('Calling service: %s' % service)
-            return self._call(url, paypal_data)
+            return self._call(url, data)
 
     def headers(self):
         """
@@ -223,3 +226,22 @@ class Client(object):
         }
         res = self.call('get-preapproval-key', data)
         return {'key': res['preapprovalKey']}
+
+    def get_pay_key(self, seller_email, amount, ipn_url, cancel_url,
+                    return_url, currency='USD', preapproval=None, memo='',
+                    uuid=None):
+        assert self.whitelist([return_url, cancel_url, ipn_url])
+        data = {
+            'cancelUrl': cancel_url,
+            'currencyCode': currency,
+            'ipnNotificationUrl': ipn_url,
+            'memo': memo,
+            'returnUrl': return_url,
+            'trackingId': uuid or self.uuid(),
+        }
+        if preapproval:
+            data['preapprovalKey'] = preapproval
+        data.update(self.receivers(seller_email, amount, preapproval))
+        res = self.call('get-pay-key', data)
+        return {'pay_key': res['payKey'],
+                'status': res['paymentExecStatus']}
