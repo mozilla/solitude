@@ -9,7 +9,7 @@ import mock
 from nose.tools import eq_
 
 from ..client import Client
-from ..errors import AuthError, CurrencyError, PaypalDataError, PaypalError
+from ..errors import AuthError, PaypalDataError, PaypalError
 
 good_token = {'token': 'foo', 'secret': 'bar'}
 
@@ -73,6 +73,16 @@ class TestClient(BaseCase):
         res = self.paypal.receivers('a@a.com', Decimal('1.99'), '123',
                                     chains=((30, 'us@moz.com'),))
         eq_(res['feesPayer'], 'SECONDARYONLY')
+
+    def test_parse_refund(self):
+        res = self.paypal.parse_refund({
+            'refundInfoList.refundInfo(1).refundFeeAmount': ['0.02'],
+            'refundInfoList.refundInfo(0).refundFeeAmount': ['1.03'],
+            'refundInfoList.refundInfo(0).receiver.email': ['bob@example.com'],
+            'refundInfoList.refundInfo(1).receiver.amount': ['1.23']})
+        eq_(res[0]['refundFeeAmount'], ['1.03'])
+        eq_(res[1]['refundFeeAmount'], ['0.02'])
+        eq_(res[1]['receiver.amount'], ['1.23'])
 
 
 @mock.patch.object(Client, '_call')
@@ -343,7 +353,7 @@ class TestPersonalLookup(BaseCase):
 
     def test_personal_unicode(self, _call):
         personal = good_personal_basic.copy()
-        value =  u'Österreich'
+        value = u'Österreich'
         personal['response.personalData(1).personalDataValue'] = value
         _call.return_value = personal
         eq_(self.paypal.get_personal_basic('foo')['email'], value)
@@ -363,3 +373,69 @@ class TestAuthWithToken(BaseCase):
         opener.return_value.text = good_response
         self.paypal._call('http://some.url', {})
         assert 'X-PAYPAL-SECURITY-PASSWORD' in opener.call_args[1]['headers']
+
+good_refund = {
+    'refundInfoList.refundInfo(0).receiver.email': 'bob@example.com',
+    'refundInfoList.refundInfo(0).refundFeeAmount': '1.03',
+    'refundInfoList.refundInfo(0).refundGrossAmount': '123.45',
+    'refundInfoList.refundInfo(0).refundNetAmount': '122.42',
+    'refundInfoList.refundInfo(0).refundStatus': 'REFUNDED_PENDING',
+    'refundInfoList.refundInfo(1).receiver.amount': '1.23',
+    'refundInfoList.refundInfo(1).receiver.email': 'apps@mozilla.com',
+    'refundInfoList.refundInfo(1).refundFeeAmount': '0.02',
+    'refundInfoList.refundInfo(1).refundGrossAmount': '1.23',
+    'refundInfoList.refundInfo(1).refundNetAmount': '1.21',
+    'refundInfoList.refundInfo(1).refundStatus': 'REFUNDED'}
+
+no_token_refund = {
+    'refundInfoList.refundInfo(0).receiver.amount': '123.45',
+    'refundInfoList.refundInfo(0).receiver.email': 'bob@example.com',
+    'refundInfoList.refundInfo(0).refundStatus': 'NO_API_ACCESS_TO_RECEIVER'}
+
+processing_failed_refund = {
+    'refundInfoList.refundInfo(0).receiver.email': 'seller__biz@gmail.com',
+    'refundInfoList.refundInfo(0).refundStatus': 'NOT_PROCESSED',
+    'refundInfoList.refundInfo(1).receiver.amount': '0.30',
+    'refundInfoList.refundInfo(1).receiver.email': 'andy__biz@gmail.com',
+    'refundInfoList.refundInfo(1).refundStatus': 'NO_API_ACCESS_TO_RECEIVER'}
+
+error_refund = {
+    'refundInfoList.refundInfo(0).receiver.amount': '123.45',
+    'refundInfoList.refundInfo(0).receiver.email': 'bob@example.com',
+    'refundInfoList.refundInfo(0).refundStatus': 'REFUND_ERROR'}
+
+already_refunded = {
+    'refundInfoList.refundInfo(0).receiver.amount': '123.45',
+    'refundInfoList.refundInfo(0).receiver.email': 'bob@example.com',
+    'refundInfoList.refundInfo(0).refundStatus':
+        'ALREADY_REVERSED_OR_REFUNDED'}
+
+
+@mock.patch.object(Client, '_call')
+class TestRefund(BaseCase):
+
+    def test_refund_success(self, _call):
+        _call.return_value = good_refund
+        data = self.paypal.get_refund('fake-paykey')
+        eq_(data[0]['refundFeeAmount'], '1.03')
+        eq_(data[1]['refundFeeAmount'], '0.02')
+
+    def test_refund_no_refund_token(self, _call):
+        _call.return_value = no_token_refund
+        eq_(self.paypal.get_refund('fake-paykey')[0]['refundStatus'],
+            'NO_API_ACCESS_TO_RECEIVER')
+
+    def test_refund_processing_failed(self, _call):
+        _call.return_value = processing_failed_refund
+        eq_(self.paypal.get_refund('fake-paykey')[0]['refundStatus'],
+            'NO_API_ACCESS_TO_RECEIVER')
+
+    def test_refund_wrong_status(self, _call):
+        _call.return_value = error_refund
+        with self.assertRaises(PaypalError):
+            self.paypal.get_refund('fake-paykey')
+
+    def test_refunded_already(self, _call):
+        _call.return_value = already_refunded
+        eq_(self.paypal.get_refund('fake-paykey')[0]['refundStatus'],
+            'ALREADY_REVERSED_OR_REFUNDED')

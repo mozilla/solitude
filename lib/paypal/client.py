@@ -1,5 +1,7 @@
+from collections import defaultdict
 from decimal import Decimal, InvalidOperation
 import hashlib
+import re
 import urlparse
 import uuid
 
@@ -11,7 +13,8 @@ from django_statsd.clients import statsd
 import requests
 
 from .header import get_auth_header
-from .constants import PAYPAL_PERSONAL, PAYPAL_PERSONAL_LOOKUP
+from .constants import (PAYPAL_PERSONAL, PAYPAL_PERSONAL_LOOKUP,
+                        REFUND_OK_STATUSES)
 from .errors import errors, AuthError, PaypalDataError, PaypalError
 from .urls import urls
 
@@ -258,7 +261,7 @@ class Client(object):
         res = self.call('check-purchase', {'payKey': pay_key})
         return {'status': res['status']}
 
-    def parse(self, data):
+    def parse_personal(self, data):
         result = {}
         for k, v in data.items():
             if k.endswith('personalDataKey'):
@@ -275,7 +278,7 @@ class Client(object):
         keys = ['first_name', 'last_name', 'email', 'full_name',
                 'company', 'country', 'payerID']
         data = {'attributeList.attribute': [PAYPAL_PERSONAL[k] for k in keys]}
-        return self.parse(self.call('get-personal', data))
+        return self.parse_personal(self.call('get-personal', data))
 
     def get_personal_advanced(self, token):
         """
@@ -285,4 +288,39 @@ class Client(object):
         keys = ['post_code', 'address_one', 'address_two', 'city', 'state',
                 'phone']
         data = {'attributeList.attribute': [PAYPAL_PERSONAL[k] for k in keys]}
-        return self.parse(self.call('get-personal', data))
+        return self.parse_personal(self.call('get-personal', data))
+
+    def parse_refund(self, res):
+        responses = defaultdict(lambda: defaultdict(dict))
+        for k in sorted(res.keys()):
+            group = re.match('refundInfoList.refundInfo\((\d+)\).(.*)', k)
+            if group:
+                responses[group.group(1)][group.group(2)] = res[k]
+        return [responses[k] for k in sorted(responses)]
+
+    def get_refund(self, pay_key):
+        """
+        Refund a payment.
+        Documentation: http://bit.ly/KExwaz
+        """
+        res = self.parse_refund(self.call('get-refund', {'payKey': pay_key}))
+        clean_responses = []
+        # TODO (andym): check if this still makes sense.
+        for d in res:
+            if d['refundStatus'] == 'NOT_PROCESSED':
+                # Probably, some other response failed, so PayPal
+                # ignored this one.  We'll leave it out of the list we
+                # return.
+                continue
+            if d['refundStatus'] == 'NO_API_ACCESS_TO_RECEIVER':
+                # The refund didn't succeed, but let's not raise it as
+                # an error, because the caller needs to report this to
+                # the user.
+                clean_responses.append(d)
+                continue
+            if d['refundStatus'] not in REFUND_OK_STATUSES:
+                raise PaypalError('Bad refund status for %s: %s'
+                                  % (d['receiver.email'], d['refundStatus']))
+            clean_responses.append(d)
+
+        return clean_responses
