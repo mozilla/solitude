@@ -24,9 +24,9 @@ SESSION_COOKIE_SECURE = True
 LOGGING = dict(loggers=dict(playdoh = {'level': logging.DEBUG}))
 
 # PayPal values.
-PAYPAL_AUTH = {'USER': '', 'PASSWORD': '', 'SIGNATURE': ''}
-PAYPAL_USE_SANDBOX = True
 PAYPAL_APP_ID = ''
+PAYPAL_AUTH = {'USER': '', 'PASSWORD': '', 'SIGNATURE': ''}
 PAYPAL_CHAINS = ()
-PAYPAL_URL_WHITELIST = ()
 PAYPAL_CERT = None
+PAYPAL_URL_WHITELIST = ()
+PAYPAL_USE_SANDBOX = True
