@@ -10,6 +10,7 @@ ROOT_URLCONF = '%s.urls' % PROJECT_MODULE
 INSTALLED_APPS = (
     'funfactory',
     'django_nose',
+    'lib.buyers',
 )
 
 TEST_RUNNER = 'test_utils.runner.RadicalTestSuiteRunner'
