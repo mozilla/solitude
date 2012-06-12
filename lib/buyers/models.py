@@ -2,8 +2,7 @@ from django.db import models
 
 
 class Buyer(models.Model):
-    uuid = models.CharField(max_length=255, db_index=True, unique=True,
-                            null=True)
+    uuid = models.CharField(max_length=255, db_index=True, unique=True)
 
     class Meta:
         db_table = 'buyer'

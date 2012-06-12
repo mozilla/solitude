@@ -1,8 +1,9 @@
 BEGIN;
 CREATE TABLE `buyer` (
     `id` int(11) unsigned AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    `uuid` varchar(255) UNIQUE
+    `uuid` varchar(255) UNIQUE NOT NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `buyer_paypal` (
     `id` int(11) unsigned AUTO_INCREMENT NOT NULL PRIMARY KEY,
     `key` varchar(255),
