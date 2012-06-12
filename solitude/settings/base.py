@@ -11,12 +11,12 @@ INSTALLED_APPS = (
     'funfactory',
     'django_nose',
     'lib.buyers',
+    'solitude'
 )
 
 TEST_RUNNER = 'test_utils.runner.RadicalTestSuiteRunner'
 
 MIDDLEWARE_CLASSES = (
-    'funfactory.middleware.LocaleURLMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
     'django.middleware.common.CommonMiddleware'
 )
