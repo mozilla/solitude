@@ -11,7 +11,7 @@ from tastypie.validation import FormValidation
 
 from .forms import BuyerValidation, PreapprovalValidation
 from .models import Buyer, BuyerPaypal
-from paypal.client import Client
+from lib.paypal.client import Client
 
 
 class BuyerResource(ModelResource):
