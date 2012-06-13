@@ -168,7 +168,7 @@ class TestPreapprovalPaypal(APITest):
     def test_put_fails(self, key):
         url = self.get_detail_url('preapproval', 'asd')
         res = self.client.put(url)
-        eq_(res.status_code, 404)
+        eq_(res.status_code, 404, res.content)
 
     def test_put_no_cache(self, key):
         key.return_value = {'key': 'foo'}
