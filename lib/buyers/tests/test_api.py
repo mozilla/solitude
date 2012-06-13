@@ -120,6 +120,9 @@ class TestPreapprovalPaypal(APITest):
         key.return_value = {'key': 'foo'}
         res = self.client.post(self.list_url, data=self.get_data())
         eq_(res.status_code, 201)
+        # Note: the key needs to be disclosed here so it can be passed
+        # on to client to ask PayPal. This is the only time it should
+        # be disclosed however.
         eq_(json.loads(res.content)['key'], 'foo')
 
     def test_post_empty(self, key):
