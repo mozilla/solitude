@@ -98,6 +98,18 @@ class BaseResource(object):
                                        content_type='application/json')
         return ImmediateHttpResponse(response=response)
 
+    def get_object_or_404(self, cls, **filters):
+        """
+        A wrapper around our more familiar get_object_or_404, for when we need
+        to get access to an object that isn't covered by get_obj.
+        """
+        if not filters:
+            raise ImmediateHttpResponse(response=http.HttpNotFound())
+        try:
+            return cls.objects.get(**filters)
+        except (cls.DoesNotExist, cls.MultipleObjectsReturned):
+            raise ImmediateHttpResponse(response=http.HttpNotFound())
+
 
 class Resource(BaseResource, TastyPieResource):
 

@@ -66,8 +66,8 @@ class PreapprovalResource(Resource):
 
     def obj_update(self, bundle, request, **kwargs):
         self.uuid = kwargs['pk']
-        paypal = get_object_or_404(BuyerPaypal,
-                                   buyer__uuid=bundle.data.get('uuid'))
+        paypal = self.get_object_or_404(BuyerPaypal,
+                                        buyer__uuid=bundle.data.get('uuid'))
         data = cache.get('preapproval:%s' % self.uuid)
         if not data:
             raise ImmediateHttpResponse(response=http.HttpNotFound())
