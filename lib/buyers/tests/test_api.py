@@ -108,18 +108,20 @@ class TestPreapprovalPaypal(APITest):
         self.api_name = 'paypal'
         self.uuid = 'sample:uid'
         self.list_url = self.get_list_url('preapproval')
+        self.buyer = Buyer.objects.create(uuid=self.uuid)
 
     def get_data(self):
         return {'start': date.today().strftime('%Y-%m-%d'),
                 'end': (date.today() +
                         timedelta(days=30)).strftime('%Y-%m-%d'),
                 'return_url': 'http://foo.com/return.url',
-                'cancel_url': 'http://foo.com/cancel.url'}
+                'cancel_url': 'http://foo.com/cancel.url',
+                'uuid': self.uuid}
 
     def test_post(self, key):
         key.return_value = {'key': 'foo'}
         res = self.client.post(self.list_url, data=self.get_data())
-        eq_(res.status_code, 201)
+        eq_(res.status_code, 201, res.content)
         # Note: the key needs to be disclosed here so it can be passed
         # on to client to ask PayPal. This is the only time it should
         # be disclosed however.
@@ -159,14 +161,13 @@ class TestPreapprovalPaypal(APITest):
 
     def test_put(self, key):
         key.return_value = {'key': 'foo'}
-        buyer = Buyer.objects.create(uuid=self.uuid)
-        paypal = BuyerPaypal.objects.create(buyer=buyer)
+        paypal = BuyerPaypal.objects.create(buyer=self.buyer)
         eq_(paypal.key, None)
         uuid = self.create()
         url = self.get_detail_url('preapproval', uuid)
-        res = self.client.put(url, data={'uuid': buyer.uuid})
+        res = self.client.put(url)
         eq_(res.status_code, 202)
-        eq_(BuyerPaypal.objects.get(buyer=buyer).key, 'foo')
+        eq_(BuyerPaypal.objects.get(buyer=self.buyer).key, 'foo')
 
     def test_put_fails(self, key):
         url = self.get_detail_url('preapproval', 'asd')
@@ -175,10 +176,9 @@ class TestPreapprovalPaypal(APITest):
 
     def test_put_no_cache(self, key):
         key.return_value = {'key': 'foo'}
-        buyer = Buyer.objects.create(uuid=self.uuid)
-        paypal = BuyerPaypal.objects.create(buyer=buyer)
+        paypal = BuyerPaypal.objects.create(buyer=self.buyer)
         eq_(paypal.key, None)
 
         url = self.get_detail_url('preapproval', '123')
-        res = self.client.put(url, data={'uuid': buyer.uuid})
+        res = self.client.put(url)
         eq_(res.status_code, 404)

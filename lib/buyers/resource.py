@@ -56,7 +56,8 @@ class PreapprovalResource(Resource):
         paypal = Client()
         args = [form.cleaned_data.get(k) for k in
                 ('start', 'end', 'return_url', 'cancel_url')]
-        bundle.data = paypal.get_preapproval_key(*args)
+        bundle.data = {'key': paypal.get_preapproval_key(*args)['key'],
+                       'uuid': form.cleaned_data['uuid'].uuid}
         self.uuid = uuid.uuid4()
         cache.set('preapproval:%s' % self.uuid, bundle.data)
         return bundle
@@ -66,12 +67,12 @@ class PreapprovalResource(Resource):
 
     def obj_update(self, bundle, request, **kwargs):
         self.uuid = kwargs['pk']
-        paypal = self.get_object_or_404(BuyerPaypal,
-                                        buyer__uuid=bundle.data.get('uuid'))
         data = cache.get('preapproval:%s' % self.uuid)
         if not data:
             raise ImmediateHttpResponse(response=http.HttpNotFound())
 
+        paypal = self.get_object_or_404(BuyerPaypal,
+                                        buyer__uuid=data.get('uuid'))
         paypal.key = data['key']
         paypal.save()
         return bundle

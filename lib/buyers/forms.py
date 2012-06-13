@@ -13,3 +13,5 @@ class PreapprovalValidation(forms.Form):
     end = forms.DateField()
     return_url = forms.URLField()
     cancel_url = forms.URLField()
+    uuid = forms.ModelChoiceField(queryset=Buyer.objects.all(),
+                                  to_field_name='uuid')
