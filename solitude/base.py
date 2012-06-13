@@ -4,9 +4,12 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
+from tastypie import http
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
-from tastypie.resources import ModelResource
+from tastypie.exceptions import ImmediateHttpResponse
+from tastypie.resources import (ModelResource as TastyPieModelResource,
+                                Resource as TastyPieResource)
 from tastypie.serializers import Serializer
 import test_utils
 
@@ -22,6 +25,9 @@ class APIClient(Client):
     def post(self, *args, **kwargs):
         return super(APIClient, self).post(*args, **self._process(kwargs))
 
+    def put(self, *args, **kwargs):
+        return super(APIClient, self).put(*args, **self._process(kwargs))
+
 
 class APITest(test_utils.TestCase):
     client_class = APIClient
@@ -36,15 +42,16 @@ class APITest(test_utils.TestCase):
         # debugging errors in the tests.
         settings.DEBUG = True
 
-    def get_list_url(self, name):
-        return reverse('api_dispatch_list', kwargs={'api_name': '1',
-                                                    'resource_name': name})
+    def get_list_url(self, name, api_name=None):
+        return reverse('api_dispatch_list',
+                        kwargs={'api_name': api_name or self.api_name,
+                                'resource_name': name})
 
-
-    def get_detail_url(self, name, obj):
-        return reverse('api_dispatch_detail', kwargs={'api_name': '1',
-                                                      'resource_name': name,
-                                                      'pk': obj.pk})
+    def get_detail_url(self, name, pk, api_name=None):
+        pk = getattr(pk, 'pk', pk)
+        return reverse('api_dispatch_detail',
+                       kwargs={'api_name': api_name or self.api_name,
+                               'resource_name': name, 'pk': pk})
 
     def allowed_verbs(self, url, allowed):
         """
@@ -65,19 +72,46 @@ class APITest(test_utils.TestCase):
         return json.loads(content)[field]
 
 
-class SolitudeAuthentication(Authentication):
+class Authentication(Authentication):
     # TODO(andym): add in authentication here.
     pass
 
 
-class SolitudeAuthorization(Authorization):
+class Authorization(Authorization):
     pass
 
 
-class SolitudeResource(ModelResource):
+class BaseResource(object):
+
+    def form_errors(self, forms):
+        errors = {}
+        if not isinstance(forms, list):
+            forms = [forms]
+        for f in forms:
+            if isinstance(f.errors, list):  # Cope with formsets.
+                for e in f.errors:
+                    errors.update(e)
+                continue
+            errors.update(dict(f.errors.items()))
+
+        response = http.HttpBadRequest(json.dumps(errors),
+                                       content_type='application/json')
+        return ImmediateHttpResponse(response=response)
+
+
+class Resource(BaseResource, TastyPieResource):
 
     class Meta:
         always_return_data = True
-        authentication = SolitudeAuthentication()
-        authorization = SolitudeAuthorization()
+        authentication = Authentication()
+        authorization = Authorization()
+        serializer = Serializer(formats=['json'])
+
+
+class ModelResource(BaseResource, TastyPieModelResource):
+
+    class Meta:
+        always_return_data = True
+        authentication = Authentication()
+        authorization = Authorization()
         serializer = Serializer(formats=['json'])
