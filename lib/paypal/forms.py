@@ -92,3 +92,9 @@ class CheckPurchaseValidation(ArgForm):
     pay_key = forms.CharField()
 
     _args = ('pay_key',)
+
+
+class GetPersonal(ArgForm):
+    token = forms.CharField()
+
+    _args = ('token',)
