@@ -241,6 +241,8 @@ class Client(object):
         Documentation: http://bit.ly/vWV525
         """
         assert self.whitelist([return_url, cancel_url, ipn_url])
+        uuid = uuid or self.uuid()
+
         data = {
             'actionType': 'PAY',
             'cancelUrl': cancel_url,
@@ -248,14 +250,16 @@ class Client(object):
             'ipnNotificationUrl': ipn_url,
             'memo': memo,
             'returnUrl': return_url,
-            'trackingId': uuid or self.uuid(),
+            'trackingId': uuid
         }
         if preapproval:
             data['preapprovalKey'] = preapproval
         data.update(self.receivers(seller_email, amount, preapproval))
         res = self.call('get-pay-key', data)
         return {'pay_key': res['payKey'],
-                'status': res['paymentExecStatus']}
+                'status': res['paymentExecStatus'],
+                'correlation_id': res['responseEnvelope.correlationId'],
+                'uuid': uuid}
 
     def check_purchase(self, pay_key):
         """

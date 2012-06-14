@@ -18,7 +18,8 @@ class TestPayPaypal(APITest):
         self.seller = Seller.objects.create(uuid=self.uuid)
         SellerPaypal.objects.create(seller=self.seller,
                                     paypal_id='foo@bar.com')
-        self.return_value = {'pay_key': 'foo', 'status': 'CREATED'}
+        self.return_value = {'pay_key': 'foo', 'status': 'CREATED',
+                             'correlation_id': '123', 'uuid': '456'}
 
     def get_data(self):
         return {'amount': '5',
@@ -51,7 +52,8 @@ class TestPayPaypal(APITest):
         return buyer
 
     def test_post_preapproval(self, key):
-        key.return_value = {'pay_key': 'foo', 'status': 'COMPLETED'}
+        key.return_value = {'pay_key': 'foo', 'status': 'COMPLETED',
+                            'correlation_id': '123', 'uuid': '456'}
         self.create_buyer()
         data = self.get_data()
         data['buyer'] = self.uuid

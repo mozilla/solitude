@@ -12,7 +12,7 @@ INSTALLED_APPS = (
     'django_nose',
     'lib.buyers',
     'lib.sellers',
-    'lib.transactions'
+    'lib.transactions',
     'solitude'
 )
 

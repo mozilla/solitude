@@ -192,19 +192,21 @@ class TestPayKey(BaseCase):
 
     def setUp(self):
         super(TestPayKey, self).setUp()
+        self.return_value = {'payKey': '123', 'paymentExecStatus': '',
+                             'responseEnvelope.correlationId': '456'}
         self.data = ['someone@somewhere.com', 10, 'http://foo/i',
                      'http://foo/c', 'http://foo/r']
 
     @mock.patch.object(Client, '_call')
     def test_dict_no_split(self, _call):
-        _call.return_value = {'payKey': '123', 'paymentExecStatus': ''}
+        _call.return_value = self.return_value
         self.paypal.get_pay_key(*self.data)
         eq_(_call.call_args[0][1]['receiverList.receiver(0).amount'], '10')
 
     @mock.patch.object(Client, '_call')
     @mock.patch.object(settings, 'PAYPAL_CHAINS', ((13.4, 'us@moz.com'),))
     def test_dict_split(self, _call):
-        _call.return_value = {'payKey': '123', 'paymentExecStatus': ''}
+        _call.return_value = self.return_value
         self.paypal.get_pay_key(*self.data)
         eq_(_call.call_args[0][1]['receiverList.receiver(0).amount'], '10')
         eq_(_call.call_args[0][1]['receiverList.receiver(1).amount'], '1.34')
@@ -212,30 +214,31 @@ class TestPayKey(BaseCase):
     @mock.patch('requests.post')
     def test_get_key(self, post):
         post.return_value.text = good_response
-        eq_(self.paypal.get_pay_key(*self.data),
-            {'pay_key': 'AP-9GD76073HJ780401K', 'status': 'CREATED'})
+        eq_(self.paypal.get_pay_key(*self.data, uuid='xyz'),
+            {'pay_key': 'AP-9GD76073HJ780401K', 'status': 'CREATED',
+             'correlation_id': '7377e6ae1263c', 'uuid': 'xyz'})
 
     @mock.patch.object(Client, '_call')
     def test_not_preapproval_key(self, _call):
-        _call.return_value = {'payKey': '123', 'paymentExecStatus': ''}
+        _call.return_value = self.return_value
         self.paypal.get_pay_key(*self.data)
         assert 'preapprovalKey' not in _call.call_args[0][1]
 
     @mock.patch.object(Client, '_call')
     def test_preapproval_key(self, _call):
-        _call.return_value = {'payKey': '123', 'paymentExecStatus': ''}
+        _call.return_value = self.return_value
         self.paypal.get_pay_key(*self.data, preapproval='xyz')
         eq_(_call.call_args[0][1]['preapprovalKey'], 'xyz')
 
     @mock.patch.object(Client, '_call')
     def test_usd_default(self, _call):
-        _call.return_value = {'payKey': '123', 'paymentExecStatus': ''}
+        _call.return_value = self.return_value
         self.paypal.get_pay_key(*self.data)
         eq_(_call.call_args[0][1]['currencyCode'], 'USD')
 
     @mock.patch.object(Client, '_call')
     def test_other_currency(self, _call):
-        _call.return_value = {'payKey': '123', 'paymentExecStatus': ''}
+        _call.return_value = self.return_value
         self.paypal.get_pay_key(*self.data, currency='EUR')
         eq_(_call.call_args[0][1]['currencyCode'], 'EUR')
 

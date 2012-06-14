@@ -7,6 +7,7 @@ from tastypie import http
 from tastypie.exceptions import ImmediateHttpResponse
 
 from lib.paypal.client import Client
+from lib.paypal.signals import create
 from solitude.base import Resource as BaseResource
 
 
@@ -53,4 +54,5 @@ class Resource(BaseResource):
 
         paypal = Client()
         bundle.data = getattr(paypal, self._meta.method)(*form.args())
+        create.send(sender=self, bundle=bundle)
         return bundle

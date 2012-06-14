@@ -3,6 +3,7 @@ from cached import Resource
 from lib.paypal.client import Client
 from lib.paypal.forms import (CheckPurchaseValidation, PayValidation,
                               RefundValidation)
+from lib.paypal.signals import create
 
 
 class PayResource(Resource):
@@ -19,6 +20,7 @@ class PayResource(Resource):
         paypal = Client()
         # TODO: there might be a lot more we can do here.
         bundle.data = paypal.get_pay_key(*form.args(), **form.kwargs())
+        create.send(sender=self, bundle=bundle, form=form.cleaned_data)
         return bundle
 
 
