@@ -66,9 +66,17 @@ class PayValidation(forms.Form):
                      ('currency', 'preapproval', 'memo', 'uuid')])
 
 
-class GetPermissonURL(forms.Form):
+class GetPermissionURL(forms.Form):
     url = forms.URLField()
     scope = forms.CharField()
 
     def args(self):
         return [self.cleaned_data.get(k) for k in ['url', 'scope']]
+
+
+class CheckPermission(forms.Form):
+    token = forms.CharField()
+    permissions = forms.CharField()
+
+    def args(self):
+        return [self.cleaned_data.get(k) for k in ['token', 'permissions']]

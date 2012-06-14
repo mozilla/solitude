@@ -3,8 +3,6 @@ import json
 from mock import patch
 from nose.tools import eq_
 
-from lib.buyers.models import Buyer, BuyerPaypal
-from lib.sellers.models import Seller, SellerPaypal
 from solitude.base import APITest
 
 
@@ -26,3 +24,21 @@ class TestGetPermissionURL(APITest):
         eq_(res.status_code, 201)
         content = json.loads(res.content)
         eq_(content['token'], 'http://some.paypal.url')
+
+
+@patch('lib.paypal.resources.pay.Client.check_permission')
+class TestCheckPermission(APITest):
+
+    def setUp(self):
+        self.api_name = 'paypal'
+        self.list_url = self.get_list_url('permission-check')
+
+    def get_data(self):
+        return {'token': 'foo', 'permissions': 'REFUND'}
+
+    def test_check_permission(self, key):
+        key.return_value = {'status': True}
+        res = self.client.post(self.list_url, data=self.get_data())
+        eq_(res.status_code, 201, res.content)
+        content = json.loads(res.content)
+        eq_(content['status'], True)
