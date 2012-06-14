@@ -4,7 +4,8 @@ from funfactory.monkeypatches import patch
 from tastypie.api import Api
 
 from lib.buyers.resources import BuyerResource, BuyerPaypalResource
-from lib.paypal.resources import PreapprovalResource
+from lib.paypal.resources.preapproval import PreapprovalResource
+from lib.paypal.resources.pay import PayResource
 from lib.sellers.resources import SellerResource, SellerPaypalResource
 
 # Generic APIs
@@ -15,6 +16,7 @@ api.register(SellerResource())
 # PayPal specific APIs
 paypal = Api(api_name='paypal')
 paypal.register(BuyerPaypalResource())
+paypal.register(PayResource())
 paypal.register(PreapprovalResource())
 paypal.register(SellerPaypalResource())
 
