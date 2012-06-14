@@ -40,7 +40,7 @@ class PreapprovalResource(Resource):
         resource_name = 'preapproval'
         object_class = Blank
         list_allowed_methods = ['post']
-        allowed_methods = ['put', 'get']
+        allowed_methods = ['put', 'get', 'delete']
 
     def get_resource_uri(self, bundle):
         return reverse('api_dispatch_detail',
@@ -81,6 +81,11 @@ class PreapprovalResource(Resource):
         assert kwargs.get('pk')  # Prevent empty pk.
         self.uuid = kwargs['pk']
         return cache.get('preapproval:%s' % self.uuid)
+
+    def obj_delete(self, request, **kwargs):
+        assert kwargs.get('pk')  # Prevent empty pk.
+        self.uuid = kwargs['pk']
+        cache.delete('preapproval:%s' % self.uuid)
 
     def dehydrate(self, bundle):
         bundle.data['pk'] = self.uuid

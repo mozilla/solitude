@@ -182,3 +182,11 @@ class TestPreapprovalPaypal(APITest):
         url = self.get_detail_url('preapproval', '123')
         res = self.client.put(url)
         eq_(res.status_code, 404)
+
+    def test_delete(self, key):
+        key.return_value = {'key': 'foo'}
+        BuyerPaypal.objects.create(buyer=self.buyer)
+        uuid = self.create()
+        url = self.get_detail_url('preapproval', uuid)
+        eq_(self.client.delete(url).status_code, 204)
+        eq_(self.client.put(url).status_code, 404)
