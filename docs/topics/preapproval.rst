@@ -25,7 +25,8 @@ Fields:
 * `return_url`: the URL on your site that PayPal will return you to if
   successful.
 
-Note: we whitelist URLs in solitude so make sure those URLs work
+URLs are whitelisted in solitude so make sure those URLs are in configured in
+your settings file with `PAYPAL_URL_WHITELIST`.
 
 This will return the pre-approval key that you will then pass on to PayPal.
 This key should not be stored anywhere. Returns::
@@ -41,3 +42,7 @@ make save the key for that user::
         PUT /paypal/preapproval/f15c7e70-ebe9-49a0-8137-33808ccfde86/
 
 The pre-approval key will now be saved for that user.
+
+If the user cancels the pre-approval, do a DELETE to remove the key::
+
+        DELETE /paypal/preapproval/f15c7e70-ebe9-49a0-8137-33808ccfde86/
