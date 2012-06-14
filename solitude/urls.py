@@ -5,6 +5,7 @@ from tastypie.api import Api
 
 from lib.buyers.resources import BuyerResource, BuyerPaypalResource
 from lib.paypal.resources.permission import (CheckPermissionResource,
+                                             GetPermissionTokenResource,
                                              GetPermissionURLResource)
 from lib.paypal.resources.preapproval import PreapprovalResource
 from lib.paypal.resources.pay import PayResource
@@ -22,6 +23,7 @@ paypal.register(PayResource())
 paypal.register(PreapprovalResource())
 paypal.register(GetPermissionURLResource())
 paypal.register(CheckPermissionResource())
+paypal.register(GetPermissionTokenResource())
 paypal.register(SellerPaypalResource())
 
 patch()

@@ -1,7 +1,8 @@
 from cached import Resource
 
 from lib.paypal.client import Client
-from lib.paypal.forms import CheckPermission, GetPermissionURL
+from lib.paypal.forms import (CheckPermission, GetPermissionToken,
+                              GetPermissionURL)
 
 
 class PermissionResource(Resource):
@@ -32,3 +33,12 @@ class CheckPermissionResource(PermissionResource):
         list_allowed_methods = ['post']
         form = CheckPermission
         method = 'check_permission'
+
+
+class GetPermissionTokenResource(PermissionResource):
+
+    class Meta(PermissionResource.Meta):
+        resource_name = 'permission-token'
+        list_allowed_methods = ['post']
+        form = GetPermissionToken
+        method = 'get_permission_token'

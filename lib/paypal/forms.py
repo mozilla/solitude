@@ -8,7 +8,16 @@ from lib.sellers.models import Seller
 from lib.paypal.constants import PAYPAL_CURRENCIES
 
 
-class PreapprovalValidation(forms.Form):
+class ArgForm(forms.Form):
+
+    def args(self):
+        return [self.cleaned_data.get(k) for k in self._args]
+
+    def kwargs(self):
+        return dict([(k, self.cleaned_data.get(k)) for k in self._kwargs])
+
+
+class PreapprovalValidation(ArgForm):
     start = forms.DateField()
     end = forms.DateField()
     return_url = forms.URLField()
@@ -16,12 +25,10 @@ class PreapprovalValidation(forms.Form):
     uuid = forms.ModelChoiceField(queryset=Buyer.objects.all(),
                                   to_field_name='uuid')
 
-    def args(self):
-        return [self.cleaned_data.get(k) for k in
-                ('start', 'end', 'return_url', 'cancel_url')]
+    _args = ('start', 'end', 'return_url', 'cancel_url')
 
 
-class PayValidation(forms.Form):
+class PayValidation(ArgForm):
     seller = forms.ModelChoiceField(queryset=Seller.objects.all(),
                                     to_field_name='uuid')
     buyer = forms.ModelChoiceField(queryset=Buyer.objects.all(),
@@ -35,6 +42,9 @@ class PayValidation(forms.Form):
     currency = forms.ChoiceField(choices=[(c, c) for c in
                                           PAYPAL_CURRENCIES.keys()])
     memo = forms.CharField()
+
+    _args = ('seller_email', 'amount', 'ipn_url', 'return_url', 'cancel_url')
+    _kwargs = ('currency', 'preapproval', 'memo', 'uuid')
 
     def clean_seller(self):
         seller = self.cleaned_data['seller']
@@ -56,27 +66,23 @@ class PayValidation(forms.Form):
             pass
         return buyer
 
-    def args(self):
-        return [self.cleaned_data.get(k) for k in
-                ('seller_email', 'amount', 'ipn_url', 'return_url',
-                 'cancel_url')]
 
-    def kwargs(self):
-        return dict([(k, self.cleaned_data.get(k)) for k in
-                     ('currency', 'preapproval', 'memo', 'uuid')])
-
-
-class GetPermissionURL(forms.Form):
+class GetPermissionURL(ArgForm):
     url = forms.URLField()
     scope = forms.CharField()
 
-    def args(self):
-        return [self.cleaned_data.get(k) for k in ['url', 'scope']]
+    _args = ('url', 'scope')
 
 
-class CheckPermission(forms.Form):
+class CheckPermission(ArgForm):
     token = forms.CharField()
     permissions = forms.CharField()
 
-    def args(self):
-        return [self.cleaned_data.get(k) for k in ['token', 'permissions']]
+    _args = ('token', 'permissions')
+
+
+class GetPermissionToken(ArgForm):
+    token = forms.CharField()
+    code = forms.CharField()
+
+    _args = ('token', 'code')
