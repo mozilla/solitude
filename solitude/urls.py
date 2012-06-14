@@ -3,9 +3,9 @@ from django.conf.urls.defaults import *
 from funfactory.monkeypatches import patch
 from tastypie.api import Api
 
-from lib.buyers.resources import (BuyerResource, BuyerPaypalResource,
-                                  PreapprovalResource)
-from lib.sellers.resources import (SellerResource, SellerPaypalResource)
+from lib.buyers.resources import BuyerResource, BuyerPaypalResource
+from lib.paypal.resources import PreapprovalResource
+from lib.sellers.resources import SellerResource, SellerPaypalResource
 
 # Generic APIs
 api = Api(api_name='generic')
