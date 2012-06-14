@@ -12,8 +12,6 @@ class PaypalError(Exception):
 
     def __str__(self):
         msg = self.message
-        #if not msg:
-        #    msg = messages.get(self.id, self.default)
         return msg.encode('utf8') if isinstance(msg, unicode) else msg
 
 

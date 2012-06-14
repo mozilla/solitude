@@ -172,7 +172,8 @@ class Client(object):
             id_, msg = (response['error(0).errorId'],
                         response['error(0).message'])
             log.error('Paypal Error (%s): %s' % (id_, msg))
-            raise errors.get(id_, PaypalError)(id=id_, paypal_data=data)
+            raise errors.get(id_, PaypalError)(id=id_, paypal_data=data,
+                                               message=msg)
 
         return response
 
@@ -239,6 +240,7 @@ class Client(object):
         """
         assert self.whitelist([return_url, cancel_url, ipn_url])
         data = {
+            'actionType': 'PAY',
             'cancelUrl': cancel_url,
             'currencyCode': currency,
             'ipnNotificationUrl': ipn_url,

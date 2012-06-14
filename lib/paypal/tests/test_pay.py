@@ -3,6 +3,7 @@ import json
 from mock import patch
 from nose.tools import eq_
 
+from lib.buyers.models import Buyer, BuyerPaypal
 from lib.sellers.models import Seller, SellerPaypal
 from solitude.base import APITest
 
@@ -23,8 +24,9 @@ class TestPreapprovalPaypal(APITest):
         return {'amount': '5',
                 'currency': 'USD',
                 'return_url': 'http://foo.com/return.url',
-                'ipn_url': 'http://foo.com/return.url',
+                'ipn_url': 'http://foo.com/ipn.url',
                 'cancel_url': 'http://foo.com/cancel.url',
+                'memo': 'Some memo',
                 'seller': self.uuid}
 
     def test_post(self, key):
@@ -34,3 +36,25 @@ class TestPreapprovalPaypal(APITest):
         content = json.loads(res.content)
         eq_(content['pay_key'], 'foo')
         eq_(content['status'], 'CREATED')
+
+    def test_post_missing(self, key):
+        data = self.get_data()
+        del data['amount']
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 400)
+        eq_(self.get_errors(res.content, 'amount'),
+            [u'This field is required.'])
+
+    def create_buyer(self):
+        buyer = Buyer.objects.create(uuid=self.uuid)
+        BuyerPaypal.objects.create(buyer=buyer, key='foo')
+        return buyer
+
+    def test_post_preapproval(self, key):
+        key.return_value = {'pay_key': 'foo', 'status': 'COMPLETED'}
+        self.create_buyer()
+        data = self.get_data()
+        data['buyer'] = self.uuid
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 201, res.content)
+        eq_(key.call_args[1]['preapproval'], 'foo')
