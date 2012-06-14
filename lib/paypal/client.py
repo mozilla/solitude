@@ -183,6 +183,7 @@ class Client(object):
         this PayPal account. Returns URL on PayPal site to visit.
         Documentation: http://bit.ly/zlhXlT
         """
+        assert self.whitelist([url])
         res = self.call('request-permission',
                         {'scope': scope, 'callback': url})
         return {'token': urls['grant-permission'] + res['token']}

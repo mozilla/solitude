@@ -86,20 +86,22 @@ class TestClient(BaseCase):
 
 
 @mock.patch.object(Client, '_call')
+@mock.patch.object(settings, 'PAYPAL_URL_WHITELIST', ('http://foo'))
 class TestRefundPermissions(BaseCase):
+
+    args = ['http://foo.com', 'foo']
 
     def test_get_permissions_url(self, _call):
         _call.return_value = {'token': 'foo'}
-        assert 'foo' in self.paypal.get_permission_url('', [])['token']
+        assert 'foo' in self.paypal.get_permission_url(*self.args)['token']
 
     def test_get_permissions_url_error(self, _call):
-        _call.side_effect = PaypalError
-        with self.assertRaises(PaypalError):
+        with self.assertRaises(ValueError):
             self.paypal.get_permission_url('', [])
 
     def test_get_permissions_url_scope(self, _call):
         _call.return_value = {'token': 'foo', 'tokenSecret': 'bar'}
-        self.paypal.get_permission_url('', ['REFUND', 'FOO'])
+        self.paypal.get_permission_url(self.args[0], ['REFUND', 'FOO'])
         eq_(_call.call_args[0][1]['scope'], ['REFUND', 'FOO'])
 
     def test_check_permission_fail(self, _call):

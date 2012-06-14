@@ -64,3 +64,11 @@ class PayValidation(forms.Form):
     def kwargs(self):
         return dict([(k, self.cleaned_data.get(k)) for k in
                      ('currency', 'preapproval', 'memo', 'uuid')])
+
+
+class GetPermissonURL(forms.Form):
+    url = forms.URLField()
+    scope = forms.CharField()
+
+    def args(self):
+        return [self.cleaned_data.get(k) for k in ['url', 'scope']]
