@@ -101,7 +101,7 @@ class TestBuyerPaypal(APITest):
         eq_(json.loads(res.content)['key'], True)
 
 
-@patch('lib.buyers.resource.Client.get_preapproval_key')
+@patch('lib.buyers.resources.Client.get_preapproval_key')
 class TestPreapprovalPaypal(APITest):
 
     def setUp(self):

@@ -15,7 +15,7 @@ from lib.paypal.client import Client
 
 
 class BuyerResource(ModelResource):
-    paypal = fields.ToOneField('lib.buyers.resource.BuyerPaypalResource',
+    paypal = fields.ToOneField('lib.buyers.resources.BuyerPaypalResource',
                                'paypal', blank=True, full=True,
                                null=True, readonly=True)
 
@@ -93,7 +93,7 @@ class PreapprovalResource(Resource):
 
 
 class BuyerPaypalResource(ModelResource):
-    buyer = fields.ToOneField('lib.buyers.resource.BuyerResource',
+    buyer = fields.ToOneField('lib.buyers.resources.BuyerResource',
                               'buyer')
 
     class Meta(ModelResource.Meta):

@@ -7,7 +7,7 @@ from .models import Seller, SellerPaypal
 
 
 class SellerResource(ModelResource):
-    paypal = fields.ToOneField('lib.sellers.resource.SellerPaypalResource',
+    paypal = fields.ToOneField('lib.sellers.resources.SellerPaypalResource',
                                'paypal', blank=True, full=True,
                                null=True, readonly=True)
 
@@ -21,7 +21,7 @@ class SellerResource(ModelResource):
 
 
 class SellerPaypalResource(ModelResource):
-    seller = fields.ToOneField('lib.sellers.resource.SellerResource',
+    seller = fields.ToOneField('lib.sellers.resources.SellerResource',
                               'seller')
 
     class Meta(ModelResource.Meta):
