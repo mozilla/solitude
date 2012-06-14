@@ -86,3 +86,9 @@ class GetPermissionToken(ArgForm):
     code = forms.CharField()
 
     _args = ('token', 'code')
+
+
+class CheckPurchaseValidation(ArgForm):
+    pay_key = forms.CharField()
+
+    _args = ('pay_key',)

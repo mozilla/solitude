@@ -33,6 +33,7 @@ class Client(object):
         """
         Ensure that URLs that are sent through to to PayPal are in our
         whitelist and not some nasty site.
+        TODO: move this is up to the form.
         """
         whitelist = whitelist or settings.PAYPAL_URL_WHITELIST
         if not whitelist:

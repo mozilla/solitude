@@ -9,7 +9,7 @@ from solitude.base import APITest
 
 
 @patch('lib.paypal.resources.pay.Client.get_pay_key')
-class TestPreapprovalPaypal(APITest):
+class TestPayPaypal(APITest):
 
     def setUp(self):
         self.api_name = 'paypal'
@@ -58,3 +58,17 @@ class TestPreapprovalPaypal(APITest):
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 201, res.content)
         eq_(key.call_args[1]['preapproval'], 'foo')
+
+
+@patch('lib.paypal.resources.pay.Client.check_purchase')
+class TestPurchasePaypal(APITest):
+
+    def setUp(self):
+        self.api_name = 'paypal'
+        self.list_url = self.get_list_url('pay-check')
+
+    def test_post_check(self, key):
+        key.return_value = {'status': 'COMPLETED'}
+        res = self.client.post(self.list_url, data={'pay_key': 'foo'})
+        eq_(res.status_code, 201, res.content)
+        eq_(json.loads(res.content)['status'], 'COMPLETED')

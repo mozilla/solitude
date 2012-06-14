@@ -8,7 +8,7 @@ from lib.paypal.resources.permission import (CheckPermissionResource,
                                              GetPermissionTokenResource,
                                              GetPermissionURLResource)
 from lib.paypal.resources.preapproval import PreapprovalResource
-from lib.paypal.resources.pay import PayResource
+from lib.paypal.resources.pay import CheckPurchaseResource, PayResource
 from lib.sellers.resources import SellerResource, SellerPaypalResource
 
 # Generic APIs
@@ -19,6 +19,7 @@ api.register(SellerResource())
 # PayPal specific APIs
 paypal = Api(api_name='paypal')
 paypal.register(BuyerPaypalResource())
+paypal.register(CheckPurchaseResource())
 paypal.register(PayResource())
 paypal.register(PreapprovalResource())
 paypal.register(GetPermissionURLResource())

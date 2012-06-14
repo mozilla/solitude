@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from tastypie import http
 from tastypie.exceptions import ImmediateHttpResponse
 
+from lib.paypal.client import Client
 from solitude.base import Resource as BaseResource
 
 
@@ -44,3 +45,12 @@ class Resource(BaseResource):
 
     def obj(self, pk=None):
         return self._meta.object_class(prefix=self._meta.resource_name, pk=pk)
+
+    def obj_create(self, bundle, request, **kwargs):
+        form = self._meta.form(bundle.data)
+        if not form.is_valid():
+            raise self.form_errors(form)
+
+        paypal = Client()
+        bundle.data = getattr(paypal, self._meta.method)(*form.args())
+        return bundle
