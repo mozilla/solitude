@@ -41,7 +41,7 @@ Now you can check that element individually or the root buyer object.
 Because the pre-approval key is sensitive, we'll only return True or False that
 it exists, not its contents::
 
-        GET /generic/buyer
+        GET /generic/buyer/64/
 
 Returns::
 

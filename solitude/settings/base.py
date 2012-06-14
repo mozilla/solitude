@@ -11,6 +11,7 @@ INSTALLED_APPS = (
     'funfactory',
     'django_nose',
     'lib.buyers',
+    'lib.sellers',
     'solitude'
 )
 
