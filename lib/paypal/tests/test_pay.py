@@ -67,8 +67,22 @@ class TestPurchasePaypal(APITest):
         self.api_name = 'paypal'
         self.list_url = self.get_list_url('pay-check')
 
-    def test_post_check(self, key):
+    def test_check(self, key):
         key.return_value = {'status': 'COMPLETED'}
         res = self.client.post(self.list_url, data={'pay_key': 'foo'})
         eq_(res.status_code, 201, res.content)
         eq_(json.loads(res.content)['status'], 'COMPLETED')
+
+
+@patch('lib.paypal.resources.pay.Client.get_refund')
+class TestPurchasePaypal(APITest):
+
+    def setUp(self):
+        self.api_name = 'paypal'
+        self.list_url = self.get_list_url('refund')
+
+    def test_refund(self, key):
+        key.return_value = {'response': [{'refundFeeAmount': 1}]}
+        res = self.client.post(self.list_url, data={'pay_key': 'foo'})
+        eq_(res.status_code, 201, res.content)
+        eq_(json.loads(res.content)['response'][0]['refundFeeAmount'], 1)

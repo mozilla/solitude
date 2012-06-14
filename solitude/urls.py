@@ -10,7 +10,8 @@ from lib.paypal.resources.permission import (CheckPermissionResource,
 from lib.paypal.resources.personal import (CheckPersonalBasic,
                                            CheckPersonalAdvanced)
 from lib.paypal.resources.preapproval import PreapprovalResource
-from lib.paypal.resources.pay import CheckPurchaseResource, PayResource
+from lib.paypal.resources.pay import (CheckPurchaseResource, PayResource,
+                                      RefundResource)
 from lib.sellers.resources import SellerResource, SellerPaypalResource
 
 # Generic APIs
@@ -29,6 +30,7 @@ paypal.register(CheckPermissionResource())
 paypal.register(GetPermissionTokenResource())
 paypal.register(CheckPersonalBasic())
 paypal.register(CheckPersonalAdvanced())
+paypal.register(RefundResource())
 paypal.register(SellerPaypalResource())
 
 patch()

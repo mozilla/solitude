@@ -419,17 +419,19 @@ class TestRefund(BaseCase):
     def test_refund_success(self, _call):
         _call.return_value = good_refund
         data = self.paypal.get_refund('fake-paykey')
-        eq_(data[0]['refundFeeAmount'], '1.03')
-        eq_(data[1]['refundFeeAmount'], '0.02')
+        eq_(data['response'][0]['refundFeeAmount'], '1.03')
+        eq_(data['response'][1]['refundFeeAmount'], '0.02')
 
     def test_refund_no_refund_token(self, _call):
         _call.return_value = no_token_refund
-        eq_(self.paypal.get_refund('fake-paykey')[0]['refundStatus'],
+        eq_(self.paypal
+                .get_refund('fake-paykey')['response'][0]['refundStatus'],
             'NO_API_ACCESS_TO_RECEIVER')
 
     def test_refund_processing_failed(self, _call):
         _call.return_value = processing_failed_refund
-        eq_(self.paypal.get_refund('fake-paykey')[0]['refundStatus'],
+        eq_(self.paypal
+                .get_refund('fake-paykey')['response'][0]['refundStatus'],
             'NO_API_ACCESS_TO_RECEIVER')
 
     def test_refund_wrong_status(self, _call):
@@ -439,5 +441,6 @@ class TestRefund(BaseCase):
 
     def test_refunded_already(self, _call):
         _call.return_value = already_refunded
-        eq_(self.paypal.get_refund('fake-paykey')[0]['refundStatus'],
+        eq_(self.paypal
+                .get_refund('fake-paykey')['response'][0]['refundStatus'],
             'ALREADY_REVERSED_OR_REFUNDED')

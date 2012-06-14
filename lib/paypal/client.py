@@ -327,4 +327,4 @@ class Client(object):
                                   % (d['receiver.email'], d['refundStatus']))
             clean_responses.append(d)
 
-        return clean_responses
+        return {'response': clean_responses}

@@ -1,7 +1,8 @@
 from cached import Resource
 
 from lib.paypal.client import Client
-from lib.paypal.forms import CheckPurchaseValidation, PayValidation
+from lib.paypal.forms import (CheckPurchaseValidation, PayValidation,
+                              RefundValidation)
 
 
 class PayResource(Resource):
@@ -28,3 +29,12 @@ class CheckPurchaseResource(Resource):
         list_allowed_methods = ['post']
         form = CheckPurchaseValidation
         method = 'check_purchase'
+
+
+class RefundResource(Resource):
+
+    class Meta(Resource.Meta):
+        resource_name = 'refund'
+        list_allowed_methods = ['post']
+        form = RefundValidation
+        method = 'get_refund'

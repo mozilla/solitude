@@ -98,3 +98,9 @@ class GetPersonal(ArgForm):
     token = forms.CharField()
 
     _args = ('token',)
+
+
+class RefundValidation(ArgForm):
+    pay_key = forms.CharField()
+
+    _args = ('pay_key',)
