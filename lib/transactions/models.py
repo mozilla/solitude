@@ -24,6 +24,8 @@ class PaypalTransaction(models.Model):
                                     choices=sorted(constants.TYPES.items()))
     status = models.PositiveIntegerField(default=constants.STATUS_DEFAULT,
                                     choices=sorted(constants.STATUSES.items()))
+    related = models.ForeignKey('self', blank=True, null=True,
+                                on_delete=models.PROTECT)
 
     class Meta:
         db_table = 'transaction_paypal'
