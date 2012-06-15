@@ -10,13 +10,13 @@ STATUSES = {
 
 TYPE_PAYMENT = 0
 TYPE_REFUND = 1
-TYPE_CHARGEBACK = 2
+TYPE_REJECTED = 2
 
 TYPE_DEFAULT = TYPE_PAYMENT
 
 TYPES = {
     'payment': TYPE_PAYMENT,
     'refund': TYPE_REFUND,
-    'chargeback': TYPE_CHARGEBACK
+    'rejected': TYPE_REJECTED
 }
 

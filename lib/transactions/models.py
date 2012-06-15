@@ -29,6 +29,7 @@ class PaypalTransaction(models.Model):
 
     class Meta:
         db_table = 'transaction_paypal'
+        ordering = ('-id',)
 
 
 @receiver(create, dispatch_uid='transaction-create')

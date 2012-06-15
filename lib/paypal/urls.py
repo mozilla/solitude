@@ -31,4 +31,5 @@ urls = {
     'get-refund': roots['pay'] + 'Refund',
     'grant-permission': roots['cgi'] + '?cmd=_grant-permission&request_token=',
     'request-permission': roots['permissions'] + 'RequestPermissions',
+    'ipn': roots['cgi'],
 }
