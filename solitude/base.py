@@ -110,6 +110,10 @@ class BaseResource(object):
         except (cls.DoesNotExist, cls.MultipleObjectsReturned):
             raise ImmediateHttpResponse(response=http.HttpNotFound())
 
+    def dehydrate(self, bundle):
+        bundle.data['resource_pk'] = bundle.obj.pk
+        return super(BaseResource, self).dehydrate(bundle)
+
 
 class Resource(BaseResource, TastyPieResource):
 

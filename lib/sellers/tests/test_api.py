@@ -45,7 +45,9 @@ class TestSeller(APITest):
         obj = self.create()
         res = self.client.get(self.get_detail_url('seller', obj))
         eq_(res.status_code, 200)
-        eq_(json.loads(res.content)['uuid'], self.uuid)
+        content = json.loads(res.content)
+        eq_(content['uuid'], self.uuid)
+        eq_(content['resource_pk'], obj.pk)
 
 
 class TestSellerPaypal(APITest):

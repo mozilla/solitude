@@ -36,4 +36,4 @@ class SellerPaypalResource(ModelResource):
         # Never disclose the paypal tokens, just disclose their presence.
         bundle.data['token'] = bool(bundle.obj.token)
         bundle.data['secret'] = bool(bundle.obj.secret)
-        return bundle.data
+        return super(SellerPaypalResource, self).dehydrate(bundle)

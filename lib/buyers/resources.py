@@ -34,4 +34,4 @@ class BuyerPaypalResource(ModelResource):
     def dehydrate(self, bundle):
         # Never disclose the paypal key, just disclose it's presence.
         bundle.data['key'] = bool(bundle.obj.key)
-        return bundle.data
+        return super(BuyerPaypalResource, self).dehydrate(bundle)
