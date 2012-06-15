@@ -1,10 +1,12 @@
 from django.db import models
 from django.dispatch import receiver
 
-from .constants import (STATUS_DEFAULT, STATUSES,
-                        TYPE_DEFAULT, TYPES, TYPE_PAYMENT)
+import commonware.log
+
+from lib.transactions import constants
 from lib.paypal.signals import create
-from lib.paypal.resources.pay import PayResource
+
+log = commonware.log.getLogger('s.transaction')
 
 
 class PaypalTransaction(models.Model):
@@ -17,25 +19,45 @@ class PaypalTransaction(models.Model):
     pay_key = models.CharField(max_length=255, db_index=True, unique=True)
     # This is PayPals tracking id.
     correlation_id = models.CharField(max_length=255, db_index=True,
-                                      unique=True)
-    type = models.PositiveIntegerField(default=TYPE_DEFAULT,
-                                       choices=sorted(TYPES.items()))
-    status = models.PositiveIntegerField(default=STATUS_DEFAULT,
-                                         choices=sorted(STATUSES.items()))
+                                    unique=True)
+    type = models.PositiveIntegerField(default=constants.TYPE_DEFAULT,
+                                    choices=sorted(constants.TYPES.items()))
+    status = models.PositiveIntegerField(default=constants.STATUS_DEFAULT,
+                                    choices=sorted(constants.STATUSES.items()))
 
     class Meta:
         db_table = 'transaction_paypal'
 
 
 @receiver(create, dispatch_uid='transaction-create')
-def create_transaction(sender, **kwargs):
-    if not isinstance(sender, PayResource):
+def create_pending_transaction(sender, **kwargs):
+    if sender.__class__._meta.resource_name != 'pay':
         return
 
     data = kwargs['bundle'].data
     clean = kwargs['form']
-    PaypalTransaction.objects.create(
-            type=TYPE_PAYMENT, correlation_id=data['correlation_id'],
+
+    transaction = PaypalTransaction.objects.create(
+            type=constants.TYPE_PAYMENT, correlation_id=data['correlation_id'],
             pay_key=data['pay_key'], seller=clean['seller'].paypal,
             amount=clean['amount'], currency=clean['currency'],
             uuid=data['uuid'])
+    log.info('Transaction: %s, paypal status: %s'
+             % (transaction.pk, data['status']))
+
+
+@receiver(create, dispatch_uid='transaction-complete')
+def note_completed_transaction(sender, **kwargs):
+    if sender.__class__._meta.resource_name != 'pay-check':
+        return
+
+    data = kwargs['bundle'].data
+    transaction = sender.get_object_or_404(PaypalTransaction,
+                                           pay_key=data['pay_key'])
+
+    if transaction.status == constants.STATUS_PENDING:
+        log.info('Transaction: %s, paypal status: %s'
+                 % (transaction.pk, data['status']))
+        if data['status'] == 'COMPLETED':
+            transaction.status = constants.STATUS_COMPLETED
+            transaction.save()

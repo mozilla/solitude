@@ -308,7 +308,8 @@ class TestPurchase(BaseCase):
     @mock.patch('requests.post')
     def test_check_purchase(self, post):
         post.return_value.text = good_check_purchase
-        eq_(self.paypal.check_purchase('some-paykey'), {'status': 'CREATED'})
+        eq_(self.paypal.check_purchase('some-paykey'),
+            {'status': 'CREATED', 'pay_key': 'some-paykey'})
 
     @mock.patch('requests.post')
     def test_check_purchase_fails(self, post):

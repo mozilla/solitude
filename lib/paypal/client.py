@@ -267,7 +267,7 @@ class Client(object):
         Documentation: http://bit.ly/K6oNwz
         """
         res = self.call('check-purchase', {'payKey': pay_key})
-        return {'status': res['status']}
+        return {'status': res['status'], 'pay_key': pay_key}
 
     def parse_personal(self, data):
         result = {}
