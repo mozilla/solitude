@@ -20,7 +20,7 @@ def update_code(ctx, tag):
     """Update the code to a specific git reference (tag/sha/etc)."""
     with ctx.lcd(settings.SRC_DIR):
         ctx.local('git fetch')
-        ctx.local('git checkout -f %s' % tag)
+        ctx.local('git reset --hard %s' % tag)
         ctx.local('git submodule sync')
         ctx.local('git submodule update --init --recursive')
 
@@ -80,10 +80,6 @@ def update_info(ctx):
         ctx.local('git status')
         ctx.local('git submodule status')
         ctx.local('python2.6 ./vendor/src/schematic/schematic -v migrations/')
-        with ctx.lcd('locale'):
-            ctx.local('svn info')
-            ctx.local('svn status')
-
         ctx.local('git rev-parse HEAD > media/revision.txt')
 
 
@@ -97,7 +93,6 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
 @task
 def update(ctx):
     update_assets()
-    update_locales()
     update_db()
 
 
