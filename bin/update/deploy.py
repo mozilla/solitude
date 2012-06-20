@@ -68,6 +68,7 @@ def checkin_changes(ctx):
 def deploy_app(ctx):
     """Call the remote update script to push changes to webheads."""
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
+    ctx.remote('service gunicorn-payments reload')
 
 
 @task
