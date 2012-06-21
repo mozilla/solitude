@@ -1,3 +1,4 @@
 django-statsd
 django-tastypie
 mimeparse
+statsd
