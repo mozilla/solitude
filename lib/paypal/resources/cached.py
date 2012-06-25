@@ -12,6 +12,7 @@ from solitude.base import Resource as BaseResource
 
 
 class Cached(object):
+
     def __init__(self, prefix='cached', pk=None):
         pk = pk if pk else uuid.uuid4()
         self.prefixed = '%s:%s' % (prefix, pk)
