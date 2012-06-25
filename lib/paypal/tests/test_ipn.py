@@ -1,4 +1,5 @@
 from decimal import Decimal
+import json
 import urllib
 
 from mock import Mock, patch
@@ -9,6 +10,9 @@ import test_utils
 from lib.paypal import constants
 from lib.paypal.ipn import IPN
 from lib.paypal.tests import samples
+from lib.sellers.models import Seller, SellerPaypal
+from lib.transactions.models import PaypalTransaction
+from solitude.base import APITest
 
 
 @patch('lib.paypal.ipn.requests.post')
@@ -128,3 +132,32 @@ class TestProcess(test_utils.TestCase):
         ipn.process()
         eq_(refunded.call_count, 1)
         eq_(ipn.status, constants.IPN_STATUS_OK)
+
+
+@patch('lib.paypal.ipn.requests.post')
+class TestIPNResource(APITest):
+
+    def setUp(self):
+        self.api_name = 'paypal'
+        self.uuid = 'sample:uid'
+        self.list_url = self.get_list_url('ipn')
+        self.seller = Seller.objects.create(uuid='seller:uid')
+        self.paypal = SellerPaypal.objects.create(seller=self.seller)
+        self.transaction = PaypalTransaction.objects.create(uuid='5678',
+            seller=self.paypal, amount='10')
+
+    def test_nope(self, post):
+        res = self.client.post(self.list_url, data={})
+        eq_(res.status_code, 400, res.content)
+
+    def test_something(self, post):
+        res = self.client.post(self.list_url, data={'data': 'foo'})
+        eq_(res.status_code, 201)
+        eq_(json.loads(res.content)['status'], 'IGNORED')
+
+    def test_purchase(self, post):
+        post.return_value.text = 'VERIFIED'
+        res = self.client.post(self.list_url, data={'data':
+                urllib.urlencode(samples.sample_purchase)})
+        eq_(res.status_code, 201)
+        eq_(json.loads(res.content)['status'], 'OK')

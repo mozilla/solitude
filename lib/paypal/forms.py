@@ -104,3 +104,7 @@ class RefundValidation(ArgForm):
     pay_key = forms.CharField()
 
     _args = ('pay_key',)
+
+
+class IPNForm(forms.Form):
+    data = forms.CharField(required=True)
