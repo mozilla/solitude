@@ -22,4 +22,7 @@ class IPNResource(Resource):
 
     def dehydrate(self, bundle):
         bundle.data['status'] = bundle.ipn.status
+        if bundle.data['status'] != 'IGNORED':
+            bundle.data['uuid'] = bundle.ipn.transaction['tracking_id']
+            bundle.data['action'] = bundle.ipn.action
         return bundle

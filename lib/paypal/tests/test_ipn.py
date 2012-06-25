@@ -11,6 +11,7 @@ from lib.paypal import constants
 from lib.paypal.ipn import IPN
 from lib.paypal.tests import samples
 from lib.sellers.models import Seller, SellerPaypal
+from lib.transactions import constants as transaction_constants
 from lib.transactions.models import PaypalTransaction
 from solitude.base import APITest
 
@@ -58,14 +59,16 @@ class TestParse(test_utils.TestCase):
     def test_number(self):
         ipn = self.create(urllib.urlencode({'transaction[0].amount':
                                             'USD 1.00'}))
-        eq_(ipn.parse(), ({}, {'0': {'amount': Decimal('1.00')}}))
+        eq_(ipn.parse(), ({}, {'0': {'amount': {'currency': 'USD',
+                                                'amount': Decimal('1.00')}}}))
 
     def test_sample_refund(self):
         ipn = self.create(urllib.urlencode(samples.sample_refund))
         trans, item = ipn.parse()
         eq_(trans['status'], 'COMPLETED')
         eq_(item['0']['status'], 'Refunded')
-        eq_(item['0']['amount'], Decimal('1.00'))
+        eq_(item['0']['amount'],
+            {'currency': 'USD', 'amount': Decimal('1.00')})
 
     def test_chained_refund(self):
         ipn = self.create(urllib.urlencode(samples.sample_chained_refund))
@@ -73,9 +76,11 @@ class TestParse(test_utils.TestCase):
         eq_(trans['status'], 'COMPLETED')
         eq_(res['0']['status'], 'Refunded')
         eq_(res['0']['is_primary_receiver'], 'true')
-        eq_(res['0']['amount'], Decimal('0.99'))
+        eq_(res['0']['amount'],
+            {'currency': 'USD', 'amount': Decimal('0.99')})
         eq_(res['1']['is_primary_receiver'], 'false')
-        eq_(res['1']['amount'], Decimal('0.30'))
+        eq_(res['1']['amount'],
+            {'currency': 'USD', 'amount': Decimal('0.30')})
 
 
 @patch('lib.paypal.ipn.requests.post')
@@ -144,7 +149,7 @@ class TestIPNResource(APITest):
         self.seller = Seller.objects.create(uuid='seller:uid')
         self.paypal = SellerPaypal.objects.create(seller=self.seller)
         self.transaction = PaypalTransaction.objects.create(uuid='5678',
-            seller=self.paypal, amount='10')
+            seller=self.paypal, amount='10', correlation_id='123')
 
     def test_nope(self, post):
         res = self.client.post(self.list_url, data={})
@@ -160,4 +165,19 @@ class TestIPNResource(APITest):
         res = self.client.post(self.list_url, data={'data':
                 urllib.urlencode(samples.sample_purchase)})
         eq_(res.status_code, 201)
-        eq_(json.loads(res.content)['status'], 'OK')
+        data = json.loads(res.content)
+        eq_(data['status'], 'OK')
+        eq_(data['action'], 'PAYMENT')
+        eq_(data['uuid'], '5678')
+
+    def test_refund(self, post):
+        post.return_value.text = 'VERIFIED'
+        self.transaction.status = transaction_constants.STATUS_COMPLETED
+        self.transaction.save()
+        res = self.client.post(self.list_url, data={'data':
+                urllib.urlencode(samples.sample_refund)})
+        eq_(res.status_code, 201)
+        data = json.loads(res.content)
+        eq_(data['status'], 'OK')
+        eq_(data['action'], 'REFUND')
+        eq_(data['uuid'], '5678')

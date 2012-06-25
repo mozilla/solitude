@@ -43,8 +43,10 @@ def refund(detail, item, type_):
             type=type_, correlation_id=detail.get('correlation_id', ''),
             # The correlation id does not seem to be present on IPN. But if
             # they change their mind, I'll take it.
-            pay_key=detail['pay_key'], seller=record.seller,
-            amount=item['amount'], currency=item['currency'],
+            pay_key=detail['pay_key'],
+            seller=record.seller,
+            amount=-item['amount']['amount'],
+            currency=item['amount']['currency'],
             # TODO(andym): hey what?
             uuid=detail['tracking_id'] + ':refund', related=record)
 

@@ -58,9 +58,9 @@ class IPN(object):
                 data = match.groupdict()
                 transactions.setdefault(data['number'], {})
                 if data['name'] == 'amount':
-                    res = currency_re.match(v).groupdict()
-                    if 'amount' in res:
-                        v = Decimal(res['amount'])
+                    v = currency_re.match(v).groupdict()
+                    if 'amount' in v:
+                        v['amount'] = Decimal(v['amount'])
 
                 transactions[data['number']][data['name']] = v
             else:

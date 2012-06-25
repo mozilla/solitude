@@ -42,9 +42,18 @@ class TestIPN(test_utils.TestCase):
         self.transaction.status = constants.STATUS_COMPLETED
         self.transaction.save()
         refunded({'tracking_id': self.transaction_uuid, 'pay_key': 'foo'},
-                 {'amount': 10, 'currency': 10})
+                 {'amount': {'amount': 10, 'currency': 'USD'}})
         types = [s.type for s in PaypalTransaction.objects.all()]
         eq_([constants.TYPE_REFUND, constants.TYPE_PAYMENT], types)
+
+    def test_refund_amount(self):
+        self.transaction.status = constants.STATUS_COMPLETED
+        self.transaction.save()
+        refunded({'tracking_id': self.transaction_uuid, 'pay_key': 'foo'},
+                 {'amount': {'amount': 10, 'currency': 'USD'}})
+        trans = PaypalTransaction.objects.get(type=constants.TYPE_REFUND)
+        eq_(trans.amount, Decimal('-10'))
+        eq_(trans.currency, 'USD')
 
     def test_refund_missing(self):
         eq_(refunded({'tracking_id': self.transaction_uuid + 'nope'}, {}),
@@ -78,6 +87,6 @@ class TestIPN(test_utils.TestCase):
         self.transaction.status = constants.STATUS_COMPLETED
         self.transaction.save()
         reversal({'tracking_id': self.transaction_uuid, 'pay_key': 'foo'},
-                 {'amount': 10, 'currency': 10})
+                 {'amount': {'amount': 10, 'currency': 'USD'}})
         types = [s.type for s in PaypalTransaction.objects.all()]
         eq_([constants.TYPE_REVERSAL, constants.TYPE_PAYMENT], types)
