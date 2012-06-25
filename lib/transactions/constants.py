@@ -10,13 +10,12 @@ STATUSES = {
 
 TYPE_PAYMENT = 0
 TYPE_REFUND = 1
-TYPE_REJECTED = 2
+TYPE_REVERSAL = 2
 
 TYPE_DEFAULT = TYPE_PAYMENT
 
 TYPES = {
     'payment': TYPE_PAYMENT,
     'refund': TYPE_REFUND,
-    'rejected': TYPE_REJECTED
+    'reversal': TYPE_REVERSAL
 }
-

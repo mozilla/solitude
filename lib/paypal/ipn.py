@@ -10,7 +10,7 @@ import requests
 
 from lib.paypal import constants
 from lib.paypal.urls import urls
-from lib.transactions.models import utils
+from lib.transactions import utils
 
 log = commonware.log.getLogger('s.paypal')
 
@@ -25,12 +25,13 @@ class IPN(object):
     def __init__(self, raw):
         self.raw = raw
         self.raw_dict = dict(parse_qsl(raw))
-        self.parsed = {}
+        self.transaction = {}
+        self.details = {}
         self.status = None
         self.action = None
 
     def is_valid(self):
-        if self.raw_dict['payment_status'].lower() != 'completed':
+        if self.raw_dict.get('status', '').lower() != 'completed':
             log.info('Payment status not completed.')
             return False
 
@@ -38,17 +39,20 @@ class IPN(object):
         data = u'cmd=_notify-validate&' + self.raw
         with statsd.timer('solitude.paypal.ipn.validate'):
             log.info('Calling paypal for verification of ipn.')
+            #TODO(andym): should be catching all errors here?
             response = requests.post(url, data, cert=settings.PAYPAL_CERT,
                                      verify=True)
 
         if response.text != 'VERIFIED':
             log.info('Verification failed.')
+            #TODO(andym): CEF logging here.
+            return False
 
         return True
 
     def parse(self):
-        transactions = {}
-        for k, v in self.parsed.items():
+        transaction, transactions = {}, {}
+        for k, v in self.raw_dict.items():
             match = number_re.match(k)
             if match:
                 data = match.groupdict()
@@ -59,8 +63,10 @@ class IPN(object):
                         v = Decimal(res['amount'])
 
                 transactions[data['number']][data['name']] = v
+            else:
+                transaction[k] = v
 
-        return transactions
+        return transaction, transactions
 
     def process(self):
         if not self.is_valid():
@@ -68,28 +74,31 @@ class IPN(object):
             self.status = constants.IPN_STATUS_IGNORED
             return
 
-        self.parsed = self.parse()
+        self.transaction, self.details = self.parse()
 
-        methods = {'completed': [utils.completed, constants.TYPE_PAYMENT],
-                   'refunded': [utils.refunded, constants.TYPE_REFUND],
-                   'reversal': [utils.reversal, constants.TYPE_CHARGEBACK]}
+        methods = {'completed': [utils.completed,
+                                 constants.IPN_ACTION_PAYMENT],
+                   'refunded': [utils.refunded, constants.IPN_ACTION_REFUND],
+                   'reversal': [utils.reversal, constants.IPN_ACTION_REVERSAL]}
 
         # Ensure that we process 0, then 1 etc.
-        for (k, v) in sorted(self.parsed.items()):
-            status = v.get('status', '').lower()
+        for (k, detail) in sorted(self.details.items()):
+            status = detail.get('status', '').lower()
 
             if status not in methods:
                 continue
 
-            if utils[status](v[0]):
+            # Because of chained payments a refund is more than one
+            # transaction. But from our point of view, it's actually
+            # only one transaction and we can safely ignore the rest.
+            if (len(self.details.keys()) > 1 and
+                detail.get('is_primary_receiver', 'true') != 'true'):
+                continue
+
+            method, result = methods[status]
+            if method(self.transaction, detail):
                 self.status = constants.IPN_STATUS_OK
-                self.action = v[1]
-                # Because of chained payments a refund is more than one
-                # transaction. But from our point of view, it's actually
-                # only one transaction and
-                # we can safely ignore the rest.
-                if v[1] == constants.IPN_ACTION_REFUND:
-                    break
+                self.action = result
 
         # If nothing got processd on this, we ignored it.
         if not self.status:

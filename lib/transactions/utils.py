@@ -2,10 +2,10 @@ from lib.transactions import constants
 from lib.transactions.models import PaypalTransaction
 
 
-def completed(data):
+def completed(detail, item):
     try:
         record = (PaypalTransaction.objects
-                                   .get(uuid=data.get('tracking_id'),
+                                   .get(uuid=detail.get('tracking_id'),
                                         status=constants.STATUS_PENDING))
     except PaypalTransaction.DoesNotExist:
         return False
@@ -15,18 +15,18 @@ def completed(data):
     return True
 
 
-def refunded(data):
-    return refund(data, constants.TYPE_REFUND)
+def refunded(detail, item):
+    return refund(detail, item, constants.TYPE_REFUND)
 
 
-def rejected(data):
-    return refund(data, constants.TYPE_REJECTED)
+def reversal(detail, item):
+    return refund(detail, item, constants.TYPE_REVERSAL)
 
 
-def refund(data, type_):
+def refund(detail, item, type_):
     # Check we have this transaction.
     try:
-        record = PaypalTransaction.objects.get(uuid=data['tracking_id'],
+        record = PaypalTransaction.objects.get(uuid=detail['tracking_id'],
                                             status=constants.STATUS_COMPLETED,
                                             type=constants.TYPE_PAYMENT)
     except PaypalTransaction.DoesNotExist:
@@ -40,15 +40,13 @@ def refund(data, type_):
         pass
 
     PaypalTransaction.objects.create(
-            type=type_, correlation_id=data.get('correlation_id', ''),
+            type=type_, correlation_id=detail.get('correlation_id', ''),
             # The correlation id does not seem to be present on IPN. But if
             # they change their mind, I'll take it.
-            pay_key=data['pay_key'], seller=record.seller,
-            amount=data['amount'], currency=data['currency'],
+            pay_key=detail['pay_key'], seller=record.seller,
+            amount=item['amount'], currency=item['currency'],
             # TODO(andym): hey what?
-            uuid=data['tracking_id'] + ':refund', related=record)
+            uuid=detail['tracking_id'] + ':refund', related=record)
 
     # TODO(andym): some CEF logging.
     return True
-
-
