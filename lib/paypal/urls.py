@@ -28,6 +28,7 @@ urls = {
     'get-personal': roots['permissions'] + 'GetBasicPersonalData',
     'get-personal-advanced': roots['permissions'] + 'GetAdvancedPersonalData',
     'get-preapproval-key': roots['pay'] + 'Preapproval',
+    'grant-preapproval': roots['cgi'] + '?cmd=_ap-preapproval&preapprovalkey=',
     'get-refund': roots['pay'] + 'Refund',
     'grant-permission': roots['cgi'] + '?cmd=_grant-permission&request_token=',
     'request-permission': roots['permissions'] + 'RequestPermissions',

@@ -1,6 +1,8 @@
 from datetime import date, timedelta
 import json
 
+from django.conf import settings
+
 from mock import patch
 from nose.tools import eq_
 
@@ -9,6 +11,7 @@ from solitude.base import APITest
 
 
 @patch('lib.paypal.resources.preapproval.Client.get_preapproval_key')
+@patch.object(settings, 'PAYPAL_USE_SANDBOX', True)
 class TestPreapprovalPaypal(APITest):
 
     def setUp(self):
@@ -32,7 +35,11 @@ class TestPreapprovalPaypal(APITest):
         # Note: the key needs to be disclosed here so it can be passed
         # on to client to ask PayPal. This is the only time it should
         # be disclosed however.
-        eq_(json.loads(res.content)['key'], 'foo')
+        data = json.loads(res.content)
+        eq_(data['key'], 'foo')
+        eq_(data['paypal_url'],
+            'https://www.sandbox.paypal.com/cgi-bin/'
+            'webscr?cmd=_ap-preapproval&preapprovalkey=foo')
 
     def test_post_empty(self, key):
         res = self.client.post(self.list_url, data={})

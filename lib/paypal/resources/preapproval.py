@@ -3,6 +3,7 @@ from cached import Resource
 from lib.buyers.models import BuyerPaypal
 from lib.paypal.client import Client
 from lib.paypal.forms import PreapprovalValidation
+from lib.paypal.urls import urls
 
 
 class PreapprovalResource(Resource):
@@ -43,4 +44,7 @@ class PreapprovalResource(Resource):
 
     def dehydrate(self, bundle):
         bundle.data['pk'] = bundle.obj.pk
+        if 'key' in bundle.data:
+            bundle.data['paypal_url'] = (urls['grant-preapproval'] +
+                                         bundle.data['key'])
         return bundle.data
