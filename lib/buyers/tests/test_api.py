@@ -39,7 +39,15 @@ class TestBuyer(APITest):
         eq_(self.get_errors(res.content, 'uuid'), ['This field is required.'])
 
     def test_list_allowed(self):
-        self.allowed_verbs(self.list_url, ['post'])
+        self.allowed_verbs(self.list_url, ['post', 'get'])
+
+    def test_filter(self):
+        self.client.post(self.list_url, data={'uuid': self.uuid})
+        res = self.client.get(self.list_url + '?uuid=%s' % self.uuid)
+        eq_(res.status_code, 200)
+        data = json.loads(res.content)
+        eq_(data['meta']['total_count'], 1)
+        eq_(data['objects'][0]['uuid'], self.uuid)
 
     def create(self):
         return Buyer.objects.create(uuid=self.uuid)

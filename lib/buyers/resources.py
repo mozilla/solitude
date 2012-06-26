@@ -14,10 +14,13 @@ class BuyerResource(ModelResource):
     class Meta(ModelResource.Meta):
         queryset = Buyer.objects.all()
         fields = ['uuid']
-        list_allowed_methods = ['post']
+        list_allowed_methods = ['post', 'get']
         allowed_methods = ['get']
         resource_name = 'buyer'
         validation = FormValidation(form_class=BuyerValidation)
+        filtering = {
+            'uuid': 'exact',
+        }
 
 
 class BuyerPaypalResource(ModelResource):
