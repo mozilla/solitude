@@ -83,6 +83,25 @@ class TestPreapprovalPaypal(APITest):
         eq_(res.status_code, 202)
         eq_(BuyerPaypal.objects.get(buyer=self.buyer).key, 'foo')
 
+    def test_put_no_buyer(self, key):
+        key.return_value = {'key': 'foo'}
+        uuid = self.create()
+        url = self.get_detail_url('preapproval', uuid)
+        eq_(BuyerPaypal.objects.count(), 0)
+        res = self.client.put(url)
+        eq_(res.status_code, 202)
+        eq_(BuyerPaypal.objects.all()[0].key, 'foo')
+
+    def test_put_partial(self, key):
+        key.return_value = {'key': 'foo'}
+        paypal = BuyerPaypal.objects.create(buyer=self.buyer, currency='BRL')
+        eq_(paypal.key, None)
+        uuid = self.create()
+        url = self.get_detail_url('preapproval', uuid)
+        res = self.client.put(url)
+        eq_(res.status_code, 202)
+        eq_(BuyerPaypal.objects.get(buyer=self.buyer).currency, 'BRL')
+
     def test_put_fails(self, key):
         url = self.get_detail_url('preapproval', 'asd')
         res = self.client.put(url)

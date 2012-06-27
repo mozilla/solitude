@@ -111,7 +111,7 @@ class TestBuyerPaypal(APITest):
         url = self.get_detail_url('buyer', obj)
 
         self.allowed_verbs(self.list_url, ['post'])
-        self.allowed_verbs(url, ['get', 'delete'])
+        self.allowed_verbs(url, ['get', 'delete', 'patch'])
 
     def test_delete(self):
         obj = self.create()

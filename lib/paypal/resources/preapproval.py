@@ -1,6 +1,8 @@
+from django.shortcuts import get_object_or_404
+
 from cached import Resource
 
-from lib.buyers.models import BuyerPaypal
+from lib.buyers.models import Buyer, BuyerPaypal
 from lib.paypal.client import Client
 from lib.paypal.forms import PreapprovalValidation
 from lib.paypal.urls import urls
@@ -28,8 +30,11 @@ class PreapprovalResource(Resource):
     def obj_update(self, bundle, request, **kwargs):
         self.uuid = kwargs['pk']
         data = self.obj(self.uuid).get_or_404()
-        paypal = self.get_object_or_404(BuyerPaypal,
-                                        buyer__uuid=data.get('uuid'))
+        buyer = Buyer.objects.get(uuid=data.get('uuid'))
+        try:
+            paypal = BuyerPaypal.objects.get(buyer=buyer)
+        except BuyerPaypal.DoesNotExist:
+            paypal = BuyerPaypal.objects.create(buyer=buyer)
         paypal.key = data['key']
         paypal.save()
         return bundle

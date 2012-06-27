@@ -63,7 +63,7 @@ class APITest(test_utils.TestCase):
         and ensure that hitting those produces a 405. Otherwise the test will
         fail.
         """
-        verbs = ['get', 'post', 'put', 'delete']
+        verbs = ['get', 'post', 'put', 'delete', 'patch']
         # TODO(andym): get patch in here.
         for verb in verbs:
             if verb in allowed:
