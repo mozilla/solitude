@@ -28,6 +28,10 @@ class APIClient(Client):
     def put(self, *args, **kwargs):
         return super(APIClient, self).put(*args, **self._process(kwargs))
 
+    def patch(self, *args, **kwargs):
+        return super(APIClient, self).put(*args, REQUEST_METHOD='PATCH',
+                                          **self._process(kwargs))
+
 
 class APITest(test_utils.TestCase):
     client_class = APIClient

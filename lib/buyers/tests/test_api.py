@@ -1,7 +1,5 @@
-from datetime import date, timedelta
 import json
 
-from mock import patch
 from nose.tools import eq_
 
 from lib.buyers.models import Buyer, BuyerPaypal
@@ -107,3 +105,34 @@ class TestBuyerPaypal(APITest):
 
         res = self.client.get(url, data={'uuid': self.uuid})
         eq_(json.loads(res.content)['key'], True)
+
+    def test_list_allowed(self):
+        obj = self.create()
+        url = self.get_detail_url('buyer', obj)
+
+        self.allowed_verbs(self.list_url, ['post'])
+        self.allowed_verbs(url, ['get', 'delete'])
+
+    def test_delete(self):
+        obj = self.create()
+        url = self.get_detail_url('buyer', obj)
+        res = self.client.delete(url, data={'uuid': self.uuid})
+        eq_(res.status_code, 204)
+        eq_(BuyerPaypal.objects.count(), 0)
+
+    def test_patch(self):
+        obj = self.create()
+        url = self.get_detail_url('buyer', obj)
+        res = self.client.patch(url, data={'currency': 'BRL'})
+        eq_(res.status_code, 202)
+        res = BuyerPaypal.objects.all()
+        eq_(res.count(), 1)
+        eq_(res[0].currency, 'BRL')
+
+    def test_patch_key(self):
+        obj = self.create()
+        url = self.get_detail_url('buyer', obj)
+        obj.key = 'foobar'
+        obj.save()
+        self.client.patch(url, data={'key': 'foo'})
+        eq_(BuyerPaypal.objects.get(pk=obj.pk).key, None)

@@ -29,10 +29,15 @@ class BuyerPaypalResource(ModelResource):
 
     class Meta(ModelResource.Meta):
         queryset = BuyerPaypal.objects.all()
-        fields = ['buyer', 'currency', 'expiry']
+        fields = ['buyer', 'currency', 'expiry', 'key']
         list_allowed_methods = ['post']
-        allowed_methods = ['get']
+        allowed_methods = ['get', 'delete', 'patch']
         resource_name = 'buyer'
+
+    def obj_update(self, bundle, **kwargs):
+        if 'key' in bundle.data:
+            bundle.data['key'] = None
+        super(BuyerPaypalResource, self).obj_update(bundle, **kwargs)
 
     def dehydrate(self, bundle):
         # Never disclose the paypal key, just disclose it's presence.
