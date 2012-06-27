@@ -162,6 +162,7 @@ class TestPreApproval(BaseCase):
         eq_(_call.call_args[0][1]['maxTotalAmountOfAllPayments'], '2000')
 
     @mock.patch.object(settings, 'PAYPAL_URL_WHITELIST', ('http://foo'))
+    @mock.patch.object(settings, 'PAYPAL_LIMIT_PREAPPROVAL', True)
     def test_preapproval_limits(self, _call):
         _call.return_value = good_preapproval_string
         data = self.get_data()
@@ -169,6 +170,16 @@ class TestPreApproval(BaseCase):
         eq_(_call.call_args[0][1]['paymentPeriod'], 'DAILY')
         eq_(_call.call_args[0][1]['maxAmountPerPayment'], 15)
         eq_(_call.call_args[0][1]['maxNumberOfPaymentsPerPeriod'], 15)
+
+    @mock.patch.object(settings, 'PAYPAL_URL_WHITELIST', ('http://foo'))
+    @mock.patch.object(settings, 'PAYPAL_LIMIT_PREAPPROVAL', False)
+    def test_preapproval_not_limits(self, _call):
+        _call.return_value = good_preapproval_string
+        data = self.get_data()
+        self.paypal.get_preapproval_key(*data)
+        for arg in ['paymentPeriod', 'maxAmountPerPayment',
+                    'maxNumberOfPaymentsPerPeriod']:
+            assert arg not in _call.call_args[0][1]
 
     @mock.patch.object(settings, 'PAYPAL_URL_WHITELIST', ('http://bar'))
     def test_naughty(self, _call):

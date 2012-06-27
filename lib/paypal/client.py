@@ -224,12 +224,15 @@ class Client(object):
             'currencyCode': 'USD',
             'endingDate': end.strftime('%Y-%m-%d'),
             'maxTotalAmountOfAllPayments': '2000',
-            'maxAmountPerPayment': 15,
-            'maxNumberOfPaymentsPerPeriod': 15,
-            'paymentPeriod': 'DAILY',
             'returnUrl': return_url,
             'startingDate': start.strftime('%Y-%m-%d'),
         }
+        if settings.PAYPAL_LIMIT_PREAPPROVAL:
+            data.update({
+                'maxAmountPerPayment': 15,
+                'maxNumberOfPaymentsPerPeriod': 15,
+                'paymentPeriod': 'DAILY',
+            })
         res = self.call('get-preapproval-key', data)
         return {'key': res['preapprovalKey']}
 
