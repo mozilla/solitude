@@ -14,26 +14,25 @@ class SellerResource(ModelResource):
     class Meta(ModelResource.Meta):
         queryset = Seller.objects.all()
         fields = ['uuid']
-        list_allowed_methods = ['post']
+        list_allowed_methods = ['post', 'get']
         allowed_methods = ['get']
         resource_name = 'seller'
         validation = FormValidation(form_class=SellerValidation)
+        filtering = {
+            'uuid': 'exact',
+        }
 
 
 class SellerPaypalResource(ModelResource):
     seller = fields.ToOneField('lib.sellers.resources.SellerResource',
                               'seller')
+    secret = fields.BooleanField(readonly=True, attribute='secret_exists')
+    token = fields.BooleanField(readonly=True, attribute='token_exists')
 
     class Meta(ModelResource.Meta):
         queryset = SellerPaypal.objects.all()
-        fields = ['paypal_id', 'seller']
+        fields = ['paypal_id', 'seller', 'token', 'secret']
         list_allowed_methods = ['post']
-        allowed_methods = ['get', 'put']
+        allowed_methods = ['get', 'put', 'patch']
         resource_name = 'seller'
         validation = FormValidation(form_class=SellerPaypalValidation)
-
-    def dehydrate(self, bundle):
-        # Never disclose the paypal tokens, just disclose their presence.
-        bundle.data['token'] = bool(bundle.obj.token)
-        bundle.data['secret'] = bool(bundle.obj.secret)
-        return super(SellerPaypalResource, self).dehydrate(bundle)

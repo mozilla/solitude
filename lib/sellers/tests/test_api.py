@@ -36,7 +36,7 @@ class TestSeller(APITest):
         eq_(self.get_errors(res.content, 'uuid'), ['This field is required.'])
 
     def test_list_allowed(self):
-        self.allowed_verbs(self.list_url, ['post'])
+        self.allowed_verbs(self.list_url, ['post', 'get'])
 
     def create(self):
         return Seller.objects.create(uuid=self.uuid)
@@ -112,3 +112,24 @@ class TestSellerPaypal(APITest):
         res = self.client.put(url, data={'paypal_id': id_})
         eq_(res.status_code, 202)
         eq_(json.loads(res.content)['paypal_id'], id_)
+
+    def test_patch(self):
+        obj = self.create()
+        url = self.get_detail_url('seller', obj)
+        id_ = 'foo@bar.com'
+        secret = 'some-secret'
+        obj.secret = secret
+        obj.save()
+
+        res = self.client.patch(url, data={'paypal_id': id_})
+        eq_(res.status_code, 202, res.content)
+        res = SellerPaypal.objects.get(pk=obj.pk)
+        eq_(res.secret, secret)
+        eq_(res.paypal_id, id_)
+
+    def test_list_allowed(self):
+        obj = self.create()
+        url = self.get_detail_url('seller', obj)
+
+        self.allowed_verbs(self.list_url, ['post', 'get'])
+        self.allowed_verbs(url, ['get', 'delete', 'put', 'patch'])

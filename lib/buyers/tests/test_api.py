@@ -122,17 +122,20 @@ class TestBuyerPaypal(APITest):
 
     def test_patch(self):
         obj = self.create()
+        obj.key = 'foofy'
+        obj.save()
         url = self.get_detail_url('buyer', obj)
         res = self.client.patch(url, data={'currency': 'BRL'})
         eq_(res.status_code, 202)
         res = BuyerPaypal.objects.all()
         eq_(res.count(), 1)
         eq_(res[0].currency, 'BRL')
+        eq_(res[0].key, 'foofy')  # Ensure key hasn't changed.
 
     def test_patch_key(self):
         obj = self.create()
         url = self.get_detail_url('buyer', obj)
         obj.key = 'foobar'
         obj.save()
-        self.client.patch(url, data={'key': 'foo'})
+        self.client.patch(url, data={'key': ''})
         eq_(BuyerPaypal.objects.get(pk=obj.pk).key, None)

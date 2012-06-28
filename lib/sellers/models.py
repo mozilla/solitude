@@ -19,3 +19,11 @@ class SellerPaypal(models.Model):
 
     class Meta:
         db_table = 'seller_paypal'
+
+    @property
+    def secret_exists(self):
+        return bool(self.secret)
+
+    @property
+    def token_exists(self):
+        return bool(self.token)

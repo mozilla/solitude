@@ -18,3 +18,15 @@ class BuyerPaypal(models.Model):
 
     class Meta:
         db_table = 'buyer_paypal'
+
+    @property
+    def key_exists(self):
+        return bool(self.key)
+
+    @key_exists.setter
+    def key_exists(self, value):
+        # This is bit warped. But we need to be able to remove the key
+        # from the buyer. But we should never be setting this value. But we do
+        # need to remove it. So if you pass an empty string, we ignore it.
+        # Otherwise we leave it alone.
+        self.key = None if not value else self.key
