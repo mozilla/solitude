@@ -1,4 +1,7 @@
 import json
+import logging
+import sys
+import traceback
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -117,6 +120,18 @@ class BaseResource(object):
     def dehydrate(self, bundle):
         bundle.data['resource_pk'] = bundle.obj.pk
         return super(BaseResource, self).dehydrate(bundle)
+
+    def _handle_500(self, request, exception):
+        log = logging.getLogger('django.request.tastypie')
+        log.error('%s: %s %s\n%s' % (request.path,
+                    sys.exc_type.__name__, sys.exc_value,
+                    '\n'.join(traceback.format_tb(sys.exc_traceback)[-3:])),
+                  extra={'status_code': 500, 'request':request})
+        data = {'error_message': 'An error occurred in solitude.'}
+        serialized = self.serialize(request, data, 'application/json')
+        return http.HttpApplicationError(content=serialized,
+                                content_type='application/json; charset=utf-8')
+
 
 
 class Resource(BaseResource, TastyPieResource):
