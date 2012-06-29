@@ -1,5 +1,4 @@
 # This is our very stripped down settings, we have no UI, no admin nothin'.
-import commonware.log
 from funfactory.settings_base import *
 
 PROJECT_MODULE = 'solitude'
@@ -26,9 +25,6 @@ MIDDLEWARE_CLASSES = (
 
 SESSION_COOKIE_SECURE = True
 
-# Logging stuff.
-SYSLOG_TAG = 'http_app_solitude'
-
 # PayPal values.
 PAYPAL_APP_ID = ''
 PAYPAL_AUTH = {'USER': '', 'PASSWORD': '', 'SIGNATURE': ''}
@@ -37,3 +33,6 @@ PAYPAL_CERT = None
 PAYPAL_LIMIT_PREAPPROVAL = True
 PAYPAL_URL_WHITELIST = ()
 PAYPAL_USE_SANDBOX = True
+
+# Access the cleansed settings values.
+CLEANSED_SETTINGS_ACCESS = False

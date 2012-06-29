@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls.defaults import *
 
 from funfactory.monkeypatches import patch
@@ -15,7 +16,7 @@ from lib.paypal.resources.pay import (CheckPurchaseResource, PayResource,
                                       RefundResource)
 from lib.sellers.resources import SellerResource, SellerPaypalResource
 
-from lib.services.resources import ErrorResource
+from lib.services.resources import ErrorResource, SettingsResource
 
 # Generic APIs
 api = Api(api_name='generic')
@@ -40,6 +41,8 @@ paypal.register(SellerPaypalResource())
 # Service APIs
 service = Api(api_name='services')
 service.register(ErrorResource())
+if settings.CLEANSED_SETTINGS_ACCESS:
+    service.register(SettingsResource())
 # TODO: insert nagios and other services here.
 
 patch()
