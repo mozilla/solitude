@@ -36,3 +36,29 @@ PAYPAL_USE_SANDBOX = True
 
 # Access the cleansed settings values.
 CLEANSED_SETTINGS_ACCESS = False
+
+import logging.handlers
+
+LOGGING = {
+    'handlers': {
+        'unicodesyslog': {
+            '()': 'solitude.settings.log.UnicodeHandler',
+            'facility': logging.handlers.SysLogHandler.LOG_LOCAL7,
+            'formatter': 'prod',
+        },
+    },
+    'loggers': {
+        's': {
+            'handlers': ['unicodesyslog'],
+            'level': 'INFO',
+        },
+        'django.request': {
+            'handlers': ['unicodesyslog'],
+            'level': 'INFO',
+        },
+        'django.request.tastypie': {
+            'handlers': ['unicodesyslog'],
+            'level': 'INFO',
+        },
+    },
+}
