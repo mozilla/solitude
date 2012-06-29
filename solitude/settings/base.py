@@ -1,4 +1,5 @@
 # This is our very stripped down settings, we have no UI, no admin nothin'.
+import commonware.log
 from funfactory.settings_base import *
 
 PROJECT_MODULE = 'solitude'
@@ -24,7 +25,45 @@ MIDDLEWARE_CLASSES = (
 )
 
 SESSION_COOKIE_SECURE = True
-LOGGING = dict(loggers=dict(playdoh = {'level': logging.DEBUG}))
+
+# Logging stuff.
+SYSLOG_TAG = 'http_app_solitude'
+base_fmt = ('%(name)s:%(levelname)s %(message)s :%(pathname)s:%(lineno)s')
+
+formatters = {
+    'prod': {
+        '()': commonware.log.Formatter,
+        'datefmt': '%H:%M:%S',
+        'format': ('%s: [%%(USERNAME)s][%%(REMOTE_ADDR)s] %s'
+                   % (SYSLOG_TAG, base_fmt)),
+    }
+}
+
+handlers = {
+    'syslog': {
+        'class': 'logging.handlers.SysLogHandler',
+        'formatter': 'prod',
+    }
+}
+
+loggers = {
+    's': {
+        'handlers': ['syslog'],
+        'level': 'INFO',
+    },
+    'django.request': {
+        'handlers': ['syslog'],
+        'level': 'INFO',
+    },
+}
+
+LOGGING = {
+    'version': 1,
+    'filters': {},
+    'formatters': formatters,
+    'handlers': handlers,
+    'loggers': loggers,
+}
 
 # PayPal values.
 PAYPAL_APP_ID = ''

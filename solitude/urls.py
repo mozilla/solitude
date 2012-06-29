@@ -15,6 +15,8 @@ from lib.paypal.resources.pay import (CheckPurchaseResource, PayResource,
                                       RefundResource)
 from lib.sellers.resources import SellerResource, SellerPaypalResource
 
+from lib.services.resources import ErrorResource
+
 # Generic APIs
 api = Api(api_name='generic')
 api.register(BuyerResource())
@@ -35,10 +37,16 @@ paypal.register(CheckPersonalAdvanced())
 paypal.register(RefundResource())
 paypal.register(SellerPaypalResource())
 
+# Service APIs
+service = Api(api_name='services')
+service.register(ErrorResource())
+# TODO: insert nagios and other services here.
+
 patch()
 urlpatterns = patterns('',
     url(r'^', include(api.urls)),
     url(r'^', include(paypal.urls)),
+    url(r'^', include(service.urls)),
     url(r'^$', 'solitude.views.home')
 )
 
