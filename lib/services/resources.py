@@ -33,9 +33,11 @@ class SettingsObject(object):
 
 
 class SettingsResource(Resource):
-    value = fields.CharField(readonly=True, attribute='cleansed')
+    value = fields.CharField(readonly=True, attribute='cleansed', null=True)
+    key = fields.CharField(readonly=True, attribute='pk')
 
     class Meta(Resource.Meta):
+        list_allowed_methods = ['get']
         allowed_methods = ['get']
         resource_name = 'settings'
 
@@ -51,3 +53,7 @@ class SettingsResource(Resource):
         if pk not in cleansed:
             raise ImmediateHttpResponse(response=http.HttpNotFound())
         return SettingsObject(pk)
+
+    def obj_get_list(self, request, **kwargs):
+        keys = sorted(debug.get_safe_settings().keys())
+        return [SettingsObject(k) for k in keys]
