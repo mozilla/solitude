@@ -62,6 +62,16 @@ class TestPayPaypal(APITest):
         eq_(res.status_code, 201, res.content)
         eq_(key.call_args[1]['preapproval'], 'foo')
 
+    def test_buyer_but_not_present(self, key):
+        key.return_value = {'pay_key': 'foo', 'status': 'COMPLETED',
+                            'correlation_id': '123', 'uuid': '456'}
+        data = self.get_data()
+        data['buyer'] = self.uuid
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 201, res.content)
+        # Why does the form return '' and not None.
+        eq_(key.call_args[1]['preapproval'], '')
+
 
 @patch('lib.paypal.resources.pay.Client.check_purchase')
 class TestPurchasePaypal(APITest):

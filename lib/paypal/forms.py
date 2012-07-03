@@ -28,11 +28,24 @@ class PreapprovalValidation(ArgForm):
     _args = ('start', 'end', 'return_url', 'cancel_url')
 
 
+class MissingModelField(forms.ModelChoiceField):
+    """
+    This is a model choice field that allows values that does not exist.
+    It will try and do a lookup on the object and if it fails, just set it
+    to None.
+    """
+    def to_python(self, *args, **kwargs):
+        try:
+            return super(MissingModelField, self).to_python(*args, **kwargs)
+        except forms.ValidationError:
+            pass
+
+
 class PayValidation(ArgForm):
     seller = forms.ModelChoiceField(queryset=Seller.objects.all(),
                                     to_field_name='uuid')
-    buyer = forms.ModelChoiceField(queryset=Buyer.objects.all(),
-                                   to_field_name='uuid', required=False)
+    buyer = MissingModelField(queryset=Buyer.objects.all(),
+                                     to_field_name='uuid', required=False)
     # Note these amounts apply to all currencies.
     amount = forms.DecimalField(min_value=Decimal('0.1'),
                                 max_value=Decimal('5000'))

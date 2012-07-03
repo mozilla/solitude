@@ -50,6 +50,13 @@ class TestValidation(test_utils.TestCase):
         assert form.is_valid(), form.errors
         eq_(form.cleaned_data['preapproval'], '')
 
+    def test_buyer_optional(self):
+        data = self.get_data()
+        data['buyer'] = 'not:there:uid'
+        form = PayValidation(data)
+        assert form.is_valid(), form.errors
+        eq_(form.cleaned_data['preapproval'], '')
+
     def test_buyer_preapproval(self):
         buyer = Buyer.objects.create(uuid='sample:uid')
         BuyerPaypal.objects.create(buyer=buyer, key='foo')
