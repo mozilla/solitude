@@ -43,7 +43,7 @@ class PayValidation(ArgForm):
                                           PAYPAL_CURRENCIES.keys()])
     memo = forms.CharField()
 
-    _args = ('seller_email', 'amount', 'ipn_url', 'return_url', 'cancel_url')
+    _args = ('seller_email', 'amount', 'ipn_url', 'cancel_url', 'return_url')
     _kwargs = ('currency', 'preapproval', 'memo', 'uuid')
 
     def clean_seller(self):
