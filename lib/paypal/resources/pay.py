@@ -38,7 +38,7 @@ class CheckPurchaseResource(Resource):
             raise self.form_errors(form)
 
         # Allow lookup by either pay_key or uuid.
-        pay_key = form.cleaned_data['pay_key']
+        pay_key = form.cleaned_data.get('pay_key', '')
         if not pay_key:
             uuid = self.get_object_or_404(PaypalTransaction,
                                           uuid=form.cleaned_data['uuid'])

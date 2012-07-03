@@ -93,9 +93,12 @@ class CheckPurchaseValidation(forms.Form):
     uuid = forms.CharField(required=False)
 
     def clean(self):
-        if (not self.cleaned_data.get('pay_key', '') and
-            not self.cleaned_data.get('uuid', '')):
+        pay_key = self.cleaned_data.get('pay_key', '')
+        uuid = self.cleaned_data.get('uuid', '')
+        if not pay_key and not uuid:
             raise forms.ValidationError('A pay_key or a uuid is required.')
+        elif pay_key and uuid:
+            raise forms.ValidationError('Cannot specify pay_key and uuid.')
         return self.cleaned_data
 
 

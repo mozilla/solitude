@@ -94,6 +94,11 @@ class TestPurchasePaypal(APITest):
         res = self.client.post(self.list_url, data={})
         eq_(res.status_code, 400)
 
+    def test_check_both(self, key):
+        res = self.client.post(self.list_url, data={'uuid': 'something',
+                                                    'pay_key': 'else'})
+        eq_(res.status_code, 400)
+
 
 @patch('lib.paypal.resources.pay.Client.get_refund')
 class TestRefundPaypal(APITest):
