@@ -13,7 +13,8 @@ straight forward. Requirements:
 Requirements
 ------------
 
-If you don't have Python or MySQL installed::
+If you don't have Python or MySQL installed. On OS X, homebrew_ is
+recommended::
 
         brew install python mysql
 
@@ -58,7 +59,7 @@ settings::
         CLEANSED_SETTINGS_ACCESS = True
         PAYPAL_USE_SANDBOX = True
 
-The run::
+Then run::
 
         python manage.py syncdb
 
@@ -121,5 +122,7 @@ You should get a response like this::
                       "schema": "/services/settings/schema/"}
         }
 
+
+.. _homebrew: http://mxcl.github.com/homebrew/
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
 .. _developer.paypal.com: https://developer.paypal.com
