@@ -5,6 +5,7 @@ from nose.tools import eq_
 
 from lib.buyers.models import Buyer, BuyerPaypal
 from lib.sellers.models import Seller, SellerPaypal
+from lib.transactions.models import PaypalTransaction
 from solitude.base import APITest
 
 
@@ -68,16 +69,34 @@ class TestPurchasePaypal(APITest):
     def setUp(self):
         self.api_name = 'paypal'
         self.list_url = self.get_list_url('pay-check')
+        seller = Seller.objects.create()
+        seller_paypal = SellerPaypal.objects.create(seller=seller)
+        PaypalTransaction.objects.create(uuid='xyz', pay_key='foo',
+                                         seller=seller_paypal, amount=5)
 
     def test_check(self, key):
-        key.return_value = {'status': 'COMPLETED'}
+        key.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
         res = self.client.post(self.list_url, data={'pay_key': 'foo'})
         eq_(res.status_code, 201, res.content)
         eq_(json.loads(res.content)['status'], 'COMPLETED')
 
+    def test_check_uuid(self, key):
+        key.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
+        res = self.client.post(self.list_url, data={'uuid': 'xyz'})
+        eq_(res.status_code, 201, res.content)
+        eq_(json.loads(res.content)['status'], 'COMPLETED')
+
+    def test_check_uuid_404(self, key):
+        res = self.client.post(self.list_url, data={'uuid': 'xyza'})
+        eq_(res.status_code, 404)
+
+    def test_check_neither(self, key):
+        res = self.client.post(self.list_url, data={})
+        eq_(res.status_code, 400)
+
 
 @patch('lib.paypal.resources.pay.Client.get_refund')
-class TestPurchasePaypal(APITest):
+class TestRefundPaypal(APITest):
 
     def setUp(self):
         self.api_name = 'paypal'

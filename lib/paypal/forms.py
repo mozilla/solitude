@@ -88,10 +88,15 @@ class GetPermissionToken(ArgForm):
     _args = ('token', 'code')
 
 
-class CheckPurchaseValidation(ArgForm):
-    pay_key = forms.CharField()
+class CheckPurchaseValidation(forms.Form):
+    pay_key = forms.CharField(required=False)
+    uuid = forms.CharField(required=False)
 
-    _args = ('pay_key',)
+    def clean(self):
+        if (not self.cleaned_data.get('pay_key', '') and
+            not self.cleaned_data.get('uuid', '')):
+            raise forms.ValidationError('A pay_key or a uuid is required.')
+        return self.cleaned_data
 
 
 class GetPersonal(ArgForm):
