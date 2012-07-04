@@ -1,8 +1,13 @@
+import commonware.log
+
 from lib.transactions import constants
 from lib.transactions.models import PaypalTransaction
 
+log = commonware.log.getLogger('s.transactions')
+
 
 def completed(detail, item):
+    log.info('Completing transaction.')
     try:
         record = (PaypalTransaction.objects
                                    .get(uuid=detail.get('tracking_id'),
@@ -16,10 +21,12 @@ def completed(detail, item):
 
 
 def refunded(detail, item):
+    log.info('Refunding transaction.')
     return refund(detail, item, constants.TYPE_REFUND)
 
 
 def reversal(detail, item):
+    log.info('Reversing transaction.')
     return refund(detail, item, constants.TYPE_REVERSAL)
 
 
