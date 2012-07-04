@@ -169,6 +169,7 @@ class TestIPNResource(APITest):
         eq_(data['status'], 'OK')
         eq_(data['action'], 'PAYMENT')
         eq_(data['uuid'], '5678')
+        eq_(data['amount'], {'currency': 'USD', 'amount': '0.01'})
 
     def test_refund(self, post):
         post.return_value.text = 'VERIFIED'
@@ -181,3 +182,4 @@ class TestIPNResource(APITest):
         eq_(data['status'], 'OK')
         eq_(data['action'], 'REFUND')
         eq_(data['uuid'], '5678')
+        eq_(data['amount'], {'currency': 'USD', 'amount': '1.00'})

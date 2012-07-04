@@ -25,4 +25,5 @@ class IPNResource(Resource):
         if bundle.data['status'] != 'IGNORED':
             bundle.data['uuid'] = bundle.ipn.transaction['tracking_id']
             bundle.data['action'] = bundle.ipn.action
+            bundle.data['amount'] = bundle.ipn.detail['amount']
         return bundle

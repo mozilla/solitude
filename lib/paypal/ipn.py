@@ -99,6 +99,10 @@ class IPN(object):
             if method(self.transaction, detail):
                 self.status = constants.IPN_STATUS_OK
                 self.action = result
+                self.detail = detail
+                # We should only ever be processing one value, because of
+                # chained payments, we should stop here.
+                break
 
         # If nothing got processd on this, we ignored it.
         if not self.status:
