@@ -16,6 +16,9 @@ from tastypie.resources import (ModelResource as TastyPieModelResource,
 from tastypie.serializers import Serializer
 import test_utils
 
+log = logging.getLogger('s')
+tasty_log = logging.getLogger('django.request.tastypie')
+
 
 class APIClient(Client):
 
@@ -122,16 +125,21 @@ class BaseResource(object):
         return super(BaseResource, self).dehydrate(bundle)
 
     def _handle_500(self, request, exception):
-        log = logging.getLogger('django.request.tastypie')
-        log.error('%s: %s %s\n%s' % (request.path,
-                    sys.exc_type.__name__, sys.exc_value,
-                    '\n'.join(traceback.format_tb(sys.exc_traceback)[-3:])),
-                  extra={'status_code': 500, 'request':request})
+        tb = traceback.format_tb(sys.exc_traceback)
+        tasty_log.error('%s: %s %s\n%s' % (request.path,
+                            sys.exc_type.__name__, sys.exc_value,
+                            '\n'.join(tb[-3:])),
+                        extra={'status_code': 500, 'request': request})
         data = {'error_message': 'An error occurred in solitude.'}
         serialized = self.serialize(request, data, 'application/json')
         return http.HttpApplicationError(content=serialized,
                                 content_type='application/json; charset=utf-8')
 
+    def dispatch(self, request_type, request, **kwargs):
+        log.info('%s %s' % (request.META['REQUEST_METHOD'],
+                             request.get_full_path()))
+        return (super(BaseResource, self)
+                                .dispatch(request_type, request, **kwargs))
 
 
 class Resource(BaseResource, TastyPieResource):
