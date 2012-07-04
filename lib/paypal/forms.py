@@ -4,8 +4,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django import forms
 
 from lib.buyers.models import Buyer
-from lib.sellers.models import Seller
 from lib.paypal.constants import PAYPAL_CURRENCIES
+from lib.sellers.models import Seller
+from lib.transactions.models import PaypalTransaction
 
 
 class ArgForm(forms.Form):
@@ -55,6 +56,7 @@ class PayValidation(ArgForm):
     currency = forms.ChoiceField(choices=[(c, c) for c in
                                           PAYPAL_CURRENCIES.keys()])
     memo = forms.CharField()
+    uuid = forms.CharField(required=False)
 
     _args = ('seller_email', 'amount', 'ipn_url', 'cancel_url', 'return_url')
     _kwargs = ('currency', 'preapproval', 'memo', 'uuid')
@@ -78,6 +80,12 @@ class PayValidation(ArgForm):
         except (AttributeError, ObjectDoesNotExist):
             pass
         return buyer
+
+    def clean_uuid(self):
+        uuid = self.cleaned_data['uuid']
+        if PaypalTransaction.objects.filter(uuid=uuid).exists():
+            raise forms.ValidationError('Unique uuid needed.')
+        return uuid
 
 
 class GetPermissionURL(ArgForm):
