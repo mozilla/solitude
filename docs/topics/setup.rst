@@ -10,6 +10,12 @@ straight forward. Requirements:
 * MySQL
 * Python 2.6 or 2.7
 
+You will need to have `funfactory` installed. To do this do::
+
+        pip install funfactory
+
+For more information see the playdoh_ installation docs.
+
 Requirements
 ------------
 
@@ -126,3 +132,4 @@ You should get a response like this::
 .. _homebrew: http://mxcl.github.com/homebrew/
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
 .. _developer.paypal.com: https://developer.paypal.com
+.. _playdoh: http://playdoh.readthedocs.org/en/latest/getting-started/installation.html
