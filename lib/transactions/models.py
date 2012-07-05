@@ -6,6 +6,8 @@ import commonware.log
 from lib.transactions import constants
 from lib.paypal.signals import create
 
+from solitude.base import get_object_or_404
+
 log = commonware.log.getLogger('s.transaction')
 
 
@@ -55,8 +57,7 @@ def note_completed_transaction(sender, **kwargs):
         return
 
     data = kwargs['bundle'].data
-    transaction = sender.get_object_or_404(PaypalTransaction,
-                                           pay_key=data['pay_key'])
+    transaction = get_object_or_404(PaypalTransaction, pay_key=data['pay_key'])
 
     if transaction.status == constants.STATUS_PENDING:
         log.info('Transaction: %s, paypal status: %s'

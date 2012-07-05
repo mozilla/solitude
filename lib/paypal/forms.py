@@ -8,6 +8,8 @@ from lib.paypal.constants import PAYPAL_CURRENCIES
 from lib.sellers.models import Seller
 from lib.transactions.models import PaypalTransaction
 
+from solitude.base import get_object_or_404
+
 
 class ArgForm(forms.Form):
 
@@ -109,7 +111,7 @@ class GetPermissionToken(ArgForm):
     _args = ('token', 'code')
 
 
-class CheckPurchaseValidation(forms.Form):
+class KeyValidation(forms.Form):
     pay_key = forms.CharField(required=False)
     uuid = forms.CharField(required=False)
 
@@ -122,17 +124,19 @@ class CheckPurchaseValidation(forms.Form):
             raise forms.ValidationError('Cannot specify pay_key and uuid.')
         return self.cleaned_data
 
+    def args(self):
+        pay_key = self.cleaned_data.get('pay_key', '')
+        if not pay_key:
+            uuid = get_object_or_404(PaypalTransaction,
+                                     uuid=self.cleaned_data['uuid'])
+            pay_key = uuid.pay_key
+        return [pay_key]
+
 
 class GetPersonal(ArgForm):
     token = forms.CharField()
 
     _args = ('token',)
-
-
-class RefundValidation(ArgForm):
-    pay_key = forms.CharField()
-
-    _args = ('pay_key',)
 
 
 class IPNForm(forms.Form):

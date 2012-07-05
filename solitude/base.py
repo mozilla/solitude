@@ -91,6 +91,19 @@ class Authorization(Authorization):
     pass
 
 
+def get_object_or_404(cls, **filters):
+    """
+    A wrapper around our more familiar get_object_or_404, for when we need
+    to get access to an object that isn't covered by get_obj.
+    """
+    if not filters:
+        raise ImmediateHttpResponse(response=http.HttpNotFound())
+    try:
+        return cls.objects.get(**filters)
+    except (cls.DoesNotExist, cls.MultipleObjectsReturned):
+        raise ImmediateHttpResponse(response=http.HttpNotFound())
+
+
 class BaseResource(object):
 
     def form_errors(self, forms):
@@ -107,18 +120,6 @@ class BaseResource(object):
         response = http.HttpBadRequest(json.dumps(errors),
                                        content_type='application/json')
         return ImmediateHttpResponse(response=response)
-
-    def get_object_or_404(self, cls, **filters):
-        """
-        A wrapper around our more familiar get_object_or_404, for when we need
-        to get access to an object that isn't covered by get_obj.
-        """
-        if not filters:
-            raise ImmediateHttpResponse(response=http.HttpNotFound())
-        try:
-            return cls.objects.get(**filters)
-        except (cls.DoesNotExist, cls.MultipleObjectsReturned):
-            raise ImmediateHttpResponse(response=http.HttpNotFound())
 
     def dehydrate(self, bundle):
         bundle.data['resource_pk'] = bundle.obj.pk
