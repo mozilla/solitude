@@ -127,10 +127,13 @@ class BaseResource(object):
     def _handle_500(self, request, exception):
         tb = traceback.format_tb(sys.exc_traceback)
         tasty_log.error('%s: %s %s\n%s' % (request.path,
-                            sys.exc_type.__name__, sys.exc_value,
+                            exception.__class__.__name__, exception,
                             '\n'.join(tb[-3:])),
                         extra={'status_code': 500, 'request': request})
-        data = {'error_message': 'An error occurred in solitude.'}
+        data = {
+            'error_message': str(exception),
+            'error_code': getattr(exception, 'id', '')
+        }
         serialized = self.serialize(request, data, 'application/json')
         return http.HttpApplicationError(content=serialized,
                                 content_type='application/json; charset=utf-8')
