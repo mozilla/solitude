@@ -8,6 +8,7 @@ MINIFY_BUNDLES = {}
 ROOT_URLCONF = '%s.urls' % PROJECT_MODULE
 
 INSTALLED_APPS = (
+    'aesfield',
     'funfactory',
     'django_nose',
     'lib.buyers',
@@ -62,3 +63,6 @@ LOGGING = {
         },
     },
 }
+
+# This where we'll override the values.
+AES_KEYS = {}
