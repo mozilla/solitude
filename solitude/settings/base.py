@@ -64,5 +64,10 @@ LOGGING = {
     },
 }
 
-# This where we'll override the values.
-AES_KEYS = {}
+# These are the AES encryption keys for different fields.
+AES_KEYS = {
+    'buyerpaypal:key': '',
+    'sellerpaypal:id': '',
+    'sellerpaypal:token': '',
+    'sellerpaypal:secret': '',
+}

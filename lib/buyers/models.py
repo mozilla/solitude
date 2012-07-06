@@ -1,5 +1,7 @@
 from django.db import models
 
+from aesfield.field import AESField
+
 
 class Buyer(models.Model):
     uuid = models.CharField(max_length=255, db_index=True, unique=True)
@@ -11,7 +13,8 @@ class Buyer(models.Model):
 class BuyerPaypal(models.Model):
     # TODO(andym): encrypt these based upon
     # https://bugzilla.mozilla.org/show_bug.cgi?id=763103
-    key = models.CharField(max_length=255, blank=True, null=True)
+    key = AESField(max_length=255, blank=True, null=True,
+                   aes_key='buyerpaypal:key')
     expiry = models.DateField(blank=True, null=True)
     currency = models.CharField(max_length=3, blank=True, null=True)
     buyer = models.OneToOneField(Buyer, related_name='paypal')

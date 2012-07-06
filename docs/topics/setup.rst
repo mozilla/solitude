@@ -65,6 +65,23 @@ settings::
         CLEANSED_SETTINGS_ACCESS = True
         PAYPAL_USE_SANDBOX = True
 
+Solitude requires some keys on the file system. For each key in `base.py`,
+copy into `local.py` and point to a file that makes sense for your install. For
+example::
+
+        AES_KEYS = {
+                # For the purposes of testing, let's set these to the same
+                # values.
+                'buyerpaypal:key': '/tmp/foo.key',
+                'sellerpaypal:id': '/tmp/foo.key',,
+                'sellerpaypal:token': '/tmp/foo.key',
+                'sellerpaypal:secret': '/tmp/foo.key',
+        }
+
+Then run::
+
+        python manage.py generate_aes_keys
+
 Then run::
 
         python manage.py syncdb

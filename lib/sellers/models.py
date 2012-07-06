@@ -1,5 +1,7 @@
 from django.db import models
 
+from aesfield.field import AESField
+
 
 class Seller(models.Model):
     uuid = models.CharField(max_length=255, db_index=True, unique=True)
@@ -11,9 +13,12 @@ class Seller(models.Model):
 class SellerPaypal(models.Model):
     # TODO(andym): encrypt these based upon
     # https://bugzilla.mozilla.org/show_bug.cgi?id=763103
-    paypal_id = models.CharField(max_length=255, blank=True, null=True)
-    token = models.CharField(max_length=255, blank=True, null=True)
-    secret = models.CharField(max_length=255, blank=True, null=True)
+    paypal_id = AESField(max_length=255, blank=True, null=True,
+                         aes_key='sellerpaypal:id')
+    token = AESField(max_length=255, blank=True, null=True,
+                     aes_key='sellerpaypal:token')
+    secret = AESField(max_length=255, blank=True, null=True,
+                      aes_key='sellerpaypal:secret')
     seller = models.OneToOneField(Seller, related_name='paypal')
     # TODO: currencies.
 
