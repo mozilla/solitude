@@ -10,3 +10,9 @@
 [submodule "vendor-local/django-mysql-aesfield"]
 	path = vendor-local/django-mysql-aesfield
 	url = git://github.com/andymckay/django-mysql-aesfield.git
+[submodule "vendor-local/raven"]
+	path = vendor-local/raven
+	url = git://github.com/dcramer/raven.git
+[submodule "vendor-local/simplejson"]
+	path = vendor-local/simplejson
+	url = git://github.com/simplejson/simplejson.git

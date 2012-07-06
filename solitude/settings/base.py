@@ -1,4 +1,5 @@
-# This is our very stripped down settings, we have no UI, no admin nothin'.
+import logging.handlers
+
 from funfactory.settings_base import *
 
 PROJECT_MODULE = 'solitude'
@@ -38,14 +39,16 @@ PAYPAL_USE_SANDBOX = True
 # Access the cleansed settings values.
 CLEANSED_SETTINGS_ACCESS = False
 
-import logging.handlers
-
 LOGGING = {
     'handlers': {
         'unicodesyslog': {
             '()': 'solitude.settings.log.UnicodeHandler',
             'facility': logging.handlers.SysLogHandler.LOG_LOCAL7,
             'formatter': 'prod',
+        },
+        'sentry': {
+            'level': 'ERROR',
+            'class': 'raven.contrib.django.handlers.SentryHandler',
         },
     },
     'loggers': {
@@ -54,11 +57,7 @@ LOGGING = {
             'level': 'INFO',
         },
         'django.request': {
-            'handlers': ['unicodesyslog'],
-            'level': 'INFO',
-        },
-        'django.request.tastypie': {
-            'handlers': ['unicodesyslog'],
+            'handlers': ['unicodesyslog', 'sentry'],
             'level': 'INFO',
         },
     },
