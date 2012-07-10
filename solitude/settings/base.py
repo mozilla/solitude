@@ -59,6 +59,10 @@ LOGGING = {
             'handlers': ['unicodesyslog'],
             'level': 'INFO',
         },
+        'sentry.errors': {
+            'handlers': ['unicodesyslog'],
+            'level': 'INFO',
+        },
         'django.request': {
             'handlers': ['unicodesyslog', 'sentry'],
             'level': 'INFO',
