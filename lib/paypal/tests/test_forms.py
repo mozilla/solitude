@@ -22,6 +22,7 @@ class TestValidation(test_utils.TestCase):
                 'ipn_url': 'http://foo.com/return.url',
                 'cancel_url': 'http://foo.com/cancel.url',
                 'memo': 'Some memo',
+                'use_preapproval': True,
                 'seller': self.uuid}
 
     def test_seller(self):
@@ -66,6 +67,16 @@ class TestValidation(test_utils.TestCase):
         form = PayValidation(data)
         assert form.is_valid(), form.errors
         eq_(form.cleaned_data['preapproval'], 'foo')
+
+    def test_buyer_preapproval_ignored(self):
+        buyer = Buyer.objects.create(uuid='sample:uid')
+        BuyerPaypal.objects.create(buyer=buyer, key='foo')
+        data = self.get_data()
+        data['use_preapproval'] = False
+        data['buyer'] = buyer.uuid
+        form = PayValidation(data)
+        assert form.is_valid(), form.errors
+        eq_(form.cleaned_data['preapproval'], '')
 
     def test_currency(self):
         form = PayValidation(self.get_data())

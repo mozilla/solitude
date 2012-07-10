@@ -58,6 +58,7 @@ class PayValidation(ArgForm):
     currency = forms.ChoiceField(choices=[(c, c) for c in
                                           PAYPAL_CURRENCIES.keys()])
     memo = forms.CharField()
+    use_preapproval = forms.BooleanField(required=False)
     uuid = forms.CharField(required=False)
 
     _args = ('seller_email', 'amount', 'ipn_url', 'cancel_url', 'return_url')
@@ -74,14 +75,15 @@ class PayValidation(ArgForm):
             raise forms.ValidationError('No seller email found.')
         return seller
 
-    def clean_buyer(self):
-        buyer = self.cleaned_data['buyer']
-        self.cleaned_data['preapproval'] = ''
-        try:
-            self.cleaned_data['preapproval'] = buyer.paypal.key
-        except (AttributeError, ObjectDoesNotExist):
-            pass
-        return buyer
+    def clean(self):
+        data = self.cleaned_data
+        data['preapproval'] = ''
+        if data.get('use_preapproval'):
+            try:
+                data['preapproval'] = data['buyer'].paypal.key
+            except (AttributeError, ObjectDoesNotExist):
+                pass
+        return data
 
     def clean_uuid(self):
         uuid = self.cleaned_data['uuid']

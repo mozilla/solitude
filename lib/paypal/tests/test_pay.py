@@ -29,6 +29,7 @@ class TestPayPaypal(APITest):
                 'ipn_url': 'http://foo.com/ipn.url',
                 'cancel_url': 'http://foo.com/cancel.url',
                 'memo': 'Some memo',
+                'use_preapproval': True,
                 'seller': self.uuid}
 
     def test_post(self, key):
@@ -61,6 +62,17 @@ class TestPayPaypal(APITest):
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 201, res.content)
         eq_(key.call_args[1]['preapproval'], 'foo')
+
+    def test_post_preapproval_ignored(self, key):
+        key.return_value = {'pay_key': 'foo', 'status': 'CREATED',
+                            'correlation_id': '123', 'uuid': '456'}
+        self.create_buyer()
+        data = self.get_data()
+        data['buyer'] = self.uuid
+        data['use_preapproval'] = False
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 201, res.content)
+        eq_(key.call_args[1]['preapproval'], '')
 
     def test_buyer_but_not_present(self, key):
         key.return_value = {'pay_key': 'foo', 'status': 'COMPLETED',
