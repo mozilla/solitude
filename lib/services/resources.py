@@ -21,7 +21,7 @@ class ErrorResource(Resource):
     def obj_get_list(self, request=None, **kwargs):
         # All this does is throw an error. This is used for testing
         # the error handling on dev servers.
-        raise TestError
+        raise TestError('This is a test.')
 
 
 class SettingsObject(object):

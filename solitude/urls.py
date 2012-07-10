@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.conf.urls.defaults import *
 
-from funfactory.monkeypatches import patch
 from tastypie.api import Api
 
 from lib.buyers.resources import BuyerResource, BuyerPaypalResource
@@ -45,13 +44,11 @@ if settings.CLEANSED_SETTINGS_ACCESS:
     service.register(SettingsResource())
 # TODO: insert nagios and other services here.
 
-patch()
 urlpatterns = patterns('',
     url(r'^', include(api.urls)),
     url(r'^', include(paypal.urls)),
     url(r'^', include(service.urls)),
     url(r'^$', 'solitude.views.home')
 )
-
 
 handler500 = handler404 = handler403 = 'solitude.views.error'
