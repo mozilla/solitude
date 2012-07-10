@@ -39,12 +39,15 @@ PAYPAL_USE_SANDBOX = True
 # Access the cleansed settings values.
 CLEANSED_SETTINGS_ACCESS = False
 
+LOGGING_CONFIG = 'django.utils.log.dictConfig'
 LOGGING = {
+    'version': 1,
+    'filters': {},
+    'formatters': {},
     'handlers': {
         'unicodesyslog': {
             '()': 'solitude.settings.log.UnicodeHandler',
             'facility': logging.handlers.SysLogHandler.LOG_LOCAL7,
-            'formatter': 'prod',
         },
         'sentry': {
             'level': 'ERROR',
