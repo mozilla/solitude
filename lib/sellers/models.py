@@ -11,8 +11,6 @@ class Seller(models.Model):
 
 
 class SellerPaypal(models.Model):
-    # TODO(andym): encrypt these based upon
-    # https://bugzilla.mozilla.org/show_bug.cgi?id=763103
     paypal_id = AESField(max_length=255, blank=True, null=True,
                          aes_key='sellerpaypal:id')
     token = AESField(max_length=255, blank=True, null=True,
@@ -21,6 +19,19 @@ class SellerPaypal(models.Model):
                       aes_key='sellerpaypal:secret')
     seller = models.OneToOneField(Seller, related_name='paypal')
     # TODO: currencies.
+
+    # Sellers personal contact information.
+    first_name = models.CharField(max_length=255, blank=True)
+    last_name = models.CharField(max_length=255, blank=True)
+    full_name = models.CharField(max_length=255, blank=True)
+    business_name = models.CharField(max_length=255, blank=True)
+    country = models.CharField(max_length=64, blank=True)
+    address_one = models.CharField(max_length=255, blank=True)
+    address_two = models.CharField(max_length=255, blank=True)
+    post_code = models.CharField(max_length=128, blank=True)
+    city = models.CharField(max_length=128, blank=True)
+    state = models.CharField(max_length=64, blank=True)
+    phone = models.CharField(max_length=32, blank=True)
 
     class Meta:
         db_table = 'seller_paypal'

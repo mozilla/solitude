@@ -12,4 +12,4 @@ class SellerPaypalValidation(forms.ModelForm):
 
     class Meta:
         model = SellerPaypal
-        fields = ['paypal_id']
+        exclude = ['seller', 'token', 'secret']

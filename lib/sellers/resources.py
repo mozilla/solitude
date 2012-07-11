@@ -25,13 +25,13 @@ class SellerResource(ModelResource):
 
 class SellerPaypalResource(ModelResource):
     seller = fields.ToOneField('lib.sellers.resources.SellerResource',
-                              'seller')
+                               'seller')
     secret = fields.BooleanField(readonly=True, attribute='secret_exists')
     token = fields.BooleanField(readonly=True, attribute='token_exists')
 
     class Meta(ModelResource.Meta):
         queryset = SellerPaypal.objects.all()
-        fields = ['paypal_id', 'seller', 'token', 'secret']
+        excludes = ['id']
         list_allowed_methods = ['post']
         allowed_methods = ['get', 'put', 'patch']
         resource_name = 'seller'

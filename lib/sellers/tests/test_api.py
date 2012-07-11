@@ -58,15 +58,19 @@ class TestSellerPaypal(APITest):
         self.seller = Seller.objects.create(uuid=self.uuid)
         self.list_url = self.get_list_url('seller')
 
+    def data(self):
+        return {'seller': '/generic/seller/%s/' % self.seller.pk,
+                'paypal_id': 'foo@bar.com',
+                'address_one': '123 main st.',
+                'country': 'canada'}
+
     def test_post(self):
-        res = self.client.post(self.list_url,
-                               data={'seller':
-                                     '/paypal/seller/%s/' % self.seller.pk,
-                                     'paypal_id': 'foo@bar.com'})
+        res = self.client.post(self.list_url, data=self.data())
         eq_(res.status_code, 201)
         objs = SellerPaypal.objects.all()
         eq_(objs.count(), 1)
         eq_(objs[0].paypal_id, 'foo@bar.com')
+        eq_(objs[0].address_one, '123 main st.')
 
     def test_get(self):
         obj = self.create()
@@ -86,7 +90,8 @@ class TestSellerPaypal(APITest):
         eq_(content['paypal']['secret'], False)
 
     def create(self):
-        return SellerPaypal.objects.create(seller=self.seller)
+        return SellerPaypal.objects.create(seller=self.seller,
+                                           address_one='123 main st.')
 
     def test_booleans(self):
         obj = self.create()
@@ -126,6 +131,7 @@ class TestSellerPaypal(APITest):
         res = SellerPaypal.objects.get(pk=obj.pk)
         eq_(res.secret, secret)
         eq_(res.paypal_id, id_)
+        eq_(res.address_one, '123 main st.')
 
     def test_list_allowed(self):
         obj = self.create()
