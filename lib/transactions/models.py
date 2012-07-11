@@ -63,5 +63,5 @@ def note_completed_transaction(sender, **kwargs):
         log.info('Transaction: %s, paypal status: %s'
                  % (transaction.pk, data['status']))
         if data['status'] == 'COMPLETED':
-            transaction.status = constants.STATUS_COMPLETED
+            transaction.status = constants.STATUS_CHECKED
             transaction.save()

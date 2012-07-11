@@ -1,11 +1,13 @@
 STATUS_PENDING = 0
-STATUS_COMPLETED = 1
+STATUS_COMPLETED = 1  # When the IPN says its ok.
+STATUS_CHECKED = 2  # When someone calls pay-check on the transaction.
 
 STATUS_DEFAULT = STATUS_PENDING
 
 STATUSES = {
     'pending': STATUS_PENDING,
-    'completed': STATUS_COMPLETED
+    'completed': STATUS_COMPLETED,
+    'checked': STATUS_CHECKED,
 }
 
 TYPE_PAYMENT = 0

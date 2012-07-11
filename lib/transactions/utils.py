@@ -11,7 +11,8 @@ def completed(detail, item):
     try:
         record = (PaypalTransaction.objects
                                    .get(uuid=detail.get('tracking_id'),
-                                        status=constants.STATUS_PENDING))
+                                        status__in=(constants.STATUS_PENDING,
+                                                    constants.STATUS_CHECKED)))
     except PaypalTransaction.DoesNotExist:
         return False
 

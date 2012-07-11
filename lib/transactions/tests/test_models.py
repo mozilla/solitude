@@ -44,12 +44,27 @@ class TestTransaction(APITest):
         eq_(obj.status, constants.STATUS_PENDING)
 
     @patch('lib.paypal.resources.pay.Client.check_purchase')
-    def test_complete(self, check):
+    def test_checked(self, check):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
         pp = PaypalTransaction.objects.create(pay_key='foo', amount=5,
                                               seller=self.seller.paypal)
         res = self.client.post(self.check_url, data={'pay_key': 'foo'})
         eq_(res.status_code, 201)
+        eq_(PaypalTransaction.objects.get(pk=pp.pk).status,
+            constants.STATUS_CHECKED)
+
+    @patch('lib.paypal.resources.pay.Client.check_purchase')
+    def test_complete(self, check):
+        check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
+        pp = PaypalTransaction.objects.create(pay_key='foo', amount=5,
+                                              seller=self.seller.paypal)
+        self.client.post(self.check_url, data={'pay_key': 'foo'})
+        eq_(PaypalTransaction.objects.get(pk=pp.pk).status,
+            constants.STATUS_CHECKED)
+
+        pp.status = constants.STATUS_COMPLETED
+        pp.save()
+        self.client.post(self.check_url, data={'pay_key': 'foo'})
         eq_(PaypalTransaction.objects.get(pk=pp.pk).status,
             constants.STATUS_COMPLETED)
 
