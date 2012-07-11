@@ -96,7 +96,9 @@ class IPN(object):
                 continue
 
             method, result = methods[status]
-            if method(self.transaction, detail):
+            res = method(self.transaction, detail)
+            log.info('Processing using %s returned %s' % (status, bool(res)))
+            if res:
                 self.status = constants.IPN_STATUS_OK
                 self.action = result
                 self.detail = detail
@@ -106,4 +108,5 @@ class IPN(object):
 
         # If nothing got processd on this, we ignored it.
         if not self.status:
+            log.info('Not processed, set state to ignored')
             self.status = constants.IPN_STATUS_IGNORED
