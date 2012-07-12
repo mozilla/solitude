@@ -12,6 +12,7 @@ INSTALLED_APPS = (
     'aesfield',
     'funfactory',
     'django_nose',
+    'django_statsd',
     'lib.buyers',
     'lib.sellers',
     'lib.transactions',
