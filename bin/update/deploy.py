@@ -91,6 +91,12 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
 
 
 @task
+def post_update(ctx):
+    with ctx.lcd(settings.SRC_DIR):
+        ctx.local('python2.6 manage.py statsd_ping --key=update')
+
+
+@task
 def update(ctx):
 #    update_assets()
     update_db()
@@ -107,3 +113,4 @@ def update_site(ctx, tag):
     """Update the app to prep for deployment."""
     pre_update(tag)
     update()
+    post_update()
