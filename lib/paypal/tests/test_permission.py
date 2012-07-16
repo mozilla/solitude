@@ -26,8 +26,6 @@ class TestGetPermissionURL(APITest):
         eq_(content['token'], 'http://some.paypal.url')
 
     def test_not_permission(self, key):
-        url = 'http://some.paypal.url'
-        key.return_value = {'token': url}
         data = self.get_data()
         data['scope'] = 'FAKE'
         res = self.client.post(self.list_url, data=data)
