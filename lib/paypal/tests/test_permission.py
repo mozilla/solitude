@@ -15,7 +15,7 @@ class TestGetPermissionURL(APITest):
 
     def get_data(self):
         return {'url': 'http://foo.com/callback.url',
-                'scope': 'foo'}
+                'scope': ['REFUND', 'ACCESS_BASIC_PERSONAL_DATA']}
 
     def test_permission(self, key):
         url = 'http://some.paypal.url'
@@ -24,6 +24,14 @@ class TestGetPermissionURL(APITest):
         eq_(res.status_code, 201)
         content = json.loads(res.content)
         eq_(content['token'], 'http://some.paypal.url')
+
+    def test_not_permission(self, key):
+        url = 'http://some.paypal.url'
+        key.return_value = {'token': url}
+        data = self.get_data()
+        data['scope'] = 'FAKE'
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 400)
 
 
 @patch('lib.paypal.resources.pay.Client.check_permission')

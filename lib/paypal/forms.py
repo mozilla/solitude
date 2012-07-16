@@ -9,6 +9,7 @@ from lib.sellers.models import Seller
 from lib.transactions.models import PaypalTransaction
 
 from solitude.base import get_object_or_404
+from .constants import PERMISSIONS
 
 
 class ArgForm(forms.Form):
@@ -94,7 +95,7 @@ class PayValidation(ArgForm):
 
 class GetPermissionURL(ArgForm):
     url = forms.URLField()
-    scope = forms.CharField()
+    scope = forms.MultipleChoiceField(choices=[(k, k) for k in PERMISSIONS])
 
     _args = ('url', 'scope')
 
