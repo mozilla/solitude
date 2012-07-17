@@ -5,7 +5,7 @@ from django import forms
 
 from lib.buyers.models import Buyer
 from lib.paypal.constants import PAYPAL_CURRENCIES
-from lib.sellers.models import Seller
+from lib.sellers.models import Seller, SellerPaypal
 from lib.transactions.models import PaypalTransaction
 
 from solitude.base import get_object_or_404
@@ -110,6 +110,8 @@ class CheckPermission(ArgForm):
 class GetPermissionToken(ArgForm):
     token = forms.CharField()
     code = forms.CharField()
+    seller = forms.ModelChoiceField(queryset=SellerPaypal.objects.all(),
+                                    to_field_name='seller__uuid')
 
     _args = ('token', 'code')
 

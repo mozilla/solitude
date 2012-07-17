@@ -3,6 +3,7 @@ import json
 from mock import patch
 from nose.tools import eq_
 
+from lib.sellers.models import Seller, SellerPaypal
 from solitude.base import APITest
 
 
@@ -55,15 +56,28 @@ class TestGetPermissionToken(APITest):
 
     def setUp(self):
         self.api_name = 'paypal'
+        self.uuid = 'sample:uuid'
+        self.seller = Seller.objects.create(uuid=self.uuid)
+        self.seller_paypal = SellerPaypal.objects.create(seller=self.seller)
         self.list_url = self.get_list_url('permission-token')
 
     def get_data(self):
-        return {'token': 'foo', 'code': 'bar'}
+        return {'token': 'foo', 'code': 'bar', 'seller': 'sample:uuid'}
+
+    def test_check_no_seller(self, key):
+        data = self.get_data()
+        del data['seller']
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 400)
 
     def test_check_permission(self, key):
         key.return_value = {'token': 'token', 'secret': 'secret'}
         res = self.client.post(self.list_url, data=self.get_data())
         eq_(res.status_code, 201, res.content)
         content = json.loads(res.content)
-        eq_(content['token'], 'token')
-        eq_(content['secret'], 'secret')
+        eq_(content['token'], True)
+        eq_(content['secret'], True)
+
+        paypal = SellerPaypal.objects.get(pk=self.seller_paypal.pk)
+        eq_(paypal.token, 'token')
+        eq_(paypal.secret, 'secret')
