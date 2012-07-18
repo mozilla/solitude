@@ -30,6 +30,8 @@ Fields:
 * `amount`: the amount.
 * `currency`: currency as a 3 letter string, see `constants.py`.
 * `memo`: a memo for PayPal.
+* `uuid` (optional): the transaction id for PayPal, we'll create one if you
+  don't specify it.
 
 URLs are whitelisted in solitude so make sure those URLs are in configured in
 your settings file with `PAYPAL_URL_WHITELIST`.

@@ -3,14 +3,19 @@ Solitude
 ========================================
 
 
-Solitude is a Payments Server for processing payments for Mozilla's Marketplace
+Solitude is a payments server for processing payments for Mozilla's Marketplace
 and Addons site.
+
+It provides a REST API for processing payments that you would plug into your
+site. We've implemented the APIs that we want to use for the Marketplace, not
+every API that the provider supports.
+
+Currently we support:
+
+* some PayPal APIs
 
 This project is based on **playdoh**. Mozilla's Playdoh is an open source
 web application template based on `Django <http://www.djangoproject.com/>`_.
-
-To learn more about it, step by the `playdoh project page
-<https://github.com/mozilla/playdoh>`_.
 
 Contents
 --------
