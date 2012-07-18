@@ -139,9 +139,10 @@ class KeyValidation(forms.Form):
 
 
 class GetPersonal(ArgForm):
-    token = forms.CharField()
+    seller = forms.ModelChoiceField(queryset=SellerPaypal.objects.all(),
+                                    to_field_name='seller__uuid')
 
-    _args = ('token',)
+    _args = ('seller',)
 
 
 class IPNForm(forms.Form):
