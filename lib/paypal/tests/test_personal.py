@@ -14,14 +14,15 @@ class TestGet(APITest):
         self.api_name = 'paypal'
         self.uid = 'sample:uid'
         self.seller = Seller.objects.create(uuid=self.uid)
-        self.paypal = SellerPaypal.objects.create(seller=self.seller)
+        self.paypal = SellerPaypal.objects.create(seller=self.seller,
+                                                  token='f', secret='b')
 
     @patch('lib.paypal.resources.pay.Client.get_personal_basic')
     def test_basic_data(self, result):
         result.return_value = {'first_name': '..'}
         res = self.client.post(self.get_list_url('personal-basic'),
                                data={'seller': self.uid})
-        eq_(res.status_code, 201)
+        eq_(res.status_code, 201, res.content)
         eq_(json.loads(res.content)['first_name'], '..')
         obj = SellerPaypal.objects.get(pk=self.paypal.pk)
         eq_(obj.first_name, '..')
@@ -31,7 +32,7 @@ class TestGet(APITest):
         result.return_value = {'phone': '..'}
         res = self.client.post(self.get_list_url('personal-advanced'),
                                data={'seller': self.uid})
-        eq_(res.status_code, 201)
+        eq_(res.status_code, 201, res.content)
         eq_(json.loads(res.content)['phone'], '..')
         obj = SellerPaypal.objects.get(pk=self.paypal.pk)
         eq_(obj.phone, '..')
