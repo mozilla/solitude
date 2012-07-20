@@ -156,3 +156,22 @@ class GetPersonal(ArgForm):
 
 class IPNForm(forms.Form):
     data = forms.CharField(required=True)
+
+
+class AccountCheck(ArgForm):
+    seller = forms.ModelChoiceField(queryset=SellerPaypal.objects.all(),
+                                    to_field_name='seller__uuid')
+
+    _kwargs = ('paypal_id', 'paypal_permissions_token', 'prices')
+
+    def clean(self):
+        seller = self.cleaned_data.get('seller')
+        if not seller.token:
+            raise forms.ValidationError('Empty permissions token.')
+        if not seller.paypal_id:
+            raise forms.ValidationError('Empty paypal_id.')
+
+        self.cleaned_data['paypal_id'] = seller.paypal_id
+        self.cleaned_data['token'] = seller.token
+        self.cleaned_data['prices'] = (['USD', '1.00'],)
+        return self.cleaned_data

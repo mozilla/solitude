@@ -4,6 +4,7 @@ from django.conf.urls.defaults import *
 from tastypie.api import Api
 
 from lib.buyers.resources import BuyerResource, BuyerPaypalResource
+from lib.paypal.resources.check import AccountCheckResource
 from lib.paypal.resources.ipn import IPNResource
 from lib.paypal.resources.permission import (CheckPermissionResource,
                                              GetPermissionTokenResource,
@@ -36,6 +37,7 @@ paypal.register(CheckPersonalBasic())
 paypal.register(CheckPersonalAdvanced())
 paypal.register(RefundResource())
 paypal.register(SellerPaypalResource())
+paypal.register(AccountCheckResource())
 
 # Service APIs
 service = Api(api_name='services')

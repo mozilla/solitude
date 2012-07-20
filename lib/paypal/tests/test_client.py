@@ -288,7 +288,7 @@ class TestCall(BaseCase):
 
     @mock.patch('requests.post')
     def test_currency_error_raised(self, post):
-        post.return_value.text = other_error.replace('520001', '589023')
+        post.return_value.text = other_error.replace('520001', '580027')
         with self.assertRaises(CurrencyError):
             self.paypal.call('get-pay-key', {})
 

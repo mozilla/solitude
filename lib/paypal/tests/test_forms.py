@@ -2,7 +2,7 @@ from nose.tools import eq_
 import test_utils
 
 from lib.buyers.models import Buyer, BuyerPaypal
-from lib.paypal.forms import GetPersonal, PayValidation
+from lib.paypal.forms import AccountCheck, GetPersonal, PayValidation
 from lib.sellers.models import Seller, SellerPaypal
 from lib.transactions.models import PaypalTransaction
 
@@ -115,3 +115,36 @@ class TestKeyValidation(test_utils.TestCase):
 
         form = GetPersonal({'seller': self.uuid})
         assert form.is_valid()
+
+
+class TestValidation(test_utils.TestCase):
+
+    def setUp(self):
+        self.uuid = 'sample:uid'
+        self.seller = Seller.objects.create(uuid=self.uuid)
+        self.paypal = SellerPaypal.objects.create(seller=self.seller)
+
+    def test_empty_token(self):
+        form = AccountCheck({'seller': self.uuid})
+        assert not form.is_valid()
+
+    def test_no_seller(self):
+        form = AccountCheck()
+        assert not form.is_valid()
+
+    def test_empty_paypal_id(self):
+        self.paypal.token = 'token'
+        self.paypal.save()
+
+        form = AccountCheck({'seller': self.uuid})
+        assert not form.is_valid()
+
+    def test_good(self):
+        self.paypal.paypal_id = 'asd'
+        self.paypal.token = 'token'
+        self.paypal.save()
+
+        form = AccountCheck({'seller': self.uuid})
+        assert form.is_valid()
+        eq_(form.cleaned_data['paypal_id'], 'asd')
+        eq_(form.cleaned_data['token'], 'token')

@@ -1,6 +1,6 @@
-import hashlib
 import logging
-import uuid
+
+from django.conf import settings
 
 from .client import Client
 from .errors import PaypalError
@@ -104,7 +104,7 @@ class Check(object):
             except PaypalError:
                 msg = 'Failed to make a test transaction in %s.' % (currency)
                 self.failure(test_id, msg)
-                log.info('Get paykey returned an error'
+                log.info('Get paykey returned an error '
                          'in %s' % currency, exc_info=True)
 
         # If we haven't failed anything by this point, it's all good.
@@ -121,14 +121,14 @@ class Check(object):
         amount: the amount of money (required)
         currency: valid paypal currency, defaults to USD (optional)
         """
-        data.update({
-            'pattern': '',
-            'ip': '127.0.0.1',
-            'preapproval': None,
-            'slug': 'foo',
-            'uuid': hashlib.md5(str(uuid.uuid4())).hexdigest()
-        })
-        return self.paypal.get_pay_key(data)
+        try:
+            fake_url = settings.PAYPAL_URL_WHITELIST[0]
+        except IndexError:
+            log.error('PAYPAL_URL_WHITELIST must contain a URL.')
+            raise
+        return self.paypal.get_pay_key(data['email'], data['amount'],
+                                       fake_url, fake_url, fake_url,
+                                       currency=data['currency'], memo='test')
 
     @property
     def passed(self):
