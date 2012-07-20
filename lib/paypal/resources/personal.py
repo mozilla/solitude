@@ -16,6 +16,7 @@ class Personal(object):
         for k, v in result.items():
             setattr(form.cleaned_data['seller'], k, v)
         form.cleaned_data['seller'].save()
+        bundle.data = result
         bundle.obj = form.cleaned_data['seller']
         return bundle
 

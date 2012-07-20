@@ -62,7 +62,7 @@ class TestGetPermissionToken(APITest):
         self.list_url = self.get_list_url('permission-token')
 
     def get_data(self):
-        return {'token': 'foo', 'code': 'bar', 'seller': 'sample:uuid'}
+        return {'token': 'foo', 'verifier': 'bar', 'seller': 'sample:uuid'}
 
     def test_check_no_seller(self, key):
         data = self.get_data()

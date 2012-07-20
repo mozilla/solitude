@@ -109,11 +109,11 @@ class CheckPermission(ArgForm):
 
 class GetPermissionToken(ArgForm):
     token = forms.CharField()
-    code = forms.CharField()
+    verifier = forms.CharField()
     seller = forms.ModelChoiceField(queryset=SellerPaypal.objects.all(),
                                     to_field_name='seller__uuid')
 
-    _args = ('token', 'code')
+    _args = ('token', 'verifier')
 
 
 class KeyValidation(forms.Form):
@@ -142,7 +142,16 @@ class GetPersonal(ArgForm):
     seller = forms.ModelChoiceField(queryset=SellerPaypal.objects.all(),
                                     to_field_name='seller__uuid')
 
-    _args = ('seller',)
+    _args = ('token',)
+
+    def clean(self):
+        seller = self.cleaned_data.get('seller')
+        if (not seller.token or not seller.secret):
+            raise forms.ValidationError('Empty permissions token.')
+
+        self.cleaned_data['token'] = {'token': seller.token,
+                                      'secret': seller.secret}
+        return self.cleaned_data
 
 
 class IPNForm(forms.Form):

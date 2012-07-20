@@ -359,6 +359,7 @@ class TestPersonalLookup(BaseCase):
     def test_personal_works(self, _call):
         _call.return_value = good_personal_basic
         eq_(self.paypal.get_personal_basic('foo')['email'], 'batman@gmail.com')
+        eq_(_call.call_args[1]['auth_token'], 'foo')
 
     def test_personal_absent(self, _call):
         _call.return_value = good_personal_basic

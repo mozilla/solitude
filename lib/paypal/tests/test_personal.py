@@ -3,11 +3,12 @@ import json
 from mock import patch
 from nose.tools import eq_
 
+from lib.paypal.header import escape
 from lib.sellers.models import Seller, SellerPaypal
 from solitude.base import APITest
 
 
-class TestGetBasic(APITest):
+class TestGet(APITest):
 
     def setUp(self):
         self.api_name = 'paypal'
@@ -21,6 +22,7 @@ class TestGetBasic(APITest):
         res = self.client.post(self.get_list_url('personal-basic'),
                                data={'seller': self.uid})
         eq_(res.status_code, 201)
+        eq_(json.loads(res.content)['first_name'], '..')
         obj = SellerPaypal.objects.get(pk=self.paypal.pk)
         eq_(obj.first_name, '..')
 
@@ -30,5 +32,11 @@ class TestGetBasic(APITest):
         res = self.client.post(self.get_list_url('personal-advanced'),
                                data={'seller': self.uid})
         eq_(res.status_code, 201)
+        eq_(json.loads(res.content)['phone'], '..')
         obj = SellerPaypal.objects.get(pk=self.paypal.pk)
         eq_(obj.phone, '..')
+
+
+def test_header():
+    eq_(escape('foo'), 'foo')
+    eq_(escape('&'), '%26')

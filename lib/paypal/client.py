@@ -102,7 +102,7 @@ class Client(object):
 
         return result
 
-    def call(self, service, data):
+    def call(self, service, data, auth_token=None):
         """
         Wrapper around calling the requested paypal service using
         data provided. Adds in timing and logging.
@@ -111,7 +111,7 @@ class Client(object):
         url = urls[service]
         with statsd.timer('solitude.paypal.%s' % service):
             log.info('Calling service: %s' % service)
-            return self._call(url, data)
+            return self._call(url, data, auth_token=auth_token)
 
     def headers(self, url, auth_token=None):
         """
@@ -127,7 +127,6 @@ class Client(object):
         if auth_token:
             ts, sig = get_auth_header(auth['USER'], auth['PASSWORD'],
                     auth_token['token'], auth_token['secret'], 'POST', url)
-
             headers['X-PAYPAL-AUTHORIZATION'] = (
                     'timestamp=%s,token=%s,signature=%s' %
                     (ts, auth_token['token'], sig))
@@ -202,13 +201,14 @@ class Client(object):
         result = [v for (k, v) in res.iteritems() if k.startswith('scope')]
         return {'status': set(permissions).issubset(set(result))}
 
-    def get_permission_token(self, token, code):
+    def get_permission_token(self, token, verifier):
         """
         Send request for permissions token, after user has granted the
         requested permissions via the PayPal page we redirected them to.
         Documentation: http://bit.ly/Mjh51D
         """
-        res = self.call('get-permission-token', {'token': token, 'code': code})
+        res = self.call('get-permission-token', {'token': token,
+                                                 'verifier': verifier})
         return {'token': res['token'], 'secret': res['tokenSecret']}
 
     def get_preapproval_key(self, start, end, return_url, cancel_url):
@@ -289,7 +289,8 @@ class Client(object):
         keys = ['first_name', 'last_name', 'email', 'full_name',
                 'company', 'country', 'payerID']
         data = {'attributeList.attribute': [PAYPAL_PERSONAL[k] for k in keys]}
-        return self.parse_personal(self.call('get-personal', data))
+        return self.parse_personal(self.call('get-personal', data,
+                                             auth_token=token))
 
     def get_personal_advanced(self, token):
         """
@@ -299,7 +300,8 @@ class Client(object):
         keys = ['post_code', 'address_one', 'address_two', 'city', 'state',
                 'phone']
         data = {'attributeList.attribute': [PAYPAL_PERSONAL[k] for k in keys]}
-        return self.parse_personal(self.call('get-personal', data))
+        return self.parse_personal(self.call('get-personal-advanced', data,
+                                             auth_token=token))
 
     def parse_refund(self, res):
         responses = defaultdict(lambda: defaultdict(dict))
