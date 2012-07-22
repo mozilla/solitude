@@ -109,9 +109,10 @@ class Client(object):
         """
         # Lookup the URL given the service.
         url = urls[service]
+        errs = errors.get(service, errors['default'])
         with statsd.timer('solitude.paypal.%s' % service):
             log.info('Calling service: %s' % service)
-            return self._call(url, data, auth_token=auth_token)
+            return self._call(url, data, errs, auth_token=auth_token)
 
     def headers(self, url, auth_token=None):
         """
@@ -140,7 +141,7 @@ class Client(object):
 
         return headers
 
-    def _call(self, url, data, auth_token=None):
+    def _call(self, url, data, errs, auth_token=None):
         if 'requestEnvelope.errorLanguage' not in data:
             data['requestEnvelope.errorLanguage'] = 'en_US'
 
@@ -172,8 +173,8 @@ class Client(object):
             id_, msg = (response['error(0).errorId'],
                         response['error(0).message'])
             log.error('Paypal Error (%s): %s' % (id_, msg))
-            raise errors.get(id_, PaypalError)(id=id_, paypal_data=data,
-                                               message=msg)
+            raise errs.get(id_, PaypalError)(id=id_, paypal_data=data,
+                                             message=msg)
 
         return response
 
@@ -337,3 +338,12 @@ class Client(object):
             clean_responses.append(d)
 
         return {'response': clean_responses}
+
+    def get_verified(self, paypal_id):
+        """
+        Get the verified status of an account.
+        Documentation: http://bit.ly/MPCD2s
+        """
+        res = self.call('get-verified', {'emailAddress': paypal_id,
+                                         'matchCriteria': 'NONE'})
+        return {'type': res['userInfo.accountType']}

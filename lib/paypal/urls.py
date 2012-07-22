@@ -15,6 +15,7 @@ if settings.PAYPAL_USE_SANDBOX:
         'services': 'https://svcs.sandbox.paypal.com/',
         'permissions': 'https://svcs.sandbox.paypal.com/Permissions/',
         'pay': 'https://svcs.sandbox.paypal.com/AdaptivePayments/',
+        'accounts': 'https://svcs.sandbox.paypal.com/AdaptiveAccounts/',
         'adaptive': 'https://www.sandbox.paypal.com/',
         'cgi': 'https://www.sandbox.paypal.com/cgi-bin/webscr'
     }
@@ -30,6 +31,7 @@ urls = {
     'get-preapproval-key': roots['pay'] + 'Preapproval',
     'grant-preapproval': roots['cgi'] + '?cmd=_ap-preapproval&preapprovalkey=',
     'get-refund': roots['pay'] + 'Refund',
+    'get-verified': roots['accounts'] + 'GetVerifiedStatus',
     'grant-permission': roots['cgi'] + '?cmd=_grant-permission&request_token=',
     'request-permission': roots['permissions'] + 'RequestPermissions',
     'ipn': roots['cgi'],

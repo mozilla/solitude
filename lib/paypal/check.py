@@ -51,11 +51,17 @@ class Check(object):
             self.failure(test_id, 'No PayPal id provided.')
             return
 
-        valid, msg = self.paypal.check_paypal_id(self.paypal_id)
-        if not valid:
+        try:
+            status = self.paypal.get_verified(self.paypal_id)
+        except PaypalError:
             self.failure(test_id, 'You do not seem to have a PayPal account.')
-        else:
+            return
+
+        if status['type'] in ['BUSINESS', 'PREMIER']:
             self.pass_(test_id)
+            return
+
+        self.failure(test_id, 'You do not have a business or premier account.')
 
     def check_refund(self):
         """Check that we have the refund permission."""

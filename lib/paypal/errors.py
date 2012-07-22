@@ -39,19 +39,22 @@ class CurrencyError(PaypalError):
         if self.paypal_data and 'currencyCode' in self.paypal_data:
             try:
                 return PAYPAL_CURRENCIES[self.paypal_data['currencyCode']]
-                # TODO: figure this out.
             except:
                 pass
         return 'Unknown currency'
 
 
-errors = {'520003': AuthError}
+errors = {'default': {'520003': AuthError}}
+# If you want to group errors from PayPal together into groups, this is the
+# place to add them in for each PayPal call.
+errors['get-pay-key'] = errors['default'].copy()
+
 # See http://bit.ly/vWV525 for information on these values.
 # Note that if you have and invalid preapproval key you get 580022, but this
 # also occurs in other cases so don't assume its preapproval only.
 for number in ['569017', '569018', '569019', '569016', '579014', '579024',
                '579025', '579026', '579027', '579028', '579030', '579031']:
-    errors[number] = PreApprovalError
+    errors['get-pay-key'][number] = PreApprovalError
 
 for number in ['559044', '580027', '580022']:
-    errors[number] = CurrencyError
+    errors['get-pay-key'][number] = CurrencyError

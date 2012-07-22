@@ -9,7 +9,7 @@ import mock
 from nose.tools import eq_
 
 from ..client import Client
-from ..errors import AuthError, PaypalDataError, PaypalError
+from ..errors import AuthError, CurrencyError, PaypalDataError, PaypalError
 
 good_token = {'token': 'foo', 'secret': 'bar'}
 
@@ -281,6 +281,18 @@ class TestCall(BaseCase):
             self.paypal.call('get-pay-key', {})
 
     @mock.patch('requests.post')
+    def test_not_currency_error_raised(self, post):
+        post.return_value.text = other_error.replace('520001', '589023')
+        with self.assertRaises(PaypalError):
+            self.paypal.call('check-purchase', {})
+
+    @mock.patch('requests.post')
+    def test_currency_error_raised(self, post):
+        post.return_value.text = other_error.replace('520001', '589023')
+        with self.assertRaises(CurrencyError):
+            self.paypal.call('get-pay-key', {})
+
+    @mock.patch('requests.post')
     def test_error_raised(self, post):
         post.return_value.text = other_error.replace('520001', '589023')
         try:
@@ -384,12 +396,12 @@ class TestAuthWithToken(BaseCase):
 
     def test_token_header(self, opener):
         opener.return_value.text = good_response
-        self.paypal._call('http://some.url', {}, auth_token=good_token)
+        self.paypal._call('http://some.url', {}, {}, auth_token=good_token)
         assert 'X-PAYPAL-AUTHORIZATION' in opener.call_args[1]['headers']
 
     def test_normal_header(self, opener):
         opener.return_value.text = good_response
-        self.paypal._call('http://some.url', {})
+        self.paypal._call('http://some.url', {}, {})
         assert 'X-PAYPAL-SECURITY-PASSWORD' in opener.call_args[1]['headers']
 
 good_refund = {
@@ -460,3 +472,31 @@ class TestRefund(BaseCase):
         eq_(self.paypal
                 .get_refund('fake-paykey')['response'][0]['refundStatus'],
             'ALREADY_REVERSED_OR_REFUNDED')
+
+# These are truncated.
+personal = {
+    'responseEnvelope.ack': u'Success',
+    'userInfo.accountType': u'PERSONAL'
+}
+
+business = {
+    'responseEnvelope.ack': u'Success',
+    'userInfo.accountType': u'BUSINESS'
+}
+
+
+@mock.patch.object(Client, '_call')
+class TestVerified(BaseCase):
+
+    def test_personal(self, _call):
+        _call.return_value = personal
+        eq_(self.paypal.get_verified('a@pers.com')['type'], u'PERSONAL')
+
+    def test_business(self, _call):
+        _call.return_value = business
+        eq_(self.paypal.get_verified('a@bizs.com')['type'], u'BUSINESS')
+
+    def test_nope(self, _call):
+        _call.side_effect = PaypalError
+        with self.assertRaises(PaypalError):
+            self.paypal.get_verified('nope')

@@ -45,6 +45,30 @@ class TestCheck(test_utils.TestCase):
         self.check.check_refund()
         assert not self.check.passed, self.check.state
 
+    @patch.object(Client, 'get_verified')
+    def test_check_id(self, get_verified):
+        get_verified.return_value = {'type': u'PERSONAL'}
+        self.check.check_id()
+        assert not self.check.passed, self.check.state
+
+    @patch.object(Client, 'get_verified')
+    def test_check_id_business(self, get_verified):
+        get_verified.return_value = {'type': u'BUSINESS'}
+        self.check.check_id()
+        assert self.check.passed, self.check.state
+
+    @patch.object(Client, 'get_verified')
+    def test_check_id_premier(self, get_verified):
+        get_verified.return_value = {'type': u'PREMIER'}
+        self.check.check_id()
+        assert self.check.passed, self.check.state
+
+    @patch.object(Client, 'get_verified')
+    def test_check_id_nope(self, get_verified):
+        get_verified.side_effect = PaypalError
+        self.check.check_id()
+        assert not self.check.passed, self.check.state
+
     @patch.object(Client, 'get_pay_key')
     def test_currency(self, get_pay_key):
         self.check.prices = self.multiple_prices
