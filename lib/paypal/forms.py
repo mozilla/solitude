@@ -61,6 +61,7 @@ class PayValidation(ArgForm):
     memo = forms.CharField()
     use_preapproval = forms.BooleanField(required=False)
     uuid = forms.CharField(required=False)
+    source = forms.CharField(required=False)
 
     _args = ('seller_email', 'amount', 'ipn_url', 'cancel_url', 'return_url')
     _kwargs = ('currency', 'preapproval', 'memo', 'uuid')

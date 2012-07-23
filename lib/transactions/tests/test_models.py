@@ -43,6 +43,16 @@ class TestTransaction(APITest):
         eq_(obj.seller, self.seller.paypal)
         eq_(obj.status, constants.STATUS_PENDING)
 
+    @patch('lib.paypal.resources.pay.Client.get_pay_key')
+    def test_pay_source(self, key):
+        key.return_value = {'pay_key': 'foo', 'status': 'CREATED',
+                            'correlation_id': '123', 'uuid': '456'}
+        data = self.get_data()
+        data['source'] = 'in-app'
+        res = self.client.post(self.pay_url, data=data)
+        eq_(res.status_code, 201)
+        eq_(PaypalTransaction.objects.all()[0].source, 'in-app')
+
     @patch('lib.paypal.resources.pay.Client.check_purchase')
     def test_checked(self, check):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}

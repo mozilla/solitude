@@ -28,6 +28,8 @@ class PaypalTransaction(models.Model):
                                     choices=sorted(constants.STATUSES.items()))
     related = models.ForeignKey('self', blank=True, null=True,
                                 on_delete=models.PROTECT)
+    source = models.CharField(max_length=255, blank=True, null=True,
+                              db_index=True)
 
     class Meta:
         db_table = 'transaction_paypal'
@@ -46,7 +48,7 @@ def create_pending_transaction(sender, **kwargs):
             type=constants.TYPE_PAYMENT, correlation_id=data['correlation_id'],
             pay_key=data['pay_key'], seller=clean['seller'].paypal,
             amount=clean['amount'], currency=clean['currency'],
-            uuid=data['uuid'])
+            uuid=data['uuid'], source=clean.get('source', ''))
     log.info('Transaction: %s, paypal status: %s'
              % (transaction.pk, data['status']))
 
