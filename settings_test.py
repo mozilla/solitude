@@ -8,3 +8,5 @@ AES_KEYS = {
     'sellerpaypal:token': filename,
     'sellerpaypal:secret': filename,
 }
+
+PAYPAL_URL_WHITELIST = ('https://marketplace-dev.allizom.org',)
