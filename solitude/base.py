@@ -133,7 +133,8 @@ class BaseResource(object):
                         extra={'status_code': 500, 'request': request})
         data = {
             'error_message': str(exception),
-            'error_code': getattr(exception, 'id', '')
+            'error_code': getattr(exception, 'id', ''),
+            'error_data': getattr(exception, 'data', {})
         }
         serialized = self.serialize(request, data, 'application/json')
         return http.HttpApplicationError(content=serialized,

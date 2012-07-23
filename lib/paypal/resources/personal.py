@@ -1,6 +1,7 @@
 from cached import Resource
 
 from lib.paypal.client import Client
+from lib.paypal.errors import PaypalError
 from lib.paypal.forms import GetPersonal
 
 
@@ -13,8 +14,14 @@ class Personal(object):
 
         paypal = Client()
         result = getattr(paypal, self._meta.method)(*form.args())
+        if 'email' in result:
+            if form.cleaned_data['seller'].paypal_id != result['email']:
+                raise PaypalError('The user data did not match',
+                                  data={'email': result['email']}, id=100001)
+
         for k, v in result.items():
             setattr(form.cleaned_data['seller'], k, v)
+
         form.cleaned_data['seller'].save()
         bundle.data = result
         bundle.obj = form.cleaned_data['seller']

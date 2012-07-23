@@ -172,9 +172,12 @@ class Client(object):
         if 'error(0).errorId' in response:
             id_, msg = (response['error(0).errorId'],
                         response['error(0).message'])
-            log.error('Paypal Error (%s): %s' % (id_, msg))
-            raise errs.get(id_, PaypalError)(id=id_, paypal_data=data,
-                                             message=msg)
+            # We want some data to produce a nice error. However
+            # we do not want to pass everything back since this will go back in
+            # the REST response and that might leak data.
+            data = {'currency': data.get('currencyCode')}
+            log.error('Paypal Error (%s): %s, %s' % (id_, msg, data))
+            raise errs.get(id_, PaypalError)(id=id_, message=msg, data=data)
 
         return response
 

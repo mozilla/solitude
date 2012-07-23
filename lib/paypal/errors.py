@@ -3,10 +3,10 @@ from .constants import PAYPAL_CURRENCIES
 
 class PaypalError(Exception):
     # The generic Paypal error and message.
-    def __init__(self, message='', id=None, paypal_data=None):
+    def __init__(self, message='', id=None, data=None):
         super(PaypalError, self).__init__(message)
-        self.id = id
-        self.paypal_data = paypal_data
+        self.id = str(id)
+        self.data = data or {}
         self.default = ('There was an error communicating with PayPal. '
                         'Please try again later.')
 
@@ -36,12 +36,8 @@ class CurrencyError(PaypalError):
     # This currency was bad.
 
     def __str__(self):
-        if self.paypal_data and 'currencyCode' in self.paypal_data:
-            try:
-                return PAYPAL_CURRENCIES[self.paypal_data['currencyCode']]
-            except:
-                pass
-        return 'Unknown currency'
+        return PAYPAL_CURRENCIES.get(self.data.get('currency', ''),
+                                     'Unknown currency')
 
 
 errors = {'default': {'520003': AuthError}}
