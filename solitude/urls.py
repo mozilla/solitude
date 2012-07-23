@@ -18,6 +18,8 @@ from lib.sellers.resources import SellerResource, SellerPaypalResource
 
 from lib.services.resources import ErrorResource, SettingsResource
 
+from lib.transactions.resources import TransactionResource
+
 # Generic APIs
 api = Api(api_name='generic')
 api.register(BuyerResource())
@@ -38,6 +40,7 @@ paypal.register(CheckPersonalAdvanced())
 paypal.register(RefundResource())
 paypal.register(SellerPaypalResource())
 paypal.register(AccountCheckResource())
+paypal.register(TransactionResource())
 
 # Service APIs
 service = Api(api_name='services')

@@ -1,5 +1,6 @@
 from solitude.base import ModelResource
 from tastypie import fields
+from tastypie.constants import ALL_WITH_RELATIONS
 from tastypie.validation import FormValidation
 
 from .forms import SellerValidation, SellerPaypalValidation
@@ -36,3 +37,6 @@ class SellerPaypalResource(ModelResource):
         allowed_methods = ['get', 'put', 'patch']
         resource_name = 'seller'
         validation = FormValidation(form_class=SellerPaypalValidation)
+        filtering = {
+            'seller': ALL_WITH_RELATIONS,
+        }
