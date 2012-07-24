@@ -25,7 +25,10 @@ Returns::
 
         {u'paypal': None,
          u'uuid': u'acb21517-df02-4734-8173-176ece310bc1',
-         u'resource_uri': u'/generic/seller/9/'}
+         u'resource_uri': u'/generic/seller/9/'
+         u'resource_key': 16,
+         u'bluevia': null,
+         u'paypal': null}
 
 PayPal
 ======
@@ -58,3 +61,21 @@ Returns::
 Now the `paypal` field of the seller data is populated with the PayPal data.
 
 The PayPal seller data supports a PUT for updates.
+
+BlueVia Support
+====================
+
+To create a bluevia id::
+
+        POST /bluevia/seller/
+        {"bluevia_id": "some:id",
+         "seller": "/generic/seller/9/"}
+
+Returns::
+
+        {"resource_pk": 1,
+         "seller": "/generic/seller/9/",
+         "bluevia_id": "some:id",
+         "resource_uri": "/bluevia/seller/1/"}
+
+You can do PUT and PATCH on the bluevia seller to alter the id.
