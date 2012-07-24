@@ -14,8 +14,8 @@ from lib.paypal.resources.personal import (CheckPersonalBasic,
 from lib.paypal.resources.preapproval import PreapprovalResource
 from lib.paypal.resources.pay import (CheckPurchaseResource, PayResource,
                                       RefundResource)
-from lib.sellers.resources import SellerResource, SellerPaypalResource
-
+from lib.sellers.resources import (SellerResource, SellerBlueviaResource,
+                                   SellerPaypalResource)
 from lib.services.resources import ErrorResource, SettingsResource
 
 from lib.transactions.resources import TransactionResource
@@ -42,6 +42,10 @@ paypal.register(SellerPaypalResource())
 paypal.register(AccountCheckResource())
 paypal.register(TransactionResource())
 
+# BlueVia specific APIs
+bluevia = Api(api_name='bluevia')
+bluevia.register(SellerBlueviaResource())
+
 # Service APIs
 service = Api(api_name='services')
 service.register(ErrorResource())
@@ -52,6 +56,7 @@ if settings.CLEANSED_SETTINGS_ACCESS:
 urlpatterns = patterns('',
     url(r'^', include(api.urls)),
     url(r'^', include(paypal.urls)),
+    url(r'^', include(bluevia.urls)),
     url(r'^', include(service.urls)),
     url(r'^$', 'solitude.views.home')
 )

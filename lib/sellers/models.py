@@ -43,3 +43,14 @@ class SellerPaypal(models.Model):
     @property
     def token_exists(self):
         return bool(self.token)
+
+
+class SellerBluevia(models.Model):
+    # TODO(andym): when the key lands (bug 776753) flip this.
+    #bluevia_id = AESField(max_length=255, blank=True, null=True,
+    #                      aes_key='sellerbluevia:id')
+    bluevia_id = models.CharField(max_length=255, blank=True, null=True)
+    seller = models.OneToOneField(Seller, related_name='bluevia')
+
+    class Meta:
+        db_table = 'seller_bluevia'

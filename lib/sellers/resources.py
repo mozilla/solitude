@@ -3,8 +3,9 @@ from tastypie import fields
 from tastypie.constants import ALL_WITH_RELATIONS
 from tastypie.validation import FormValidation
 
-from .forms import SellerValidation, SellerPaypalValidation
-from .models import Seller, SellerPaypal
+from .forms import (SellerValidation, SellerBlueviaValidation,
+                    SellerPaypalValidation)
+from .models import Seller, SellerBluevia, SellerPaypal
 
 
 class SellerResource(ModelResource):
@@ -14,9 +15,9 @@ class SellerResource(ModelResource):
 
     class Meta(ModelResource.Meta):
         queryset = Seller.objects.all()
-        fields = ['uuid']
-        list_allowed_methods = ['post', 'get']
-        allowed_methods = ['get']
+        fields = ('uuid',)
+        list_allowed_methods = ('post', 'get')
+        allowed_methods = ('get',)
         resource_name = 'seller'
         validation = FormValidation(form_class=SellerValidation)
         filtering = {
@@ -40,3 +41,16 @@ class SellerPaypalResource(ModelResource):
         filtering = {
             'seller': ALL_WITH_RELATIONS,
         }
+
+
+class SellerBlueviaResource(ModelResource):
+    seller = fields.ToOneField('lib.sellers.resources.SellerResource',
+                               'seller')
+
+    class Meta(ModelResource.Meta):
+        queryset = SellerBluevia.objects.all()
+        excludes = ['id']
+        list_allowed_methods = ['post']
+        allowed_methods = ['get', 'put', 'patch']
+        resource_name = 'seller'
+        validation = FormValidation(form_class=SellerBlueviaValidation)

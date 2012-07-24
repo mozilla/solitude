@@ -7,6 +7,12 @@ AES_KEYS = {
     'sellerpaypal:id': filename,
     'sellerpaypal:token': filename,
     'sellerpaypal:secret': filename,
+    'sellerbluevia:id': filename,
 }
 
 PAYPAL_URL_WHITELIST = ('https://marketplace-dev.allizom.org',)
+
+# How tastypie processes error depends upon these settings.
+DEBUG = False
+DEBUG_PROPAGATE_EXCEPTIONS = DEBUG
+TASTYPIE_FULL_DEBUG = DEBUG
