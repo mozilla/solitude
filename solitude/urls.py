@@ -53,12 +53,17 @@ if settings.CLEANSED_SETTINGS_ACCESS:
     service.register(SettingsResource())
 # TODO: insert nagios and other services here.
 
-urlpatterns = patterns('',
-    url(r'^', include(api.urls)),
-    url(r'^', include(paypal.urls)),
-    url(r'^', include(bluevia.urls)),
-    url(r'^', include(service.urls)),
-    url(r'^$', 'solitude.views.home')
-)
+if settings.SOLITUDE_PROXY:
+    urlpatterns = patterns('',
+        url(r'^', include('lib.proxy.urls')),
+    )
+else:
+    urlpatterns = patterns('',
+        url(r'^', include(api.urls)),
+        url(r'^', include(paypal.urls)),
+        url(r'^', include(bluevia.urls)),
+        url(r'^', include(service.urls)),
+        url(r'^$', 'solitude.views.home')
+    )
 
 handler500 = handler404 = handler403 = 'solitude.views.error'

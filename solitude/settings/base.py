@@ -1,4 +1,5 @@
 import logging.handlers
+import os
 
 from funfactory.settings_base import *
 
@@ -13,11 +14,22 @@ INSTALLED_APPS = (
     'funfactory',
     'django_nose',
     'django_statsd',
-    'lib.buyers',
-    'lib.sellers',
-    'lib.transactions',
-    'solitude'
+    'solitude',
 )
+
+SOLITUDE_PROXY = os.environ.get('SOLITUDE_PROXY', 'disabled') == 'enabled'
+if SOLITUDE_PROXY:
+    # The proxy runs with no database access. And just a couple of libraries.
+    INSTALLED_APPS += (
+        'lib.proxy',
+    )
+else:
+    # If this is the full solitude instance add in the rest.
+    INSTALLED_APPS += (
+        'lib.buyers',
+        'lib.sellers',
+        'lib.transactions'
+    )
 
 TEST_RUNNER = 'test_utils.runner.RadicalTestSuiteRunner'
 
