@@ -6,6 +6,7 @@ roots = {
     'services': 'https://svcs.paypal.com/',
     'permissions': 'https://svcs.paypal.com/Permissions/',
     'pay': 'https://svcs.paypal.com/AdaptivePayments/',
+    'accounts': 'https://svcs.paypal.com/AdaptiveAccounts/',
     'adaptive': 'https://www.paypal.com/',
     'cgi': 'https://www.paypal.com/cgi-bin/webscr'
 }
