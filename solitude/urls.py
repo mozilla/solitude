@@ -16,7 +16,10 @@ from lib.paypal.resources.pay import (CheckPurchaseResource, PayResource,
                                       RefundResource)
 from lib.sellers.resources import (SellerResource, SellerBlueviaResource,
                                    SellerPaypalResource)
-from lib.services.resources import ErrorResource, SettingsResource
+from lib.sellers.resources import SellerResource, SellerPaypalResource
+
+from lib.services.resources import (ErrorResource, SettingsResource,
+                                    StatusResource)
 
 from lib.transactions.resources import TransactionResource
 
@@ -51,7 +54,7 @@ service = Api(api_name='services')
 service.register(ErrorResource())
 if settings.CLEANSED_SETTINGS_ACCESS:
     service.register(SettingsResource())
-# TODO: insert nagios and other services here.
+service.register(StatusResource())
 
 if settings.SOLITUDE_PROXY:
     urlpatterns = patterns('',

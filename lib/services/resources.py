@@ -1,6 +1,9 @@
+from lib.sellers.models import Seller
 from solitude.base import Resource
 
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
+from django.db import DatabaseError
 from django.views import debug
 
 from tastypie import fields
@@ -9,6 +12,10 @@ from tastypie.exceptions import ImmediateHttpResponse
 
 
 class TestError(Exception):
+    pass
+
+
+class StatusError(Exception):
     pass
 
 
@@ -57,3 +64,45 @@ class SettingsResource(Resource):
     def obj_get_list(self, request, **kwargs):
         keys = sorted(debug.get_safe_settings().keys())
         return [SettingsObject(k) for k in keys]
+
+
+class StatusObject(object):
+    pk = 'status'
+    cache = False
+    db = False
+
+    def __repr__(self):
+        return '<Status: database: %s, cache: %s>' % (self.db, self.cache)
+
+
+class StatusResource(Resource):
+    cache = fields.BooleanField(readonly=True, attribute='cache')
+    db = fields.BooleanField(readonly=True, attribute='db')
+
+    class Meta(Resource.Meta):
+        list_allowed_methods = ['get']
+        allowed_methods = ['get']
+        resource_name = 'status'
+
+    def obj_get(self, request, **kwargs):
+        obj = StatusObject()
+        # caching fails silently so we have to read from it after writing.
+        cache.set('status', 'works')
+
+        if cache.get('status') == 'works':
+            obj.cache = True
+
+        try:
+            # exists is one of the fastest queries one can run.
+            Seller.objects.exists()
+            obj.db = True
+        except DatabaseError:
+            pass
+
+        if all((obj.db, obj.cache)):
+            return obj
+        else:
+            raise StatusError(str(obj))
+
+    def obj_get_list(self, request=None, **kwargs):
+        return [self.obj_get(request, **kwargs)]
