@@ -9,7 +9,7 @@ the client. It must be unique within solitude, so we'd recommend prefixing the
 UID, eg: `marketplace:....`
 
 Seller
-=====
+======
 
 Sellers are added to solitude by a POST. The POST should contain a unique UUID
 for example::

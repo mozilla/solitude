@@ -27,7 +27,9 @@ Encrypted fields:
 
   * paypal permissions secret
 
-The keys per field are mapped in settings. See :ref:`setup` for more.
+  * bluevia bluevia_id
+
+The keys per field are mapped in settings. See :ref:`setup.rst` for more.
 
 Requests
 ========
