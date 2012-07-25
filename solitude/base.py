@@ -7,6 +7,13 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
+curlish = False
+try:
+    from curlish import ANSI_CODES, get_color, print_formatted_json
+    curlish = True
+except ImportError:
+    pass
+
 from tastypie import http
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
@@ -18,6 +25,19 @@ import test_utils
 
 log = logging.getLogger('s')
 tasty_log = logging.getLogger('django.request.tastypie')
+
+
+def colorize(colorname, text):
+    if curlish:
+        return get_color(colorname) + text + ANSI_CODES['reset']
+    return text
+
+
+def formatted_json(json):
+    if curlish:
+        print_formatted_json(json)
+        return
+    print json
 
 
 class APIClient(Client):
@@ -140,9 +160,20 @@ class BaseResource(object):
         return http.HttpApplicationError(content=serialized,
                                 content_type='application/json; charset=utf-8')
 
+    def deserialize(self, request, data, format='application/json'):
+        result = (super(BaseResource, self)
+                                .deserialize(request, data, format=format))
+        if settings.DUMP_REQUESTS:
+            formatted_json(result)
+        return result
+
     def dispatch(self, request_type, request, **kwargs):
-        log.info('%s %s' % (request.META['REQUEST_METHOD'],
-                             request.get_full_path()))
+        method = request.META['REQUEST_METHOD']
+        if settings.DUMP_REQUESTS:
+            print colorize('brace', method), request.get_full_path()
+        else:
+            log.info('%s %s' % (colorize('brace', method),
+                                request.get_full_path()))
         return (super(BaseResource, self)
                                 .dispatch(request_type, request, **kwargs))
 

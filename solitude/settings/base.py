@@ -77,3 +77,5 @@ AES_KEYS = {
     'sellerpaypal:token': '',
     'sellerpaypal:secret': '',
 }
+
+DUMP_REQUESTS = False
