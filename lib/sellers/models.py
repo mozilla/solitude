@@ -46,10 +46,8 @@ class SellerPaypal(models.Model):
 
 
 class SellerBluevia(models.Model):
-    # TODO(andym): when the key lands (bug 776753) flip this.
-    #bluevia_id = AESField(max_length=255, blank=True, null=True,
-    #                      aes_key='sellerbluevia:id')
-    bluevia_id = models.CharField(max_length=255, blank=True, null=True)
+    bluevia_id = AESField(max_length=255, blank=True, null=True,
+                          aes_key='sellerbluevia:id')
     seller = models.OneToOneField(Seller, related_name='bluevia')
 
     class Meta:
