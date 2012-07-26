@@ -24,3 +24,16 @@ class TestStatus(APITest):
         eq_(res.status_code, 500)
         data = json.loads(res.content)
         eq_(data['error_message'], '<Status: database: True, cache: False>')
+
+
+class TestError(APITest):
+
+    def setUp(self):
+        self.api_name = 'services'
+        self.list_url = self.get_list_url('error')
+
+    def test_throws_error(self):
+        res = self.client.get(self.list_url)
+        eq_(res.status_code, 500)
+        data = json.loads(res.content)
+        eq_(data['error_message'], 'This is a test.')
