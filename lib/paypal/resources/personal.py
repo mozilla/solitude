@@ -1,6 +1,6 @@
 from cached import Resource
 
-from lib.paypal.client import Client
+from lib.paypal.client import get_client
 from lib.paypal.errors import PaypalError
 from lib.paypal.forms import GetPersonal
 
@@ -12,7 +12,7 @@ class Personal(object):
         if not form.is_valid():
             raise self.form_errors(form)
 
-        paypal = Client()
+        paypal = get_client()
         result = getattr(paypal, self._meta.method)(*form.args())
         if 'email' in result:
             if form.cleaned_data['seller'].paypal_id != result['email']:

@@ -16,7 +16,6 @@ from lib.paypal.resources.pay import (CheckPurchaseResource, PayResource,
                                       RefundResource)
 from lib.sellers.resources import (SellerResource, SellerBlueviaResource,
                                    SellerPaypalResource)
-from lib.sellers.resources import SellerResource, SellerPaypalResource
 
 from lib.services.resources import (ErrorResource, SettingsResource,
                                     StatusResource)
@@ -56,17 +55,13 @@ if settings.CLEANSED_SETTINGS_ACCESS:
     service.register(SettingsResource())
 service.register(StatusResource())
 
-if settings.SOLITUDE_PROXY:
-    urlpatterns = patterns('',
-        url(r'^', include('lib.proxy.urls')),
-    )
-else:
-    urlpatterns = patterns('',
-        url(r'^', include(api.urls)),
-        url(r'^', include(paypal.urls)),
-        url(r'^', include(bluevia.urls)),
-        url(r'^', include(service.urls)),
-        url(r'^$', 'solitude.views.home')
-    )
+urlpatterns = patterns('',
+    url(r'^proxy/paypal/', include('lib.proxy.urls')),
+    url(r'^', include(api.urls)),
+    url(r'^', include(paypal.urls)),
+    url(r'^', include(bluevia.urls)),
+    url(r'^', include(service.urls)),
+    url(r'^$', 'solitude.views.home')
+)
 
 handler500 = handler404 = handler403 = 'solitude.views.error'

@@ -10,7 +10,7 @@ from lib.buyers.models import Buyer, BuyerPaypal
 from solitude.base import APITest
 
 
-@patch('lib.paypal.resources.preapproval.Client.get_preapproval_key')
+@patch('lib.paypal.client.Client.get_preapproval_key')
 @patch.object(settings, 'PAYPAL_USE_SANDBOX', True)
 class TestPreapprovalPaypal(APITest):
 

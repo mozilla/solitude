@@ -2,6 +2,7 @@ from collections import defaultdict
 from decimal import Decimal, InvalidOperation
 import hashlib
 import re
+import urllib
 import urlparse
 import uuid
 
@@ -13,8 +14,8 @@ from django_statsd.clients import statsd
 import requests
 
 from .header import get_auth_header
-from .constants import (PAYPAL_PERSONAL, PAYPAL_PERSONAL_LOOKUP,
-                        REFUND_OK_STATUSES)
+from .constants import (HEADERS_URL, HEADERS_TOKEN, PAYPAL_PERSONAL,
+                        PAYPAL_PERSONAL_LOOKUP, REFUND_OK_STATUSES)
 from .errors import errors, AuthError, PaypalDataError, PaypalError
 from .urls import urls
 
@@ -46,10 +47,12 @@ class Client(object):
     def nvp(self, data):
         """
         Dumps a dict out into NVP pairs suitable for PayPal to consume.
+
+        Note: a urlencode will not work with chained payments. It must be
+        sorted and the key must not be escaped.
         """
         out = []
         escape = lambda k, v: '%s=%s' % (k, urlquote(v))
-        # This must be sorted for chained payments to work correctly.
         for k, v in sorted(data.items()):
             if isinstance(v, (list, tuple)):
                 out.extend([escape('%s(%s)' % (k, x), v_)
@@ -58,6 +61,12 @@ class Client(object):
                 out.append(escape(k, v))
 
         return '&'.join(out)
+
+    def prepare_data(self, data):
+        """Anything else that needs to be done to prepare data for PayPal."""
+        if 'requestEnvelope.errorLanguage' not in data:
+            data['requestEnvelope.errorLanguage'] = 'en_US'
+        return self.nvp(data)
 
     def receivers(self, seller_email, amount, preapproval, chains=None):
         """
@@ -110,9 +119,12 @@ class Client(object):
         # Lookup the URL given the service.
         url = urls[service]
         errs = errors.get(service, errors['default'])
+
         with statsd.timer('solitude.paypal.%s' % service):
             log.info('Calling service: %s' % service)
-            return self._call(url, data, errs, auth_token=auth_token)
+            headers = self.headers(url, auth_token=auth_token)
+            data = self.prepare_data(data)
+            return self._call(url, data, headers, errs, verify=True)
 
     def headers(self, url, auth_token=None):
         """
@@ -141,45 +153,35 @@ class Client(object):
 
         return headers
 
-    def _call(self, url, data, errs, auth_token=None):
-        if 'requestEnvelope.errorLanguage' not in data:
-            data['requestEnvelope.errorLanguage'] = 'en_US'
-
-        # Figure out the headers using the token.
-        headers = self.headers(url, auth_token=auth_token)
-
-        # Warning, a urlencode will not work with chained payments, it must
-        # be sorted and the key should not be escaped.
-        nvp = self.nvp(data)
+    def _call(self, url, data, headers, errs, verify=True):
         try:
-            # This will check certs if settings.PAYPAL_CERT is specified.
-            result = requests.post(url, cert=settings.PAYPAL_CERT, data=nvp,
-                                   headers=headers, timeout=timeout,
-                                   verify=True)
+            result = requests.post(url, data=data, headers=headers,
+                                   verify=verify)
         except AuthError, error:
             log.error('Authentication error: %s' % error)
             raise
         except Exception, error:
             log.error('HTTP Error: %s' % error)
-            # We'll log the actual error and then raise a Paypal error.
-            # That way all the calling methods only have catch a Paypal error,
-            # the fact that there may be say, a http error, is internal to this
-            # method.
             raise PaypalError
 
-        response = dict(urlparse.parse_qsl(result.text))
+        if result.status_code > 299:
+            log.error('HTTP Status: %s' % result.status_code)
+            raise PaypalError(message='HTTP Status: %s' % result.status_code)
 
+        response = dict(urlparse.parse_qsl(result.text))
         if 'error(0).errorId' in response:
-            id_, msg = (response['error(0).errorId'],
-                        response['error(0).message'])
-            # We want some data to produce a nice error. However
-            # we do not want to pass everything back since this will go back in
-            # the REST response and that might leak data.
-            data = {'currency': data.get('currencyCode')}
-            log.error('Paypal Error (%s): %s, %s' % (id_, msg, data))
-            raise errs.get(id_, PaypalError)(id=id_, message=msg, data=data)
+            raise self.error(response, errs)
 
         return response
+
+    def error(self, res, errs):
+        id_, msg = (res['error(0).errorId'], res['error(0).message'])
+        # We want some data to produce a nice error. However
+        # we do not want to pass everything back since this will go back in
+        # the REST response and that might leak data.
+        data = {'currency': res.get('currencyCode')}
+        log.error('Paypal Error (%s): %s' % (id_, msg))
+        return errs.get(id_, PaypalError)(id=id_, message=msg, data=data)
 
     def get_permission_url(self, url, scope):
         """
@@ -350,3 +352,38 @@ class Client(object):
         res = self.call('get-verified', {'emailAddress': paypal_id,
                                          'matchCriteria': 'NONE'})
         return {'type': res['userInfo.accountType']}
+
+
+class ClientProxy(Client):
+
+    def call(self, service, data, auth_token=None):
+        """
+        When used as a proxy, will send slightly different data
+        and log differently.
+        """
+        errs = errors.get(service, errors['default'])
+        with statsd.timer('solitude.proxy.paypal.%s' % service):
+            log.info('Calling proxy: %s' % service)
+            headers = self.headers(service, auth_token)
+            data = self.prepare_data(data)
+            return self._call(settings.PAYPAL_PROXY, data, headers,
+                              errs, verify=False)
+
+    def headers(self, url, auth_token):
+        """
+        When being used as a proxy, this will return a set of headers
+        that the proxy can understand.
+        """
+        headers = {HEADERS_URL: url}
+        if auth_token:
+            headers[HEADERS_TOKEN] = urllib.urlencode(auth_token)
+        return headers
+
+
+def get_client():
+    """
+    Use this to get the right client and communicate with PayPal.
+    """
+    if settings.PAYPAL_PROXY and not settings.SOLITUDE_PROXY:
+        return ClientProxy()
+    return Client()

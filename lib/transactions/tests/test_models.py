@@ -27,7 +27,7 @@ class TestTransaction(APITest):
                 'memo': 'Some memo',
                 'seller': self.uuid}
 
-    @patch('lib.paypal.resources.pay.Client.get_pay_key')
+    @patch('lib.paypal.client.Client.get_pay_key')
     def test_pay(self, key):
         key.return_value = {'pay_key': 'foo', 'status': 'CREATED',
                             'correlation_id': '123', 'uuid': '456'}
@@ -43,7 +43,7 @@ class TestTransaction(APITest):
         eq_(obj.seller, self.seller.paypal)
         eq_(obj.status, constants.STATUS_PENDING)
 
-    @patch('lib.paypal.resources.pay.Client.get_pay_key')
+    @patch('lib.paypal.client.Client.get_pay_key')
     def test_pay_source(self, key):
         key.return_value = {'pay_key': 'foo', 'status': 'CREATED',
                             'correlation_id': '123', 'uuid': '456'}
@@ -53,7 +53,7 @@ class TestTransaction(APITest):
         eq_(res.status_code, 201)
         eq_(PaypalTransaction.objects.all()[0].source, 'in-app')
 
-    @patch('lib.paypal.resources.pay.Client.check_purchase')
+    @patch('lib.paypal.client.Client.check_purchase')
     def test_checked(self, check):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
         pp = PaypalTransaction.objects.create(pay_key='foo', amount=5,
@@ -63,7 +63,7 @@ class TestTransaction(APITest):
         eq_(PaypalTransaction.objects.get(pk=pp.pk).status,
             constants.STATUS_CHECKED)
 
-    @patch('lib.paypal.resources.pay.Client.check_purchase')
+    @patch('lib.paypal.client.Client.check_purchase')
     def test_complete(self, check):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
         pp = PaypalTransaction.objects.create(pay_key='foo', amount=5,
@@ -78,7 +78,7 @@ class TestTransaction(APITest):
         eq_(PaypalTransaction.objects.get(pk=pp.pk).status,
             constants.STATUS_COMPLETED)
 
-    @patch('lib.paypal.resources.pay.Client.check_purchase')
+    @patch('lib.paypal.client.Client.check_purchase')
     def test_complete_not_there(self, check):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
         PaypalTransaction.objects.create(pay_key='bar', amount=5,

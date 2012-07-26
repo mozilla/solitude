@@ -1,7 +1,7 @@
 import os
 import site
 
-os.environ.setdefault('SOLITUDE_PROXY', True)
+os.environ.setdefault('SOLITUDE_PROXY', 'enabled')
 os.environ.setdefault('CELERY_LOADER', 'django')
 # NOTE: you can also set DJANGO_SETTINGS_MODULE in your environment to override
 # the default value in manage.py

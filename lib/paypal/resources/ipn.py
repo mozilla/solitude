@@ -3,6 +3,7 @@ from cached import Resource
 from lib.paypal.ipn import IPN
 from lib.paypal.forms import IPNForm
 
+
 class IPNResource(Resource):
 
     class Meta(Resource.Meta):

@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 
-from .client import Client
+from .client import get_client
 from .errors import PaypalError
 
 log = logging.getLogger('s.paypal')
@@ -30,7 +30,7 @@ class Check(object):
         self.paypal_id = paypal_id
         self.paypal_permissions_token = paypal_permissions_token
         self.prices = prices
-        self.paypal = Client()
+        self.paypal = get_client()
 
     def all(self):
         self.check_id()

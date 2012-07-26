@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from cached import Resource
 
 from lib.buyers.models import Buyer, BuyerPaypal
-from lib.paypal.client import Client
+from lib.paypal.client import get_client
 from lib.paypal.forms import PreapprovalValidation
 from lib.paypal.urls import urls
 
@@ -20,7 +20,7 @@ class PreapprovalResource(Resource):
         if not form.is_valid():
             raise self.form_errors(form)
 
-        paypal = Client()
+        paypal = get_client()
         bundle.data = {'key': paypal.get_preapproval_key(*form.args())['key'],
                        'uuid': form.cleaned_data['uuid'].uuid}
         bundle.obj = self.obj()

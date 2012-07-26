@@ -9,7 +9,7 @@ from lib.transactions.models import PaypalTransaction
 from solitude.base import APITest
 
 
-@patch('lib.paypal.resources.pay.Client.get_pay_key')
+@patch('lib.paypal.client.Client.get_pay_key')
 class TestPayPaypal(APITest):
 
     def setUp(self):
@@ -108,7 +108,7 @@ class KeyTest(object):
         eq_(res.status_code, 400)
 
 
-@patch('lib.paypal.resources.pay.Client.check_purchase')
+@patch('lib.paypal.client.Client.check_purchase')
 class TestPurchasePaypal(KeyTest, APITest):
 
     def setUp(self):
@@ -129,7 +129,7 @@ class TestPurchasePaypal(KeyTest, APITest):
         eq_(json.loads(res.content)['status'], 'COMPLETED')
 
 
-@patch('lib.paypal.resources.pay.Client.get_refund')
+@patch('lib.paypal.client.Client.get_refund')
 class TestRefundPaypal(KeyTest, APITest):
 
     def setUp(self):

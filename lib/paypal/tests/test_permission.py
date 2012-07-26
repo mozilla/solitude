@@ -7,7 +7,7 @@ from lib.sellers.models import Seller, SellerPaypal
 from solitude.base import APITest
 
 
-@patch('lib.paypal.resources.pay.Client.get_permission_url')
+@patch('lib.paypal.client.Client.get_permission_url')
 class TestGetPermissionURL(APITest):
 
     def setUp(self):
@@ -33,7 +33,7 @@ class TestGetPermissionURL(APITest):
         eq_(res.status_code, 400)
 
 
-@patch('lib.paypal.resources.pay.Client.check_permission')
+@patch('lib.paypal.client.Client.check_permission')
 class TestCheckPermission(APITest):
 
     def setUp(self):
@@ -51,7 +51,7 @@ class TestCheckPermission(APITest):
         eq_(content['status'], True)
 
 
-@patch('lib.paypal.resources.pay.Client.get_permission_token')
+@patch('lib.paypal.client.Client.get_permission_token')
 class TestGetPermissionToken(APITest):
 
     def setUp(self):

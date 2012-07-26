@@ -1,7 +1,7 @@
 from django.conf import settings
 
 # These are the root URLs that we use in paypal. Flip PAYPAL_USE_SANDBOX
-# to get the appropriate
+# to get the appropriate target.
 roots = {
     'services': 'https://svcs.paypal.com/',
     'permissions': 'https://svcs.paypal.com/Permissions/',

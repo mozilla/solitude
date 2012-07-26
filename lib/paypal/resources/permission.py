@@ -1,6 +1,6 @@
 from cached import Resource
 
-from lib.paypal.client import Client
+from lib.paypal.client import get_client
 from lib.paypal.forms import (CheckPermission, GetPermissionToken,
                               GetPermissionURL)
 
@@ -34,7 +34,7 @@ class GetPermissionTokenResource(Resource):
         if not form.is_valid():
             raise self.form_errors(form)
 
-        paypal = Client()
+        paypal = get_client()
         result = paypal.get_permission_token(*form.args())
         seller = form.cleaned_data['seller']
         seller.token = result['token']

@@ -87,3 +87,7 @@ PERMISSIONS = [
     'TRANSACTION_DETAILS',
     'TRANSACTION_SEARCH'
 ]
+
+# Header values that the proxy server will use.
+HEADERS_URL = 'X_SOLITUDE_URL'
+HEADERS_TOKEN = 'X_SOLITUDE_TOKEN'
