@@ -163,7 +163,7 @@ class AccountCheck(ArgForm):
     seller = forms.ModelChoiceField(queryset=SellerPaypal.objects.all(),
                                     to_field_name='seller__uuid')
 
-    _kwargs = ('paypal_id', 'paypal_permissions_token', 'prices')
+    _kwargs = ('paypal_id', 'token', 'prices')
 
     def clean(self):
         seller = self.cleaned_data.get('seller')

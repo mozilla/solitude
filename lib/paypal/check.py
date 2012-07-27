@@ -15,8 +15,7 @@ class Check(object):
     add-on is there.
     """
 
-    def __init__(self, paypal_id=None, paypal_permissions_token=None,
-                 prices=None):
+    def __init__(self, paypal_id=None, token=None, prices=None):
         # If this state flips to False, it means they need to
         # go to Paypal and re-set up permissions. We'll assume the best.
         self.state = {'permissions': True}
@@ -28,7 +27,7 @@ class Check(object):
             #   True: tried and passed
             self.state[test] = {'pass': None, 'errors': []}
         self.paypal_id = paypal_id
-        self.paypal_permissions_token = paypal_permissions_token
+        self.paypal_permissions_token = token
         self.prices = prices
         self.paypal = get_client()
 
