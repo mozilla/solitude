@@ -2,6 +2,7 @@ django-mysql-aesfield
 django-statsd
 django-tastypie
 mimeparse
+pyjwt
 simplejson
 statsd
 raven

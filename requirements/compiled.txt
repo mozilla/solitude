@@ -1,1 +1,3 @@
 -r ../vendor/src/funfactory/funfactory/requirements/compiled.txt
+
+M2Crypto>=0.20.0
