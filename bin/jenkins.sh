@@ -16,7 +16,7 @@ find . -name '*.pyc' -exec rm {} \;
 
 if [ ! -d "$VENV/bin" ]; then
   echo "No virtualenv found.  Making one..."
-  virtualenv $VENV --no-site-packages
+  virtualenv $VENV #--no-site-packages
   source $VENV/bin/activate
   pip install --upgrade pip
   pip install coverage
