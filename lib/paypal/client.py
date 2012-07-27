@@ -24,11 +24,13 @@ log = commonware.log.getLogger('s.paypal')
 # The length of time we'll wait for PayPal.
 timeout = getattr(settings, 'PAYPAL_TIMEOUT', 10)
 
+def get_uuid():
+    return hashlib.md5(str(uuid.uuid4())).hexdigest()
+
 
 class Client(object):
 
-    def uuid(self):
-        return hashlib.md5(str(uuid.uuid4())).hexdigest()
+    check_personal_email = True
 
     def whitelist(self, urls, whitelist=None):
         """
@@ -240,7 +242,8 @@ class Client(object):
                 'paymentPeriod': 'DAILY',
             })
         res = self.call('get-preapproval-key', data)
-        return {'key': res['preapprovalKey']}
+        key = res['preapprovalKey']
+        return {'key': key, 'paypal_url': urls['grant-preapproval'] + key}
 
     def get_pay_key(self, seller_email, amount, ipn_url, cancel_url,
                     return_url, currency='USD', preapproval=None, memo='',
@@ -250,7 +253,7 @@ class Client(object):
         Documentation: http://bit.ly/vWV525
         """
         assert self.whitelist([return_url, cancel_url, ipn_url])
-        uuid = uuid or self.uuid()
+        uuid = uuid or get_uuid()
 
         data = {
             'actionType': 'PAY',
@@ -379,11 +382,81 @@ class ClientProxy(Client):
             headers[HEADERS_TOKEN] = urllib.urlencode(auth_token)
         return headers
 
+gp = 'response.personalData'
+rp = 'refundInfoList.refundInfo(0).'
+mock_data = {
+    'get-verified': {'userInfo.accountType': 'BUSINESS'},
+    'get-refund': {},
+    'get-personal': {
+        gp + '(0).personalDataKey': 'http://axschema.org/contact/country/home',
+        gp + '(0).personalDataValue': 'US',
+        gp + '(1).personalDataValue': 'batman@gmail.com',
+        gp + '(1).personalDataKey': 'http://axschema.org/contact/email',
+        gp + '(2).personalDataValue': 'man'
+    },
+    'get-personal-advanced': {
+        gp + '(0).personalDataKey': 'http://schema.openid.net/contact/street1',
+        gp + '(0).personalDataValue': '1 Main St',
+        gp + '(1).personalDataKey': 'http://schema.openid.net/contact/street2',
+        gp + '(2).personalDataValue': 'San Jose',
+        gp + '(2).personalDataKey': 'http://axschema.org/contact/city/home'
+    },
+    'get-permission': {'status': True},
+    'get-permission-token': {'token': get_uuid, 'tokenSecret': get_uuid},
+    'check-purchase': {'status': 'COMPLETED', 'pay_key': get_uuid},
+    'get-pay-key': {
+        'paymentExecStatus': 'COMPLETED', 'payKey': get_uuid,
+        'responseEnvelope.correlationId': get_uuid},
+    'get-preapproval-key': {'preapprovalKey': get_uuid},
+    'request-permission': {'token': 'http://mock.solitude.client'},
+    'get-refund': {'responses': {
+        rp + 'receiver.amount': '123.45',
+        rp + 'receiver.email': 'bob@example.com',
+        rp + 'refundFeeAmount': '1.03',
+        rp + 'refundGrossAmount': '123.45',
+        rp + 'refundNetAmount': '122.42',
+        rp + 'refundStatus': 'REFUNDED'}
+    },
+}
+
+
+class ClientMock(Client):
+
+    check_personal_email = False
+
+    def call(self, service, data, auth_token=None):
+        """
+        This fakes out the client, by returning fake data in its place.
+        TODO: Do something more intelligent with data, eg: returning errors.
+        """
+        if service in mock_data:
+            data = mock_data[service].copy()
+            data = dict([(k, '%s:%s' % (k, v()) if callable(v) else v)
+                         for k, v in data.iteritems()])
+            return data
+        raise NotImplementedError(service)
+
+    def get_preapproval_key(self, start, end, return_url, cancel_url):
+        """
+        We don't want users to have to bounce to PayPal. So we'll fake the
+        return url out to return them back to the current site.
+        """
+        return {'key': 'get-preapproval-key:%s' % get_uuid(),
+                'paypal_url': return_url}
+
+    def get_permission_url(self, url, scope):
+        """As with get_preapproval_key, skip PayPal."""
+        return {'token': url +
+                    '&request_token=get-permission-url:%s' % get_uuid() +
+                    '&verification_code=get-permission-url:%s' % get_uuid()}
+
 
 def get_client():
     """
     Use this to get the right client and communicate with PayPal.
     """
+    if settings.PAYPAL_MOCK:
+        return ClientMock()
     if settings.PAYPAL_PROXY and not settings.SOLITUDE_PROXY:
         return ClientProxy()
     return Client()

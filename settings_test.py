@@ -12,6 +12,7 @@ AES_KEYS = {
 
 SOLITUDE_PROXY = False
 
+PAYPAL_MOCK = False
 PAYPAL_PROXY = False
 PAYPAL_URL_WHITELIST = ('https://marketplace-dev.allizom.org',)
 

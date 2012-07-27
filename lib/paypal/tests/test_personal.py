@@ -36,6 +36,12 @@ class TestGet(APITest):
         eq_(err['error_code'], '100001')
         eq_(err['error_data'], {'email': 'foo@bar.com'})
 
+    def test_email_differs_mock(self):
+        with self.settings(PAYPAL_MOCK=True):
+            res = self.client.post(self.get_list_url('personal-basic'),
+                                   data={'seller': self.uid})
+            eq_(json.loads(res.content)['email'], 'batman@gmail.com')
+
     @patch('lib.paypal.client.Client.get_personal_advanced')
     def test_advanced_data(self, result):
         result.return_value = {'phone': '..'}

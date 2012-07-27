@@ -14,10 +14,12 @@ class Personal(object):
 
         paypal = get_client()
         result = getattr(paypal, self._meta.method)(*form.args())
-        if 'email' in result:
-            if form.cleaned_data['seller'].paypal_id != result['email']:
-                raise PaypalError('The user data did not match',
-                                  data={'email': result['email']}, id=100001)
+        if paypal.check_personal_email:
+            if 'email' in result:
+                if form.cleaned_data['seller'].paypal_id != result['email']:
+                    raise PaypalError('The user data did not match',
+                                      data={'email': result['email']},
+                                      id=100001)
 
         for k, v in result.items():
             setattr(form.cleaned_data['seller'], k, v)

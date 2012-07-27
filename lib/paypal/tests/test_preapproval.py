@@ -37,9 +37,6 @@ class TestPreapprovalPaypal(APITest):
         # be disclosed however.
         data = json.loads(res.content)
         eq_(data['key'], 'foo')
-        eq_(data['paypal_url'],
-            'https://www.sandbox.paypal.com/cgi-bin/'
-            'webscr?cmd=_ap-preapproval&preapprovalkey=foo')
 
     def test_post_empty(self, key):
         res = self.client.post(self.list_url, data={})

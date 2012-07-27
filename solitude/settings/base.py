@@ -49,6 +49,7 @@ PAYPAL_LIMIT_PREAPPROVAL = True
 PAYPAL_URL_WHITELIST = ()
 PAYPAL_USE_SANDBOX = True
 PAYPAL_PROXY = ''
+PAYPAL_MOCK = False
 
 # Access the cleansed settings values.
 CLEANSED_SETTINGS_ACCESS = False

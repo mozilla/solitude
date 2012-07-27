@@ -21,8 +21,8 @@ class PreapprovalResource(Resource):
             raise self.form_errors(form)
 
         paypal = get_client()
-        bundle.data = {'key': paypal.get_preapproval_key(*form.args())['key'],
-                       'uuid': form.cleaned_data['uuid'].uuid}
+        bundle.data = paypal.get_preapproval_key(*form.args())
+        bundle.data['uuid'] = form.cleaned_data['uuid'].uuid
         bundle.obj = self.obj()
         bundle.obj.set(bundle.data)
         return bundle
@@ -49,7 +49,4 @@ class PreapprovalResource(Resource):
 
     def dehydrate(self, bundle):
         bundle.data['pk'] = bundle.obj.pk
-        if 'key' in bundle.data:
-            bundle.data['paypal_url'] = (urls['grant-preapproval'] +
-                                         bundle.data['key'])
         return bundle.data
