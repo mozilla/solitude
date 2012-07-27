@@ -10,5 +10,7 @@ WEB_HOSTGROUP = ''
 CELERY_HOSTGROUP = ''
 CELERY_SERVICE = ''
 
+GUNICORN = 'gunicorn-payments'
+
 UPDATE_REF = 'origin/master'
 SSH_KEY = None
