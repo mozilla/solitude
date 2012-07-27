@@ -26,6 +26,8 @@ Contents
    :glob:
 
    topics/*
+   topics/paypal/*
+   topics/bluevia/*
 
 Indices and tables
 ------------------
