@@ -23,11 +23,12 @@ Contents
 
 .. toctree::
    :maxdepth: 2
-   :glob:
 
-   topics/*
-   topics/paypal/*
-   topics/bluevia/*
+   topics/setup.rst
+   topics/security.rst
+   topics/generic.rst
+   topics/bluevia.rst
+   topics/paypal.rst
 
 Indices and tables
 ------------------
