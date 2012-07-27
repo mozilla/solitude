@@ -423,6 +423,7 @@ class TestAuthWithToken(BaseCase):
 
     @mock.patch('requests.post')
     def test_token_call(self, post):
+        post.return_value.text = 'some-text'
         post.return_value.status_code = 200
         self.paypal.call('get-pay-key', {}, auth_token=good_token)
         assert 'X-PAYPAL-AUTHORIZATION' in post.call_args[1]['headers']
