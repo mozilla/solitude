@@ -10,7 +10,7 @@ from lib.paypal.constants import HEADERS_URL, HEADERS_TOKEN
 HEADERS_URL = 'HTTP_%s' % HEADERS_URL
 HEADERS_TOKEN = 'HTTP_%s' % HEADERS_TOKEN
 
-from lib.paypal.urls import urls
+from lib.paypal.map import urls
 
 
 @mock.patch.object(settings, 'SOLITUDE_PROXY', True)

@@ -17,7 +17,7 @@ from .header import get_auth_header
 from .constants import (HEADERS_URL, HEADERS_TOKEN, PAYPAL_PERSONAL,
                         PAYPAL_PERSONAL_LOOKUP, REFUND_OK_STATUSES)
 from .errors import errors, AuthError, PaypalDataError, PaypalError
-from .urls import urls
+from .map import urls
 
 log = commonware.log.getLogger('s.paypal')
 

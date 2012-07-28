@@ -9,7 +9,7 @@ import requests
 
 from lib.paypal.client import get_client
 from lib.paypal.constants import HEADERS_URL, HEADERS_TOKEN
-from lib.paypal.urls import urls
+from lib.paypal.map import urls
 
 log = logging.getLogger('s.proxy')
 timeout = getattr(settings, 'PAYPAL_TIMEOUT', 10)

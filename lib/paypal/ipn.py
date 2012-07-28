@@ -9,7 +9,7 @@ from django_statsd.clients import statsd
 import requests
 
 from lib.paypal import constants
-from lib.paypal.urls import urls
+from lib.paypal.map import urls
 from lib.transactions import utils
 
 log = commonware.log.getLogger('s.paypal')

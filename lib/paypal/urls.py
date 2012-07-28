@@ -1,39 +1,25 @@
-from django.conf import settings
+from tastypie.api import Api
 
-# These are the root URLs that we use in paypal. Flip PAYPAL_USE_SANDBOX
-# to get the appropriate target.
-roots = {
-    'services': 'https://svcs.paypal.com/',
-    'permissions': 'https://svcs.paypal.com/Permissions/',
-    'pay': 'https://svcs.paypal.com/AdaptivePayments/',
-    'accounts': 'https://svcs.paypal.com/AdaptiveAccounts/',
-    'adaptive': 'https://www.paypal.com/',
-    'cgi': 'https://www.paypal.com/cgi-bin/webscr'
-}
+from lib.paypal.resources.check import AccountCheckResource
+from lib.paypal.resources.ipn import IPNResource
+from lib.paypal.resources.permission import (CheckPermissionResource,
+                                             GetPermissionTokenResource,
+                                             GetPermissionURLResource)
+from lib.paypal.resources.personal import (CheckPersonalBasic,
+                                           CheckPersonalAdvanced)
+from lib.paypal.resources.preapproval import PreapprovalResource
+from lib.paypal.resources.pay import (CheckPurchaseResource, PayResource,
+                                      RefundResource)
 
-if settings.PAYPAL_USE_SANDBOX:
-    roots = {
-        'services': 'https://svcs.sandbox.paypal.com/',
-        'permissions': 'https://svcs.sandbox.paypal.com/Permissions/',
-        'pay': 'https://svcs.sandbox.paypal.com/AdaptivePayments/',
-        'accounts': 'https://svcs.sandbox.paypal.com/AdaptiveAccounts/',
-        'adaptive': 'https://www.sandbox.paypal.com/',
-        'cgi': 'https://www.sandbox.paypal.com/cgi-bin/webscr'
-    }
-
-# A mapping of a names to urls.
-urls = {
-    'check-purchase': roots['pay'] + 'PaymentDetails',
-    'get-pay-key': roots['pay'] + 'Pay',
-    'get-permission': roots['permissions'] + 'GetPermissions',
-    'get-permission-token': roots['permissions'] + 'GetAccessToken',
-    'get-personal': roots['permissions'] + 'GetBasicPersonalData',
-    'get-personal-advanced': roots['permissions'] + 'GetAdvancedPersonalData',
-    'get-preapproval-key': roots['pay'] + 'Preapproval',
-    'grant-preapproval': roots['cgi'] + '?cmd=_ap-preapproval&preapprovalkey=',
-    'get-refund': roots['pay'] + 'Refund',
-    'get-verified': roots['accounts'] + 'GetVerifiedStatus',
-    'grant-permission': roots['cgi'] + '?cmd=_grant-permission&request_token=',
-    'request-permission': roots['permissions'] + 'RequestPermissions',
-    'ipn': roots['cgi'],
-}
+paypal = Api(api_name='paypal')
+paypal.register(CheckPurchaseResource())
+paypal.register(PayResource())
+paypal.register(IPNResource())
+paypal.register(PreapprovalResource())
+paypal.register(GetPermissionURLResource())
+paypal.register(CheckPermissionResource())
+paypal.register(GetPermissionTokenResource())
+paypal.register(CheckPersonalBasic())
+paypal.register(CheckPersonalAdvanced())
+paypal.register(RefundResource())
+paypal.register(AccountCheckResource())
