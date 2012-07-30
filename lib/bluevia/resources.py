@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from solitude.base import Cached, Resource as BaseResource
 
 from .client import get_client
-from .forms import PayValidation
+from .forms import PayValidation, JWTValidation
 
 
 class Null(object):
@@ -34,4 +34,18 @@ class PayResource(Resource):
         if not form.is_valid():
             raise self.form_errors(form)
         bundle.data = {'jwt': bluevia.create_jwt(**form.cleaned_data)}
+        return bundle
+
+
+class VerifyResource(Resource):
+
+    class Meta(Resource.Meta):
+        resource_name = 'verify-jwt'
+        list_allowed_methods = ['post']
+
+    def obj_create(self, bundle, request, **kwargs):
+        form = JWTValidation(bundle.data)
+        if not form.is_valid():
+            raise self.form_errors(form)
+        bundle.data = form.cleaned_data
         return bundle

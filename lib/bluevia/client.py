@@ -24,7 +24,7 @@ class Client(object):
                 'chargebackURL': data['chargeback_url'],
                 'productData': data['product_data']
             },
-            'typ': 'tu.com/payments/inapp/v1',
+            'typ': data['typ'],
         }
         return jwt.encode(purchase, secret)
 

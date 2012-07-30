@@ -3,9 +3,14 @@ from decimal import Decimal
 from django.core.exceptions import ObjectDoesNotExist
 from django import forms
 
+import jwt
+
 from lib.sellers.models import Seller
 
 from .constants import BLUEVIA_CURRENCIES
+
+# TODO find out how this is populated.
+secret = 'some-unknown'
 
 
 class PayValidation(forms.Form):
@@ -37,6 +42,21 @@ class PayValidation(forms.Form):
         data = self.cleaned_data
         if not data.get('typ', '').startswith(data.get('aud', '')):
             raise forms.ValidationError('aud and type mismatch.')
-        # TODO find out how this is populated.
-        data['secret'] = 'some-unknown'
+        data['secret'] = secret
+        return data
+
+
+class JWTValidation(forms.Form):
+    jwt = forms.CharField()
+    seller = forms.ModelChoiceField(queryset=Seller.objects.all(),
+                                    to_field_name='uuid')
+
+    def clean_jwt(self):
+        data = self.cleaned_data['jwt']
+        try:
+            jwt.decode(data.encode('ascii'), secret)
+        except jwt.DecodeError as err:
+            raise forms.ValidationError(err.message)
+
+        self.cleaned_data['valid'] = True
         return data
