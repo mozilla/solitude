@@ -90,6 +90,7 @@ AES_KEYS = {
     'sellerpaypal:id': '',
     'sellerpaypal:token': '',
     'sellerpaypal:secret': '',
+    'sellerbluevia:id': '',
 }
 
 DUMP_REQUESTS = False

@@ -1,9 +1,13 @@
 from django.core.urlresolvers import reverse
 
-
-from lib.paypal.client import get_client
-from lib.paypal.signals import create
 from solitude.base import Cached, Resource as BaseResource
+
+from .client import get_client
+from .forms import PayValidation
+
+
+class Null(object):
+    pass
 
 
 class Resource(BaseResource):
@@ -13,19 +17,21 @@ class Resource(BaseResource):
 
     def get_resource_uri(self, bundle):
         return reverse('api_dispatch_detail',
-                        kwargs={'api_name': 'paypal',
+                        kwargs={'api_name': 'bluevia',
                                 'resource_name': self._meta.resource_name,
                                 'pk': bundle.obj.pk})
 
-    def obj(self, pk=None):
-        return self._meta.object_class(prefix=self._meta.resource_name, pk=pk)
+
+class PayResource(Resource):
+
+    class Meta(Resource.Meta):
+        resource_name = 'prepare-pay'
+        list_allowed_methods = ['post']
 
     def obj_create(self, bundle, request, **kwargs):
-        form = self._meta.form(bundle.data)
+        bluevia = get_client()
+        form = PayValidation(bundle.data)
         if not form.is_valid():
             raise self.form_errors(form)
-
-        paypal = get_client()
-        bundle.data = getattr(paypal, self._meta.method)(*form.args())
-        create.send(sender=self, bundle=bundle)
+        bundle.data = {'jwt': bluevia.create_jwt(**form.cleaned_data)}
         return bundle

@@ -2,8 +2,10 @@ import json
 import logging
 import sys
 import traceback
+import uuid
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
@@ -194,3 +196,26 @@ class ModelResource(BaseResource, TastyPieModelResource):
         authentication = Authentication()
         authorization = Authorization()
         serializer = Serializer(formats=['json'])
+
+
+class Cached(object):
+
+    def __init__(self, prefix='cached', pk=None):
+        pk = pk if pk else uuid.uuid4()
+        self.prefixed = '%s:%s' % (prefix, pk)
+        self.pk = pk
+
+    def set(self, data):
+        return cache.set(self.prefixed, data)
+
+    def get(self):
+        return cache.get(self.prefixed)
+
+    def get_or_404(self):
+        res = self.get()
+        if not res:
+            raise ImmediateHttpResponse(response=http.HttpNotFound())
+        return res
+
+    def delete(self):
+        cache.delete(self.prefixed)
