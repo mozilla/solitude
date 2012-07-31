@@ -89,5 +89,5 @@ PERMISSIONS = [
 ]
 
 # Header values that the proxy server will use.
-HEADERS_URL = 'X_SOLITUDE_URL'
-HEADERS_TOKEN = 'X_SOLITUDE_TOKEN'
+HEADERS_URL = 'x-solitude-url'
+HEADERS_TOKEN = 'x-solitude-token'

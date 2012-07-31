@@ -23,7 +23,7 @@ def proxy(request):
     try:
         service = request.META['HTTP_' + HEADERS_URL]
     except KeyError:
-        log.error('Missing header: %s', ','.join(request.META.keys()))
+        log.error('Missing header: %s', ', '.join(sorted(request.META.keys())))
         raise
 
     token = request.META.get('HTTP_' + HEADERS_TOKEN)
