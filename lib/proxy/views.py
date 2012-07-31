@@ -8,7 +8,7 @@ from django_statsd.clients import statsd
 import requests
 
 from lib.paypal.client import get_client
-from lib.paypal.constants import HEADERS_URL, HEADERS_TOKEN
+from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
 from lib.paypal.map import urls
 
 log = logging.getLogger('s.proxy')
@@ -21,12 +21,12 @@ def proxy(request):
 
     data = request.raw_post_data
     try:
-        service = request.META['HTTP_' + HEADERS_URL]
+        service = request.META['HTTP_' + HEADERS_URL_GET]
     except KeyError:
         log.error('Missing header: %s', ', '.join(sorted(request.META.keys())))
         raise
 
-    token = request.META.get('HTTP_' + HEADERS_TOKEN)
+    token = request.META.get('HTTP_' + HEADERS_TOKEN_GET)
     if token:
         token = dict(urlparse.parse_qsl(token))
     url = urls[service]
