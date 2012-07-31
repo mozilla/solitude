@@ -40,6 +40,8 @@ def proxy(request):
             log.info('Calling service: %s' % service)
             # We aren't calling client._call because that tries to parse the
             # output. Once the headers are prepared, this will do the rest.
+            # Temporary
+            log.info('Data: %s' % data)
             result = requests.post(url, data=data, headers=headers,
                                    timeout=timeout, verify=True)
     except requests.exceptions.RequestException as err:
