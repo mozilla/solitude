@@ -20,7 +20,12 @@ def proxy(request):
         return http.HttpResponseNotFound()
 
     data = request.raw_post_data
-    service = request.META['HTTP_' + HEADERS_URL]
+    try:
+        service = request.META['HTTP_' + HEADERS_URL]
+    except KeyError:
+        log.error('Missing header: %s', ','.join(request.META.keys()))
+        raise
+
     token = request.META.get('HTTP_' + HEADERS_TOKEN)
     if token:
         token = dict(urlparse.parse_qsl(token))
