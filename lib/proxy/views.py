@@ -21,12 +21,12 @@ def proxy(request):
 
     data = request.raw_post_data
     try:
-        service = request.META['HTTP_' + HEADERS_URL_GET]
+        service = request.META[HEADERS_URL_GET]
     except KeyError:
         log.error('Missing header: %s', ', '.join(sorted(request.META.keys())))
         raise
 
-    token = request.META.get('HTTP_' + HEADERS_TOKEN_GET)
+    token = request.META.get(HEADERS_TOKEN_GET)
     if token:
         token = dict(urlparse.parse_qsl(token))
     url = urls[service]
