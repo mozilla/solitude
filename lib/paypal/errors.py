@@ -52,5 +52,5 @@ for number in ['569017', '569018', '569019', '569016', '579014', '579024',
                '579025', '579026', '579027', '579028', '579030', '579031']:
     errors['get-pay-key'][number] = PreApprovalError
 
-for number in ['559044', '580027', '580022']:
+for number in ['580027', '580022']:
     errors['get-pay-key'][number] = CurrencyError

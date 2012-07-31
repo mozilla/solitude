@@ -310,12 +310,12 @@ class TestCall(BaseCase):
     @mock.patch('requests.post')
     def test_error_one_currency(self, post):
         error = other_error + '&currencyCode=BRL'
-        post.return_value.text = error.replace('520001', '559044')
+        post.return_value.text = error.replace('520001', '580027')
         post.return_value.status_code = 200
         try:
             self.paypal.call('get-pay-key', {})
         except PaypalError as error:
-            eq_(error.id, '559044')
+            eq_(error.id, '580027')
             assert 'Brazilian Real' in str(error)
         else:
             raise ValueError('No PaypalError was raised')
