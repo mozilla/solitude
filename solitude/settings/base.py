@@ -38,6 +38,8 @@ if not SOLITUDE_PROXY:
         'django.middleware.transaction.TransactionMiddleware',
         'django.middleware.common.CommonMiddleware'
     )
+else:
+    MIDDLEWARE_CLASSES = ()
 
 SESSION_COOKIE_SECURE = True
 

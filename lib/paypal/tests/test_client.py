@@ -589,7 +589,7 @@ class TestProxy(test_utils.TestCase):
         args = _call.call_args
         eq_(args[0][0], self.url)
         eq_(args[0][1], u'foo=bar&requestEnvelope.errorLanguage=en_US')
-        eq_(args[0][2]['X_SOLITUDE_URL'], 'get-pay-key')
+        eq_(args[0][2]['x-solitude-url'], 'get-pay-key')
 
     @mock.patch.object(ClientProxy, '_call')
     def test_call_with_token(self, _call):
@@ -598,4 +598,4 @@ class TestProxy(test_utils.TestCase):
                              auth_token={'token': 'token'})
         args = _call.call_args
         eq_(args[0][0], self.url)
-        eq_(args[0][2]['X_SOLITUDE_TOKEN'], 'token=token')
+        eq_(args[0][2]['x-solitude-token'], 'token=token')
