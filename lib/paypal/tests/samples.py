@@ -130,4 +130,40 @@ sample_contribution = {
 sample_reversal = sample_refund.copy()
 sample_reversal['transaction[0].status'] = 'reversal'
 
-
+gp = 'response.personalData'
+rp = 'refundInfoList.refundInfo(0).'
+mock_data = {
+    'get-verified': {'userInfo.accountType': 'BUSINESS'},
+    'get-refund': {},
+    'get-personal': {
+        gp + '(0).personalDataKey': 'http://axschema.org/contact/country/home',
+        gp + '(0).personalDataValue': 'US',
+        gp + '(1).personalDataValue': 'batman@gmail.com',
+        gp + '(1).personalDataKey': 'http://axschema.org/contact/email',
+        gp + '(2).personalDataValue': 'man'
+    },
+    'get-personal-advanced': {
+        gp + '(0).personalDataKey': 'http://schema.openid.net/contact/street1',
+        gp + '(0).personalDataValue': '1 Main St',
+        gp + '(1).personalDataKey': 'http://schema.openid.net/contact/street2',
+        gp + '(2).personalDataValue': 'San Jose',
+        gp + '(2).personalDataKey': 'http://axschema.org/contact/city/home'
+    },
+    'get-permission': {'status': True},
+    'get-permission-token': {'token': '%(UUID)s',
+                             'tokenSecret': 'secret:%(UUID)s'},
+    'check-purchase': {'status': 'COMPLETED', 'pay_key': 'pay-key:%(UUID)s'},
+    'get-pay-key': {
+        'status': 'COMPLETED', 'pay_key': 'pay-key:%(UUID)s',
+        'correlation_id': 'correlation-id:%(UUID)s'},
+    'get-preapproval-key': {'preapprovalKey': 'key:%(UUID)s'},
+    'request-permission': {'token': 'http://mock.solitude.client'},
+    'get-refund': {'responses': {
+        rp + 'receiver.amount': '123.45',
+        rp + 'receiver.email': 'bob@example.com',
+        rp + 'refundFeeAmount': '1.03',
+        rp + 'refundGrossAmount': '123.45',
+        rp + 'refundNetAmount': '122.42',
+        rp + 'refundStatus': 'REFUNDED'}
+    },
+}

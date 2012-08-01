@@ -555,7 +555,7 @@ class TestMock(test_utils.TestCase):
 
     def test_call_pay_key(self):
         res = self.paypal.call('get-pay-key', {})
-        assert res['payKey'].startswith('payKey')
+        assert res['pay_key'].startswith('pay-key')
 
     def test_error(self):
         with self.assertRaises(NotImplementedError):

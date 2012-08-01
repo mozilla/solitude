@@ -18,6 +18,7 @@ from .constants import (HEADERS_URL, HEADERS_TOKEN, PAYPAL_PERSONAL,
                         PAYPAL_PERSONAL_LOOKUP, REFUND_OK_STATUSES)
 from .errors import errors, AuthError, PaypalDataError, PaypalError
 from .map import urls
+from .tests.samples import mock_data
 
 log = commonware.log.getLogger('s.paypal')
 
@@ -382,47 +383,14 @@ class ClientProxy(Client):
             headers[HEADERS_TOKEN] = urllib.urlencode(auth_token)
         return headers
 
-gp = 'response.personalData'
-rp = 'refundInfoList.refundInfo(0).'
-mock_data = {
-    'get-verified': {'userInfo.accountType': 'BUSINESS'},
-    'get-refund': {},
-    'get-personal': {
-        gp + '(0).personalDataKey': 'http://axschema.org/contact/country/home',
-        gp + '(0).personalDataValue': 'US',
-        gp + '(1).personalDataValue': 'batman@gmail.com',
-        gp + '(1).personalDataKey': 'http://axschema.org/contact/email',
-        gp + '(2).personalDataValue': 'man'
-    },
-    'get-personal-advanced': {
-        gp + '(0).personalDataKey': 'http://schema.openid.net/contact/street1',
-        gp + '(0).personalDataValue': '1 Main St',
-        gp + '(1).personalDataKey': 'http://schema.openid.net/contact/street2',
-        gp + '(2).personalDataValue': 'San Jose',
-        gp + '(2).personalDataKey': 'http://axschema.org/contact/city/home'
-    },
-    'get-permission': {'status': True},
-    'get-permission-token': {'token': get_uuid, 'tokenSecret': get_uuid},
-    'check-purchase': {'status': 'COMPLETED', 'pay_key': get_uuid},
-    'get-pay-key': {
-        'paymentExecStatus': 'COMPLETED', 'payKey': get_uuid,
-        'responseEnvelope.correlationId': get_uuid},
-    'get-preapproval-key': {'preapprovalKey': get_uuid},
-    'request-permission': {'token': 'http://mock.solitude.client'},
-    'get-refund': {'responses': {
-        rp + 'receiver.amount': '123.45',
-        rp + 'receiver.email': 'bob@example.com',
-        rp + 'refundFeeAmount': '1.03',
-        rp + 'refundGrossAmount': '123.45',
-        rp + 'refundNetAmount': '122.42',
-        rp + 'refundStatus': 'REFUNDED'}
-    },
-}
-
 
 class ClientMock(Client):
 
     check_personal_email = False
+
+    def _process_data(self, data):
+        return dict([(k, v % {'UUID': get_uuid()})
+                     for k, v in data.iteritems()])
 
     def call(self, service, data, auth_token=None):
         """
@@ -430,10 +398,7 @@ class ClientMock(Client):
         TODO: Do something more intelligent with data, eg: returning errors.
         """
         if service in mock_data:
-            data = mock_data[service].copy()
-            data = dict([(k, '%s:%s' % (k, v()) if callable(v) else v)
-                         for k, v in data.iteritems()])
-            return data
+            return self._process_data(mock_data[service].copy())
         raise NotImplementedError(service)
 
     def get_preapproval_key(self, start, end, return_url, cancel_url):
