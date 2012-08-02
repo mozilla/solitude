@@ -54,7 +54,8 @@ class TestVerifyBluevia(APITest):
         eq_(content['valid'], True)
 
     def test_fail(self):
-        res = self.client.post(self.list_url, data={'jwt': self.valid + 'asd',
+        valid = self.valid[:-2] + 'xx'
+        res = self.client.post(self.list_url, data={'jwt': valid,
                                                     'seller': uuid})
         eq_(res.status_code, 400, res.content)
         eq_(self.get_errors(res.content, 'jwt')[0],
