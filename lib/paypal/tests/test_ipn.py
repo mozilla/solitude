@@ -16,7 +16,7 @@ from lib.transactions.models import PaypalTransaction
 from solitude.base import APITest
 
 
-@patch('lib.paypal.ipn.requests.post')
+@patch('lib.paypal.client.requests.post')
 class TestValid(test_utils.TestCase):
 
     def test_empty(self, post):
@@ -27,19 +27,17 @@ class TestValid(test_utils.TestCase):
 
     def test_not_valid(self, post):
         post.return_value.text = 'NOPE'
+        post.return_value.status_code = 200
         eq_(IPN('status=completed').is_valid(), False)
-
-    def test_error(self, post):
-        post.side_effect = ValueError
-        with self.assertRaises(ValueError):
-            IPN('status=completed').is_valid()
 
     def test_good(self, post):
         post.return_value.text = 'VERIFIED'
+        post.return_value.status_code = 200
         eq_(IPN('status=completed').is_valid(), True)
 
     def test_calls(self, post):
         post.return_value.text = 'VERIFIED'
+        post.return_value.status_code = 200
         eq_(IPN('status=completed').is_valid(), True)
 
 
@@ -83,7 +81,7 @@ class TestParse(test_utils.TestCase):
             {'currency': 'USD', 'amount': Decimal('0.30')})
 
 
-@patch('lib.paypal.ipn.requests.post')
+@patch('lib.paypal.client.requests.post')
 class TestProcess(test_utils.TestCase):
 
     def test_invalid(self, post):
@@ -93,6 +91,7 @@ class TestProcess(test_utils.TestCase):
 
     def test_still_ignored(self, post):
         post.return_value.text = 'VERIFIED'
+        post.return_value.status_code = 200
         ipn = IPN(urllib.urlencode(samples.sample_refund))
         ipn.process()
         eq_(ipn.status, constants.IPN_STATUS_IGNORED)
@@ -100,6 +99,7 @@ class TestProcess(test_utils.TestCase):
     @patch('lib.paypal.ipn.utils.completed')
     def test_purchase(self, completed, post):
         post.return_value.text = 'VERIFIED'
+        post.return_value.status_code = 200
         completed.return_value = True
         ipn = IPN(urllib.urlencode(samples.sample_purchase))
         ipn.process()
@@ -108,6 +108,7 @@ class TestProcess(test_utils.TestCase):
     @patch('lib.paypal.ipn.utils.completed')
     def test_purchase_not(self, completed, post):
         post.return_value.text = 'VERIFIED'
+        post.return_value.status_code = 200
         completed.return_value = False
         ipn = IPN(urllib.urlencode(samples.sample_purchase))
         ipn.process()
@@ -116,6 +117,7 @@ class TestProcess(test_utils.TestCase):
     @patch('lib.paypal.ipn.utils.refunded')
     def test_refund(self, refunded, post):
         post.return_value.text = 'VERIFIED'
+        post.return_value.status_code = 200
         refunded.return_value = True
         ipn = IPN(urllib.urlencode(samples.sample_refund))
         ipn.process()
@@ -124,6 +126,7 @@ class TestProcess(test_utils.TestCase):
     @patch('lib.paypal.ipn.utils.reversal')
     def test_reversal(self, reversal, post):
         post.return_value.text = 'VERIFIED'
+        post.return_value.status_code = 200
         reversal.return_value = True
         ipn = IPN(urllib.urlencode(samples.sample_reversal))
         ipn.process()
@@ -132,6 +135,7 @@ class TestProcess(test_utils.TestCase):
     @patch('lib.paypal.ipn.utils.refunded')
     def test_chained_refund(self, refunded, post):
         post.return_value.text = 'VERIFIED'
+        post.return_value.status_code = 200
         refunded.return_value = True
         ipn = IPN(urllib.urlencode(samples.sample_chained_refund))
         ipn.process()
@@ -139,7 +143,7 @@ class TestProcess(test_utils.TestCase):
         eq_(ipn.status, constants.IPN_STATUS_OK)
 
 
-@patch('lib.paypal.ipn.requests.post')
+@patch('lib.paypal.client.requests.post')
 class TestIPNResource(APITest):
 
     def setUp(self):
@@ -162,6 +166,7 @@ class TestIPNResource(APITest):
 
     def test_purchase(self, post):
         post.return_value.text = 'VERIFIED'
+        post.return_value.status_code = 200
         res = self.client.post(self.list_url, data={'data':
                 urllib.urlencode(samples.sample_purchase)})
         eq_(res.status_code, 201)
@@ -173,6 +178,7 @@ class TestIPNResource(APITest):
 
     def test_refund(self, post):
         post.return_value.text = 'VERIFIED'
+        post.return_value.status_code = 200
         self.transaction.status = transaction_constants.STATUS_COMPLETED
         self.transaction.save()
         res = self.client.post(self.list_url, data={'data':

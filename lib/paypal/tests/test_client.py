@@ -531,7 +531,7 @@ class TestRightClient(test_utils.TestCase):
     def test_no_proxy(self):
         with self.settings(PAYPAL_PROXY=None, SOLITUDE_PROXY=False):
             assert isinstance(get_client(), Client)
-            assert get_client().check_personal_email == True
+            assert get_client().check_personal_email is True
 
     def test_using_proxy(self):
         with self.settings(PAYPAL_PROXY='http://foo.com'):
@@ -544,7 +544,7 @@ class TestRightClient(test_utils.TestCase):
     def test_mock(self):
         with self.settings(PAYPAL_MOCK=True):
             assert isinstance(get_client(), ClientMock)
-            assert get_client().check_personal_email == False
+            assert get_client().check_personal_email is False
 
 
 class TestMock(test_utils.TestCase):
@@ -557,15 +557,23 @@ class TestMock(test_utils.TestCase):
         res = self.paypal.call('get-pay-key', {})
         assert res['pay_key'].startswith('pay-key')
 
+    @mock.patch('lib.paypal.client.threading.Timer')
+    def test_ipn(self, timer):
+        res = self.paypal.get_pay_key('s@m.c', 5, 'http://ipn/',
+                                      'http://cancel/', 'http://return',
+                                      uuid='foo')
+        eq_(timer.call_args[0][2][0], 'http://ipn/')
+        eq_(timer.call_args[0][2][1]['tracking_id'], res['uuid'])
+
     def test_error(self):
         with self.assertRaises(NotImplementedError):
             self.paypal.call('nope', {})
 
-    def test_preapproval_local(self):
+    def test_preapproval_key(self):
         res = self.paypal.get_preapproval_key('blah', 'blah', self.url, 'blah')
         eq_(res['paypal_url'], self.url)
 
-    def test_preapproval_local(self):
+    def test_preapproval_url(self):
         res = self.paypal.get_permission_url(self.url, 'blah')
         assert res['token'].startswith(self.url)
 

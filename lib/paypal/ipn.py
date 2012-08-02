@@ -2,14 +2,10 @@ from decimal import Decimal
 import re
 from urlparse import parse_qsl
 
-from django.conf import settings
-
 import commonware.log
-from django_statsd.clients import statsd
-import requests
 
 from lib.paypal import constants
-from lib.paypal.map import urls
+from lib.paypal.client import get_client
 from lib.transactions import utils
 
 log = commonware.log.getLogger('s.paypal')
@@ -29,26 +25,14 @@ class IPN(object):
         self.details = {}
         self.status = None
         self.action = None
+        self.client = get_client()
 
     def is_valid(self):
         if self.raw_dict.get('status', '').lower() != 'completed':
             log.info('Payment status not completed.')
             return False
 
-        url = urls['ipn']
-        data = u'cmd=_notify-validate&' + self.raw
-        with statsd.timer('solitude.paypal.ipn.validate'):
-            log.info('Calling paypal for verification of ipn.')
-            #TODO(andym): should be catching all errors here?
-            response = requests.post(url, data, cert=settings.PAYPAL_CERT,
-                                     verify=True)
-
-        if response.text != 'VERIFIED':
-            log.info('Verification failed.')
-            #TODO(andym): CEF logging here.
-            return False
-
-        return True
+        return self.client.get_ipn_verify(self.raw)
 
     def parse(self):
         transaction, transactions = {}, {}

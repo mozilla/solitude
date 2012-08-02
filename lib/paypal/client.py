@@ -5,6 +5,7 @@ import re
 import urllib
 import urlparse
 import uuid
+import threading
 
 from django.conf import settings
 from django.utils.http import urlquote
@@ -24,6 +25,7 @@ log = commonware.log.getLogger('s.paypal')
 
 # The length of time we'll wait for PayPal.
 timeout = getattr(settings, 'PAYPAL_TIMEOUT', 10)
+
 
 def get_uuid():
     return hashlib.md5(str(uuid.uuid4())).hexdigest()
@@ -156,7 +158,7 @@ class Client(object):
 
         return headers
 
-    def _call(self, url, data, headers, errs, verify=True):
+    def _post(self, url, data, headers, verify):
         try:
             result = requests.post(url, data=data, headers=headers,
                                    verify=verify)
@@ -171,7 +173,11 @@ class Client(object):
             log.error('HTTP Status: %s' % result.status_code)
             raise PaypalError(message='HTTP Status: %s' % result.status_code)
 
-        response = dict(urlparse.parse_qsl(result.text))
+        return result.text
+
+    def _call(self, url, data, headers, errs, verify=True):
+        result = self._post(url, data, headers, verify)
+        response = dict(urlparse.parse_qsl(result))
         if 'error(0).errorId' in response:
             raise self.error(response, errs)
 
@@ -357,6 +363,22 @@ class Client(object):
                                          'matchCriteria': 'NONE'})
         return {'type': res['userInfo.accountType']}
 
+    def get_ipn_verify(self, raw):
+        """
+        Verify the IPN back against PayPal. This api is different from the
+        others and will not need NVP formatting and will return just a string
+        of the result.
+        """
+        data = u'cmd=_notify-validate&' + raw
+        with statsd.timer('solitude.paypal.ipn.validate'):
+            res = self._post(urls['ipn'], data, {}, True)
+
+        if res != 'VERIFIED':
+            log.info('Verification failed.')
+            #TODO(andym): CEF logging here.
+            return False
+        return True
+
 
 class ClientProxy(Client):
 
@@ -384,13 +406,24 @@ class ClientProxy(Client):
         return headers
 
 
+def mock_ipn_url(url, data):
+    """
+    This is the delayed request to simulate the IPN, it will be called
+    from a thread. Because everything is done in two single threaded dev
+    servers, we need to fire off a new thread. This is the mock code for
+    dev servers, never intended for production use. Ever.
+    """
+    requests.post(url, data=urllib.urlencode(data))
+
+
 class ClientMock(Client):
 
     check_personal_email = False
 
-    def _process_data(self, data):
-        return dict([(k, v % {'UUID': get_uuid()})
-                     for k, v in data.iteritems()])
+    def _process_data(self, data, replacement=None):
+        replacement = replacement or {}
+        replacement.setdefault('UUID', get_uuid())
+        return dict([(k, v % replacement) for k, v in data.iteritems()])
 
     def call(self, service, data, auth_token=None):
         """
@@ -414,6 +447,28 @@ class ClientMock(Client):
         return {'token': url +
                     '&request_token=get-permission-url:%s' % get_uuid() +
                     '&verification_code=get-permission-url:%s' % get_uuid()}
+
+    def get_pay_key(self, seller_email, amount, ipn_url, cancel_url,
+                    return_url, currency='USD', preapproval=None, memo='',
+                    uuid=None):
+        """
+        We'll need to do IPN requests once get_pay_key has finished to
+        simulate how PayPal works. This means the marketplace needs to be
+        accessible from solitude.
+        """
+        data = self._process_data(mock_data['get-pay-key'].copy())
+        ipn_data = mock_data['get-pay-key-ipn'].copy()
+        ipn_data = self._process_data(ipn_data, replacement={
+            'paykey': data['pay_key'],
+            'amount': '%s %s' % (currency, amount),
+            'UUID': data['uuid'],
+        })
+        ipn = threading.Timer(5, mock_ipn_url, [ipn_url, ipn_data])
+        ipn.start()
+        return data
+
+    def get_ipn_verify(self, *args):
+        return 'VERIFIED'
 
 
 def get_client():

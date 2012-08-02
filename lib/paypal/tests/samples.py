@@ -155,7 +155,7 @@ mock_data = {
     'check-purchase': {'status': 'COMPLETED', 'pay_key': 'pay-key:%(UUID)s'},
     'get-pay-key': {
         'status': 'COMPLETED', 'pay_key': 'pay-key:%(UUID)s',
-        'correlation_id': 'correlation-id:%(UUID)s'},
+        'correlation_id': 'correlation-id:%(UUID)s', 'uuid': 'uuid:%(UUID)s'},
     'get-preapproval-key': {'preapprovalKey': 'key:%(UUID)s'},
     'request-permission': {'token': 'http://mock.solitude.client'},
     'get-refund': {'responses': {
@@ -165,5 +165,17 @@ mock_data = {
         rp + 'refundGrossAmount': '123.45',
         rp + 'refundNetAmount': '122.42',
         rp + 'refundStatus': 'REFUNDED'}
+    },
+    'get-pay-key-ipn': {
+        'action_type': 'PAY',
+        'pay_key': '%(paykey)s',
+        'sender_email': 'some.other@gmail.com',
+        'status': 'COMPLETED',
+        'tracking_id': '%(UUID)s',
+        'transaction[0].amount': '%(amount)s',
+        'transaction[0].paymentType': 'DIGITALGOODS',
+        'transaction[0].status': 'Completed',
+        'transaction_type': 'Adaptive Payment PAY',
+        'verify_sign': 'zyx'
     },
 }
