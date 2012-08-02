@@ -10,10 +10,6 @@ straight forward. Requirements:
 * MySQL
 * Python 2.6 or 2.7
 
-You will need to have `funfactory` installed. To do this do::
-
-        pip install funfactory
-
 For more information see the playdoh_ installation docs.
 
 Requirements
@@ -72,10 +68,11 @@ example::
         AES_KEYS = {
                 # For the purposes of testing, let's set these to the same
                 # values.
-                'buyerpaypal:key': '/tmp/foo.key',
-                'sellerpaypal:id': '/tmp/foo.key',,
-                'sellerpaypal:token': '/tmp/foo.key',
-                'sellerpaypal:secret': '/tmp/foo.key',
+                'buyerpaypal:key': 'foo.key',
+                'sellerpaypal:id': 'foo.key',,
+                'sellerpaypal:token': 'foo.key',
+                'sellerpaypal:secret': 'foo.key',
+                'sellerbluevia:id': 'foo.key',
         }
 
 Then run::

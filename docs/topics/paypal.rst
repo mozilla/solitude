@@ -262,3 +262,19 @@ To run the proxy server, run with the environment variable::
 
 To run as a wsgi file, just use `wsgi/proxy.py` and it will set this variable
 for you.
+
+Mock
+====
+
+There's a mock for PayPal that allows zamboni and solitude to interact. Records
+are created, updated and deleted in solitude as the process happens. It does
+without ever actually calling PayPal. This means that payments will work
+automatically as if the user had pre-approved payments (even if they haven't).
+
+Flipping between the mock and using PayPal will generate issues. For example,
+the mock will create a fake pre-approval token. If you then use PayPal, that
+token will just generate errors.
+
+To use the mock set::
+
+        PAYPAL_MOCK = True
