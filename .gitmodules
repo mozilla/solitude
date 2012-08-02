@@ -18,4 +18,4 @@
 	url = git://github.com/simplejson/simplejson.git
 [submodule "vendor-local/pyjwt"]
 	path = vendor-local/pyjwt
-	url = git://github.com/michaelrhanson/pyjwt.git
+	url = git://github.com/rtilder/pyjwt.git
