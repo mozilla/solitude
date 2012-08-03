@@ -2,15 +2,17 @@ from django.db import models
 
 from aesfield.field import AESField
 
+from solitude.base import Model
 
-class Seller(models.Model):
+
+class Seller(Model):
     uuid = models.CharField(max_length=255, db_index=True, unique=True)
 
-    class Meta:
+    class Meta(Model.Meta):
         db_table = 'seller'
 
 
-class SellerPaypal(models.Model):
+class SellerPaypal(Model):
     paypal_id = AESField(max_length=255, blank=True, null=True,
                          aes_key='sellerpaypal:id')
     token = AESField(max_length=255, blank=True, null=True,
@@ -33,7 +35,7 @@ class SellerPaypal(models.Model):
     state = models.CharField(max_length=64, blank=True)
     phone = models.CharField(max_length=32, blank=True)
 
-    class Meta:
+    class Meta(Model.Meta):
         db_table = 'seller_paypal'
 
     @property
@@ -45,10 +47,10 @@ class SellerPaypal(models.Model):
         return bool(self.token)
 
 
-class SellerBluevia(models.Model):
+class SellerBluevia(Model):
     bluevia_id = AESField(max_length=255, blank=True, null=True,
                           aes_key='sellerbluevia:id')
     seller = models.OneToOneField(Seller, related_name='bluevia')
 
-    class Meta:
+    class Meta(Model.Meta):
         db_table = 'seller_bluevia'

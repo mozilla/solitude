@@ -7,6 +7,7 @@ import uuid
 from django.conf import settings
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
+from django.db import models
 from django.test.client import Client
 
 curlish = False
@@ -219,3 +220,12 @@ class Cached(object):
 
     def delete(self):
         cache.delete(self.prefixed)
+
+
+class Model(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+        ordering = ('-created',)

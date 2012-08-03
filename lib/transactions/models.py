@@ -6,12 +6,12 @@ import commonware.log
 from lib.transactions import constants
 from lib.paypal.signals import create
 
-from solitude.base import get_object_or_404
+from solitude.base import get_object_or_404, Model
 
 log = commonware.log.getLogger('s.transaction')
 
 
-class PaypalTransaction(models.Model):
+class PaypalTransaction(Model):
     # This is our tracking id.
     uuid = models.CharField(max_length=255, db_index=True, unique=True)
     seller = models.ForeignKey('sellers.SellerPaypal')
@@ -31,7 +31,7 @@ class PaypalTransaction(models.Model):
     source = models.CharField(max_length=255, blank=True, null=True,
                               db_index=True)
 
-    class Meta:
+    class Meta(Model.Meta):
         db_table = 'transaction_paypal'
         ordering = ('-id',)
 

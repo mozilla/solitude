@@ -2,24 +2,24 @@ from django.db import models
 
 from aesfield.field import AESField
 
+from solitude.base import Model
 
-class Buyer(models.Model):
+
+class Buyer(Model):
     uuid = models.CharField(max_length=255, db_index=True, unique=True)
 
-    class Meta:
+    class Meta(Model.Meta):
         db_table = 'buyer'
 
 
-class BuyerPaypal(models.Model):
-    # TODO(andym): encrypt these based upon
-    # https://bugzilla.mozilla.org/show_bug.cgi?id=763103
+class BuyerPaypal(Model):
     key = AESField(max_length=255, blank=True, null=True,
                    aes_key='buyerpaypal:key')
     expiry = models.DateField(blank=True, null=True)
     currency = models.CharField(max_length=3, blank=True, null=True)
     buyer = models.OneToOneField(Buyer, related_name='paypal')
 
-    class Meta:
+    class Meta(Model.Meta):
         db_table = 'buyer_paypal'
 
     @property
