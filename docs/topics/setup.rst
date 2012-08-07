@@ -29,6 +29,11 @@ From github::
 
         git clone --recursive git://github.com/mozilla/solitude.git
 
+If you used a virtualenv_ activate it and compile some playdoh dependencies::
+
+        cd solitude
+        pip install -r requirements/compiled.txt
+
 Setup settings::
 
         cd solitude/settings
