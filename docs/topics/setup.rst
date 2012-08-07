@@ -71,13 +71,13 @@ copy into `local.py` and point to a file that makes sense for your install. For
 example::
 
         AES_KEYS = {
-                # For the purposes of testing, let's set these to the same
-                # values.
-                'buyerpaypal:key': 'foo.key',
-                'sellerpaypal:id': 'foo.key',,
-                'sellerpaypal:token': 'foo.key',
-                'sellerpaypal:secret': 'foo.key',
-                'sellerbluevia:id': 'foo.key',
+            # For the purposes of testing, let's set these to the same
+            # values.
+            'buyerpaypal:key': 'foo.key',
+            'sellerpaypal:id': 'foo.key',
+            'sellerpaypal:token': 'foo.key',
+            'sellerpaypal:secret': 'foo.key',
+            'sellerbluevia:id': 'foo.key',
         }
 
 Then run::
