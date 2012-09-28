@@ -4,10 +4,7 @@
 BlueVia
 ===================
 
-Pay
-===================
-
-TODO
+BlueVia integration was started, but never completed.
 
 Sellers
 ========================
