@@ -31,8 +31,8 @@ if [ ! -d "$WORKSPACE/vendor" ]; then
 fi
 
 source $VENV/bin/activate
-pip install -q -r requirements/compiled.txt
-pip install -q -r requirements/dev.txt
+pip install -q --exists-action=w --no-deps -r requirements/compiled.txt
+pip install -q --exists-action=w --no-deps -r requirements/test.txt
 
 cat > solitude/settings/local.py <<SETTINGS
 from solitude.settings.base import *

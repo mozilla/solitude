@@ -27,12 +27,12 @@ Install
 
 From github::
 
-        git clone --recursive git://github.com/mozilla/solitude.git
+        git clone git://github.com/mozilla/solitude.git
 
 If you used a virtualenv_ activate it and compile some playdoh dependencies::
 
         cd solitude
-        pip install -r requirements/compiled.txt
+        pip install -r requirements/dev.txt
 
 Setup settings::
 
