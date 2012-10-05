@@ -13,8 +13,7 @@ class Buyer(Model):
 
 
 class BuyerPaypal(Model):
-    key = AESField(max_length=255, blank=True, null=True,
-                   aes_key='buyerpaypal:key')
+    key = AESField(blank=True, null=True, aes_key='buyerpaypal:key')
     expiry = models.DateField(blank=True, null=True)
     currency = models.CharField(max_length=3, blank=True, null=True)
     buyer = models.OneToOneField(Buyer, related_name='paypal')

@@ -3,13 +3,14 @@ PyJWT==0.1.4
 cef==0.3
 commonware==0.4.0
 django-multidb-router
-django-mysql-aesfield==0.2.1
+django-aesfield==0.1
 django-nose==1.1
 django-statsd-mozilla==0.3.7
 django-tastypie==0.9.11
 funfactory==2.1.1
 jingo==0.4
 mimeparse==0.1.3
+m2secret==0.1.1
 nose==1.2.1
 python-dateutil==2.1
 python-memcached==1.48

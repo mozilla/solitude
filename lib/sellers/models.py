@@ -13,12 +13,9 @@ class Seller(Model):
 
 
 class SellerPaypal(Model):
-    paypal_id = AESField(max_length=255, blank=True, null=True,
-                         aes_key='sellerpaypal:id')
-    token = AESField(max_length=255, blank=True, null=True,
-                     aes_key='sellerpaypal:token')
-    secret = AESField(max_length=255, blank=True, null=True,
-                      aes_key='sellerpaypal:secret')
+    paypal_id = AESField(blank=True, null=True, aes_key='sellerpaypal:id')
+    token = AESField(blank=True, null=True, aes_key='sellerpaypal:token')
+    secret = AESField(blank=True, null=True, aes_key='sellerpaypal:secret')
     seller = models.OneToOneField(Seller, related_name='paypal')
     # TODO: currencies.
 
@@ -48,8 +45,7 @@ class SellerPaypal(Model):
 
 
 class SellerBluevia(Model):
-    bluevia_id = AESField(max_length=255, blank=True, null=True,
-                          aes_key='sellerbluevia:id')
+    bluevia_id = AESField(blank=True, null=True, aes_key='sellerbluevia:id')
     seller = models.OneToOneField(Seller, related_name='bluevia')
 
     class Meta(Model.Meta):
