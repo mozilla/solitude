@@ -33,7 +33,7 @@ class TestProxy(test_utils.TestCase):
     def test_proxy_auth(self, post):
         post.return_value.status_code = 200
         self.client.get(self.url, **{HEADERS_URL_GET: 'get-pay-key',
-                                     HEADERS_TOKEN_GET: 'token=bar&secret=foo'})
+                                     HEADERS_TOKEN_GET: 'token=b&secret=f'})
         assert 'X-PAYPAL-AUTHORIZATION' in post.call_args[1]['headers']
 
     def test_status_code(self, post):
@@ -49,3 +49,15 @@ class TestProxy(test_utils.TestCase):
     def test_not_enabled(self, post):
         with self.settings(SOLITUDE_PROXY=False):
             eq_(self.client.post(self.url).status_code, 404)
+
+
+@mock.patch.object(settings, 'SOLITUDE_PROXY', True)
+@mock.patch('lib.proxy.views.requests.post')
+class TestBango(test_utils.TestCase):
+
+    def setUp(self):
+        self.url = reverse('bango.proxy')
+
+    def test_noop(self, post):
+        # Not sure what tests we'll have in here yet.
+        pass
