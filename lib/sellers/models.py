@@ -50,3 +50,12 @@ class SellerBluevia(Model):
 
     class Meta(Model.Meta):
         db_table = 'seller_bluevia'
+
+
+class SellerProduct(Model):
+    seller = models.ForeignKey(Seller, related_name='product')
+    bango_secret = AESField(blank=True, null=True,
+                            aes_key='sellerproduct:bangosecret')
+
+    class Meta(Model.Meta):
+        db_table = 'seller_product'

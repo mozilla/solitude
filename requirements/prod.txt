@@ -16,6 +16,7 @@ python-dateutil==2.1
 python-memcached==1.48
 raven==2.0.6
 requests==0.14.1
+schematic==0.2
 simplejson==2.6.2
 six==1.2.0
 statsd==1.0.0

@@ -3,9 +3,9 @@ from tastypie import fields
 from tastypie.constants import ALL_WITH_RELATIONS
 from tastypie.validation import FormValidation
 
-from .forms import (SellerValidation, SellerBlueviaValidation,
-                    SellerPaypalValidation)
-from .models import Seller, SellerBluevia, SellerPaypal
+from .forms import (SellerValidation, SellerProductValidation,
+                    SellerBlueviaValidation, SellerPaypalValidation)
+from .models import Seller, SellerProduct, SellerBluevia, SellerPaypal
 
 
 class SellerResource(ModelResource):
@@ -57,3 +57,16 @@ class SellerBlueviaResource(ModelResource):
         allowed_methods = ['get', 'put', 'patch']
         resource_name = 'seller'
         validation = FormValidation(form_class=SellerBlueviaValidation)
+
+
+class SellerProductResource(ModelResource):
+    seller = fields.ToOneField('lib.sellers.resources.SellerResource',
+                               'seller')
+
+    class Meta(ModelResource.Meta):
+        excludes = ['id']
+        queryset = SellerProduct.objects.all()
+        list_allowed_methods = ['post']
+        allowed_methods = ['get', 'put', 'patch']
+        resource_name = 'product'
+        validation = FormValidation(form_class=SellerProductValidation)

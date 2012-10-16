@@ -11,7 +11,7 @@ class TestValidation(test_utils.TestCase):
         self.client = Client()
 
     def test_create_empty(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             self.client.create_jwt()
 
     def create(self):

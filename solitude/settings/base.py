@@ -94,6 +94,7 @@ AES_KEYS = {
     'sellerpaypal:token': '',
     'sellerpaypal:secret': '',
     'sellerbluevia:id': '',
+    'sellerproduct:bangosecret': '',
 }
 
 DUMP_REQUESTS = False

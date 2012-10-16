@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import include, patterns, url
 
 from tastypie.api import Api
 
@@ -7,7 +7,7 @@ from lib.bluevia.urls import bluevia
 from lib.buyers.resources import BuyerResource, BuyerPaypalResource
 from lib.paypal.urls import paypal
 from lib.sellers.resources import (SellerResource, SellerBlueviaResource,
-                                   SellerPaypalResource)
+                                   SellerPaypalResource, SellerProductResource)
 from lib.services.resources import (ErrorResource, SettingsResource,
                                     StatusResource)
 from lib.transactions.resources import TransactionResource
@@ -16,6 +16,7 @@ from lib.transactions.resources import TransactionResource
 api = Api(api_name='generic')
 api.register(BuyerResource())
 api.register(SellerResource())
+api.register(SellerProductResource())
 
 # PayPal specific APIs
 paypal.register(BuyerPaypalResource())

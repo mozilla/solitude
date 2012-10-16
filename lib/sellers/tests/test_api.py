@@ -2,25 +2,27 @@ import json
 
 from nose.tools import eq_
 
-from lib.sellers.models import Seller, SellerBluevia, SellerPaypal
+from lib.sellers.models import (Seller, SellerProduct, SellerBluevia,
+                                SellerPaypal)
 from solitude.base import APITest
+
+uuid = 'sample:uid'
 
 
 class TestSeller(APITest):
 
     def setUp(self):
         self.api_name = 'generic'
-        self.uuid = 'sample:uid'
         self.list_url = self.get_list_url('seller')
 
     def test_add(self):
-        res = self.client.post(self.list_url, data={'uuid': self.uuid})
+        res = self.client.post(self.list_url, data={'uuid': uuid})
         eq_(res.status_code, 201)
-        eq_(Seller.objects.filter(uuid=self.uuid).count(), 1)
+        eq_(Seller.objects.filter(uuid=uuid).count(), 1)
 
     def test_add_multiple(self):
-        self.client.post(self.list_url, data={'uuid': self.uuid})
-        res = self.client.post(self.list_url, data={'uuid': self.uuid})
+        self.client.post(self.list_url, data={'uuid': uuid})
+        res = self.client.post(self.list_url, data={'uuid': uuid})
         eq_(res.status_code, 400)
         eq_(self.get_errors(res.content, 'uuid'),
             ['Seller with this Uuid already exists.'])
@@ -39,14 +41,14 @@ class TestSeller(APITest):
         self.allowed_verbs(self.list_url, ['post', 'get'])
 
     def create(self):
-        return Seller.objects.create(uuid=self.uuid)
+        return Seller.objects.create(uuid=uuid)
 
     def test_get(self):
         obj = self.create()
         res = self.client.get(self.get_detail_url('seller', obj))
         eq_(res.status_code, 200)
         content = json.loads(res.content)
-        eq_(content['uuid'], self.uuid)
+        eq_(content['uuid'], uuid)
         eq_(content['resource_pk'], obj.pk)
 
 
@@ -54,8 +56,7 @@ class TestSellerPaypal(APITest):
 
     def setUp(self):
         self.api_name = 'paypal'
-        self.uuid = 'sample:uid'
-        self.seller = Seller.objects.create(uuid=self.uuid)
+        self.seller = Seller.objects.create(uuid=uuid)
         self.list_url = self.get_list_url('seller')
 
     def data(self):
@@ -97,7 +98,7 @@ class TestSellerPaypal(APITest):
         obj = self.create()
         url = self.get_detail_url('seller', obj)
 
-        res = self.client.get(url, data={'uuid': self.uuid})
+        res = self.client.get(url, data={'uuid': uuid})
         content = json.loads(res.content)
         eq_(content['secret'], False)
         eq_(content['token'], False)
@@ -105,7 +106,7 @@ class TestSellerPaypal(APITest):
         obj.token = obj.secret = 'abc'
         obj.save()
 
-        res = self.client.get(url, data={'uuid': self.uuid})
+        res = self.client.get(url, data={'uuid': uuid})
         content = json.loads(res.content)
         eq_(content['secret'], True)
         eq_(content['token'], True)
@@ -145,8 +146,7 @@ class TestSellerBluevia(APITest):
 
     def setUp(self):
         self.api_name = 'bluevia'
-        self.uuid = 'sample:uid'
-        self.seller = Seller.objects.create(uuid=self.uuid)
+        self.seller = Seller.objects.create(uuid=uuid)
         self.list_url = self.get_list_url('seller')
 
     def data(self):
@@ -179,3 +179,50 @@ class TestSellerBluevia(APITest):
         eq_(res.status_code, 202, res.content)
         res = SellerBluevia.objects.get(pk=obj.pk)
         eq_(res.bluevia_id, id_)
+
+
+class TestSellerProduct(APITest):
+
+    def setUp(self):
+        self.api_name = 'generic'
+        self.seller = Seller.objects.create(uuid=uuid)
+        self.list_url = self.get_list_url('product')
+
+    def data(self):
+        return {'seller': '/generic/seller/%s/' % self.seller.pk,
+                'bango_secret': 'hush'}
+
+    def test_post(self):
+        res = self.client.post(self.list_url, data=self.data())
+        eq_(res.status_code, 201)
+        objs = SellerProduct.objects.all()
+        eq_(objs.count(), 1)
+
+    def create(self):
+        return SellerProduct.objects.create(seller=self.seller)
+
+    def create_url(self):
+        obj = self.create()
+        url = self.get_detail_url('product', obj)
+        return obj, url
+
+    def test_list_allowed(self):
+        obj, url = self.create_url()
+
+        self.allowed_verbs(self.list_url, ['post'])
+        self.allowed_verbs(url, ['get', 'put', 'patch'])
+
+    def test_patch_get(self):
+        obj, url = self.create_url()
+
+        res = self.client.patch(url, json.dumps({'bango_secret': 'hush'}))
+        eq_(res.status_code, 202)
+        res = self.client.get(url)
+        eq_(json.loads(res.content)['bango_secret'], 'hush')
+
+    def test_put_get(self):
+        obj, url = self.create_url()
+
+        res = self.client.put(url, json.dumps({'bango_secret': 'hush'}))
+        eq_(res.status_code, 202)
+        eq_(obj.reget().bango_secret, 'hush')

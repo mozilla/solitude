@@ -1,14 +1,15 @@
 # test_utils picks this file up for testing.
 import os
 
-filename = os.path.join(os.path.dirname(__file__),
-                  'sample.key')
+filename = os.path.join(os.path.dirname(__file__), 'sample.key')
+
 AES_KEYS = {
     'buyerpaypal:key': filename,
     'sellerpaypal:id': filename,
     'sellerpaypal:token': filename,
     'sellerpaypal:secret': filename,
     'sellerbluevia:id': filename,
+    'sellerproduct:bangosecret': filename,
 }
 
 SOLITUDE_PROXY = False

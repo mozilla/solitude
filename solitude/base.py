@@ -229,3 +229,6 @@ class Model(models.Model):
     class Meta:
         abstract = True
         ordering = ('-created',)
+
+    def reget(self):
+        return self.__class__.objects.get(pk=self.pk)

@@ -7,7 +7,8 @@ import jwt
 class Client(object):
 
     def create_jwt(self, id='', secret='', **data):
-        assert id and secret, 'Id and secret required'
+        if not id and not secret:
+            raise ValueError('Id and secret required')
         issued_at = calendar.timegm(time.gmtime())
         purchase = {
             'aud': data['aud'],

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Seller, SellerPaypal, SellerBluevia
+from .models import Seller, SellerBluevia, SellerPaypal, SellerProduct
 
 
 class SellerValidation(forms.ModelForm):
@@ -19,4 +19,11 @@ class SellerBlueviaValidation(forms.ModelForm):
 
     class Meta:
         model = SellerBluevia
+        exclude = ['seller']
+
+
+class SellerProductValidation(forms.ModelForm):
+
+    class Meta:
+        model = SellerProduct
         exclude = ['seller']
