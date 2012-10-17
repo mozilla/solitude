@@ -25,10 +25,11 @@ class HashField(CharField):
             if not isinstance(value, HashedData):
                 value = make_password(value, salt=self.salt)
             self.salt = False  # dump salt after saving.
-            print value
         return value
 
     def to_python(self, value):
+        if isinstance(value, HashedData):
+            return value
         if value == '' or value is None:
             return HashedData('')
         if not isinstance(value, (str, unicode)):
