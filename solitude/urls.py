@@ -5,6 +5,7 @@ from tastypie.api import Api
 
 from lib.bluevia.urls import bluevia
 from lib.buyers.resources import BuyerResource, BuyerPaypalResource
+from lib.buyers.views import check_pin
 from lib.paypal.urls import paypal
 from lib.sellers.resources import (SellerResource, SellerBlueviaResource,
                                    SellerPaypalResource, SellerProductResource)
@@ -39,7 +40,8 @@ urlpatterns = patterns('',
     url(r'^', include(paypal.urls)),
     url(r'^', include(bluevia.urls)),
     url(r'^', include(service.urls)),
-    url(r'^$', 'solitude.views.home')
+    url(r'^buyers/check-pin', check_pin, name='check-pin'),
+    url(r'^$', 'solitude.views.home', name='home'),
 )
 
 handler500 = handler404 = handler403 = 'solitude.views.error'

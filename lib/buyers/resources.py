@@ -1,8 +1,7 @@
 from solitude.base import ModelResource
 from tastypie import fields
-from tastypie.validation import FormValidation
 
-from .forms import BuyerValidation
+from .forms import BuyerFormValidation, BuyerValidation
 from .models import Buyer, BuyerPaypal
 
 
@@ -13,14 +12,21 @@ class BuyerResource(ModelResource):
 
     class Meta(ModelResource.Meta):
         queryset = Buyer.objects.all()
-        fields = ['uuid']
-        list_allowed_methods = ['post', 'get']
-        allowed_methods = ['get']
+        fields = ['uuid', 'pin']
+        list_allowed_methods = ['post', 'get', 'put']
+        allowed_methods = ['get', 'put']
         resource_name = 'buyer'
-        validation = FormValidation(form_class=BuyerValidation)
+        validation = BuyerFormValidation(form_class=BuyerValidation)
         filtering = {
             'uuid': 'exact',
         }
+
+    def build_bundle(self, obj=None, data=None, request=None):
+        if obj is None and (data is not None and (data.get('pk') or
+                                                  data.get('id'))):
+            pk = data.get('pk', data.get('id'))
+            obj = Buyer.objects.get(pk=pk)
+        return super(BuyerResource, self).build_bundle(obj, data, request)
 
 
 class BuyerPaypalResource(ModelResource):

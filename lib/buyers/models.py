@@ -3,10 +3,12 @@ from django.db import models
 from aesfield.field import AESField
 
 from solitude.base import Model
+from .field import HashField
 
 
 class Buyer(Model):
     uuid = models.CharField(max_length=255, db_index=True, unique=True)
+    pin = HashField(blank=True, null=True)
 
     class Meta(Model.Meta):
         db_table = 'buyer'

@@ -1,5 +1,6 @@
 import json
 
+from django.core.urlresolvers import reverse
 from nose.tools import eq_
 
 from lib.buyers.models import Buyer, BuyerPaypal
@@ -11,10 +12,12 @@ class TestBuyer(APITest):
     def setUp(self):
         self.api_name = 'generic'
         self.uuid = 'sample:uid'
+        self.pin = '1234'
         self.list_url = self.get_list_url('buyer')
 
     def test_add(self):
-        res = self.client.post(self.list_url, data={'uuid': self.uuid})
+        res = self.client.post(self.list_url, data={'uuid': self.uuid,
+                                                    'pin': self.pin})
         eq_(res.status_code, 201)
         eq_(Buyer.objects.filter(uuid=self.uuid).count(), 1)
 
@@ -37,7 +40,7 @@ class TestBuyer(APITest):
         eq_(self.get_errors(res.content, 'uuid'), ['This field is required.'])
 
     def test_list_allowed(self):
-        self.allowed_verbs(self.list_url, ['post', 'get'])
+        self.allowed_verbs(self.list_url, ['post', 'get', 'put'])
 
     def test_filter(self):
         self.client.post(self.list_url, data={'uuid': self.uuid})
@@ -47,8 +50,10 @@ class TestBuyer(APITest):
         eq_(data['meta']['total_count'], 1)
         eq_(data['objects'][0]['uuid'], self.uuid)
 
-    def create(self):
-        return Buyer.objects.create(uuid=self.uuid)
+    def create(self, **kwargs):
+        defaults = {'uuid': self.uuid, 'pin': self.pin}
+        defaults.update(kwargs)
+        return Buyer.objects.create(**defaults)
 
     def test_get(self):
         obj = self.create()
@@ -56,9 +61,46 @@ class TestBuyer(APITest):
         eq_(res.status_code, 200)
         eq_(json.loads(res.content)['uuid'], self.uuid)
 
-    def test_get_allowed(self):
+    def test_detail_allowed_verbs(self):
         obj = self.create()
-        self.allowed_verbs(self.get_detail_url('buyer', obj), ['get'])
+        self.allowed_verbs(self.get_detail_url('buyer', obj), ['get', 'put'])
+
+    def test_update_pin(self):
+        obj = self.create()
+        assert(obj.pin.check(self.pin))
+        detail_url = self.get_detail_url('buyer', obj)
+        res = self.client.put(detail_url, data={'id': obj.id, 'uuid': obj.uuid,
+                                                'pin': 'new-pin'})
+        eq_(res.status_code, 202)
+        obj = Buyer.objects.get(pk=obj.pk)
+        assert(obj.pin.check('new-pin'))
+
+
+class TestPinValidator(APITest):
+
+    def setUp(self):
+        self.api_name = 'generic'
+        self.uuid = 'sample:uid'
+        self.pin = '1234'
+        self.validator_url = reverse('check-pin')
+
+    def test_post_only(self):
+        res = self.client.get(self.validator_url)
+        eq_(res.status_code, 405)
+
+    def test_valid_pin(self):
+        Buyer.objects.create(uuid=self.uuid, pin=self.pin)
+        res = self.client.post(self.validator_url, data={'uuid': self.uuid,
+                                                         'pin': self.pin})
+        eq_(res.status_code, 200)
+        eq_(json.loads(res.content)['valid'], True)
+
+    def test_invalid_pin(self):
+        Buyer.objects.create(uuid=self.uuid, pin=self.pin)
+        res = self.client.post(self.validator_url, data={'uuid': self.uuid,
+                                                         'pin': 'bad pin'})
+        eq_(res.status_code, 200)
+        eq_(json.loads(res.content)['valid'], False)
 
 
 class TestBuyerPaypal(APITest):
