@@ -14,4 +14,5 @@ def check_pin(request):
         result = buyer.pin.check(data['pin'])
     except Buyer.DoesNotExist:
         result = False
-    return HttpResponse(json.dumps({'valid': result}))
+    return HttpResponse(json.dumps({'valid': result}),
+                        mimetype='application/json')

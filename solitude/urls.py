@@ -40,7 +40,7 @@ urlpatterns = patterns('',
     url(r'^', include(paypal.urls)),
     url(r'^', include(bluevia.urls)),
     url(r'^', include(service.urls)),
-    url(r'^buyer/check-pin', check_pin, name='check-pin'),
+    url(r'^buyer/check_pin', check_pin, name='check-pin'),
     url(r'^$', 'solitude.views.home', name='home'),
 )
 
