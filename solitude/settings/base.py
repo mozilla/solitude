@@ -97,4 +97,24 @@ AES_KEYS = {
     'sellerproduct:bangosecret': '',
 }
 
+# Playdoh ships with sha512 password hashing by default. Bcrypt+HMAC is safer,
+# so it is recommended. Please read
+# <https://github.com/fwenzel/django-sha2#readme>, uncomment the bcrypt hasher
+# and pick a secret HMAC key for your application.
+BASE_PASSWORD_HASHERS = (
+    'django_sha2.hashers.BcryptHMACCombinedPasswordVerifier',
+    'django_sha2.hashers.SHA512PasswordHasher',
+    'django_sha2.hashers.SHA256PasswordHasher',
+    'django.contrib.auth.hashers.SHA1PasswordHasher',
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+    'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
+)
+
+# Set this in your local settings.
+# HMAC_KEYS = {  # for bcrypt only
+#     '2011-01-01': 'cheesecake',
+# }
+# from django_sha2 import get_password_hashers
+# PASSWORD_HASHERS = get_password_hashers(BASE_PASSWORD_HASHERS, HMAC_KEYS)
+
 DUMP_REQUESTS = False

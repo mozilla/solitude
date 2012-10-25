@@ -56,6 +56,12 @@ DATABASES = {
     }
 }
 
+HMAC_KEYS = {  # for bcrypt only
+    '2011-01-01': 'cheesecake',
+}
+from django_sha2 import get_password_hashers
+PASSWORD_HASHERS = get_password_hashers(BASE_PASSWORD_HASHERS, HMAC_KEYS)
+
 INSTALLED_APPS += ('django_nose',)
 CELERY_ALWAYS_EAGER = True
 SETTINGS

@@ -1,5 +1,6 @@
 # test_utils picks this file up for testing.
 import os
+from solitude.settings.base import *
 
 filename = os.path.join(os.path.dirname(__file__), 'sample.key')
 
@@ -24,3 +25,7 @@ DEBUG_PROPAGATE_EXCEPTIONS = DEBUG
 TASTYPIE_FULL_DEBUG = DEBUG
 
 DUMP_REQUESTS = False
+
+HMAC_KEYS = {'2011-01-01': 'cheesecake'}
+from django_sha2 import get_password_hashers
+PASSWORD_HASHERS = get_password_hashers(BASE_PASSWORD_HASHERS, HMAC_KEYS)
