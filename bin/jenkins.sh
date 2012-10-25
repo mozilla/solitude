@@ -25,11 +25,6 @@ fi
 git submodule sync -q
 git submodule update --init --recursive
 
-if [ ! -d "$WORKSPACE/vendor" ]; then
-    echo "No /vendor... crap."
-    exit 1
-fi
-
 source $VENV/bin/activate
 pip install -q --exists-action=w --no-deps -r requirements/compiled.txt
 pip install -q --exists-action=w --no-deps -r requirements/test.txt
