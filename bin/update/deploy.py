@@ -11,8 +11,27 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from commander.deploy import task, hostgroups
+from commander.deploy import task, hostgroups, BadReturnCode
 import commander_settings as settings
+
+@task
+def create_virtualenv(ctx):
+    venv = settings.VIRTUAL_ENV
+    try:
+        try:
+            ctx.local("virtualenv --distribute --never-download %s" % venv)
+        except BadReturnCode:
+            pass # if this is really broken, then the pip install should fail
+
+        ctx.local("%s/bin/pip install --exists-action=w --no-deps --no-index "
+                  "--download-cache=/tmp/pip-cache -f %s "
+                  "-r %s/requirements/prod.txt" %
+                    (venv, settings.PYREPO, settings.SRC_DIR))
+    finally:
+        # make sure this always runs
+        ctx.local("rm -f %s/lib/python2.6/no-global-site-packages.txt" % venv)
+        ctx.local("%s/bin/python /usr/bin/virtualenv --relocatable %s"
+                  % (venv, venv))
 
 
 @task
@@ -112,5 +131,6 @@ def deploy(ctx):
 def update_site(ctx, tag):
     """Update the app to prep for deployment."""
     pre_update(tag)
+    create_virtualenv()
     update()
     post_update()
