@@ -61,9 +61,9 @@ def update_locales(ctx):
 @task
 def update_assets(ctx):
     with ctx.lcd(settings.SRC_DIR):
-        ctx.local("python2.6 manage.py collectstatic --noinput")
+        ctx.local("%s manage.py collectstatic --noinput" % settings.PYTHON)
         # LANG=en_US.UTF-8 is sometimes necessary for the YUICompressor.
-        ctx.local('LANG=en_US.UTF8 python2.6 manage.py compress_assets')
+        ctx.local('LANG=en_US.UTF8 %s manage.py compress_assets' % settings.PYTHON)
 
 
 @task
@@ -74,7 +74,7 @@ def update_db(ctx):
 
     """
     with ctx.lcd(settings.SRC_DIR):
-        ctx.local('python2.6 ./vendor/src/schematic/schematic migrations')
+        ctx.local('%s ./vendor/src/schematic/schematic migrations' % settings.PYTHON)
 
 
 @task
@@ -99,7 +99,7 @@ def update_info(ctx):
         ctx.local('git log -3')
         ctx.local('git status')
         ctx.local('git submodule status')
-        ctx.local('python2.6 ./vendor/src/schematic/schematic -v migrations/')
+        ctx.local('%s ./vendor/src/schematic/schematic -v migrations/' % settings.PYTHON)
 
 
 @task
@@ -112,7 +112,7 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
 @task
 def post_update(ctx):
     with ctx.lcd(settings.SRC_DIR):
-        ctx.local('python2.6 manage.py statsd_ping --key=update')
+        ctx.local('%s manage.py statsd_ping --key=update' % settings.PYTHON)
 
 
 @task
