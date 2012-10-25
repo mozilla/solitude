@@ -67,13 +67,14 @@ class TestBuyer(APITest):
 
     def test_update_pin(self):
         obj = self.create()
+        new_pin = self.pin[::-1]  # reverse it so it is different
         assert(obj.pin.check(self.pin))
         detail_url = self.get_detail_url('buyer', obj)
         res = self.client.put(detail_url, data={'id': obj.id, 'uuid': obj.uuid,
-                                                'pin': 'new-pin'})
+                                                'pin': new_pin})
         eq_(res.status_code, 202)
         obj = Buyer.objects.get(pk=obj.pk)
-        assert(obj.pin.check('new-pin'))
+        assert(obj.pin.check(new_pin))
 
 
 class TestPinValidator(APITest):
