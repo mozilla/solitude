@@ -1,4 +1,5 @@
--r prod.txt
--r compiled.txt
-
-mock==1.0b1
+# This file pulls in everything Jenkins needs for CI. If it's a basic package
+# needed to run the site, it belongs in requirements/prod.txt. If it's a
+# package for developers (testing, docs, etc.), it goes in dev.txt.
+# If it's something we only need on Jenkins it goes here.
+-r dev.txt

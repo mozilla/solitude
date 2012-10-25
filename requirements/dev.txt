@@ -6,3 +6,4 @@
 -r compiled.txt
 
 ipython==0.13
+mock==1.0b1
