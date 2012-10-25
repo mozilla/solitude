@@ -26,7 +26,6 @@ git submodule sync -q
 git submodule update --init --recursive
 
 source $VENV/bin/activate
-pip install -q --exists-action=w --no-deps -r requirements/compiled.txt
 pip install -q --exists-action=w --no-deps -r requirements/test.txt
 
 cat > solitude/settings/local.py <<SETTINGS

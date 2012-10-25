@@ -2,4 +2,6 @@
 # needed to run the site, it belongs in requirements/prod.txt. If it's a
 # package for developers (testing, docs, etc.), it goes in dev.txt.
 # If it's something we only need on Jenkins it goes here.
--r dev.txt
+-r prod.txt
+
+mock==1.0b1
