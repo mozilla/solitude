@@ -1,3 +1,4 @@
+import functools
 import json
 import logging
 import sys
@@ -17,6 +18,7 @@ try:
 except ImportError:
     pass
 
+from cef import log_cef
 from tastypie import http
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
@@ -177,6 +179,21 @@ class BaseResource(object):
         else:
             log.info('%s %s' % (colorize('brace', method),
                                 request.get_full_path()))
+
+        g = functools.partial(getattr, settings)
+        msg = '%s:%s' % (kwargs.get('api_name', 'unknown'),
+                         kwargs.get('resource_name', 'unknown'))
+        kw = {'msg': msg, 'signature': request.get_full_path(),
+            'config': {
+                'cef.product': 'Solitude',
+                'cef.vendor': g('CEF_VENDOR', 'Mozilla'),
+                'cef.version': g('CEF_VERSION', '0'),
+                'cef.device_version': g('CEF_DEVICE_VERSION', '0'),
+                'cef.file': g('CEF_FILE', 'syslog'),
+            }
+        }
+        log_cef(msg, g('CEF_DEFAULT_SEVERITY', 5), request.META.copy(), **kw)
+
         return (super(BaseResource, self)
                                 .dispatch(request_type, request, **kwargs))
 

@@ -1,6 +1,6 @@
 Django==1.4.1
 PyJWT==0.1.4
-cef==0.3
+cef==0.5
 commonware==0.4.0
 django-multidb-router
 django-aesfield==0.1
