@@ -36,10 +36,14 @@ TEST_RUNNER = 'test_utils.runner.RadicalTestSuiteRunner'
 if not SOLITUDE_PROXY:
     MIDDLEWARE_CLASSES = (
         'django.middleware.transaction.TransactionMiddleware',
-        'django.middleware.common.CommonMiddleware'
+        'django.middleware.common.CommonMiddleware',
+        'django_statsd.middleware.GraphiteMiddleware',
+        'django_statsd.middleware.TastyPieRequestTimingMiddleware',
     )
 else:
-    MIDDLEWARE_CLASSES = ()
+    MIDDLEWARE_CLASSES = (
+        'django_statsd.middleware.GraphiteMiddleware',
+    )
 
 SESSION_COOKIE_SECURE = True
 
