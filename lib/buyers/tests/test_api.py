@@ -63,18 +63,43 @@ class TestBuyer(APITest):
 
     def test_detail_allowed_verbs(self):
         obj = self.create()
-        self.allowed_verbs(self.get_detail_url('buyer', obj), ['get', 'put'])
+        self.allowed_verbs(self.get_detail_url('buyer', obj), ['get', 'patch',
+                                                               'put'])
 
-    def test_update_pin(self):
+    def test_put_pin(self):
         obj = self.create()
         new_pin = self.pin[::-1]  # reverse it so it is different
         assert(obj.pin.check(self.pin))
         detail_url = self.get_detail_url('buyer', obj)
-        res = self.client.put(detail_url, data={'id': obj.id, 'uuid': obj.uuid,
+        res = self.client.put(detail_url, data={'uuid': obj.uuid,
                                                 'pin': new_pin})
         eq_(res.status_code, 202)
         obj = Buyer.objects.get(pk=obj.pk)
         assert(obj.pin.check(new_pin))
+
+    def test_patch_pin(self):
+        obj = self.create()
+        old = obj.pin
+        res = self.client.patch(self.get_detail_url('buyer', obj),
+                                data={'pin': '1234'})
+        eq_(res.status_code, 202)
+        assert obj.reget().pin != old
+
+    def test_patch_uuid(self):
+        obj = self.create()
+        res = self.client.patch(self.get_detail_url('buyer', obj),
+                                data={'uuid': self.uuid + ':new',
+                                      'pin': '1234'})
+        eq_(res.status_code, 202)
+        eq_(obj.reget().uuid, self.uuid + ':new')
+
+    def test_patch_same_uuid(self):
+        obj = self.create()
+        res = self.client.patch(self.get_detail_url('buyer', obj),
+                                data={'uuid': self.uuid,
+                                      'pin': '1234'})
+        eq_(res.status_code, 202)
+        eq_(obj.reget().uuid, self.uuid)
 
 
 class TestPinValidator(APITest):
