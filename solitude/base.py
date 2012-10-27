@@ -19,6 +19,7 @@ except ImportError:
     pass
 
 from cef import log_cef
+from django.views import debug
 from tastypie import http
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
@@ -43,6 +44,23 @@ def formatted_json(json):
         print_formatted_json(json)
         return
     print json
+
+
+old = debug.technical_500_response
+
+def json_response(request, exc_type, exc_value, tb):
+    # If you are doing requests in debug mode from say, curl,
+    # it's nice to be able to get some JSON back for an error, not a
+    # gazillion lines of HTML.
+    if request.META['CONTENT_TYPE'] == 'application/json':
+        return   http.HttpApplicationError(
+            content=json.dumps({'traceback':
+                                traceback.format_tb(tb)}),
+            content_type='application/json; charset=utf-8')
+
+    return old(request, exc_type, exc_value, tb)
+
+debug.technical_500_response = json_response
 
 
 class APIClient(Client):
@@ -151,6 +169,7 @@ class BaseResource(object):
         return super(BaseResource, self).dehydrate(bundle)
 
     def _handle_500(self, request, exception):
+        # Print some nice 500 errors back to the clients if not in debug mode.
         tb = traceback.format_tb(sys.exc_traceback)
         tasty_log.error('%s: %s %s\n%s' % (request.path,
                             exception.__class__.__name__, exception,
