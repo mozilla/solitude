@@ -5,5 +5,5 @@
 -r prod.txt
 -r compiled.txt
 
-ipython==0.13
+ipython==0.13.1
 mock==1.0b1
