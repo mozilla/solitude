@@ -98,7 +98,7 @@ AES_KEYS = {
     'sellerpaypal:token': '',
     'sellerpaypal:secret': '',
     'sellerbluevia:id': '',
-    'sellerproduct:bangosecret': '',
+    'sellerproduct:secret': '',
 }
 
 # Playdoh ships with sha512 password hashing by default. Bcrypt+HMAC is safer,

@@ -54,8 +54,10 @@ class SellerBluevia(Model):
 
 class SellerProduct(Model):
     seller = models.ForeignKey(Seller, related_name='product')
-    bango_secret = AESField(blank=True, null=True,
-                            aes_key='sellerproduct:bangosecret')
+    # A generic secret field that can be used in for this product, regardless
+    # of backend.
+    secret = AESField(blank=True, null=True,
+                      aes_key='sellerproduct:bangosecret')
 
     class Meta(Model.Meta):
         db_table = 'seller_product'

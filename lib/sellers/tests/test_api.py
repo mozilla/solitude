@@ -190,7 +190,7 @@ class TestSellerProduct(APITest):
 
     def data(self):
         return {'seller': '/generic/seller/%s/' % self.seller.pk,
-                'bango_secret': 'hush'}
+                'secret': 'hush'}
 
     def test_post(self):
         res = self.client.post(self.list_url, data=self.data())
@@ -215,14 +215,14 @@ class TestSellerProduct(APITest):
     def test_patch_get(self):
         obj, url = self.create_url()
 
-        res = self.client.patch(url, json.dumps({'bango_secret': 'hush'}))
+        res = self.client.patch(url, json.dumps({'secret': 'hush'}))
         eq_(res.status_code, 202)
         res = self.client.get(url)
-        eq_(json.loads(res.content)['bango_secret'], 'hush')
+        eq_(json.loads(res.content)['secret'], 'hush')
 
     def test_put_get(self):
         obj, url = self.create_url()
 
-        res = self.client.put(url, json.dumps({'bango_secret': 'hush'}))
+        res = self.client.put(url, json.dumps({'secret': 'hush'}))
         eq_(res.status_code, 202)
-        eq_(obj.reget().bango_secret, 'hush')
+        eq_(obj.reget().secret, 'hush')
