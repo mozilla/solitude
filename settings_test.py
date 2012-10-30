@@ -10,7 +10,7 @@ AES_KEYS = {
     'sellerpaypal:token': filename,
     'sellerpaypal:secret': filename,
     'sellerbluevia:id': filename,
-    'sellerproduct:bangosecret': filename,
+    'sellerproduct:secret': filename,
 }
 
 SOLITUDE_PROXY = False
