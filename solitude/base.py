@@ -55,7 +55,9 @@ def json_response(request, exc_type, exc_value, tb):
     if request.META['CONTENT_TYPE'] == 'application/json':
         return   http.HttpApplicationError(
             content=json.dumps({'traceback':
-                                traceback.format_tb(tb)}),
+                                traceback.format_tb(tb),
+                                'type': str(exc_type),
+                                'value': str(exc_value)}),
             content_type='application/json; charset=utf-8')
 
     return old(request, exc_type, exc_value, tb)
