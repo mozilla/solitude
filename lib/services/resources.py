@@ -1,5 +1,5 @@
 from lib.sellers.models import Seller
-from solitude.base import Resource
+from solitude.base import ServiceResource
 
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
@@ -19,9 +19,9 @@ class StatusError(Exception):
     pass
 
 
-class ErrorResource(Resource):
+class ErrorResource(ServiceResource):
 
-    class Meta(Resource.Meta):
+    class Meta(ServiceResource.Meta):
         list_allowed_methods = ['get']
         resource_name = 'error'
 
@@ -39,11 +39,11 @@ class SettingsObject(object):
         self.cleansed = debug.cleanse_setting(name, cleansed[name])
 
 
-class SettingsResource(Resource):
+class SettingsResource(ServiceResource):
     value = fields.CharField(readonly=True, attribute='cleansed', null=True)
     key = fields.CharField(readonly=True, attribute='pk')
 
-    class Meta(Resource.Meta):
+    class Meta(ServiceResource.Meta):
         list_allowed_methods = ['get']
         allowed_methods = ['get']
         resource_name = 'settings'
@@ -75,11 +75,11 @@ class StatusObject(object):
         return '<Status: database: %s, cache: %s>' % (self.db, self.cache)
 
 
-class StatusResource(Resource):
+class StatusResource(ServiceResource):
     cache = fields.BooleanField(readonly=True, attribute='cache')
     db = fields.BooleanField(readonly=True, attribute='db')
 
-    class Meta(Resource.Meta):
+    class Meta(ServiceResource.Meta):
         list_allowed_methods = ['get']
         allowed_methods = ['get']
         resource_name = 'status'

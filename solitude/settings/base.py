@@ -114,11 +114,13 @@ BASE_PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
 )
 
-# Set this in your local settings.
-# HMAC_KEYS = {  # for bcrypt only
-#     '2011-01-01': 'cheesecake',
-# }
-# from django_sha2 import get_password_hashers
-# PASSWORD_HASHERS = get_password_hashers(BASE_PASSWORD_HASHERS, HMAC_KEYS)
-
 DUMP_REQUESTS = False
+
+# If this flag is set, any communication will require JWT encoding of the
+# data using a key set in CLIENT_JWT_KEYS. Note: this does not require JWT for
+# all things, eg: nagios checks.
+REQUIRE_JWT = False
+
+# A mapping of the keys and secrets that will be used to encode the JWT
+# for any server talking to this server.
+CLIENT_JWT_KEYS = {}

@@ -10,6 +10,7 @@ from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.test.client import Client
+from django.views import debug
 
 curlish = False
 try:
@@ -18,8 +19,8 @@ try:
 except ImportError:
     pass
 
-from cef import log_cef
-from django.views import debug
+from cef import log_cef as _log_cef
+import jwt
 from tastypie import http
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
@@ -68,8 +69,9 @@ debug.technical_500_response = json_response
 class APIClient(Client):
 
     def _process(self, kwargs):
-        kwargs['content_type'] = 'application/json'
-        if 'data' in kwargs:
+        if not 'content_type' in kwargs:
+            kwargs['content_type'] = 'application/json'
+        if 'data' in kwargs and kwargs['content_type'] == 'application/json':
             kwargs['data'] = json.dumps(kwargs['data'])
         return kwargs
 
@@ -149,6 +151,21 @@ def get_object_or_404(cls, **filters):
         raise ImmediateHttpResponse(response=http.HttpNotFound())
 
 
+def log_cef(msg, request, **kw):
+    g = functools.partial(getattr, settings)
+    severity = kw.get('severity', g('CEF_DEFAULT_SEVERITY', 5))
+    cef_kw = {'msg': msg, 'signature': request.get_full_path(),
+            'config': {
+                'cef.product': 'Solitude',
+                'cef.vendor': g('CEF_VENDOR', 'Mozilla'),
+                'cef.version': g('CEF_VERSION', '0'),
+                'cef.device_version': g('CEF_DEVICE_VERSION', '0'),
+                'cef.file': g('CEF_FILE', 'syslog'),
+            }
+        }
+    _log_cef(msg, severity, request.META.copy(), **cef_kw)
+
+
 class BaseResource(object):
 
     def form_errors(self, forms):
@@ -171,6 +188,15 @@ class BaseResource(object):
         return super(BaseResource, self).dehydrate(bundle)
 
     def _handle_500(self, request, exception):
+        # I'd prefer it if JWT errors went back as unauth errors, not
+        # 500 errors.
+        if isinstance(exception, JWTDecodeError):
+            # Let's log these with a higher severity.
+            log_cef(str(exception), request, severity=1)
+            return http.HttpUnauthorized(
+                    content=json.dumps({'reason': str(exception)}),
+                    content_type='application/json; charset=utf-8')
+
         # Print some nice 500 errors back to the clients if not in debug mode.
         tb = traceback.format_tb(sys.exc_traceback)
         tasty_log.error('%s: %s %s\n%s' % (request.path,
@@ -182,9 +208,11 @@ class BaseResource(object):
             'error_code': getattr(exception, 'id', ''),
             'error_data': getattr(exception, 'data', {})
         }
+        # We'll also cef log any errors.
+        log_cef(str(exception), request, severity=3)
         serialized = self.serialize(request, data, 'application/json')
         return http.HttpApplicationError(content=serialized,
-                                content_type='application/json; charset=utf-8')
+                    content_type='application/json; charset=utf-8')
 
     def deserialize(self, request, data, format='application/json'):
         result = (super(BaseResource, self)
@@ -201,22 +229,54 @@ class BaseResource(object):
             log.info('%s %s' % (colorize('brace', method),
                                 request.get_full_path()))
 
-        g = functools.partial(getattr, settings)
         msg = '%s:%s' % (kwargs.get('api_name', 'unknown'),
                          kwargs.get('resource_name', 'unknown'))
-        kw = {'msg': msg, 'signature': request.get_full_path(),
-            'config': {
-                'cef.product': 'Solitude',
-                'cef.vendor': g('CEF_VENDOR', 'Mozilla'),
-                'cef.version': g('CEF_VERSION', '0'),
-                'cef.device_version': g('CEF_DEVICE_VERSION', '0'),
-                'cef.file': g('CEF_FILE', 'syslog'),
-            }
-        }
-        log_cef(msg, g('CEF_DEFAULT_SEVERITY', 5), request.META.copy(), **kw)
+        log_cef(msg, request)
 
         return (super(BaseResource, self)
                                 .dispatch(request_type, request, **kwargs))
+
+
+class JWTDecodeError(Exception):
+    pass
+
+
+class JWTSerializer(Serializer):
+    formats = ['json', 'jwt']
+    content_types = {
+        'jwt': 'application/jwt',
+        'json': 'application/json',
+    }
+
+    def _error(self, msg, error='none'):
+        log.error('%s (%s)' % (msg, error), exc_info=True)
+        return JWTDecodeError(msg)
+
+    def from_json(self, content):
+        if settings.REQUIRE_JWT:
+            raise self._error('JWT is required', None)
+
+        return super(JWTSerializer, self).from_json(content)
+
+    def from_jwt(self, content):
+        try:
+            key = jwt.decode(content, verify=False).get('jwt-encode-key', '')
+        except jwt.DecodeError as err:
+            raise self._error('Error decoding JWT', error=err)
+
+        if not key:
+            raise self._error('No JWT key')
+
+        secret = settings.CLIENT_JWT_KEYS.get(key, '')
+        if not secret:
+            raise self._error('No JWT secret for that key')
+
+        try:
+            content = jwt.decode(content, secret, verify=True)
+        except jwt.DecodeError as err:
+            raise self._error('Error decoding JWT', err)
+
+        return content
 
 
 class Resource(BaseResource, TastyPieResource):
@@ -225,10 +285,20 @@ class Resource(BaseResource, TastyPieResource):
         always_return_data = True
         authentication = Authentication()
         authorization = Authorization()
-        serializer = Serializer(formats=['json'])
+        serializer = JWTSerializer()
 
 
 class ModelResource(BaseResource, TastyPieModelResource):
+
+    class Meta:
+        always_return_data = True
+        authentication = Authentication()
+        authorization = Authorization()
+        serializer = JWTSerializer()
+
+
+# For resources that do not want to use JWT, eg: nagios checks.
+class ServiceResource(Resource):
 
     class Meta:
         always_return_data = True
