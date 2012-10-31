@@ -7,11 +7,11 @@ Security
 Encryption
 ========================
 
-Currently we use `django-mysql-aesfield <https://github.com/andymckay/django-mysql-aesfield>`_
+Currently we use `django-aesfield <https://github.com/andymckay/django-aesfield>`_
 to provide encryption on key fields. We'd recommend more levels of database
 encryption or file system encryption.
 
-The encryption uses MySQL AES to do this.
+The encryption uses AES to do this.
 
 Encrypted fields:
 
@@ -20,6 +20,8 @@ Encrypted fields:
   * paypal pre-approval key
 
 * seller
+
+  * generic secret
 
   * paypal paypal_id
 
@@ -30,6 +32,11 @@ Encrypted fields:
   * bluevia bluevia_id
 
 The keys per field are mapped in settings. See :ref:`setup.rst` for more.
+
+Hashed fields
+=============
+
+TODO: add notes on this.
 
 Requests
 ========

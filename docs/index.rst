@@ -33,6 +33,7 @@ Contents
 
    topics/setup.rst
    topics/security.rst
+   topics/auth.rst
    topics/generic.rst
    topics/bango.rst
    topics/bluevia.rst
