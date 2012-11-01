@@ -1,8 +1,9 @@
+
 CREATE TABLE `seller_product` (
     `id` int(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
     `created` datetime NOT NULL,
     `modified` datetime NOT NULL,
-    `seller_id` int(11) NOT NULL,
+    `seller_id` int(11) unsigned NOT NULL,
     `bango_secret` longtext
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
