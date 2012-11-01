@@ -8,7 +8,7 @@ from . import base
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'playdoh_app',
+        'NAME': 'solitude',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': '',
