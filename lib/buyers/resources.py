@@ -9,9 +9,9 @@ from .models import Buyer, BuyerPaypal
 
 
 class BuyerResource(ModelResource):
-    #paypal = fields.ToOneField('lib.buyers.resources.BuyerPaypalResource',
-    #                           'paypal', blank=True, full=True,
-    #                           null=True, readonly=True)
+    paypal = fields.ToOneField('lib.buyers.resources.BuyerPaypalResource',
+                               'paypal', blank=True, full=True,
+                               null=True, readonly=True)
 
     class Meta(ModelResource.Meta):
         queryset = Buyer.objects.all()
