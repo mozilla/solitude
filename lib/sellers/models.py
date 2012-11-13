@@ -61,3 +61,14 @@ class SellerProduct(Model):
 
     class Meta(Model.Meta):
         db_table = 'seller_product'
+
+
+class SellerBango(Model):
+    seller = models.OneToOneField(Seller, related_name='bango')
+    package_id = models.IntegerField(unique=True)
+    admin_person_id = models.IntegerField()
+    support_person_id = models.IntegerField()
+    finance_person_id = models.IntegerField()
+
+    class Meta(Model.Meta):
+        db_table = 'seller_bango'

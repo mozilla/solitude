@@ -124,3 +124,9 @@ REQUIRE_JWT = False
 # A mapping of the keys and secrets that will be used to encode the JWT
 # for any server talking to this server.
 CLIENT_JWT_KEYS = {}
+
+# Bango API settings.
+BANGO_USERNAME = 'Mozilla'
+BANGO_PASSWORD = ''
+BANGO_EXPORTER_WSDL = 'https://webservices.bango.com/mozillaexporter/?WSDL'
+BANGO_BILLING_CONFIG_WSDL = 'https://webservices.bango.com/billingconfiguration/?WSDL'

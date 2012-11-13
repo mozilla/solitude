@@ -3,6 +3,7 @@ from django.conf.urls.defaults import include, patterns, url
 
 from tastypie.api import Api
 
+from lib.bango.urls import bango
 from lib.bluevia.urls import bluevia
 from lib.buyers.resources import BuyerResource, BuyerPaypalResource
 from lib.buyers.views import check_pin
@@ -39,6 +40,7 @@ urlpatterns = patterns('',
     url(r'^', include(api.urls)),
     url(r'^', include(paypal.urls)),
     url(r'^', include(bluevia.urls)),
+    url(r'^', include(bango.urls)),
     url(r'^', include(service.urls)),
     url(r'^buyer/check_pin', check_pin, name='check-pin'),
     url(r'^$', 'solitude.views.home', name='home'),
