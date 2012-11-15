@@ -25,6 +25,11 @@ class TestStatus(APITest):
         data = json.loads(res.content)
         eq_(data['error_message'], '<Status: database: True, cache: False>')
 
+    def test_proxy(self):
+        with self.settings(SOLITUDE_PROXY=True):
+            res = self.client.get(self.list_url)
+            eq_(res.status_code, 200)
+
 
 class TestError(APITest):
 

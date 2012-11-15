@@ -1,6 +1,7 @@
 from lib.sellers.models import Seller
 from solitude.base import ServiceResource
 
+from django.conf import settings
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import DatabaseError
@@ -86,6 +87,9 @@ class StatusResource(ServiceResource):
 
     def obj_get(self, request, **kwargs):
         obj = StatusObject()
+        if getattr(settings, 'SOLITUDE_PROXY', False):
+            return obj
+
         # caching fails silently so we have to read from it after writing.
         cache.set('status', 'works')
 
