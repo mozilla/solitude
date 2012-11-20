@@ -80,6 +80,10 @@ LOGGING = {
             'handlers': ['unicodesyslog'],
             'level': 'INFO',
         },
+        'suds': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
         'sentry.errors': {
             'handlers': ['unicodesyslog'],
             'level': 'INFO',
@@ -126,7 +130,6 @@ REQUIRE_JWT = False
 CLIENT_JWT_KEYS = {}
 
 # Bango API settings.
-BANGO_USERNAME = 'Mozilla'
-BANGO_PASSWORD = ''
-BANGO_EXPORTER_WSDL = 'https://webservices.bango.com/mozillaexporter/?WSDL'
-BANGO_BILLING_CONFIG_WSDL = 'https://webservices.bango.com/billingconfiguration/?WSDL'
+BANGO_AUTH = {'USER': 'Mozilla', 'PASSWORD': ''}
+BANGO_MOCK = False
+BANGO_PROXY = ''
