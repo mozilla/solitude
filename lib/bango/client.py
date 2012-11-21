@@ -19,6 +19,8 @@ wsdl = {
 }
 methods = {
     'create-package': 'CreatePackage',
+    'update-support-email': 'UpdateSupportEmail',
+    'update-financial-email': 'UpdateFinancialEmail',
 }
 
 # Turn the method into the approiate name. If the Bango WSDL diverges this will
@@ -42,6 +44,12 @@ class Client(object):
 
     def CreatePackage(self, data):
         return self.call('create-package', data)
+
+    def UpdateSupportEmailAddress(self, data):
+        return self.call('update-support-email', data)
+
+    def UpdateFinancialEmailAddress(self, data):
+        return self.call('update-financial-email', data)
 
     def call(self, name, data):
         client = self.client('exporter')
@@ -102,7 +110,19 @@ mock_data = {
         'adminPersonId': 2,
         'supportPersonId': 3,
         'financePersonId': 4
-    }
+    },
+    'update-support-email': {
+        'responseCode': 'OK',
+        'responseMessage': '',
+        'personId': 1,
+        'personPassword': 'xxxxx',
+    },
+    'update-financial-email': {
+        'responseCode': 'OK',
+        'responseMessage': '',
+        'personId': 1,
+        'personPassword': 'xxxxx',
+    },
 }
 
 class ClientMock(Client):
