@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import json
+
 import mock
 from nose.tools import eq_
 import test_utils
@@ -51,3 +53,49 @@ class TestRightClient(test_utils.TestCase):
     def test_mock(self):
         with self.settings(BANGO_MOCK=True):
             assert isinstance(get_client(), ClientMock)
+
+
+class TestProxy(test_utils.TestCase):
+
+    def setUp(self):
+        self.bango = ClientProxy()
+        self.url = 'http://foo.com'
+
+    @mock.patch('lib.bango.client.post')
+    def test_call(self, post):
+        resp = mock.Mock()
+        resp.status_code = 200
+        resp.content = json.dumps({'responseCode': OK,
+                                   'responseMessage': 'oops'})
+        post.return_value = resp
+        with self.settings(BANGO_PROXY=self.url):
+            self.bango.CreatePackage({'foo': 'bar'})
+
+        args = post.call_args
+        eq_(args[0][0], self.url)
+        eq_(args[0][1], {'foo': 'bar'})
+        eq_(args[1]['headers']['x-solitude-service'], 'create-package')
+
+    @mock.patch('lib.bango.client.post')
+    def test_failure(self, post):
+        resp = mock.Mock()
+        resp.status_code = 500
+        resp.content = json.dumps({'responseCode': 'wat',
+                                   'responseMessage': 'oops'})
+        post.return_value = resp
+        with self.settings(BANGO_PROXY=self.url):
+            with self.assertRaises(BangoError):
+                self.bango.CreatePackage({'foo': 'bar'})
+
+    @mock.patch('lib.bango.client.post')
+    def test_ok(self, post):
+        resp = mock.Mock()
+        resp.status_code = 200
+        resp.content = json.dumps({'responseCode': OK,
+                                   'responseMessage': '',
+                                   'packageId': 1})
+        post.return_value = resp
+        with self.settings(BANGO_PROXY=self.url):
+            res = self.bango.CreatePackage({'foo': 'bar'})
+            eq_(res.packageId, 1)
+            assert 'CreatePackageResponse' in str(res)

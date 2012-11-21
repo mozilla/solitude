@@ -1,10 +1,14 @@
+import json
+
 from django.conf import settings
 
+import commonware.log
 from django_statsd.clients import statsd
 from mock import Mock
+from requests import post
 from suds import client as sudsclient
 
-from .constants import OK, ACCESS_DENIED
+from .constants import OK, ACCESS_DENIED, HEADERS_SERVICE
 from .errors import AuthError, BangoError
 
 domain = 'https://webservices.bango.com/'
@@ -12,48 +16,81 @@ wsdl = {
     'exporter': domain + 'mozillaexporter/?WSDL',
     'billing': domain + 'billingconfiguration/?WSDL',
 }
-
-requests = {
-    'create-package': ['CreatePackageRequest', 'CreatePackage'],
+methods = {
+    'create-package': 'CreatePackage',
 }
+
+# Turn the method into the approiate name. If the Bango WSDL diverges this will
+# need to change.
+def get_request(name):
+    return name + 'Request'
+
+
+def get_response(name):
+    return name + 'Response'
+
+
+def get_result(name):
+    return name + 'Result'
+
+
+log = commonware.log.getLogger('s.bango')
 
 
 class Client(object):
 
     def CreatePackage(self, data):
-        client = sudsclient.Client(wsdl['exporter'])
-        response = self.call(client, 'create-package', data)
-        return response
+        return self.call('create-package', data)
 
-    def call(self, client, name, data):
-        request, method = requests[name]
-        package = client.factory.create(request)
+    def call(self, name, data):
+        client = self.client('exporter')
+        method = methods[name]
+        package = client.factory.create(get_request(method))
         for k, v in data.iteritems():
             setattr(package, k, v)
         package.username = settings.BANGO_AUTH.get('USER', '')
         package.password = settings.BANGO_AUTH.get('PASSWORD', '')
 
         # Actually call Bango.
-        with statsd.timer('solitude.bango.%s' % method):
+        with statsd.timer('solitude.bango.%s' % name):
             response = getattr(client.service, method)(package)
 
-        self.is_error(response)
+        self.is_error(response.responseCode, response.responseMessage)
         return response
 
-    def is_error(self, response):
+    def client(self, name):
+        return sudsclient.Client(wsdl[name])
+
+    def is_error(self, code, message):
         # If there was an error raise it.
-        if response.responseCode == ACCESS_DENIED:
-            raise AuthError(ACCESS_DENIED, response.responseMessage)
-        elif response.responseCode != OK:
-            raise BangoError(response.responseCode, response.responseMessage)
-        return response
+        if code == ACCESS_DENIED:
+            raise AuthError(ACCESS_DENIED, message)
+        elif code != OK:
+            raise BangoError(code, message)
 
 
 class ClientProxy(Client):
 
-    def call(self):
-        # TODO.
-        pass
+    def call(self, name, data):
+        method = methods[name]
+        with statsd.timer('solitude.proxy.bango.%s' % name):
+            log.info('Calling proxy: %s' % name)
+            response = post(settings.BANGO_PROXY, data,
+                            headers={HEADERS_SERVICE: name,
+                                     'Content-Type': 'application/json'},
+                            verify=False)
+            result = json.loads(response.content)
+            self.is_error(result['responseCode'], result['responseMessage'])
+
+            # If it all worked, we need to find a result object and map
+            # everything back on to it, so that a result from the proxy
+            # looks exactly the same.
+            client = self.client('exporter')
+            result_obj = getattr(client.factory.create(get_response(method)),
+                                 get_result(method))
+            for k, v in result.iteritems():
+                setattr(result_obj, k, v)
+            return result_obj
 
 
 mock_data = {
@@ -73,15 +110,16 @@ class ClientMock(Client):
         # This exists for easy mocking. TODO: think of a better way to do this.
         return mock_data[key]
 
-    def call(self, client, name, data):
+    def call(self, name, data):
         """
         This fakes out the client and just looks up the values in mock_results
         for that service.
         """
         bango = Mock()
+        bango.__keylist__ = self.mock_results(name).keys()
         for k, v in self.mock_results(name).iteritems():
             setattr(bango, k, v)
-        self.is_error(bango)
+        self.is_error(bango.responseCode, bango.responseMessage)
         return bango
 
 

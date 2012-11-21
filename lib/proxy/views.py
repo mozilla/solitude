@@ -1,3 +1,4 @@
+import json
 import logging
 import urlparse
 
@@ -7,7 +8,11 @@ from django.conf import settings
 from django_statsd.clients import statsd
 import requests
 
-from lib.paypal.client import get_client
+from lib.bango.client import get_client as bango_client
+from lib.bango.constants import HEADERS_SERVICE_GET
+from lib.bango.errors import BangoError
+
+from lib.paypal.client import get_client as paypal_client
 from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
 from lib.paypal.map import urls
 
@@ -92,7 +97,7 @@ class PaypalProxy(Proxy):
         if token:
             token = dict(urlparse.parse_qsl(token))
 
-        client = get_client()
+        client = paypal_client()
         self.headers = client.headers(self.url, auth_token=token)
 
 
@@ -104,11 +109,32 @@ class BangoProxy(Proxy):
         self.timeout = getattr(settings, 'BANGO_TIMEOUT', 10)
 
     def pre(self, request):
-        """
-        Bango uses SOAP, so this is where we'll be manipulating the XML.
-        """
-        super(BangoProxy, self).pre(request)
-        # TODO: do something with the XML to make it pass auth.
+        self.body = ''
+        if request.META['CONTENT_TYPE'] == 'application/json':
+            self.body = json.loads(request.raw_post_data)
+        self.name = request.META[HEADERS_SERVICE_GET]
+
+    def call(self):
+        result = None
+        response = http.HttpResponse()
+        client = bango_client()
+        try:
+            result = client.call(self.name, self.body)
+        except BangoError, err:
+            log.error(err.message)
+            response.status_code = 500
+            response.content = json.dumps({
+                'responseCode': err.type,
+                'responseMessage': err.message
+            })
+            return response
+
+        # This is going to go pear shaped with complicated data, but works
+        # well so far.
+        response.status_code = 200
+        response.content = json.dumps(dict([[k, getattr(result, k)]
+                                            for k in result.__keylist__]))
+        return response
 
 
 def paypal(request):

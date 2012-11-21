@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
@@ -6,8 +8,10 @@ from nose.tools import eq_
 import requests
 import test_utils
 
-from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
+from lib.bango.constants import HEADERS_SERVICE_GET
+from lib.bango.errors import BangoError
 
+from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
 from lib.paypal.map import urls
 
 
@@ -52,12 +56,19 @@ class TestProxy(test_utils.TestCase):
 
 
 @mock.patch.object(settings, 'SOLITUDE_PROXY', True)
-@mock.patch('lib.proxy.views.requests.post')
+@mock.patch.object(settings, 'BANGO_MOCK', True)
 class TestBango(test_utils.TestCase):
 
     def setUp(self):
         self.url = reverse('bango.proxy')
 
-    def test_noop(self, post):
-        # Not sure what tests we'll have in here yet.
-        pass
+    def test_not_present(self):
+        with self.assertRaises(KeyError):
+            self.client.post(self.url)
+
+    def test_good(self):
+        res = self.client.post(self.url,
+                               json.dumps({'adminEmailAddress': 'bar'}),
+                               **{'content_type': 'application/json',
+                                  HEADERS_SERVICE_GET: 'create-package'})
+        eq_(json.loads(res.content)['adminPersonId'], 2)
