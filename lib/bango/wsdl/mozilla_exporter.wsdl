@@ -1,0 +1,2877 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="com.bango.webservices.mozillaexporter" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="com.bango.webservices.mozillaexporter" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="com.bango.webservices.mozillaexporter">
+      <s:element name="CreatePackage">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:CreatePackageRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CreatePackageRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="adminEmailAddress" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="supportEmailAddress" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="financeEmailAddress" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="paypalEmailAddress" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="vendorName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="companyName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="address1" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="address2" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addressCity" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addressState" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addressZipCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addressPhone" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addressFax" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="vatNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="countryIso" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="currencyIso" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="homePageURL" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="eventNotificationURL" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CreatePackageResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CreatePackageResult" type="tns:CreatePackageResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CreatePackageResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="adminPersonId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="adminPersonPassword" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="supportPersonId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="supportPersonPassword" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="financePersonId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="financePersonPassword" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetPackage">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetPackageRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetPackageRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetPackageResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetPackageResult" type="tns:GetPackageResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetPackageResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="adminEmailAddress" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="supportEmailAddress" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="financeEmailAddress" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="paypalEmailAddress" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="vendorName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="companyName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="address1" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="address2" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addressCity" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addressState" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addressZipCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addressPhone" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addressFax" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="vatNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="countryIso" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="currencyIso" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="homePageURL" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="eventNotificationEnabled" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="eventNotificationURL" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="sbiAgreementAccepted" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="acceptedSBIAgreement" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="sbiAgreementExpires" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CancelPackage">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:CancelPackageRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CancelPackageRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CancelPackageResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CancelPackageResult" type="tns:CancelPackageResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CancelPackageResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CreatePayPalDetails">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:CreatePayPalDetailsRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CreatePayPalDetailsRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="paypalEmailAddress" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CreatePayPalDetailsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CreatePayPalDetailsResult" type="tns:CreatePayPalDetailsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CreatePayPalDetailsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetPayPalDetails">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetPayPalDetailsRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetPayPalDetailsRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetPayPalDetailsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetPayPalDetailsResult" type="tns:GetPayPalDetailsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetPayPalDetailsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="paypalEmailAddress" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdatePayPalDetails">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:UpdatePayPalDetailsRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdatePayPalDetailsRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="paypalEmailAddress" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdatePayPalDetailsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdatePayPalDetailsResult" type="tns:UpdatePayPalDetailsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdatePayPalDetailsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeletePayPalDetails">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:DeletePayPalDetailsRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeletePayPalDetailsRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeletePayPalDetailsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DeletePayPalDetailsResult" type="tns:DeletePayPalDetailsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeletePayPalDetailsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SetVATNumber">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:SetVATNumberRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="SetVATNumberRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="vatNumber" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SetVATNumberResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="SetVATNumberResult" type="tns:SetVATNumberResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="SetVATNumberResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetVATNumber">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetVATNumberRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetVATNumberRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetVATNumberResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetVATNumberResult" type="tns:GetVATNumberResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetVATNumberResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="vatNumber" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeleteVATNumber">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:DeleteVATNumberRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeleteVATNumberRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeleteVATNumberResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DeleteVATNumberResult" type="tns:DeleteVATNumberResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeleteVATNumberResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetSBIAgreement">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetSBIAgreementRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetSBIAgreementRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetSBIAgreementResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetSBIAgreementResult" type="tns:GetSBIAgreementResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetSBIAgreementResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="sbiAgreement" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="sbiAgreementValidFrom" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="AcceptSBIAgreement">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:AcceptSBIAgreementRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="AcceptSBIAgreementRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="AcceptSBIAgreementResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="AcceptSBIAgreementResult" type="tns:AcceptSBIAgreementResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="AcceptSBIAgreementResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAcceptedSBIAgreement">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetAcceptedSBIAgreementRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetAcceptedSBIAgreementRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAcceptedSBIAgreementResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetAcceptedSBIAgreementResult" type="tns:GetAcceptedSBIAgreementResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetAcceptedSBIAgreementResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="sbiAgreementAccepted" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="acceptedSBIAgreement" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="sbiAgreementExpires" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="EnableCreditCardForBilling">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:EnableCreditCardForBillingRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="EnableCreditCardForBillingRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="EnableCreditCardForBillingResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="EnableCreditCardForBillingResult" type="tns:EnableCreditCardForBillingResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="EnableCreditCardForBillingResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DisableCreditCardForBilling">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:DisableCreditCardForBillingRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DisableCreditCardForBillingRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DisableCreditCardForBillingResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DisableCreditCardForBillingResult" type="tns:DisableCreditCardForBillingResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DisableCreditCardForBillingResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateAddressDetails">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:UpdateAddressDetailsRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateAddressDetailsRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="vendorName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="address1" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="address2" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addressCity" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addressState" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addressZipCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addressPhone" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addressFax" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="countryIso" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="homePageURL" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateAddressDetailsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateAddressDetailsResult" type="tns:UpdateAddressDetailsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateAddressDetailsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateSupportEmailAddress">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:UpdateSupportEmailAddressRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateSupportEmailAddressRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="emailAddress" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateSupportEmailAddressResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateSupportEmailAddressResult" type="tns:UpdateSupportEmailAddressResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateSupportEmailAddressResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="personId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="personPassword" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateFinanceEmailAddress">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:UpdateFinanceEmailAddressRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateFinanceEmailAddressRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="emailAddress" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateFinanceEmailAddressResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateFinanceEmailAddressResult" type="tns:UpdateFinanceEmailAddressResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateFinanceEmailAddressResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="personId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="personPassword" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetEmailAddresses">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetEmailAddressesRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetEmailAddressesRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetEmailAddressesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetEmailAddressesResult" type="tns:GetEmailAddressesResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetEmailAddressesResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="adminPersonId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="adminEmailAddress" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="supportPersonId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="supportEmailAddress" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="financePersonId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="financeEmailAddress" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAutoAuthenticationLoginToken">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetAutoAuthenticationLoginTokenRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetAutoAuthenticationLoginTokenRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="personId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="emailAddress" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAutoAuthenticationLoginTokenResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetAutoAuthenticationLoginTokenResult" type="tns:GetAutoAuthenticationLoginTokenResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetAutoAuthenticationLoginTokenResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="authenticationToken" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="tokenExpiry" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SetEventNotificationURL">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:SetEventNotificationURLRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="SetEventNotificationURLRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="eventNotificationURL" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SetEventNotificationURLResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="SetEventNotificationURLResult" type="tns:SetEventNotificationURLResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="SetEventNotificationURLResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetEventNotificationURL">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetEventNotificationURLRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetEventNotificationURLRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetEventNotificationURLResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetEventNotificationURLResult" type="tns:GetEventNotificationURLResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetEventNotificationURLResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="eventNotificationEnabled" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="eventNotificationURL" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeleteEventNotificationURL">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:DeleteEventNotificationURLRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeleteEventNotificationURLRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeleteEventNotificationURLResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DeleteEventNotificationURLResult" type="tns:DeleteEventNotificationURLResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeleteEventNotificationURLResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CreateBangoNumber">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:CreateBangoNumberRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CreateBangoNumberRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="categoryId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="applicationSize" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CreateBangoNumberResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CreateBangoNumberResult" type="tns:CreateBangoNumberResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CreateBangoNumberResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="MakePremiumPerAccess">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:MakePremiumPerAccessRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="MakePremiumPerAccessRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="price" type="s:decimal" />
+          <s:element minOccurs="0" maxOccurs="1" name="currencyIso" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="MakePremiumPerAccessResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="MakePremiumPerAccessResult" type="tns:MakePremiumPerAccessResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="MakePremiumPerAccessResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="MakePremiumMultiAccess">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:MakePremiumMultiAccessRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="MakePremiumMultiAccessRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="numberOfAccesses" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="price" type="s:decimal" />
+          <s:element minOccurs="0" maxOccurs="1" name="currencyIso" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="MakePremiumMultiAccessResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="MakePremiumMultiAccessResult" type="tns:MakePremiumMultiAccessResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="MakePremiumMultiAccessResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="MakePremiumTimed">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:MakePremiumTimedRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="MakePremiumTimedRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="validTime" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="validTimeUnit" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="price" type="s:decimal" />
+          <s:element minOccurs="0" maxOccurs="1" name="currencyIso" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="MakePremiumTimedResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="MakePremiumTimedResult" type="tns:MakePremiumTimedResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="MakePremiumTimedResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="MakePremiumRepeat">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:MakePremiumRepeatRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="MakePremiumRepeatRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="validTime" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="validTimeUnit" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialTime" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="initialTimeUnit" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialTimeApplies" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="exclusionPeriod" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="exclusionPeriodUnit" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="exclusionPeriodApplies" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="price" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialPrice" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialPriceApplies" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="currencyIso" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="MakePremiumRepeatResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="MakePremiumRepeatResult" type="tns:MakePremiumRepeatResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="MakePremiumRepeatResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CreatePricePoint">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:CreatePricePointRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CreatePricePointRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="price" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialPrice" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialPriceApplies" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="currencyIso" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CreatePricePointResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CreatePricePointResult" type="tns:CreatePricePointResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CreatePricePointResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetPricePoint">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetPricePointRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetPricePointRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="currencyIso" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetPricePointResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetPricePointResult" type="tns:GetPricePointResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetPricePointResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="price" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialPrice" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialPriceApplies" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="isBaseCurrency" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetPricePoints">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetPricePointsRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetPricePointsRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetPricePointsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPricePointsResult" type="tns:GetPricePointsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetPricePointsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="pricePoints" type="tns:ArrayOfPricePoint" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfPricePoint">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="pricePoint" nillable="true" type="tns:pricePoint" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="pricePoint">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="price" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialPrice" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialPriceApplies" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="currencyIso" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="isBaseCurrency" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetMaximumPricePoint">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetMaximumPricePointRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetMaximumPricePointRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="currencyIso" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetMaximumPricePointResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetMaximumPricePointResult" type="tns:GetMaximumPricePointResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetMaximumPricePointResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="maximumPrice" type="s:decimal" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetMaximumPricePoints">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetMaximumPricePointsRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetMaximumPricePointsRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetMaximumPricePointsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMaximumPricePointsResult" type="tns:GetMaximumPricePointsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetMaximumPricePointsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="maximumPricePoints" type="tns:ArrayOfMaximumPricePoint" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfMaximumPricePoint">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="maximumPricePoint" nillable="true" type="tns:maximumPricePoint" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="maximumPricePoint">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="maximumPrice" type="s:decimal" />
+          <s:element minOccurs="0" maxOccurs="1" name="currencyIso" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdatePricePoint">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:UpdatePricePointRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdatePricePointRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="price" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialPrice" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialPriceApplies" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="currencyIso" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdatePricePointResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdatePricePointResult" type="tns:UpdatePricePointResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdatePricePointResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeletePricePoint">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:DeletePricePointRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeletePricePointRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="currencyIso" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeletePricePointResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DeletePricePointResult" type="tns:DeletePricePointResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeletePricePointResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateAccessModelFree">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:UpdateAccessModelFreeRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateAccessModelFreeRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateAccessModelFreeResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateAccessModelFreeResult" type="tns:UpdateAccessModelFreeResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateAccessModelFreeResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateAccessModelPerAccess">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:UpdateAccessModelPerAccessRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateAccessModelPerAccessRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateAccessModelPerAccessResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateAccessModelPerAccessResult" type="tns:UpdateAccessModelPerAccessResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateAccessModelPerAccessResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateAccessModelMultiAccess">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:UpdateAccessModelMultiAccessRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateAccessModelMultiAccessRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="numberOfAccesses" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateAccessModelMultiAccessResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateAccessModelMultiAccessResult" type="tns:UpdateAccessModelMultiAccessResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateAccessModelMultiAccessResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateAccessModelTimed">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:UpdateAccessModelTimedRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateAccessModelTimedRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="validTime" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="validTimeUnit" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateAccessModelTimedResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateAccessModelTimedResult" type="tns:UpdateAccessModelTimedResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateAccessModelTimedResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateAccessModelRepeat">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:UpdateAccessModelRepeatRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateAccessModelRepeatRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="validTime" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="validTimeUnit" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialTime" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="initialTimeUnit" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialTimeApplies" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="exclusionPeriodUnit" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="exclusionPeriod" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="exclusionPeriodApplies" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateAccessModelRepeatResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateAccessModelRepeatResult" type="tns:UpdateAccessModelRepeatResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateAccessModelRepeatResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateRating">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:UpdateRatingRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateRatingRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ratingScheme" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="rating" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateRatingResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateRatingResult" type="tns:UpdateRatingResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateRatingResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="EnableCreditCardForBillingByBangoNumber">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:EnableCreditCardForBillingByBangoNumberRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="EnableCreditCardForBillingByBangoNumberRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="EnableCreditCardForBillingByBangoNumberResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="EnableCreditCardForBillingByBangoNumberResult" type="tns:EnableCreditCardForBillingByBangoNumberResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="EnableCreditCardForBillingByBangoNumberResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DisableCreditCardForBillingByBangoNumber">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:DisableCreditCardForBillingByBangoNumberRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DisableCreditCardForBillingByBangoNumberRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DisableCreditCardForBillingByBangoNumberResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DisableCreditCardForBillingByBangoNumberResult" type="tns:DisableCreditCardForBillingByBangoNumberResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DisableCreditCardForBillingByBangoNumberResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetBangoNumber">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetBangoNumberRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetBangoNumberRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetBangoNumberResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetBangoNumberResult" type="tns:GetBangoNumberResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetBangoNumberResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="accessModel" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="numberOfAccesses" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="validTime" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="validTimeUnit" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialTime" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="initialTimeUnit" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialTimeApplies" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="exclusionPeriod" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="exclusionPeriodUnit" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="exclusionPeriodApplies" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="pricePoints" type="tns:ArrayOfPricePoint" />
+          <s:element minOccurs="0" maxOccurs="1" name="contentRatings" type="tns:ArrayOfContentRating" />
+          <s:element minOccurs="1" maxOccurs="1" name="categoryId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="applicationSize" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfContentRating">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="contentRating" nillable="true" type="tns:contentRating" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="contentRating">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ratingScheme" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="rating" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetBangoNumbers">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetBangoNumbersRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetBangoNumbersRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetBangoNumbersResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetBangoNumbersResult" type="tns:GetBangoNumbersResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetBangoNumbersResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bangoNumbers" type="tns:ArrayOfBangoNumber" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfBangoNumber">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="bangoNumber" nillable="true" type="tns:bangoNumber" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="bangoNumber">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="accessModel" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="numberOfAccesses" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="validTime" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="validTimeUnit" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialTime" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="initialTimeUnit" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="initialTimeApplies" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="exclusionPeriod" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="exclusionPeriodUnit" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="exclusionPeriodApplies" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="pricePoints" type="tns:ArrayOfPricePoint" />
+          <s:element minOccurs="0" maxOccurs="1" name="contentRatings" type="tns:ArrayOfContentRating" />
+          <s:element minOccurs="1" maxOccurs="1" name="categoryId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="applicationSize" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateBangoNumber">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:UpdateBangoNumberRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateBangoNumberRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="categoryId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="applicationSize" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateBangoNumberResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateBangoNumberResult" type="tns:UpdateBangoNumberResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateBangoNumberResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeleteBangoNumber">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:DeleteBangoNumberRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeleteBangoNumberRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeleteBangoNumberResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DeleteBangoNumberResult" type="tns:DeleteBangoNumberResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeleteBangoNumberResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="CreatePackageSoapIn">
+    <wsdl:part name="parameters" element="tns:CreatePackage" />
+  </wsdl:message>
+  <wsdl:message name="CreatePackageSoapOut">
+    <wsdl:part name="parameters" element="tns:CreatePackageResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPackageSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPackage" />
+  </wsdl:message>
+  <wsdl:message name="GetPackageSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPackageResponse" />
+  </wsdl:message>
+  <wsdl:message name="CancelPackageSoapIn">
+    <wsdl:part name="parameters" element="tns:CancelPackage" />
+  </wsdl:message>
+  <wsdl:message name="CancelPackageSoapOut">
+    <wsdl:part name="parameters" element="tns:CancelPackageResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreatePayPalDetailsSoapIn">
+    <wsdl:part name="parameters" element="tns:CreatePayPalDetails" />
+  </wsdl:message>
+  <wsdl:message name="CreatePayPalDetailsSoapOut">
+    <wsdl:part name="parameters" element="tns:CreatePayPalDetailsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPayPalDetailsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPayPalDetails" />
+  </wsdl:message>
+  <wsdl:message name="GetPayPalDetailsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPayPalDetailsResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePayPalDetailsSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdatePayPalDetails" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePayPalDetailsSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdatePayPalDetailsResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeletePayPalDetailsSoapIn">
+    <wsdl:part name="parameters" element="tns:DeletePayPalDetails" />
+  </wsdl:message>
+  <wsdl:message name="DeletePayPalDetailsSoapOut">
+    <wsdl:part name="parameters" element="tns:DeletePayPalDetailsResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetVATNumberSoapIn">
+    <wsdl:part name="parameters" element="tns:SetVATNumber" />
+  </wsdl:message>
+  <wsdl:message name="SetVATNumberSoapOut">
+    <wsdl:part name="parameters" element="tns:SetVATNumberResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetVATNumberSoapIn">
+    <wsdl:part name="parameters" element="tns:GetVATNumber" />
+  </wsdl:message>
+  <wsdl:message name="GetVATNumberSoapOut">
+    <wsdl:part name="parameters" element="tns:GetVATNumberResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteVATNumberSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteVATNumber" />
+  </wsdl:message>
+  <wsdl:message name="DeleteVATNumberSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteVATNumberResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSBIAgreementSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSBIAgreement" />
+  </wsdl:message>
+  <wsdl:message name="GetSBIAgreementSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSBIAgreementResponse" />
+  </wsdl:message>
+  <wsdl:message name="AcceptSBIAgreementSoapIn">
+    <wsdl:part name="parameters" element="tns:AcceptSBIAgreement" />
+  </wsdl:message>
+  <wsdl:message name="AcceptSBIAgreementSoapOut">
+    <wsdl:part name="parameters" element="tns:AcceptSBIAgreementResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAcceptedSBIAgreementSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAcceptedSBIAgreement" />
+  </wsdl:message>
+  <wsdl:message name="GetAcceptedSBIAgreementSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAcceptedSBIAgreementResponse" />
+  </wsdl:message>
+  <wsdl:message name="EnableCreditCardForBillingSoapIn">
+    <wsdl:part name="parameters" element="tns:EnableCreditCardForBilling" />
+  </wsdl:message>
+  <wsdl:message name="EnableCreditCardForBillingSoapOut">
+    <wsdl:part name="parameters" element="tns:EnableCreditCardForBillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="DisableCreditCardForBillingSoapIn">
+    <wsdl:part name="parameters" element="tns:DisableCreditCardForBilling" />
+  </wsdl:message>
+  <wsdl:message name="DisableCreditCardForBillingSoapOut">
+    <wsdl:part name="parameters" element="tns:DisableCreditCardForBillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateAddressDetailsSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateAddressDetails" />
+  </wsdl:message>
+  <wsdl:message name="UpdateAddressDetailsSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateAddressDetailsResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateSupportEmailAddressSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateSupportEmailAddress" />
+  </wsdl:message>
+  <wsdl:message name="UpdateSupportEmailAddressSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateSupportEmailAddressResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateFinanceEmailAddressSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateFinanceEmailAddress" />
+  </wsdl:message>
+  <wsdl:message name="UpdateFinanceEmailAddressSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateFinanceEmailAddressResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetEmailAddressesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetEmailAddresses" />
+  </wsdl:message>
+  <wsdl:message name="GetEmailAddressesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetEmailAddressesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAutoAuthenticationLoginTokenSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAutoAuthenticationLoginToken" />
+  </wsdl:message>
+  <wsdl:message name="GetAutoAuthenticationLoginTokenSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAutoAuthenticationLoginTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetEventNotificationURLSoapIn">
+    <wsdl:part name="parameters" element="tns:SetEventNotificationURL" />
+  </wsdl:message>
+  <wsdl:message name="SetEventNotificationURLSoapOut">
+    <wsdl:part name="parameters" element="tns:SetEventNotificationURLResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetEventNotificationURLSoapIn">
+    <wsdl:part name="parameters" element="tns:GetEventNotificationURL" />
+  </wsdl:message>
+  <wsdl:message name="GetEventNotificationURLSoapOut">
+    <wsdl:part name="parameters" element="tns:GetEventNotificationURLResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteEventNotificationURLSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteEventNotificationURL" />
+  </wsdl:message>
+  <wsdl:message name="DeleteEventNotificationURLSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteEventNotificationURLResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateBangoNumberSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateBangoNumber" />
+  </wsdl:message>
+  <wsdl:message name="CreateBangoNumberSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateBangoNumberResponse" />
+  </wsdl:message>
+  <wsdl:message name="MakePremiumPerAccessSoapIn">
+    <wsdl:part name="parameters" element="tns:MakePremiumPerAccess" />
+  </wsdl:message>
+  <wsdl:message name="MakePremiumPerAccessSoapOut">
+    <wsdl:part name="parameters" element="tns:MakePremiumPerAccessResponse" />
+  </wsdl:message>
+  <wsdl:message name="MakePremiumMultiAccessSoapIn">
+    <wsdl:part name="parameters" element="tns:MakePremiumMultiAccess" />
+  </wsdl:message>
+  <wsdl:message name="MakePremiumMultiAccessSoapOut">
+    <wsdl:part name="parameters" element="tns:MakePremiumMultiAccessResponse" />
+  </wsdl:message>
+  <wsdl:message name="MakePremiumTimedSoapIn">
+    <wsdl:part name="parameters" element="tns:MakePremiumTimed" />
+  </wsdl:message>
+  <wsdl:message name="MakePremiumTimedSoapOut">
+    <wsdl:part name="parameters" element="tns:MakePremiumTimedResponse" />
+  </wsdl:message>
+  <wsdl:message name="MakePremiumRepeatSoapIn">
+    <wsdl:part name="parameters" element="tns:MakePremiumRepeat" />
+  </wsdl:message>
+  <wsdl:message name="MakePremiumRepeatSoapOut">
+    <wsdl:part name="parameters" element="tns:MakePremiumRepeatResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreatePricePointSoapIn">
+    <wsdl:part name="parameters" element="tns:CreatePricePoint" />
+  </wsdl:message>
+  <wsdl:message name="CreatePricePointSoapOut">
+    <wsdl:part name="parameters" element="tns:CreatePricePointResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPricePointSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPricePoint" />
+  </wsdl:message>
+  <wsdl:message name="GetPricePointSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPricePointResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPricePointsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPricePoints" />
+  </wsdl:message>
+  <wsdl:message name="GetPricePointsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPricePointsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMaximumPricePointSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMaximumPricePoint" />
+  </wsdl:message>
+  <wsdl:message name="GetMaximumPricePointSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMaximumPricePointResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMaximumPricePointsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMaximumPricePoints" />
+  </wsdl:message>
+  <wsdl:message name="GetMaximumPricePointsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMaximumPricePointsResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePricePointSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdatePricePoint" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePricePointSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdatePricePointResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeletePricePointSoapIn">
+    <wsdl:part name="parameters" element="tns:DeletePricePoint" />
+  </wsdl:message>
+  <wsdl:message name="DeletePricePointSoapOut">
+    <wsdl:part name="parameters" element="tns:DeletePricePointResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateAccessModelFreeSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateAccessModelFree" />
+  </wsdl:message>
+  <wsdl:message name="UpdateAccessModelFreeSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateAccessModelFreeResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateAccessModelPerAccessSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateAccessModelPerAccess" />
+  </wsdl:message>
+  <wsdl:message name="UpdateAccessModelPerAccessSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateAccessModelPerAccessResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateAccessModelMultiAccessSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateAccessModelMultiAccess" />
+  </wsdl:message>
+  <wsdl:message name="UpdateAccessModelMultiAccessSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateAccessModelMultiAccessResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateAccessModelTimedSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateAccessModelTimed" />
+  </wsdl:message>
+  <wsdl:message name="UpdateAccessModelTimedSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateAccessModelTimedResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateAccessModelRepeatSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateAccessModelRepeat" />
+  </wsdl:message>
+  <wsdl:message name="UpdateAccessModelRepeatSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateAccessModelRepeatResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRatingSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateRating" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRatingSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateRatingResponse" />
+  </wsdl:message>
+  <wsdl:message name="EnableCreditCardForBillingByBangoNumberSoapIn">
+    <wsdl:part name="parameters" element="tns:EnableCreditCardForBillingByBangoNumber" />
+  </wsdl:message>
+  <wsdl:message name="EnableCreditCardForBillingByBangoNumberSoapOut">
+    <wsdl:part name="parameters" element="tns:EnableCreditCardForBillingByBangoNumberResponse" />
+  </wsdl:message>
+  <wsdl:message name="DisableCreditCardForBillingByBangoNumberSoapIn">
+    <wsdl:part name="parameters" element="tns:DisableCreditCardForBillingByBangoNumber" />
+  </wsdl:message>
+  <wsdl:message name="DisableCreditCardForBillingByBangoNumberSoapOut">
+    <wsdl:part name="parameters" element="tns:DisableCreditCardForBillingByBangoNumberResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetBangoNumberSoapIn">
+    <wsdl:part name="parameters" element="tns:GetBangoNumber" />
+  </wsdl:message>
+  <wsdl:message name="GetBangoNumberSoapOut">
+    <wsdl:part name="parameters" element="tns:GetBangoNumberResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetBangoNumbersSoapIn">
+    <wsdl:part name="parameters" element="tns:GetBangoNumbers" />
+  </wsdl:message>
+  <wsdl:message name="GetBangoNumbersSoapOut">
+    <wsdl:part name="parameters" element="tns:GetBangoNumbersResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateBangoNumberSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateBangoNumber" />
+  </wsdl:message>
+  <wsdl:message name="UpdateBangoNumberSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateBangoNumberResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteBangoNumberSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteBangoNumber" />
+  </wsdl:message>
+  <wsdl:message name="DeleteBangoNumberSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteBangoNumberResponse" />
+  </wsdl:message>
+  <wsdl:portType name="MozillaExporterSoap">
+    <wsdl:operation name="CreatePackage">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Creates a new package within the Bango system.</wsdl:documentation>
+      <wsdl:input message="tns:CreatePackageSoapIn" />
+      <wsdl:output message="tns:CreatePackageSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPackage">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Retrieve details of an existing package from the Bango system.</wsdl:documentation>
+      <wsdl:input message="tns:GetPackageSoapIn" />
+      <wsdl:output message="tns:GetPackageSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CancelPackage">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Cancels an existing package in the Bango system.</wsdl:documentation>
+      <wsdl:input message="tns:CancelPackageSoapIn" />
+      <wsdl:output message="tns:CancelPackageSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreatePayPalDetails">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Add PayPal account details to an existing package.</wsdl:documentation>
+      <wsdl:input message="tns:CreatePayPalDetailsSoapIn" />
+      <wsdl:output message="tns:CreatePayPalDetailsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPayPalDetails">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get the registered PayPal account details for an existing package.</wsdl:documentation>
+      <wsdl:input message="tns:GetPayPalDetailsSoapIn" />
+      <wsdl:output message="tns:GetPayPalDetailsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePayPalDetails">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Change the registered PayPal account details for an existing package.</wsdl:documentation>
+      <wsdl:input message="tns:UpdatePayPalDetailsSoapIn" />
+      <wsdl:output message="tns:UpdatePayPalDetailsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeletePayPalDetails">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Delete the registered PayPal account details for an existing package.</wsdl:documentation>
+      <wsdl:input message="tns:DeletePayPalDetailsSoapIn" />
+      <wsdl:output message="tns:DeletePayPalDetailsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetVATNumber">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Set the registered VAT number for an existing package.</wsdl:documentation>
+      <wsdl:input message="tns:SetVATNumberSoapIn" />
+      <wsdl:output message="tns:SetVATNumberSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetVATNumber">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get the VAT number for an existing package.</wsdl:documentation>
+      <wsdl:input message="tns:GetVATNumberSoapIn" />
+      <wsdl:output message="tns:GetVATNumberSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteVATNumber">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Delete the registered VAT number for an existing package.</wsdl:documentation>
+      <wsdl:input message="tns:DeleteVATNumberSoapIn" />
+      <wsdl:output message="tns:DeleteVATNumberSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSBIAgreement">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Retrieve the textual content of the SBI Agreement for this package.</wsdl:documentation>
+      <wsdl:input message="tns:GetSBIAgreementSoapIn" />
+      <wsdl:output message="tns:GetSBIAgreementSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AcceptSBIAgreement">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Set that the vendor has accepted the terms and conditions of the SBI agreement.</wsdl:documentation>
+      <wsdl:input message="tns:AcceptSBIAgreementSoapIn" />
+      <wsdl:output message="tns:AcceptSBIAgreementSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAcceptedSBIAgreement">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Retrieves the status and last accepted date of the SBI agreement.</wsdl:documentation>
+      <wsdl:input message="tns:GetAcceptedSBIAgreementSoapIn" />
+      <wsdl:output message="tns:GetAcceptedSBIAgreementSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="EnableCreditCardForBilling">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Specifically allow credit card payments for this package where credit card has previously been disabled.</wsdl:documentation>
+      <wsdl:input message="tns:EnableCreditCardForBillingSoapIn" />
+      <wsdl:output message="tns:EnableCreditCardForBillingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DisableCreditCardForBilling">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Specifically deny credit card payments for this package.</wsdl:documentation>
+      <wsdl:input message="tns:DisableCreditCardForBillingSoapIn" />
+      <wsdl:output message="tns:DisableCreditCardForBillingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAddressDetails">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Change the address details of a package within the Bango system.</wsdl:documentation>
+      <wsdl:input message="tns:UpdateAddressDetailsSoapIn" />
+      <wsdl:output message="tns:UpdateAddressDetailsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateSupportEmailAddress">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Update the associated support email address for this package.</wsdl:documentation>
+      <wsdl:input message="tns:UpdateSupportEmailAddressSoapIn" />
+      <wsdl:output message="tns:UpdateSupportEmailAddressSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFinanceEmailAddress">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Update the associated finance email address for this package.</wsdl:documentation>
+      <wsdl:input message="tns:UpdateFinanceEmailAddressSoapIn" />
+      <wsdl:output message="tns:UpdateFinanceEmailAddressSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEmailAddresses">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Retrieve all associated email addresses and person IDs for this package.</wsdl:documentation>
+      <wsdl:input message="tns:GetEmailAddressesSoapIn" />
+      <wsdl:output message="tns:GetEmailAddressesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAutoAuthenticationLoginToken">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Retrieve an auto authentication token for use in accessing a vendor portal (where available) for this person and package.</wsdl:documentation>
+      <wsdl:input message="tns:GetAutoAuthenticationLoginTokenSoapIn" />
+      <wsdl:output message="tns:GetAutoAuthenticationLoginTokenSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetEventNotificationURL">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Set the Event Notification URL for this package.</wsdl:documentation>
+      <wsdl:input message="tns:SetEventNotificationURLSoapIn" />
+      <wsdl:output message="tns:SetEventNotificationURLSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEventNotificationURL">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Retrieve the configured Event Notification URL for this package.</wsdl:documentation>
+      <wsdl:input message="tns:GetEventNotificationURLSoapIn" />
+      <wsdl:output message="tns:GetEventNotificationURLSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteEventNotificationURL">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Delete the configured Event Notification URL for this package.</wsdl:documentation>
+      <wsdl:input message="tns:DeleteEventNotificationURLSoapIn" />
+      <wsdl:output message="tns:DeleteEventNotificationURLSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateBangoNumber">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Creates a new Bango Number within the Bango system for association against a product.</wsdl:documentation>
+      <wsdl:input message="tns:CreateBangoNumberSoapIn" />
+      <wsdl:output message="tns:CreateBangoNumberSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="MakePremiumPerAccess">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Enables a previously created Bango Number to be used for premium billing on a per access billing model.</wsdl:documentation>
+      <wsdl:input message="tns:MakePremiumPerAccessSoapIn" />
+      <wsdl:output message="tns:MakePremiumPerAccessSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="MakePremiumMultiAccess">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Enables a previously created Bango Number to be used for premium billing on a multi-access billing model.</wsdl:documentation>
+      <wsdl:input message="tns:MakePremiumMultiAccessSoapIn" />
+      <wsdl:output message="tns:MakePremiumMultiAccessSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="MakePremiumTimed">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Enables a previously created Bango Number to be used for premium billing on a timed billing model.</wsdl:documentation>
+      <wsdl:input message="tns:MakePremiumTimedSoapIn" />
+      <wsdl:output message="tns:MakePremiumTimedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="MakePremiumRepeat">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Enables a previously created Bango Number to be used for premium billing on a subscription billing model.</wsdl:documentation>
+      <wsdl:input message="tns:MakePremiumRepeatSoapIn" />
+      <wsdl:output message="tns:MakePremiumRepeatSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreatePricePoint">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Creates a new price point for a different currency than the default currency against an existing Bango Number which has been enabled for premium billing.</wsdl:documentation>
+      <wsdl:input message="tns:CreatePricePointSoapIn" />
+      <wsdl:output message="tns:CreatePricePointSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPricePoint">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets pricing details for a price point against an existing Bango Number which has been enabled for premium billing.</wsdl:documentation>
+      <wsdl:input message="tns:GetPricePointSoapIn" />
+      <wsdl:output message="tns:GetPricePointSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPricePoints">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets pricing details for all price points against an existing Bango Number which has been enabled for premium billing.</wsdl:documentation>
+      <wsdl:input message="tns:GetPricePointsSoapIn" />
+      <wsdl:output message="tns:GetPricePointsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMaximumPricePoint">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets maximum pricing for a price point against an existing Bango Number.</wsdl:documentation>
+      <wsdl:input message="tns:GetMaximumPricePointSoapIn" />
+      <wsdl:output message="tns:GetMaximumPricePointSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMaximumPricePoints">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets maximum pricing for all price points against an existing Bango Number.</wsdl:documentation>
+      <wsdl:input message="tns:GetMaximumPricePointsSoapIn" />
+      <wsdl:output message="tns:GetMaximumPricePointsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePricePoint">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Updates an existing price point against an existing Bango Number which has been enabled for premium billing.</wsdl:documentation>
+      <wsdl:input message="tns:UpdatePricePointSoapIn" />
+      <wsdl:output message="tns:UpdatePricePointSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeletePricePoint">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Deletes a price point against an existing Bango Number which has been enabled for premium billing.</wsdl:documentation>
+      <wsdl:input message="tns:DeletePricePointSoapIn" />
+      <wsdl:output message="tns:DeletePricePointSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAccessModelFree">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Changes the access model for a Bango Number to free (non-premium).</wsdl:documentation>
+      <wsdl:input message="tns:UpdateAccessModelFreeSoapIn" />
+      <wsdl:output message="tns:UpdateAccessModelFreeSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAccessModelPerAccess">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Changes the access model for a Bango Number to per access payment model.</wsdl:documentation>
+      <wsdl:input message="tns:UpdateAccessModelPerAccessSoapIn" />
+      <wsdl:output message="tns:UpdateAccessModelPerAccessSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAccessModelMultiAccess">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Changes the access model for a Bango Number to multi access payment model.</wsdl:documentation>
+      <wsdl:input message="tns:UpdateAccessModelMultiAccessSoapIn" />
+      <wsdl:output message="tns:UpdateAccessModelMultiAccessSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAccessModelTimed">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Changes the access model for a Bango Number to timed payment model.</wsdl:documentation>
+      <wsdl:input message="tns:UpdateAccessModelTimedSoapIn" />
+      <wsdl:output message="tns:UpdateAccessModelTimedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAccessModelRepeat">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Changes the access model for a Bango Number to repeat (managed subscription) payment model.</wsdl:documentation>
+      <wsdl:input message="tns:UpdateAccessModelRepeatSoapIn" />
+      <wsdl:output message="tns:UpdateAccessModelRepeatSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRating">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Updates content rating and rating scheme for a specified Bango Number.</wsdl:documentation>
+      <wsdl:input message="tns:UpdateRatingSoapIn" />
+      <wsdl:output message="tns:UpdateRatingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="EnableCreditCardForBillingByBangoNumber">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Specifically allow credit card payments for this Bango Number where credit card has previously been disabled.</wsdl:documentation>
+      <wsdl:input message="tns:EnableCreditCardForBillingByBangoNumberSoapIn" />
+      <wsdl:output message="tns:EnableCreditCardForBillingByBangoNumberSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DisableCreditCardForBillingByBangoNumber">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Specifically deny credit card payments for this Bango Number.</wsdl:documentation>
+      <wsdl:input message="tns:DisableCreditCardForBillingByBangoNumberSoapIn" />
+      <wsdl:output message="tns:DisableCreditCardForBillingByBangoNumberSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetBangoNumber">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets details about a specific Bango Number, including access model, price points and rating.</wsdl:documentation>
+      <wsdl:input message="tns:GetBangoNumberSoapIn" />
+      <wsdl:output message="tns:GetBangoNumberSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetBangoNumbers">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets details about all Bango Numbers, including access model, price points and rating, associated with the passed Package ID.</wsdl:documentation>
+      <wsdl:input message="tns:GetBangoNumbersSoapIn" />
+      <wsdl:output message="tns:GetBangoNumbersSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateBangoNumber">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Update the title of an existing Bango Number.</wsdl:documentation>
+      <wsdl:input message="tns:UpdateBangoNumberSoapIn" />
+      <wsdl:output message="tns:UpdateBangoNumberSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteBangoNumber">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Deletes specified Bango Number, including access model, price points and rating, along with any carrier specific configuration.</wsdl:documentation>
+      <wsdl:input message="tns:DeleteBangoNumberSoapIn" />
+      <wsdl:output message="tns:DeleteBangoNumberSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="MozillaExporterSoap" type="tns:MozillaExporterSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="CreatePackage">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/CreatePackage" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPackage">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetPackage" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelPackage">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/CancelPackage" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreatePayPalDetails">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/CreatePayPalDetails" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPayPalDetails">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetPayPalDetails" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePayPalDetails">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/UpdatePayPalDetails" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeletePayPalDetails">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/DeletePayPalDetails" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetVATNumber">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/SetVATNumber" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetVATNumber">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetVATNumber" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteVATNumber">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/DeleteVATNumber" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSBIAgreement">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetSBIAgreement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AcceptSBIAgreement">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/AcceptSBIAgreement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAcceptedSBIAgreement">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetAcceptedSBIAgreement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="EnableCreditCardForBilling">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/EnableCreditCardForBilling" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableCreditCardForBilling">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/DisableCreditCardForBilling" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAddressDetails">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/UpdateAddressDetails" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateSupportEmailAddress">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/UpdateSupportEmailAddress" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFinanceEmailAddress">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/UpdateFinanceEmailAddress" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEmailAddresses">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetEmailAddresses" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAutoAuthenticationLoginToken">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetAutoAuthenticationLoginToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetEventNotificationURL">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/SetEventNotificationURL" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEventNotificationURL">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetEventNotificationURL" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteEventNotificationURL">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/DeleteEventNotificationURL" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateBangoNumber">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/CreateBangoNumber" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="MakePremiumPerAccess">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/MakePremiumPerAccess" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="MakePremiumMultiAccess">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/MakePremiumMultiAccess" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="MakePremiumTimed">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/MakePremiumTimed" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="MakePremiumRepeat">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/MakePremiumRepeat" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreatePricePoint">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/CreatePricePoint" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPricePoint">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetPricePoint" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPricePoints">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetPricePoints" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMaximumPricePoint">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetMaximumPricePoint" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMaximumPricePoints">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetMaximumPricePoints" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePricePoint">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/UpdatePricePoint" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeletePricePoint">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/DeletePricePoint" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAccessModelFree">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/UpdateAccessModelFree" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAccessModelPerAccess">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/UpdateAccessModelPerAccess" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAccessModelMultiAccess">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/UpdateAccessModelMultiAccess" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAccessModelTimed">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/UpdateAccessModelTimed" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAccessModelRepeat">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/UpdateAccessModelRepeat" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRating">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/UpdateRating" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="EnableCreditCardForBillingByBangoNumber">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/EnableCreditCardForBillingByBangoNumber" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableCreditCardForBillingByBangoNumber">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/DisableCreditCardForBillingByBangoNumber" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBangoNumber">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetBangoNumber" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBangoNumbers">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetBangoNumbers" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateBangoNumber">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/UpdateBangoNumber" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteBangoNumber">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/DeleteBangoNumber" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="MozillaExporterSoap12" type="tns:MozillaExporterSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="CreatePackage">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/CreatePackage" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPackage">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetPackage" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelPackage">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/CancelPackage" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreatePayPalDetails">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/CreatePayPalDetails" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPayPalDetails">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetPayPalDetails" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePayPalDetails">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/UpdatePayPalDetails" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeletePayPalDetails">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/DeletePayPalDetails" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetVATNumber">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/SetVATNumber" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetVATNumber">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetVATNumber" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteVATNumber">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/DeleteVATNumber" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSBIAgreement">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetSBIAgreement" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AcceptSBIAgreement">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/AcceptSBIAgreement" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAcceptedSBIAgreement">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetAcceptedSBIAgreement" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="EnableCreditCardForBilling">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/EnableCreditCardForBilling" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableCreditCardForBilling">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/DisableCreditCardForBilling" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAddressDetails">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/UpdateAddressDetails" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateSupportEmailAddress">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/UpdateSupportEmailAddress" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFinanceEmailAddress">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/UpdateFinanceEmailAddress" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEmailAddresses">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetEmailAddresses" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAutoAuthenticationLoginToken">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetAutoAuthenticationLoginToken" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetEventNotificationURL">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/SetEventNotificationURL" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEventNotificationURL">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetEventNotificationURL" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteEventNotificationURL">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/DeleteEventNotificationURL" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateBangoNumber">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/CreateBangoNumber" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="MakePremiumPerAccess">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/MakePremiumPerAccess" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="MakePremiumMultiAccess">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/MakePremiumMultiAccess" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="MakePremiumTimed">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/MakePremiumTimed" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="MakePremiumRepeat">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/MakePremiumRepeat" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreatePricePoint">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/CreatePricePoint" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPricePoint">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetPricePoint" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPricePoints">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetPricePoints" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMaximumPricePoint">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetMaximumPricePoint" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMaximumPricePoints">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetMaximumPricePoints" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePricePoint">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/UpdatePricePoint" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeletePricePoint">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/DeletePricePoint" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAccessModelFree">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/UpdateAccessModelFree" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAccessModelPerAccess">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/UpdateAccessModelPerAccess" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAccessModelMultiAccess">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/UpdateAccessModelMultiAccess" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAccessModelTimed">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/UpdateAccessModelTimed" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAccessModelRepeat">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/UpdateAccessModelRepeat" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRating">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/UpdateRating" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="EnableCreditCardForBillingByBangoNumber">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/EnableCreditCardForBillingByBangoNumber" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableCreditCardForBillingByBangoNumber">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/DisableCreditCardForBillingByBangoNumber" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBangoNumber">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetBangoNumber" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBangoNumbers">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetBangoNumbers" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateBangoNumber">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/UpdateBangoNumber" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteBangoNumber">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/DeleteBangoNumber" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="MozillaExporter">
+    <wsdl:port name="MozillaExporterSoap" binding="tns:MozillaExporterSoap">
+      <soap:address location="https://webservices.bango.com/mozillaexporter/service.asmx" />
+    </wsdl:port>
+    <wsdl:port name="MozillaExporterSoap12" binding="tns:MozillaExporterSoap12">
+      <soap12:address location="https://webservices.bango.com/mozillaexporter/service.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

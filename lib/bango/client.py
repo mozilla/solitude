@@ -1,4 +1,5 @@
 import json
+import os
 
 from django.conf import settings
 
@@ -11,10 +12,10 @@ from suds import client as sudsclient
 from .constants import OK, ACCESS_DENIED, HEADERS_SERVICE
 from .errors import AuthError, BangoError
 
-domain = 'https://webservices.bango.com/'
+root = os.path.join(settings.ROOT, 'lib/bango/wsdl')
 wsdl = {
-    'exporter': domain + 'mozillaexporter/?WSDL',
-    'billing': domain + 'billingconfiguration/?WSDL',
+    'exporter': 'file://' + os.path.join(root, 'mozilla_exporter.wsdl'),
+    'billing': 'file://' + os.path.join(root, 'billing_configuration.wsdl'),
 }
 methods = {
     'create-package': 'CreatePackage',
