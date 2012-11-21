@@ -36,7 +36,7 @@ if settings.CLEANSED_SETTINGS_ACCESS:
 service.register(StatusResource())
 
 urlpatterns = patterns('',
-    url(r'^proxy/paypal/', include('lib.proxy.urls')),
+    url(r'^proxy/', include('lib.proxy.urls')),
     url(r'^', include(api.urls)),
     url(r'^', include(paypal.urls)),
     url(r'^', include(bluevia.urls)),
