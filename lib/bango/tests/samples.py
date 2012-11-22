@@ -11,10 +11,23 @@ good_address = {
     'addressZipCode': '11111',
     'addressPhone': '4445551111',
     'countryIso': 'USA',
-    'currencyIso': 'USD'
+    'currencyIso': 'USD',
+    'seller': 1,
 }
 
 good_email = {
-    'packageId': '1',
+    'packageId': 1,
     'emailAddress': 'something@somewhere.com'
+}
+
+good_bango_number = {
+    'packageId': 1,
+    'name': 'A name for the number',
+    'categoryId': 1
+}
+
+good_make_premium = {
+    'bango': '123',
+    'price': 1,
+    'currencyIso': 'CAD'
 }

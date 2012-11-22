@@ -9,7 +9,6 @@ import requests
 import test_utils
 
 from lib.bango.constants import HEADERS_SERVICE_GET
-from lib.bango.errors import BangoError
 
 from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
 from lib.paypal.map import urls
@@ -70,5 +69,5 @@ class TestBango(test_utils.TestCase):
         res = self.client.post(self.url,
                                json.dumps({'adminEmailAddress': 'bar'}),
                                **{'content_type': 'application/json',
-                                  HEADERS_SERVICE_GET: 'create-package'})
-        eq_(json.loads(res.content)['adminPersonId'], 2)
+                                  HEADERS_SERVICE_GET: 'CreatePackage'})
+        assert json.loads(res.content)['adminPersonId'] > 1

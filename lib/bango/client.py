@@ -1,5 +1,8 @@
+import functools
 import json
 import os
+import re
+from time import time
 
 from django.conf import settings
 
@@ -17,11 +20,16 @@ wsdl = {
     'exporter': 'file://' + os.path.join(root, 'mozilla_exporter.wsdl'),
     'billing': 'file://' + os.path.join(root, 'billing_configuration.wsdl'),
 }
-methods = {
-    'create-package': 'CreatePackage',
-    'update-support-email': 'UpdateSupportEmail',
-    'update-financial-email': 'UpdateFinancialEmail',
-}
+
+# Add in the whitelist of supported methods here.
+whitelist = [
+    'CreatePackage',
+    'UpdateSupportEmailAddress',
+    'UpdateFinanceEmailAddress',
+    'CreateBangoNumber',
+    'MakePremiumPerAccess',
+]
+
 
 # Turn the method into the approiate name. If the Bango WSDL diverges this will
 # need to change.
@@ -37,32 +45,32 @@ def get_result(name):
     return name + 'Result'
 
 
+# If we use . in the names we can do queries like update.*
+def get_statsd_name(name):
+    return re.sub('(?<=\w)(?=[A-Z])', '.', name).lower()
+
+
 log = commonware.log.getLogger('s.bango')
 
 
 class Client(object):
 
-    def CreatePackage(self, data):
-        return self.call('create-package', data)
-
-    def UpdateSupportEmailAddress(self, data):
-        return self.call('update-support-email', data)
-
-    def UpdateFinancialEmailAddress(self, data):
-        return self.call('update-financial-email', data)
+    def __getattr__(self, attr):
+        if attr in whitelist:
+            return functools.partial(self.call, attr)
+        raise AttributeError
 
     def call(self, name, data):
         client = self.client('exporter')
-        method = methods[name]
-        package = client.factory.create(get_request(method))
+        package = client.factory.create(get_request(name))
         for k, v in data.iteritems():
             setattr(package, k, v)
         package.username = settings.BANGO_AUTH.get('USER', '')
         package.password = settings.BANGO_AUTH.get('PASSWORD', '')
 
         # Actually call Bango.
-        with statsd.timer('solitude.bango.%s' % name):
-            response = getattr(client.service, method)(package)
+        with statsd.timer('solitude.bango.%s' % get_statsd_name(name)):
+            response = getattr(client.service, name)(package)
 
         self.is_error(response.responseCode, response.responseMessage)
         return response
@@ -81,8 +89,7 @@ class Client(object):
 class ClientProxy(Client):
 
     def call(self, name, data):
-        method = methods[name]
-        with statsd.timer('solitude.proxy.bango.%s' % name):
+        with statsd.timer('solitude.proxy.bango.%s' % get_statsd_name(name)):
             log.info('Calling proxy: %s' % name)
             response = post(settings.BANGO_PROXY, data,
                             headers={HEADERS_SERVICE: name,
@@ -95,41 +102,47 @@ class ClientProxy(Client):
             # everything back on to it, so that a result from the proxy
             # looks exactly the same.
             client = self.client('exporter')
-            result_obj = getattr(client.factory.create(get_response(method)),
-                                 get_result(method))
+            result_obj = getattr(client.factory.create(get_response(name)),
+                                 get_result(name))
             for k, v in result.iteritems():
                 setattr(result_obj, k, v)
             return result_obj
 
 
+# Add in your mock method data here. If the method only returns a
+# responseCode and a responseMessage, there's no need to add the method.
+#
+# Use of time() for ints, mean that tests work and so do requests from the
+# command line using mock. As long as you don't do them too fast.
+ltime = lambda: str(int(time() * 1000000))[8:]
 mock_data = {
-    'create-package': {
-        'responseCode': 'OK',
-        'responseMessage': '',
-        'packageId': 1,
-        'adminPersonId': 2,
-        'supportPersonId': 3,
-        'financePersonId': 4
+    'CreateBangoNumber': {
+        'bango': 'some-bango-number',
     },
-    'update-support-email': {
-        'responseCode': 'OK',
-        'responseMessage': '',
-        'personId': 1,
+    'CreatePackage': {
+        'packageId': ltime,
+        'adminPersonId': ltime,
+        'supportPersonId': ltime,
+        'financePersonId': ltime
+    },
+    'UpdateSupportEmailAddress': {
+        'personId': ltime,
         'personPassword': 'xxxxx',
     },
-    'update-financial-email': {
-        'responseCode': 'OK',
-        'responseMessage': '',
-        'personId': 1,
+    'UpdateFinanceEmailAddress': {
+        'personId': ltime,
         'personPassword': 'xxxxx',
     },
 }
 
+
 class ClientMock(Client):
 
     def mock_results(self, key):
-        # This exists for easy mocking. TODO: think of a better way to do this.
-        return mock_data[key]
+        result = mock_data.get(key, {}).copy()
+        result.update({'responseCode': 'OK',
+                       'responseMessage': ''})
+        return result
 
     def call(self, name, data):
         """
@@ -139,6 +152,8 @@ class ClientMock(Client):
         bango = Mock()
         bango.__keylist__ = self.mock_results(name).keys()
         for k, v in self.mock_results(name).iteritems():
+            if callable(v):
+                v = v()
             setattr(bango, k, v)
         self.is_error(bango.responseCode, bango.responseMessage)
         return bango

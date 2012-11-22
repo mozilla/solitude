@@ -76,8 +76,9 @@ class SellerBango(Model):
 
 class SellerProductBango(Model):
     seller_product = models.OneToOneField(SellerProduct,
-                                          related_name='seller_product')
+                                          related_name='product')
+    seller_bango = models.OneToOneField(SellerBango, related_name='bango')
+    bango_id = models.CharField(max_length=50)
 
-    # All the Bango information that is pertinent.
-    # Although in the docs, this looks like a id, the wsdl says it's a string.
-    bango_id = models.CharField(max_length=128)
+    class Meta(Model.Meta):
+        db_table = 'seller_product_bango'
