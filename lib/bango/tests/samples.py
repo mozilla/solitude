@@ -13,3 +13,8 @@ good_address = {
     'countryIso': 'USA',
     'currencyIso': 'USD'
 }
+
+good_email = {
+    'packageId': '1',
+    'emailAddress': 'something@somewhere.com'
+}

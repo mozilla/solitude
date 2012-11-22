@@ -20,3 +20,8 @@ class PackageForm(forms.Form):
     currencyIso = forms.CharField()
     homePageURL = forms.CharField(required=False)
     eventNotificationURL = forms.CharField(required=False)
+
+
+class UpdateForm(forms.Form):
+    supportEmailAddress = forms.CharField(required=False)
+    financeEmailAddress = forms.CharField(required=False)

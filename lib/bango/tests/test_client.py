@@ -9,7 +9,7 @@ from ..client import get_client, Client, ClientMock, ClientProxy
 from ..constants import OK, ACCESS_DENIED
 from ..errors import AuthError, BangoError
 
-from .samples import good_address
+from .samples import good_address, good_email
 
 
 class TestClient(test_utils.TestCase):
@@ -34,6 +34,14 @@ class TestClient(test_utils.TestCase):
         mock_results.return_value = {'responseCode': 'wat'}
         with self.assertRaises(BangoError):
             self.client.CreatePackage(good_address)
+
+    def test_update_support_email(self):
+        res = self.client.UpdateSupportEmailAddress(good_email)
+        eq_(res.responseCode, OK)
+
+    def test_update_financial_email(self):
+        res = self.client.UpdateFinancialEmailAddress(good_email)
+        eq_(res.responseCode, OK)
 
 
 class TestRightClient(test_utils.TestCase):
