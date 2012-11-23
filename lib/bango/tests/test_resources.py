@@ -140,3 +140,47 @@ class TestBangoMarkPremium(BangoAPI):
                                         self.seller_product_bango.pk)
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 201)
+
+    def test_fail(self):
+        self.create()
+        data = samples.good_make_premium.copy()
+        data['currencyIso'] = 'FOO'
+        data['seller_product_bango'] = ('/bango/product/%s/' %
+                                        self.seller_product_bango.pk)
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 400)
+
+
+@mock.patch.object(settings, 'BANGO_MOCK', True)
+class TestBangoUpdateRating(BangoAPI):
+
+    def create(self):
+        super(TestBangoUpdateRating, self).create()
+        self.seller_product_bango = SellerProductBango.objects.create(
+                                        seller_product=self.seller_product,
+                                        seller_bango=self.seller_bango,
+                                        bango_id='some-123')
+
+    def test_list_allowed(self):
+        self.allowed_verbs(self.list_url, ['post'])
+
+    def setUp(self):
+        super(TestBangoUpdateRating, self).setUp()
+        self.list_url = self.get_list_url('update-rating')
+
+    def test_update(self):
+        self.create()
+        data = samples.good_update_rating.copy()
+        data['seller_product_bango'] = ('/bango/product/%s/' %
+                                        self.seller_product_bango.pk)
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 201, res.content)
+
+    def test_fail(self):
+        self.create()
+        data = samples.good_update_rating.copy()
+        data['rating'] = 'AWESOME!'
+        data['seller_product_bango'] = ('/bango/product/%s/' %
+                                        self.seller_product_bango.pk)
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 400, res.content)
