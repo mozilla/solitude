@@ -28,6 +28,7 @@ whitelist = [
     'UpdateFinanceEmailAddress',
     'CreateBangoNumber',
     'MakePremiumPerAccess',
+    'UpdateRating',
 ]
 
 

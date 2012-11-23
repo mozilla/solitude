@@ -77,6 +77,15 @@ res = call('/bango/make-premium/', 'post',  {
     'seller_product_bango': bango_product_uri
 })
 
+print 'Updating rating.'
+res = call('/bango/update-rating/', 'post',  {
+    'bango': '123',
+    'price': 1,
+    'rating': 'UNIVERSAL',
+    'ratingScheme': 'GLOBAL',
+    'seller_product_bango': bango_product_uri
+})
+
 res = call(seller_bango_uri, 'get', {})
 old_support_id = res['support_person_id']
 old_financial_id = res['finance_person_id']

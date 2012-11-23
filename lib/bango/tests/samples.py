@@ -31,3 +31,8 @@ good_make_premium = {
     'price': 1,
     'currencyIso': 'CAD'
 }
+
+good_update_rating = {
+    'ratingScheme': 'GLOBAL',
+    'rating': 'UNIVERSAL',
+}

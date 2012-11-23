@@ -3,6 +3,8 @@ from django.utils import importlib
 from django.core.exceptions import ObjectDoesNotExist
 from tastypie.exceptions import NotFound
 
+from .constants import CURRENCIES, RATINGS, RATINGS_SCHEME
+
 
 class URLField(forms.CharField):
     """
@@ -84,11 +86,11 @@ class CreateBangoNumberForm(forms.Form):
         return result
 
 
-class MakePremiumForm(forms.Form):
+class SellerProductForm(forms.Form):
+    # Base class for a form that interacts using the
+    # seller_product_bango resource.
     seller_product_bango = URLField(
             to='lib.bango.resources.package.BangoProductResource')
-    currencyIso = forms.CharField()
-    price = forms.DecimalField()
 
     @property
     def bango_data(self):
@@ -96,3 +98,14 @@ class MakePremiumForm(forms.Form):
         result['bango'] = result['seller_product_bango'].bango_id
         del result['seller_product_bango']
         return result
+
+
+class MakePremiumForm(SellerProductForm):
+    currencyIso = forms.ChoiceField(choices=([r, r] for r
+                                                    in CURRENCIES.keys()))
+    price = forms.DecimalField()
+
+
+class UpdateRatingForm(SellerProductForm):
+    ratingScheme = forms.ChoiceField(choices=([r, r] for r in RATINGS_SCHEME))
+    rating = forms.ChoiceField(choices=([r, r] for r in RATINGS))

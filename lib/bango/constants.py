@@ -33,6 +33,9 @@ CATEGORIES = {
     1: 'Games'
 }
 
+RATINGS = ['GLOBAL', 'UNIVERSAL', 'RESTRICTED']
+RATINGS_SCHEME = ['GLOBAL', 'USA']
+
 
 def match(status, constant):
     # There's going to be an INVALID_ something for every field in every form
