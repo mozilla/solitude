@@ -116,15 +116,20 @@ class TestBangoProduct(BangoAPI):
         eq_(obj.seller_product_id, self.seller_bango.pk)
 
 
-@mock.patch.object(settings, 'BANGO_MOCK', True)
-class TestBangoMarkPremium(BangoAPI):
+class SellerProductBangoBase(BangoAPI):
 
     def create(self):
-        super(TestBangoMarkPremium, self).create()
+        super(SellerProductBangoBase, self).create()
         self.seller_product_bango = SellerProductBango.objects.create(
                                         seller_product=self.seller_product,
                                         seller_bango=self.seller_bango,
                                         bango_id='some-123')
+        self.seller_product_bango_uri = ('/bango/product/%s/' %
+                                         self.seller_product_bango.pk)
+
+
+@mock.patch.object(settings, 'BANGO_MOCK', True)
+class TestBangoMarkPremium(SellerProductBangoBase):
 
     def test_list_allowed(self):
         self.allowed_verbs(self.list_url, ['post'])
@@ -136,8 +141,7 @@ class TestBangoMarkPremium(BangoAPI):
     def test_mark(self):
         self.create()
         data = samples.good_make_premium.copy()
-        data['seller_product_bango'] = ('/bango/product/%s/' %
-                                        self.seller_product_bango.pk)
+        data['seller_product_bango'] = self.seller_product_bango_uri
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 201)
 
@@ -145,21 +149,13 @@ class TestBangoMarkPremium(BangoAPI):
         self.create()
         data = samples.good_make_premium.copy()
         data['currencyIso'] = 'FOO'
-        data['seller_product_bango'] = ('/bango/product/%s/' %
-                                        self.seller_product_bango.pk)
+        data['seller_product_bango'] = self.seller_product_bango_uri
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 400)
 
 
 @mock.patch.object(settings, 'BANGO_MOCK', True)
-class TestBangoUpdateRating(BangoAPI):
-
-    def create(self):
-        super(TestBangoUpdateRating, self).create()
-        self.seller_product_bango = SellerProductBango.objects.create(
-                                        seller_product=self.seller_product,
-                                        seller_bango=self.seller_bango,
-                                        bango_id='some-123')
+class TestBangoUpdateRating(SellerProductBangoBase):
 
     def test_list_allowed(self):
         self.allowed_verbs(self.list_url, ['post'])
@@ -171,8 +167,7 @@ class TestBangoUpdateRating(BangoAPI):
     def test_update(self):
         self.create()
         data = samples.good_update_rating.copy()
-        data['seller_product_bango'] = ('/bango/product/%s/' %
-                                        self.seller_product_bango.pk)
+        data['seller_product_bango'] = self.seller_product_bango_uri
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 201, res.content)
 
@@ -180,7 +175,28 @@ class TestBangoUpdateRating(BangoAPI):
         self.create()
         data = samples.good_update_rating.copy()
         data['rating'] = 'AWESOME!'
-        data['seller_product_bango'] = ('/bango/product/%s/' %
-                                        self.seller_product_bango.pk)
+        data['seller_product_bango'] = self.seller_product_bango_uri
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 400, res.content)
+
+
+@mock.patch.object(settings, 'BANGO_MOCK', True)
+class TestCreateBillingConfiguration(SellerProductBangoBase):
+
+    def setUp(self):
+        super(TestCreateBillingConfiguration, self).setUp()
+        self.list_url = self.get_list_url('create-billing')
+
+    def test_good(self):
+        self.create()
+        data = samples.good_billing_request
+        data['seller_product_bango'] = self.seller_product_bango_uri
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 201)
+        assert 'billingConfigurationId' in json.loads(res.content)
+
+    def test_missing(self):
+        data = samples.good_billing_request
+        del data['price_currency']
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 400)

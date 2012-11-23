@@ -36,3 +36,9 @@ good_update_rating = {
     'ratingScheme': 'GLOBAL',
     'rating': 'UNIVERSAL',
 }
+
+good_billing_request = {
+    'price_amount': 1,
+    'price_currency': 'CAD',
+    'pageTitle': 'wat!'
+}
