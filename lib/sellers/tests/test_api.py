@@ -189,7 +189,7 @@ class TestSellerProduct(APITest):
         self.list_url = self.get_list_url('product')
 
     def data(self):
-        return {'seller': '/generic/seller/%s/' % self.seller.pk,
+        return {'seller': self.get_detail_url('seller', self.seller.pk),
                 'secret': 'hush'}
 
     def test_post(self):

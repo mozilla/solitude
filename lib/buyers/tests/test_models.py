@@ -5,6 +5,7 @@ from django.test import TestCase
 
 from lib.buyers.models import Buyer, BuyerPaypal
 
+
 class TestEncryption(TestCase):
     # This is mostly because of a lack of tests in aesfield.
     # Let's just check this all works as we'd expect.

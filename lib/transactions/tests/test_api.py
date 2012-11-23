@@ -33,11 +33,6 @@ class TestSeller(APITest):
         eq_(res.status_code, 200)
         eq_(json.loads(res.content)['uuid'], self.uuid)
 
-    def test_get(self):
-        res = self.client.get(self.detail_url)
-        eq_(res.status_code, 200)
-        eq_(json.loads(res.content)['uuid'], self.uuid)
-
     def test_uuid(self):
         res = self.client.get(self.list_url, data={'seller__seller__uuid':
                                                    'paypal:%s' % self.uuid})

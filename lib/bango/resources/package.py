@@ -1,10 +1,8 @@
-from django.core.urlresolvers import reverse
+from lib.sellers.models import SellerBango, SellerProductBango
+from solitude.base import ModelResource
 
-from lib.sellers.models import Seller, SellerBango
-from solitude.base import Cached, ModelResource
-
-from .client import get_client
-from .forms import PackageForm, UpdateForm
+from ..client import get_client
+from ..forms import CreateBangoNumberForm, PackageForm, UpdateForm
 
 
 class PackageResource(ModelResource):
@@ -24,12 +22,9 @@ class PackageResource(ModelResource):
         if not form.is_valid():
             raise self.form_errors(form)
 
-        resp = get_client().CreatePackage(bundle.data)
-
-        # TODO: move this out, so that the seller is sent in the request.
-        seller = Seller.objects.create(uuid='bango:%s' % resp.packageId)
+        resp = get_client().CreatePackage(form.bango_data)
         seller_bango = SellerBango.objects.create(
-                seller=seller,
+                seller=form.cleaned_data['seller'],
                 package_id=resp.packageId,
                 admin_person_id=resp.adminPersonId,
                 support_person_id=resp.supportPersonId,
@@ -59,7 +54,7 @@ class PackageResource(ModelResource):
                        # change on the SellerBango object.
                        ['UpdateSupportEmailAddress', 'support_person_id'],
                        'financeEmailAddress':
-                       ['UpdateFinancialEmailAddress', 'finance_person_id']}
+                       ['UpdateFinanceEmailAddress', 'finance_person_id']}
             for key, value in fields:
                 data = {'packageId': bundle.obj.package_id,
                         'emailAddress': value}
@@ -69,3 +64,29 @@ class PackageResource(ModelResource):
 
         return bundle
 
+
+class BangoProductResource(ModelResource):
+
+    class Meta(ModelResource.Meta):
+        queryset = SellerProductBango.objects.all()
+        list_allowed_methods = ['post']
+        allowed_methods = ['get', 'patch']
+        resource_name = 'product'
+
+    def obj_create(self, bundle, request, **kw):
+        """
+        Creates the SellerBangoProduct record by asking bango for a number.
+        """
+        form = CreateBangoNumberForm(bundle.data)
+        if not form.is_valid():
+            return self.form_errors(form)
+
+        resp = get_client().CreateBangoNumber(form.bango_data)
+
+        product = SellerProductBango.objects.create(
+            seller_bango=form.cleaned_data['seller_bango'],
+            seller_product=form.cleaned_data['seller_product'],
+            bango_id=resp.bango,
+        )
+        bundle.obj = product
+        return bundle

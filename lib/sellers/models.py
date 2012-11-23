@@ -72,3 +72,13 @@ class SellerBango(Model):
 
     class Meta(Model.Meta):
         db_table = 'seller_bango'
+
+
+class SellerProductBango(Model):
+    seller_product = models.OneToOneField(SellerProduct,
+                                          related_name='product')
+    seller_bango = models.OneToOneField(SellerBango, related_name='bango')
+    bango_id = models.CharField(max_length=50)
+
+    class Meta(Model.Meta):
+        db_table = 'seller_product_bango'

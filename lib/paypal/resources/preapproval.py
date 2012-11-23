@@ -1,5 +1,3 @@
-from django.shortcuts import get_object_or_404
-
 from cached import Resource
 
 from lib.buyers.models import Buyer, BuyerPaypal

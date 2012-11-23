@@ -156,6 +156,5 @@ class StatusResource(ServiceResource):
             return obj
         raise StatusError(str(obj))
 
-
     def obj_get_list(self, request=None, **kwargs):
         return [self.obj_get(request, **kwargs)]

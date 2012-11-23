@@ -60,7 +60,7 @@ class SellerBlueviaResource(ModelResource):
 
 
 class SellerProductResource(ModelResource):
-    seller = fields.ToOneField('lib.sellers.resources.SellerResource',
+    seller = fields.ForeignKey('lib.sellers.resources.SellerResource',
                                'seller')
 
     class Meta(ModelResource.Meta):

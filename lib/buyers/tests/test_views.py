@@ -16,8 +16,8 @@ class CheckPinTest(TestCase):
     def test_good_pin(self):
         Buyer.objects.create(uuid=self.uuid, pin=self.pin)
         res = self.client.post(self.url,
-                               json.dumps({'uuid': self.uuid, 'pin': self.pin}),
-                               content_type='application/octet-stream')
+                            json.dumps({'uuid': self.uuid, 'pin': self.pin}),
+                            content_type='application/octet-stream')
         data = json.loads(res.content)
         assert 'valid' in data
         assert data['valid']
@@ -25,8 +25,8 @@ class CheckPinTest(TestCase):
     def test_bad_pin(self):
         Buyer.objects.create(uuid=self.uuid, pin=self.pin)
         res = self.client.post(self.url,
-                               json.dumps({'uuid': self.uuid, 'pin': 'lame'}),
-                               content_type='application/octet-stream')
+                            json.dumps({'uuid': self.uuid, 'pin': 'lame'}),
+                            content_type='application/octet-stream')
         data = json.loads(res.content)
         assert 'valid' in data
         assert not data['valid']

@@ -7,7 +7,6 @@ from .forms import BuyerFormValidation, BuyerValidation
 from .models import Buyer, BuyerPaypal
 
 
-
 class BuyerResource(ModelResource):
     paypal = fields.ToOneField('lib.buyers.resources.BuyerPaypalResource',
                                'paypal', blank=True, full=True,
