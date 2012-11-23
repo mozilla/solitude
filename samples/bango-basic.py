@@ -100,3 +100,11 @@ res = call(seller_bango_uri, 'get', {})
 print res
 print ('Support id %s to %s' % (old_support_id, res['support_person_id']))
 print ('Finance id %s to %s' % (old_financial_id, res['finance_person_id']))
+
+print 'Request billing configuration.'
+call('/bango/create-billing/', 'post', {
+    'pageTitle': 'yep',
+    'price_currency': 'CAD',
+    'price_amount': 1,
+    'seller_product_bango': bango_product_uri
+})

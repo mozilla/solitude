@@ -3,7 +3,9 @@ from django.utils import importlib
 from django.core.exceptions import ObjectDoesNotExist
 from tastypie.exceptions import NotFound
 
-from .constants import CURRENCIES, RATINGS, RATINGS_SCHEME
+from .constants import CURRENCIES, PAYMENT_TYPES, RATINGS, RATINGS_SCHEME
+
+import uuid
 
 
 class URLField(forms.CharField):
@@ -109,3 +111,17 @@ class MakePremiumForm(SellerProductForm):
 class UpdateRatingForm(SellerProductForm):
     ratingScheme = forms.ChoiceField(choices=([r, r] for r in RATINGS_SCHEME))
     rating = forms.ChoiceField(choices=([r, r] for r in RATINGS))
+
+
+class CreateBillingConfigurationForm(SellerProductForm):
+    price_amount = forms.DecimalField()
+    price_currency = forms.ChoiceField(choices=([r, r] for r
+                                                       in CURRENCIES.keys()))
+    pageTitle = forms.CharField()
+
+    @property
+    def bango_data(self):
+        data = super(CreateBillingConfigurationForm, self).bango_data
+        data['typeFilter'] = PAYMENT_TYPES
+        data['externalTransactionId'] = uuid.uuid4()
+        return data

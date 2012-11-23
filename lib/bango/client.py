@@ -2,6 +2,7 @@ import functools
 import json
 import os
 import re
+import uuid
 from time import time
 
 from django.conf import settings
@@ -22,13 +23,17 @@ wsdl = {
 }
 
 # Add in the whitelist of supported methods here.
-whitelist = [
-    'CreatePackage',
-    'UpdateSupportEmailAddress',
-    'UpdateFinanceEmailAddress',
+exporter = [
     'CreateBangoNumber',
+    'CreatePackage',
     'MakePremiumPerAccess',
+    'UpdateFinanceEmailAddress',
     'UpdateRating',
+    'UpdateSupportEmailAddress',
+]
+
+billing = [
+    'CreateBillingConfiguration',
 ]
 
 
@@ -57,12 +62,14 @@ log = commonware.log.getLogger('s.bango')
 class Client(object):
 
     def __getattr__(self, attr):
-        if attr in whitelist:
+        if attr in exporter:
             return functools.partial(self.call, attr)
-        raise AttributeError
+        if attr in billing:
+            return functools.partial(self.call, attr, wsdl='billing')
+        raise AttributeError('Unknown request: %s' % attr)
 
-    def call(self, name, data):
-        client = self.client('exporter')
+    def call(self, name, data, wsdl='exporter'):
+        client = self.client(wsdl)
         package = client.factory.create(get_request(name))
         for k, v in data.iteritems():
             setattr(package, k, v)
@@ -72,7 +79,6 @@ class Client(object):
         # Actually call Bango.
         with statsd.timer('solitude.bango.%s' % get_statsd_name(name)):
             response = getattr(client.service, name)(package)
-
         self.is_error(response.responseCode, response.responseMessage)
         return response
 
@@ -80,6 +86,8 @@ class Client(object):
         return sudsclient.Client(wsdl[name])
 
     def is_error(self, code, message):
+        # Count the numbers of responses we get.
+        statsd.incr('solitude.bango.%s' % code.lower())
         # If there was an error raise it.
         if code == ACCESS_DENIED:
             raise AuthError(ACCESS_DENIED, message)
@@ -89,7 +97,7 @@ class Client(object):
 
 class ClientProxy(Client):
 
-    def call(self, name, data):
+    def call(self, name, data, wsdl='exporter'):
         with statsd.timer('solitude.proxy.bango.%s' % get_statsd_name(name)):
             log.info('Calling proxy: %s' % name)
             response = post(settings.BANGO_PROXY, data,
@@ -102,7 +110,7 @@ class ClientProxy(Client):
             # If it all worked, we need to find a result object and map
             # everything back on to it, so that a result from the proxy
             # looks exactly the same.
-            client = self.client('exporter')
+            client = self.client(wsdl)
             result_obj = getattr(client.factory.create(get_response(name)),
                                  get_result(name))
             for k, v in result.iteritems():
@@ -134,6 +142,9 @@ mock_data = {
         'personId': ltime,
         'personPassword': 'xxxxx',
     },
+    'CreateBillingConfiguration': {
+        'billingConfigurationId': uuid.uuid4
+    }
 }
 
 
@@ -145,7 +156,7 @@ class ClientMock(Client):
                        'responseMessage': ''})
         return result
 
-    def call(self, name, data):
+    def call(self, name, data, wsdl=''):
         """
         This fakes out the client and just looks up the values in mock_results
         for that service.
