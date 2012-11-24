@@ -19,11 +19,11 @@ api = Api(api_name='generic')
 api.register(BuyerResource())
 api.register(SellerResource())
 api.register(SellerProductResource())
+api.register(TransactionResource())
 
 # PayPal specific APIs
 paypal.register(BuyerPaypalResource())
 paypal.register(SellerPaypalResource())
-paypal.register(TransactionResource())
 
 # BlueVia specific APIs
 bluevia.register(SellerBlueviaResource())

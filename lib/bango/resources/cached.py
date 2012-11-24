@@ -1,6 +1,5 @@
 from django.core.urlresolvers import reverse
 
-from lib.bango.signals import create
 from solitude.base import Cached, Resource as BaseResource
 
 
@@ -17,8 +16,3 @@ class Resource(BaseResource):
 
     def obj(self, pk=None):
         return self._meta.object_class(prefix=self._meta.resource_name, pk=pk)
-
-    def obj_create(self, bundle, request, **kwargs):
-        bundle = super(Resource, self).obj_create(bundle, request, **kwargs)
-        create.send(sender=self, bundle=bundle)
-        return bundle

@@ -5,7 +5,8 @@ from nose.tools import eq_
 
 from lib.buyers.models import Buyer, BuyerPaypal
 from lib.sellers.models import Seller, SellerPaypal
-from lib.transactions.models import PaypalTransaction
+from lib.transactions import constants
+from lib.transactions.models import Transaction
 from solitude.base import APITest
 
 
@@ -90,9 +91,9 @@ class KeyTest(object):
     def setUp(self):
         self.api_name = 'paypal'
         seller = Seller.objects.create()
-        seller_paypal = SellerPaypal.objects.create(seller=seller)
-        PaypalTransaction.objects.create(uuid='xyz', pay_key='foo',
-                                         seller=seller_paypal, amount=5)
+        Transaction.objects.create(uuid='xyz', uid_pay='foo',
+                                   provider=constants.SOURCE_PAYPAL,
+                                   seller=seller, amount=5)
 
     def test_check_uuid_404(self, key):
         res = self.client.post(self.list_url, data={'uuid': 'xyza'})

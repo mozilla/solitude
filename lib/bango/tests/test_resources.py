@@ -7,6 +7,7 @@ from nose.tools import eq_
 
 from lib.sellers.models import (Seller, SellerBango, SellerProduct,
                                 SellerProductBango)
+from lib.transactions.models import Transaction
 from solitude.base import APITest
 
 from ..client import ClientMock
@@ -189,14 +190,24 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
 
     def test_good(self):
         self.create()
-        data = samples.good_billing_request
+        data = samples.good_billing_request.copy()
         data['seller_product_bango'] = self.seller_product_bango_uri
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 201)
         assert 'billingConfigurationId' in json.loads(res.content)
 
     def test_missing(self):
-        data = samples.good_billing_request
+        data = samples.good_billing_request.copy()
         del data['price_currency']
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 400)
+
+    def test_transaction(self):
+        self.create()
+        data = samples.good_billing_request.copy()
+        data['seller_product_bango'] = self.seller_product_bango_uri
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 201, res.content)
+
+        tran = Transaction.objects.get()
+        eq_(tran.provider, 1)

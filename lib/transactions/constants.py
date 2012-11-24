@@ -21,3 +21,11 @@ TYPES = {
     'refund': TYPE_REFUND,
     'reversal': TYPE_REVERSAL
 }
+
+SOURCE_PAYPAL = 0
+SOURCE_BANGO = 1
+
+SOURCES = {
+    'paypal': SOURCE_PAYPAL,
+    'bango': SOURCE_BANGO
+}
