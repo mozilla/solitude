@@ -1,7 +1,7 @@
 import commonware.log
 
 from lib.transactions import constants
-from lib.transactions.models import PaypalTransaction
+from lib.transactions.models import Transaction
 
 log = commonware.log.getLogger('s.transactions')
 
@@ -9,11 +9,11 @@ log = commonware.log.getLogger('s.transactions')
 def completed(detail, item):
     log.info('Completing transaction.')
     try:
-        record = (PaypalTransaction.objects
+        record = (Transaction.objects
                                    .get(uuid=detail.get('tracking_id'),
                                         status__in=(constants.STATUS_PENDING,
                                                     constants.STATUS_CHECKED)))
-    except PaypalTransaction.DoesNotExist:
+    except Transaction.DoesNotExist:
         return False
 
     record.status = constants.STATUS_COMPLETED
@@ -34,29 +34,32 @@ def reversal(detail, item):
 def refund(detail, item, type_):
     # Check we have this transaction.
     try:
-        record = PaypalTransaction.objects.get(uuid=detail['tracking_id'],
-                                            status=constants.STATUS_COMPLETED,
-                                            type=constants.TYPE_PAYMENT)
-    except PaypalTransaction.DoesNotExist:
+        record = Transaction.objects.get(uuid=detail['tracking_id'],
+                                         status=constants.STATUS_COMPLETED,
+                                         type=constants.TYPE_PAYMENT)
+    except Transaction.DoesNotExist:
         return False
 
     # Check that the transaction has not already been processed.
     try:
-        PaypalTransaction.objects.get(related=record)
+        Transaction.objects.get(related=record)
         return False
-    except PaypalTransaction.DoesNotExist:
+    except Transaction.DoesNotExist:
         pass
 
-    PaypalTransaction.objects.create(
-            type=type_, correlation_id=detail.get('correlation_id', ''),
+    Transaction.objects.create(
+            type=type_,
+            uid_support=detail.get('correlation_id', ''),
             # The correlation id does not seem to be present on IPN. But if
             # they change their mind, I'll take it.
-            pay_key=detail['pay_key'],
+            uid_pay=detail['pay_key'],
             seller=record.seller,
             amount=-item['amount']['amount'],
             currency=item['amount']['currency'],
+            provider=constants.SOURCE_PAYPAL,
             # TODO(andym): hey what?
-            uuid=detail['tracking_id'] + ':refund', related=record)
+            uuid=detail['tracking_id'] + ':refund',
+            related=record)
 
     # TODO(andym): some CEF logging.
     return True

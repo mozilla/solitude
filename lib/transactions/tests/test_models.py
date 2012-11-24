@@ -3,7 +3,7 @@ from nose.tools import eq_
 
 from lib.sellers.models import Seller, SellerPaypal
 from lib.transactions import constants
-from lib.transactions.models import PaypalTransaction
+from lib.transactions.models import Transaction
 from solitude.base import APITest
 
 
@@ -33,14 +33,14 @@ class TestTransaction(APITest):
                             'correlation_id': '123', 'uuid': '456'}
         res = self.client.post(self.pay_url, data=self.get_data())
         eq_(res.status_code, 201)
-        qs = PaypalTransaction.objects.all()
+        qs = Transaction.objects.all()
         eq_(qs.count(), 1)
 
         obj = qs[0]
         eq_(obj.amount, 5)
-        eq_(obj.correlation_id, '123')
+        eq_(obj.uid_support, '123')
         eq_(obj.uuid, '456')
-        eq_(obj.seller, self.seller.paypal)
+        eq_(obj.seller, self.seller)
         eq_(obj.status, constants.STATUS_PENDING)
 
     @patch('lib.paypal.client.Client.get_pay_key')
@@ -51,37 +51,40 @@ class TestTransaction(APITest):
         data['source'] = 'in-app'
         res = self.client.post(self.pay_url, data=data)
         eq_(res.status_code, 201)
-        eq_(PaypalTransaction.objects.all()[0].source, 'in-app')
+        eq_(Transaction.objects.all()[0].source, 'in-app')
 
     @patch('lib.paypal.client.Client.check_purchase')
     def test_checked(self, check):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
-        pp = PaypalTransaction.objects.create(pay_key='foo', amount=5,
-                                              seller=self.seller.paypal)
+        pp = Transaction.objects.create(uid_pay='foo', amount=5,
+                                        provider=constants.SOURCE_PAYPAL,
+                                        seller=self.seller)
         res = self.client.post(self.check_url, data={'pay_key': 'foo'})
         eq_(res.status_code, 201)
-        eq_(PaypalTransaction.objects.get(pk=pp.pk).status,
+        eq_(Transaction.objects.get(pk=pp.pk).status,
             constants.STATUS_CHECKED)
 
     @patch('lib.paypal.client.Client.check_purchase')
     def test_complete(self, check):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
-        pp = PaypalTransaction.objects.create(pay_key='foo', amount=5,
-                                              seller=self.seller.paypal)
+        pp = Transaction.objects.create(uid_pay='foo', amount=5,
+                                        provider=constants.SOURCE_PAYPAL,
+                                        seller=self.seller)
         self.client.post(self.check_url, data={'pay_key': 'foo'})
-        eq_(PaypalTransaction.objects.get(pk=pp.pk).status,
+        eq_(Transaction.objects.get(pk=pp.pk).status,
             constants.STATUS_CHECKED)
 
         pp.status = constants.STATUS_COMPLETED
         pp.save()
         self.client.post(self.check_url, data={'pay_key': 'foo'})
-        eq_(PaypalTransaction.objects.get(pk=pp.pk).status,
+        eq_(Transaction.objects.get(pk=pp.pk).status,
             constants.STATUS_COMPLETED)
 
     @patch('lib.paypal.client.Client.check_purchase')
     def test_complete_not_there(self, check):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
-        PaypalTransaction.objects.create(pay_key='bar', amount=5,
-                                         seller=self.seller.paypal)
+        Transaction.objects.create(uid_pay='bar', amount=5,
+                                   provider=constants.SOURCE_PAYPAL,
+                                   seller=self.seller)
         res = self.client.post(self.check_url, data={'pay_key': 'foo'})
         eq_(res.status_code, 404)

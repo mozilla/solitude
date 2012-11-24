@@ -4,7 +4,7 @@ import test_utils
 from lib.buyers.models import Buyer, BuyerPaypal
 from lib.paypal.forms import AccountCheck, GetPersonal, PayValidation
 from lib.sellers.models import Seller, SellerPaypal
-from lib.transactions.models import PaypalTransaction
+from lib.transactions.models import Transaction
 
 
 class TestValidation(test_utils.TestCase):
@@ -84,8 +84,8 @@ class TestValidation(test_utils.TestCase):
         eq_(form.cleaned_data['currency'], 'USD')
 
     def test_duplicate_uuid(self):
-        PaypalTransaction.objects.create(seller=self.paypal, amount=5,
-                                         uuid='sample:uuid')
+        Transaction.objects.create(seller=self.paypal, amount=5,
+                                   uuid='sample:uuid')
         data = self.get_data()
         data['uuid'] = 'sample:uuid'
         form = PayValidation(data)

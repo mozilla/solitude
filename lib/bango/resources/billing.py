@@ -2,6 +2,7 @@ from cached import Resource
 
 from lib.bango.client import get_client
 from lib.bango.forms import CreateBillingConfigurationForm
+from lib.bango.signals import create
 
 
 class CreateBillingConfigurationResource(Resource):
@@ -41,4 +42,5 @@ class CreateBillingConfigurationResource(Resource):
         bundle.data = {'responseCode': resp.responseCode,
                        'responseMessage': resp.responseMessage,
                        'billingConfigurationId': resp.billingConfigurationId}
+        create.send(sender=self, bundle=bundle, data=data, form=form)
         return bundle

@@ -6,7 +6,7 @@ from django import forms
 from lib.buyers.models import Buyer
 from lib.paypal.constants import PAYPAL_CURRENCIES
 from lib.sellers.models import Seller, SellerPaypal
-from lib.transactions.models import PaypalTransaction
+from lib.transactions.models import Transaction
 
 from solitude.base import get_object_or_404
 from .constants import PERMISSIONS
@@ -89,7 +89,7 @@ class PayValidation(ArgForm):
 
     def clean_uuid(self):
         uuid = self.cleaned_data['uuid']
-        if PaypalTransaction.objects.filter(uuid=uuid).exists():
+        if Transaction.objects.filter(uuid=uuid).exists():
             raise forms.ValidationError('Unique uuid needed.')
         return uuid
 
@@ -133,9 +133,9 @@ class KeyValidation(forms.Form):
     def args(self):
         pay_key = self.cleaned_data.get('pay_key', '')
         if not pay_key:
-            uuid = get_object_or_404(PaypalTransaction,
+            uuid = get_object_or_404(Transaction,
                                      uuid=self.cleaned_data['uuid'])
-            pay_key = uuid.pay_key
+            pay_key = uuid.uid_pay
         return [pay_key]
 
 
