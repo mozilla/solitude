@@ -15,7 +15,9 @@ INSTALLED_APPS = (
     'django_nose',
     'django_statsd',
     'solitude',
+    'raven.contrib.django',
 )
+
 
 SOLITUDE_PROXY = os.environ.get('SOLITUDE_PROXY', 'disabled') == 'enabled'
 if SOLITUDE_PROXY:
@@ -133,3 +135,26 @@ CLIENT_JWT_KEYS = {}
 BANGO_AUTH = {'USER': 'Mozilla', 'PASSWORD': ''}
 BANGO_MOCK = False
 BANGO_PROXY = ''
+
+# Metlog configuration
+METLOG_CONF = {
+    'sender': {
+        'class': 'metlog.senders.DebugCaptureSender',
+    },
+    'plugins': {'cef': ('metlog_cef.cef_plugin:config_plugin', {})},
+}
+
+from metlog.config import client_from_dict_config
+METLOG = client_from_dict_config(METLOG_CONF)
+
+# Route statsd and sentry messages through metlog
+STATSD_CLIENT = 'django_statsd.clients.moz_metlog'
+SENTRY_CLIENT = 'djangoraven.metlog.MetlogDjangoClient'
+
+# This must be enabled in the settings file to route stacktraces to
+# sentry, which in turn will route messages to metlog.
+RAVEN_CONFIG = {'register_signals': True}
+
+USE_METLOG_FOR_CEF = True
+
+# End Metlog configuration
