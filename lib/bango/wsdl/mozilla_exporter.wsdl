@@ -186,6 +186,82 @@
           <s:element minOccurs="0" maxOccurs="1" name="paypalEmailAddress" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:element name="CreateBankDetails">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:CreateBankDetailsRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CreateBankDetailsRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAccountPayeeName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAccountNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAccountCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAccountIban" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAddress1" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAddress2" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAddressCity" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAddressState" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAddressZipCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAddressIso" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CreateBankDetailsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CreateBankDetailsResult" type="tns:CreateBankDetailsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CreateBankDetailsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetBankDetails">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetBankDetailsRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetBankDetailsRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetBankDetailsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetBankDetailsResult" type="tns:GetBankDetailsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetBankDetailsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAccountPayeeName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAccountNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAccountCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAccountIban" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAddress1" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAddress2" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAddressCity" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAddressState" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAddressZipCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bankAddressIso" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="UpdatePayPalDetails">
         <s:complexType>
           <s:sequence>
@@ -1525,6 +1601,18 @@
   <wsdl:message name="GetPayPalDetailsSoapOut">
     <wsdl:part name="parameters" element="tns:GetPayPalDetailsResponse" />
   </wsdl:message>
+  <wsdl:message name="CreateBankDetailsSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateBankDetails" />
+  </wsdl:message>
+  <wsdl:message name="CreateBankDetailsSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateBankDetailsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetBankDetailsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetBankDetails" />
+  </wsdl:message>
+  <wsdl:message name="GetBankDetailsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetBankDetailsResponse" />
+  </wsdl:message>
   <wsdl:message name="UpdatePayPalDetailsSoapIn">
     <wsdl:part name="parameters" element="tns:UpdatePayPalDetails" />
   </wsdl:message>
@@ -1803,6 +1891,16 @@
       <wsdl:input message="tns:GetPayPalDetailsSoapIn" />
       <wsdl:output message="tns:GetPayPalDetailsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="CreateBankDetails">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Add Bank account details to an existing package.</wsdl:documentation>
+      <wsdl:input message="tns:CreateBankDetailsSoapIn" />
+      <wsdl:output message="tns:CreateBankDetailsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetBankDetails">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get the registered Bank account details for an existing package.</wsdl:documentation>
+      <wsdl:input message="tns:GetBankDetailsSoapIn" />
+      <wsdl:output message="tns:GetBankDetailsSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="UpdatePayPalDetails">
       <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Change the registered PayPal account details for an existing package.</wsdl:documentation>
       <wsdl:input message="tns:UpdatePayPalDetailsSoapIn" />
@@ -2054,6 +2152,24 @@
     </wsdl:operation>
     <wsdl:operation name="GetPayPalDetails">
       <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetPayPalDetails" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateBankDetails">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/CreateBankDetails" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBankDetails">
+      <soap:operation soapAction="com.bango.webservices.mozillaexporter/GetBankDetails" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2480,6 +2596,24 @@
     </wsdl:operation>
     <wsdl:operation name="GetPayPalDetails">
       <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetPayPalDetails" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateBankDetails">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/CreateBankDetails" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetBankDetails">
+      <soap12:operation soapAction="com.bango.webservices.mozillaexporter/GetBankDetails" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
