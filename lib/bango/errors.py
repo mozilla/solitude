@@ -1,10 +1,10 @@
 class BangoError(Exception):
-    def __init__(self, type, message):
-        self.type = type
+    def __init__(self, id, message):
+        self.id = type
         self.message = message
 
-    def __unicode__(self):
-        return u'%s: %s' % (self.type, self.message)
+    def __str__(self):
+        return u'%s: %s' % (self.id, self.message)
 
 
 class AuthError(BangoError):
