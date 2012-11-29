@@ -4,7 +4,7 @@ import logging
 from django.conf import settings
 from django.core.signals import got_request_exception
 
-from django_statsd.clients import statsd
+from django_statsd.clients import get_client as statsd_client
 from nose.tools import eq_
 from raven.contrib.django.models import get_client
 from tastypie.exceptions import ImmediateHttpResponse
@@ -16,7 +16,7 @@ from solitude.base import Resource
 
 class TestMetlogLogging(test_utils.TestCase):
     """
-    Test that the solitude settings routes all logging
+    Test that the solitude settings routes all logging.
     """
     def setUp(self):
         self.request = test_utils.RequestFactory().get('/')
@@ -27,7 +27,7 @@ class TestMetlogLogging(test_utils.TestCase):
     def test_cef(self, mock_metlog):
         """
         Weak check to make sure that the cef message was formatted
-        properly
+        properly.
         """
         self.resource.method_check = mock.Mock()
         with self.assertRaises(ImmediateHttpResponse):
@@ -42,12 +42,13 @@ class TestMetlogLogging(test_utils.TestCase):
         assert 'Solitude' in payload
 
     @mock.patch('metlog.client.MetlogClient.metlog')
+    @mock.patch.object(settings, 'STATSD_CLIENT',
+                       'django_statsd.clients.moz_metlog')
     def test_statsd(self, mock_metlog):
         """
-        weak test to see we've got statsd messages passed into metlog
+        Weak test to see we've got statsd messages passed into metlog.
         """
-        statsd.incr('solitude.test.counter')
-
+        statsd_client().incr('solitude.test.counter')
         args = mock_metlog.call_args
         eq_(args[0], ('counter', None, None, None, '1',
             {'rate': 1, 'name': 'solitude.test.counter'}))
