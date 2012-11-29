@@ -24,6 +24,8 @@ class BangoAPI(APITest):
         self.seller_bango = SellerBango.objects.create(seller=self.seller,
                                 package_id=1, admin_person_id=3,
                                 support_person_id=3, finance_person_id=4)
+        self.seller_bango_uri = self.get_detail_url('package',
+                                                    self.seller_bango.pk)
         self.seller_product = SellerProduct.objects.create(seller=self.seller)
 
 
@@ -108,7 +110,7 @@ class TestBangoProduct(BangoAPI):
         data = samples.good_bango_number
         data['seller_product'] = ('/generic/product/%s/' %
                                   self.seller_product.pk)
-        data['seller_bango'] = '/bango/package/%s/' % self.seller_bango.pk
+        data['seller_bango'] = self.seller_bango_uri
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 201, res.content)
 
@@ -211,3 +213,18 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
 
         tran = Transaction.objects.get()
         eq_(tran.provider, 1)
+
+
+@mock.patch.object(settings, 'BANGO_MOCK', True)
+class TestCreateBankConfiguration(BangoAPI):
+
+    def setUp(self):
+        super(TestCreateBankConfiguration, self).setUp()
+        self.list_url = self.get_list_url('bank')
+
+    def test_bank(self):
+        self.create()
+        data = samples.good_bank_details.copy()
+        data['seller_bango'] = self.seller_bango_uri
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 201)

@@ -42,3 +42,13 @@ good_billing_request = {
     'price_currency': 'CAD',
     'pageTitle': 'wat!'
 }
+
+good_bank_details = {
+    'bankAccountPayeeName': 'Andy',
+    'bankAccountNumber': 'Yes',
+    'bankAccountCode': '123',
+    'bankName': 'Bailouts r us',
+    'bankAddress1': '123 Yonge St',
+    'bankAddressZipCode': 'V1V 1V1',
+    'bankAddressIso': 'BRA'
+}

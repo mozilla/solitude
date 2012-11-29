@@ -25,6 +25,7 @@ wsdl = {
 # Add in the whitelist of supported methods here.
 exporter = [
     'CreateBangoNumber',
+    'CreateBankDetails',
     'CreatePackage',
     'MakePremiumPerAccess',
     'UpdateFinanceEmailAddress',

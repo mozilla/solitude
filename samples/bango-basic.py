@@ -66,6 +66,18 @@ res = call('/bango/product/', 'post', {
 })
 bango_product_uri = res['resource_uri']
 
+print 'Create bank details.'
+res = call('/bango/bank/', 'post', {
+    'seller_bango': seller_bango_uri,
+    'bankAccountPayeeName': 'Andy',
+    'bankAccountNumber': 'Yes',
+    'bankAccountCode': '123',
+    'bankName': 'Bailouts r us',
+    'bankAddress1': '123 Yonge St',
+    'bankAddressZipCode': 'V1V 1V1',
+    'bankAddressIso': 'BRA'
+})
+
 print 'Checking bango id, as an example.'
 res = call(bango_product_uri, 'get', {})
 

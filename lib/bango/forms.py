@@ -3,7 +3,8 @@ from django.utils import importlib
 from django.core.exceptions import ObjectDoesNotExist
 from tastypie.exceptions import NotFound
 
-from .constants import CURRENCIES, PAYMENT_TYPES, RATINGS, RATINGS_SCHEME
+from .constants import (COUNTRIES, CURRENCIES, PAYMENT_TYPES, RATINGS,
+                        RATINGS_SCHEME)
 
 import uuid
 
@@ -125,3 +126,33 @@ class CreateBillingConfigurationForm(SellerProductForm):
         data['typeFilter'] = PAYMENT_TYPES
         data['externalTransactionId'] = uuid.uuid4()
         return data
+
+
+class CreateBankDetailsForm(forms.Form):
+    seller_bango = URLField(
+            to='lib.bango.resources.package.PackageResource')
+    bankAccountPayeeName = forms.CharField(max_length=50)
+    bankAccountNumber = forms.CharField(max_length=20, required=False)
+    bankAccountCode = forms.CharField(max_length=20)
+    bankAccountIban = forms.CharField(max_length=34, required=False)
+    bankName = forms.CharField(max_length=50)
+    bankAddress1 = forms.CharField(max_length=50)
+    bankAddress2 = forms.CharField(max_length=50, required=False)
+    bankAddressCity = forms.CharField(max_length=50, required=False)
+    bankAddressState = forms.CharField(max_length=50, required=False)
+    bankAddressZipCode = forms.CharField(max_length=50)
+    bankAddressIso = forms.ChoiceField(choices=([r, r] for r in COUNTRIES))
+
+    def clean(self):
+        if not (self.cleaned_data.get('bankAccountNumber')
+                or self.cleaned_data.get('bankAccountIban')):
+            raise forms.ValidationError('Need either bankAccountNumber '
+                                        'or bankIban')
+        return self.cleaned_data
+
+    @property
+    def bango_data(self):
+        result = self.cleaned_data.copy()
+        result['packageId'] = result['seller_bango'].package_id
+        del result['seller_bango']
+        return result

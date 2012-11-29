@@ -8,3 +8,4 @@
 django-extensions==1.0.0
 ipython==0.13.1
 mock==1.0b1
+nose-blockage==0.1.2
