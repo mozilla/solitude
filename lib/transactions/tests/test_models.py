@@ -1,10 +1,54 @@
 from mock import patch
 from nose.tools import eq_
 
+from django.core.exceptions import ValidationError
+
 from lib.sellers.models import Seller, SellerPaypal
 from lib.transactions import constants
 from lib.transactions.models import Transaction
 from solitude.base import APITest
+
+
+class TestModel(APITest):
+
+    def setUp(self):
+        self.uuid = 'sample:uid'
+        self.seller = Seller.objects.create(uuid=self.uuid)
+
+    def get_data(self, uid=None):
+        return {
+            'amount': 1,
+            'provider': constants.SOURCE_BANGO,
+            'seller': self.seller,
+            'uuid': uid or self.uuid
+        }
+
+    def test_uid_pay(self):
+        data = self.get_data()
+        with self.assertRaises(ValidationError):
+            Transaction.create(**data)  # No uid_pay.
+
+        data['uid_pay'] = 'abc'
+        Transaction.create(**data)
+        eq_(Transaction.objects.count(), 1)
+        data['uuid'] = data['uuid'] + ':foo'
+
+        with self.assertRaises(ValidationError):
+            Transaction.create(**data)  # Uid pay conflicts.
+
+        data['provider'] = constants.SOURCE_PAYPAL
+        Transaction.create(**data)
+        eq_(Transaction.objects.count(), 2)
+
+    def test_uid_support_optional(self):
+        data = self.get_data()
+        data['uid_pay'] = 'some:uid'
+        Transaction.objects.create(**data)
+
+        # uid_support still blank for the same provider.
+        data['uuid'] = data['uuid'] + ':foo'
+        data['uid_pay'] = data['uid_pay'] + 'some:uid'
+        Transaction.objects.create(**data)
 
 
 class TestTransaction(APITest):
@@ -56,9 +100,9 @@ class TestTransaction(APITest):
     @patch('lib.paypal.client.Client.check_purchase')
     def test_checked(self, check):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
-        pp = Transaction.objects.create(uid_pay='foo', amount=5,
-                                        provider=constants.SOURCE_PAYPAL,
-                                        seller=self.seller)
+        pp = Transaction.create(uid_pay='foo', amount=5, uuid=self.uuid,
+                                provider=constants.SOURCE_PAYPAL,
+                                seller=self.seller)
         res = self.client.post(self.check_url, data={'pay_key': 'foo'})
         eq_(res.status_code, 201)
         eq_(Transaction.objects.get(pk=pp.pk).status,
@@ -67,9 +111,9 @@ class TestTransaction(APITest):
     @patch('lib.paypal.client.Client.check_purchase')
     def test_complete(self, check):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
-        pp = Transaction.objects.create(uid_pay='foo', amount=5,
-                                        provider=constants.SOURCE_PAYPAL,
-                                        seller=self.seller)
+        pp = Transaction.create(uid_pay='foo', amount=5, uuid=self.uuid,
+                                provider=constants.SOURCE_PAYPAL,
+                                seller=self.seller)
         self.client.post(self.check_url, data={'pay_key': 'foo'})
         eq_(Transaction.objects.get(pk=pp.pk).status,
             constants.STATUS_CHECKED)
@@ -83,8 +127,8 @@ class TestTransaction(APITest):
     @patch('lib.paypal.client.Client.check_purchase')
     def test_complete_not_there(self, check):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
-        Transaction.objects.create(uid_pay='bar', amount=5,
-                                   provider=constants.SOURCE_PAYPAL,
-                                   seller=self.seller)
+        Transaction.create(uid_pay='bar', amount=5, uuid=self.uuid,
+                           provider=constants.SOURCE_PAYPAL,
+                           seller=self.seller)
         res = self.client.post(self.check_url, data={'pay_key': 'foo'})
         eq_(res.status_code, 404)

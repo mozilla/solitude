@@ -29,3 +29,11 @@ SOURCES = {
     'paypal': SOURCE_PAYPAL,
     'bango': SOURCE_BANGO
 }
+
+
+def invert(data):
+    return [(v, k) for k, v in data.items()]
+
+STATUSES_CHOICES = invert(STATUSES)
+TYPES_CHOICES= invert(TYPES)
+SOURCES_CHOICES = invert(SOURCES)

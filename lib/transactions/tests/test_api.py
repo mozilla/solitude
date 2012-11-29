@@ -36,7 +36,7 @@ class TestSeller(APITest):
         eq_(json.loads(res.content)['uuid'], self.uuid)
 
     def test_provider(self):
-        res = self.client.get(self.list_url, data={'provider': constants.SOURCE_BANGO})
+        res = self.client.get(self.list_url, data={'provider':
+                                                   constants.SOURCE_BANGO})
         eq_(res.status_code, 200)
         eq_(json.loads(res.content)['meta']['total_count'], 0, res.content)
-

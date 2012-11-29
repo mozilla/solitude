@@ -18,23 +18,42 @@ class Transaction(Model):
                               db_index=True)
     currency = models.CharField(max_length=3, default='USD')
     provider = models.PositiveIntegerField(
-                              choices=sorted(constants.SOURCES.items()))
+                              choices=constants.SOURCES_CHOICES)
     related = models.ForeignKey('self', blank=True, null=True,
                               on_delete=models.PROTECT)
     seller = models.ForeignKey('sellers.Seller', db_index=True)
     status = models.PositiveIntegerField(default=constants.STATUS_DEFAULT,
-                              choices=sorted(constants.STATUSES.items()))
+                              choices=constants.STATUSES_CHOICES)
     source = models.CharField(max_length=255, blank=True, null=True,
                               db_index=True)
     type = models.PositiveIntegerField(default=constants.TYPE_DEFAULT,
-                              choices=sorted(constants.TYPES.items()))
-    uid_support = models.CharField(max_length=255, db_index=True, unique=True)
-    uid_pay = models.CharField(max_length=255, db_index=True, unique=True)
+                              choices=constants.TYPES_CHOICES)
+    # Lots of IDs.
+    # An ID from the provider that can be used for support on this specific
+    # transaction. Optional.
+    uid_support = models.CharField(max_length=255, db_index=True, blank=True,
+                                   null=True)
+    # An ID from the provider that relates to this transaction.
+    uid_pay = models.CharField(max_length=255, db_index=True)
+    # An ID we generate for this transaction.
     uuid = models.CharField(max_length=255, db_index=True, unique=True)
 
     class Meta(Model.Meta):
         db_table = 'transaction'
         ordering = ('-id',)
+        unique_together = (('uid_pay', 'provider'),
+                           ('uid_support', 'provider'))
+
+    @classmethod
+    def create(cls, **kw):
+        """
+        Use model validation to make sure when transactions get created,
+        we do a full clean and get the correct uid conflicts sorted out.
+        """
+        transaction = cls(**kw)
+        transaction.full_clean()
+        transaction.save()
+        return transaction
 
 
 @receiver(paypal_create, dispatch_uid='transaction-create-paypal')
@@ -45,7 +64,7 @@ def create_paypal_transaction(sender, **kwargs):
     data = kwargs['bundle'].data
     clean = kwargs['form']
 
-    transaction = Transaction.objects.create(
+    transaction = Transaction.create(
             amount=clean['amount'],
             currency=clean['currency'],
             provider=constants.SOURCE_PAYPAL,
@@ -86,7 +105,7 @@ def create_bango_transaction(sender, **kwargs):
     form = kwargs['form']
     seller = form.cleaned_data['seller_product_bango'].seller_bango.seller
 
-    transaction = Transaction.objects.create(
+    transaction = Transaction.create(
             amount=form.cleaned_data['price_amount'],
             provider=constants.SOURCE_BANGO,
             seller=seller,
