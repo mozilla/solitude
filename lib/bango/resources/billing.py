@@ -27,9 +27,9 @@ class CreateBillingConfigurationResource(Resource):
 
         config = billing.factory.create('ArrayOfBillingConfigurationOption')
         configs = {
-                'APPLICATION_CATEGORY_ID': '18',
-                'APPLICATION_SIZE_KB': 2,
-                'BILLING_CONFIGURATION_TIME_OUT': 120
+            'APPLICATION_CATEGORY_ID': '18',
+            'APPLICATION_SIZE_KB': 2,
+            'BILLING_CONFIGURATION_TIME_OUT': 120
         }
         for k, v in configs.items():
             opt = billing.factory.create('BillingConfigurationOption')

@@ -1,17 +1,15 @@
 from tastypie.api import Api
 
-from .resources.bank import CreateBankDetailsResource
+from .resources import simple
 from .resources.billing import CreateBillingConfigurationResource
 from .resources.package import BangoProductResource, PackageResource
-from .resources.premium import MakePremiumResource
-from .resources.rating import UpdateRatingResource
 
 
 bango = Api(api_name='bango')
-for lib in (CreateBankDetailsResource,
-            CreateBillingConfigurationResource,
+for lib in (CreateBillingConfigurationResource,
             BangoProductResource,
-            MakePremiumResource,
             PackageResource,
-            UpdateRatingResource):
+            simple.MakePremiumResource,
+            simple.UpdateRatingResource,
+            simple.CreateBankDetailsResource):
     bango.register(lib())

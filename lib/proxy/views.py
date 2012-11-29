@@ -8,7 +8,7 @@ from django.conf import settings
 from django_statsd.clients import statsd
 import requests
 
-from lib.bango.client import get_client as bango_client
+from lib.bango.client import get_client as bango_client, response_to_dict
 from lib.bango.constants import HEADERS_SERVICE_GET
 from lib.bango.errors import BangoError
 
@@ -129,11 +129,8 @@ class BangoProxy(Proxy):
             })
             return response
 
-        # This is going to go pear shaped with complicated data, but works
-        # well so far.
         response.status_code = 200
-        response.content = json.dumps(dict([[k, getattr(result, k)]
-                                            for k in result.__keylist__]))
+        response.content = json.dumps(response_to_dict(result))
         return response
 
 

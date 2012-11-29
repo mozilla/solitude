@@ -162,14 +162,28 @@ class ClientMock(Client):
         This fakes out the client and just looks up the values in mock_results
         for that service.
         """
-        bango = Mock()
-        bango.__keylist__ = self.mock_results(name).keys()
-        for k, v in self.mock_results(name).iteritems():
-            if callable(v):
-                v = v()
-            setattr(bango, k, v)
+        bango = dict_to_mock(self.mock_results(name), callables=True)
         self.is_error(bango.responseCode, bango.responseMessage)
         return bango
+
+
+def response_to_dict(resp):
+    """Converts a suds response into a dictionary suitable for JSON"""
+    return dict((k, getattr(resp, k)) for k in resp.__keylist__)
+
+
+def dict_to_mock(data, callables=False):
+    """
+    Converts a dictionary into a suds like mock.
+    callables: will call any value if its callable, default False.
+    """
+    result = Mock()
+    result.__keylist__ = data.keys()
+    for k, v in data.iteritems():
+        if callables and callable(v):
+            v = v()
+        setattr(result, k, v)
+    return result
 
 
 def get_client():

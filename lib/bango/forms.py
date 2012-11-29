@@ -71,10 +71,8 @@ class UpdateForm(forms.Form):
 
 
 class CreateBangoNumberForm(forms.Form):
-    seller_bango = URLField(
-            to='lib.bango.resources.package.PackageResource')
-    seller_product = URLField(
-            to='lib.sellers.resources.SellerProductResource')
+    seller_bango = URLField(to='lib.bango.resources.package.PackageResource')
+    seller_product = URLField(to='lib.sellers.resources.SellerProductResource')
     name = forms.CharField(max_length=100)
     # TODO: Expand this bug 814492.
     categoryId = forms.IntegerField()
@@ -93,7 +91,7 @@ class SellerProductForm(forms.Form):
     # Base class for a form that interacts using the
     # seller_product_bango resource.
     seller_product_bango = URLField(
-            to='lib.bango.resources.package.BangoProductResource')
+        to='lib.bango.resources.package.BangoProductResource')
 
     @property
     def bango_data(self):
@@ -105,7 +103,7 @@ class SellerProductForm(forms.Form):
 
 class MakePremiumForm(SellerProductForm):
     currencyIso = forms.ChoiceField(choices=([r, r] for r
-                                                    in CURRENCIES.keys()))
+                                             in CURRENCIES.keys()))
     price = forms.DecimalField()
 
 
@@ -117,7 +115,7 @@ class UpdateRatingForm(SellerProductForm):
 class CreateBillingConfigurationForm(SellerProductForm):
     price_amount = forms.DecimalField()
     price_currency = forms.ChoiceField(choices=([r, r] for r
-                                                       in CURRENCIES.keys()))
+                                                in CURRENCIES.keys()))
     pageTitle = forms.CharField()
 
     @property
@@ -129,8 +127,7 @@ class CreateBillingConfigurationForm(SellerProductForm):
 
 
 class CreateBankDetailsForm(forms.Form):
-    seller_bango = URLField(
-            to='lib.bango.resources.package.PackageResource')
+    seller_bango = URLField(to='lib.bango.resources.package.PackageResource')
     bankAccountPayeeName = forms.CharField(max_length=50)
     bankAccountNumber = forms.CharField(max_length=20, required=False)
     bankAccountCode = forms.CharField(max_length=20)
