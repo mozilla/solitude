@@ -11,6 +11,7 @@ from lib.transactions.models import Transaction
 from solitude.base import APITest
 
 from ..client import ClientMock
+from ..resources.cached import SimpleResource
 
 import samples
 
@@ -27,6 +28,16 @@ class BangoAPI(APITest):
         self.seller_bango_uri = self.get_detail_url('package',
                                                     self.seller_bango.pk)
         self.seller_product = SellerProduct.objects.create(seller=self.seller)
+
+
+class TestSimple(APITest):
+
+    def test_raises(self):
+        class Foo(SimpleResource):
+            pass
+
+        with self.assertRaises(ValueError):
+            Foo().check_meta()
 
 
 @mock.patch.object(settings, 'BANGO_MOCK', True)

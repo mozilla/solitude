@@ -5,7 +5,7 @@ import mock
 from nose.tools import eq_
 import test_utils
 
-from ..client import get_client, Client, ClientMock, ClientProxy
+from ..client import get_client, Client, ClientMock, ClientProxy, response_to_dict, dict_to_mock
 from ..constants import OK, ACCESS_DENIED
 from ..errors import AuthError, BangoError
 
@@ -115,3 +115,14 @@ class TestProxy(test_utils.TestCase):
             res = self.bango.CreatePackage({'foo': 'bar'})
             eq_(res.packageId, 1)
             assert 'CreatePackageResponse' in str(res)
+
+
+def test_convert_data():
+    data = {'foo': 'bar'}
+    eq_(data, response_to_dict(dict_to_mock(data)))
+
+
+def test_callable():
+    data = {'foo': lambda: 'x'}
+    assert callable(dict_to_mock(data).foo)
+    assert not callable(dict_to_mock(data, callables=True).foo)

@@ -24,11 +24,12 @@ class PackageResource(ModelResource):
 
         resp = get_client().CreatePackage(form.bango_data)
         seller_bango = SellerBango.objects.create(
-                seller=form.cleaned_data['seller'],
-                package_id=resp.packageId,
-                admin_person_id=resp.adminPersonId,
-                support_person_id=resp.supportPersonId,
-                finance_person_id=resp.financePersonId)
+            seller=form.cleaned_data['seller'],
+            package_id=resp.packageId,
+            admin_person_id=resp.adminPersonId,
+            support_person_id=resp.supportPersonId,
+            finance_person_id=resp.financePersonId
+        )
         bundle.obj = seller_bango
         return bundle
 
