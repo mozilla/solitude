@@ -66,6 +66,10 @@ settings::
         CLEANSED_SETTINGS_ACCESS = True
         PAYPAL_USE_SANDBOX = True
 
+Create the database using the same name from settings::
+
+    mysql -u root -e 'create database solitude'
+
 Solitude requires some keys on the file system. For each key in `base.py`,
 copy into `local.py` and point to a file that makes sense for your install. For
 example::
