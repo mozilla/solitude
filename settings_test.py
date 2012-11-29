@@ -9,7 +9,6 @@ AES_KEYS = {
     'sellerpaypal:id': filename,
     'sellerpaypal:token': filename,
     'sellerpaypal:secret': filename,
-    'sellerbluevia:id': filename,
     'sellerproduct:secret': filename,
 }
 

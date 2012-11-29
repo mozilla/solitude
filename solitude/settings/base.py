@@ -103,7 +103,6 @@ AES_KEYS = {
     'sellerpaypal:id': '',
     'sellerpaypal:token': '',
     'sellerpaypal:secret': '',
-    'sellerbluevia:id': '',
     'sellerproduct:secret': '',
 }
 

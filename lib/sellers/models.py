@@ -44,14 +44,6 @@ class SellerPaypal(Model):
         return bool(self.token)
 
 
-class SellerBluevia(Model):
-    bluevia_id = AESField(blank=True, null=True, aes_key='sellerbluevia:id')
-    seller = models.OneToOneField(Seller, related_name='bluevia')
-
-    class Meta(Model.Meta):
-        db_table = 'seller_bluevia'
-
-
 class SellerProduct(Model):
     seller = models.ForeignKey(Seller, related_name='product')
     # A generic secret field that can be used for this product, regardless
