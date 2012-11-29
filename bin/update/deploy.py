@@ -74,8 +74,8 @@ def update_db(ctx):
 
     """
     with ctx.lcd(settings.SRC_DIR):
-        ctx.local('%s ./vendor/src/schematic/schematic migrations' % settings.PYTHON)
-
+        ctx.local("%s %s/bin/schematic migrations" %
+                  (settings.PYTHON, settings.VENV))
 
 @task
 def checkin_changes(ctx):
