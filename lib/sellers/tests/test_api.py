@@ -2,8 +2,7 @@ import json
 
 from nose.tools import eq_
 
-from lib.sellers.models import (Seller, SellerProduct, SellerBluevia,
-                                SellerPaypal)
+from lib.sellers.models import Seller, SellerProduct, SellerPaypal
 from solitude.base import APITest
 
 uuid = 'sample:uid'
@@ -140,45 +139,6 @@ class TestSellerPaypal(APITest):
 
         self.allowed_verbs(self.list_url, ['post', 'get'])
         self.allowed_verbs(url, ['get', 'delete', 'put', 'patch'])
-
-
-class TestSellerBluevia(APITest):
-
-    def setUp(self):
-        self.api_name = 'bluevia'
-        self.seller = Seller.objects.create(uuid=uuid)
-        self.list_url = self.get_list_url('seller')
-
-    def data(self):
-        return {'seller': '/generic/seller/%s/' % self.seller.pk,
-                'bluevia_id': 'foo@bar.com'}
-
-    def test_post(self):
-        res = self.client.post(self.list_url, data=self.data())
-        eq_(res.status_code, 201)
-        objs = SellerBluevia.objects.all()
-        eq_(objs.count(), 1)
-        eq_(objs[0].bluevia_id, 'foo@bar.com')
-
-    def create(self):
-        return SellerBluevia.objects.create(seller=self.seller)
-
-    def test_list_allowed(self):
-        obj = self.create()
-        url = self.get_detail_url('seller', obj)
-
-        self.allowed_verbs(self.list_url, ['post', 'get'])
-        self.allowed_verbs(url, ['get', 'delete', 'put', 'patch'])
-
-    def test_patch(self):
-        obj = self.create()
-        url = self.get_detail_url('seller', obj)
-        id_ = 'foo@bar.com'
-
-        res = self.client.patch(url, data={'bluevia_id': id_})
-        eq_(res.status_code, 202, res.content)
-        res = SellerBluevia.objects.get(pk=obj.pk)
-        eq_(res.bluevia_id, id_)
 
 
 class TestSellerProduct(APITest):

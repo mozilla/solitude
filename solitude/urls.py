@@ -4,12 +4,11 @@ from django.conf.urls.defaults import include, patterns, url
 from tastypie.api import Api
 
 from lib.bango.urls import bango
-from lib.bluevia.urls import bluevia
 from lib.buyers.resources import BuyerResource, BuyerPaypalResource
 from lib.buyers.views import check_pin
 from lib.paypal.urls import paypal
-from lib.sellers.resources import (SellerResource, SellerBlueviaResource,
-                                   SellerPaypalResource, SellerProductResource)
+from lib.sellers.resources import (SellerResource, SellerPaypalResource,
+                                   SellerProductResource)
 from lib.services.resources import (ErrorResource, SettingsResource,
                                     StatusResource)
 from lib.transactions.resources import TransactionResource
@@ -25,9 +24,6 @@ api.register(TransactionResource())
 paypal.register(BuyerPaypalResource())
 paypal.register(SellerPaypalResource())
 
-# BlueVia specific APIs
-bluevia.register(SellerBlueviaResource())
-
 # Service APIs
 service = Api(api_name='services')
 service.register(ErrorResource())
@@ -39,7 +35,6 @@ urlpatterns = patterns('',
     url(r'^proxy/', include('lib.proxy.urls')),
     url(r'^', include(api.urls)),
     url(r'^', include(paypal.urls)),
-    url(r'^', include(bluevia.urls)),
     url(r'^', include(bango.urls)),
     url(r'^', include(service.urls)),
     url(r'^buyer/check_pin', check_pin, name='check-pin'),
