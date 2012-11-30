@@ -81,7 +81,6 @@ example::
             'sellerpaypal:id': 'foo.key',
             'sellerpaypal:token': 'foo.key',
             'sellerpaypal:secret': 'foo.key',
-            'sellerbluevia:id': 'foo.key',
             'sellerproduct:secret': 'foo.key',
         }
 
@@ -97,6 +96,14 @@ This should set up your database.
 
 PayPal settings
 ---------------
+
+Having solitude communicate with PayPal can be a slow and cumbersome. To speed
+it up you can just mock out all of PayPal::
+
+        PAYPAL_MOCK = True
+
+This assumes a happy path, where everything works. Most things are implemented
+for the mock.
 
 To actually talk to PayPal you'll need to setup the following settings. These
 are the settings for the Sandbox, meaning you can test Solitude without using
@@ -132,6 +139,20 @@ it's set to the following. You'll want to set these URLs to match whatever
 front end site is using Solitude::
 
         PAYPAL_URL_WHITELIST = ('https://marketplace-dev.allizom.org',)
+
+Bango settings
+--------------
+
+Having solitude communicate with Bango can be a slow and cumbersome. To speed
+it up you can just mock out all of Bango::
+
+        BANGO_MOCK = True
+
+This assumes a happy path, where everything works. To actually talk to Bango
+you'll have need to setup the following::
+
+        BANGO_AUTH = {'USER': 'the.bango.username',
+                      'PASSWORD': 'the.bango.password'}
 
 Running
 -------
