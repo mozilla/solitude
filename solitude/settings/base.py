@@ -18,6 +18,9 @@ INSTALLED_APPS = (
     'raven.contrib.django',
 )
 
+LOCALE_PATHS = ()
+USE_I18N = False
+USE_L10N = False
 
 SOLITUDE_PROXY = os.environ.get('SOLITUDE_PROXY', 'disabled') == 'enabled'
 if SOLITUDE_PROXY:
