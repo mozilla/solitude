@@ -67,6 +67,7 @@ class SellerBango(Model):
 
 
 class SellerProductBango(Model):
+    uuid = models.CharField(max_length=255, db_index=True, unique=True)
     seller_product = models.OneToOneField(SellerProduct,
                                           related_name='product')
     seller_bango = models.OneToOneField(SellerBango, related_name='bango')

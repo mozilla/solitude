@@ -127,6 +127,7 @@ class TestBangoProduct(BangoAPI):
 
         obj = SellerProductBango.objects.get()
         eq_(obj.bango_id, 'some-bango-number')
+        eq_(obj.uuid, samples.good_bango_number['uuid'])
         eq_(obj.seller_product_id, self.seller_bango.pk)
 
 

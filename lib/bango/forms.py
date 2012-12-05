@@ -71,6 +71,7 @@ class UpdateForm(forms.Form):
 
 
 class CreateBangoNumberForm(forms.Form):
+    uuid = forms.CharField(max_length=255)
     seller_bango = URLField(to='lib.bango.resources.package.PackageResource')
     seller_product = URLField(to='lib.sellers.resources.SellerProductResource')
     name = forms.CharField(max_length=100)
@@ -82,6 +83,7 @@ class CreateBangoNumberForm(forms.Form):
         result = self.cleaned_data.copy()
         result['applicationSize'] = 1
         result['packageId'] = result['seller_bango'].package_id
+        del result['uuid']
         del result['seller_bango']
         del result['seller_product']
         return result

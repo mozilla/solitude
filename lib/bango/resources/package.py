@@ -85,6 +85,7 @@ class BangoProductResource(ModelResource):
         resp = get_client().CreateBangoNumber(form.bango_data)
 
         product = SellerProductBango.objects.create(
+            uuid=form.cleaned_data['uuid'],
             seller_bango=form.cleaned_data['seller_bango'],
             seller_product=form.cleaned_data['seller_product'],
             bango_id=resp.bango,

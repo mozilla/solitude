@@ -56,8 +56,10 @@ res = call('/bango/package/', 'post', {
 })
 seller_bango_uri = res['resource_uri']
 
+product_uuid = str(uuid.uuid4())
 print 'Creating seller bango product.'
 res = call('/bango/product/', 'post', {
+    'uuid': product_uuid,
     'seller_bango': seller_bango_uri,
     'seller_product': seller_product_uri,
     'name': 'A name for the number',
