@@ -14,6 +14,7 @@ INSTALLED_APPS = (
     'funfactory',
     'django_nose',
     'django_statsd',
+    'djcelery',
     'solitude',
     'raven.contrib.django',
 )
@@ -160,3 +161,10 @@ RAVEN_CONFIG = {'register_signals': True}
 USE_METLOG_FOR_CEF = True
 
 # End Metlog configuration
+
+
+# Celery configs.
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+CELERY_IGNORE_RESULT = False
+CELERY_RESULT_BACKEND = 'database'
+CELERYD_HIJACK_ROOT_LOGGER = False
