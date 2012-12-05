@@ -99,7 +99,6 @@ def update_info(ctx):
         ctx.local('git log -3')
         ctx.local('git status')
         ctx.local('git submodule status')
-        ctx.local('%s ./vendor/src/schematic/schematic -v migrations/' % settings.PYTHON)
 
 
 @task
