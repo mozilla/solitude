@@ -6,15 +6,17 @@ from solitude.base import ModelResource
 
 
 class TransactionResource(ModelResource):
-    seller = fields.ToOneField('lib.sellers.resources.SellerPaypalResource',
-                'seller', blank=True, full=False, null=True, readonly=True)
+    seller_product = fields.ToOneField(
+                'lib.sellers.resources.SellerProductResource',
+                'seller_product', blank=True, full=False, null=True,
+                readonly=True)
     related = fields.ToOneField(
                 'lib.transactions.resources.TransactionResource',
                 'related', blank=True, full=False, null=True, readonly=True)
 
     class Meta(ModelResource.Meta):
         queryset = Transaction.objects.all()
-        fields = ['uuid', 'seller', 'amount', 'currency', 'provider',
+        fields = ['uuid', 'seller_product', 'amount', 'currency', 'provider',
                   'uid_support', 'type', 'status', 'related']
         list_allowed_methods = ['get']
         allowed_methods = ['get']

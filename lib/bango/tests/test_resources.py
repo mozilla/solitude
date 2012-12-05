@@ -69,6 +69,7 @@ class TestPackageResource(BangoAPI):
 
     # TODO: probably should inject this in a better way.
     @mock.patch.object(ClientMock, 'mock_results')
+    @mock.patch.object(settings, 'DEBUG', False)
     def test_bango_fail(self, mock_results):
         post = samples.good_address.copy()
         post['seller'] = ('/generic/seller/%s/' %

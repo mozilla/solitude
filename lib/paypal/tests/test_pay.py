@@ -4,7 +4,7 @@ from mock import patch
 from nose.tools import eq_
 
 from lib.buyers.models import Buyer, BuyerPaypal
-from lib.sellers.models import Seller, SellerPaypal
+from lib.sellers.models import Seller, SellerPaypal, SellerProduct
 from lib.transactions import constants
 from lib.transactions.models import Transaction
 from solitude.base import APITest
@@ -18,6 +18,7 @@ class TestPayPaypal(APITest):
         self.uuid = 'sample:uid'
         self.list_url = self.get_list_url('pay')
         self.seller = Seller.objects.create(uuid=self.uuid)
+        self.product = SellerProduct.objects.create(seller=self.seller)
         SellerPaypal.objects.create(seller=self.seller,
                                     paypal_id='foo@bar.com')
         self.return_value = {'pay_key': 'foo', 'status': 'CREATED',
@@ -31,7 +32,7 @@ class TestPayPaypal(APITest):
                 'cancel_url': 'http://foo.com/cancel.url',
                 'memo': 'Some memo',
                 'use_preapproval': True,
-                'seller': self.uuid}
+                'seller_product': self.uuid}
 
     def test_post(self, key):
         key.return_value = self.return_value
@@ -91,9 +92,10 @@ class KeyTest(object):
     def setUp(self):
         self.api_name = 'paypal'
         seller = Seller.objects.create()
+        product = SellerProduct.objects.create(seller=seller)
         Transaction.objects.create(uuid='xyz', uid_pay='foo',
                                    provider=constants.SOURCE_PAYPAL,
-                                   seller=seller, amount=5)
+                                   seller_product=product, amount=5)
 
     def test_check_uuid_404(self, key):
         res = self.client.post(self.list_url, data={'uuid': 'xyza'})

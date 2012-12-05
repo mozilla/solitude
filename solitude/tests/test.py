@@ -1,5 +1,7 @@
 import json
 
+from django.conf import settings
+
 import jwt
 import mock
 from nose.tools import eq_
@@ -98,6 +100,7 @@ class TestSerialize(test_utils.TestCase):
                 self.serializer.deserialize(data, 'application/json')
 
 
+@mock.patch.object(settings, 'DEBUG', False)
 class TestJWT(APITest):
     urls = 'solitude.tests.urls'
     url = '/test/fake/'

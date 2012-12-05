@@ -3,7 +3,7 @@ from nose.tools import eq_
 
 from django.core.exceptions import ValidationError
 
-from lib.sellers.models import Seller, SellerPaypal
+from lib.sellers.models import Seller, SellerPaypal, SellerProduct
 from lib.transactions import constants
 from lib.transactions.models import Transaction
 from solitude.base import APITest
@@ -14,12 +14,13 @@ class TestModel(APITest):
     def setUp(self):
         self.uuid = 'sample:uid'
         self.seller = Seller.objects.create(uuid=self.uuid)
+        self.product = SellerProduct.objects.create(seller=self.seller)
 
     def get_data(self, uid=None):
         return {
             'amount': 1,
             'provider': constants.SOURCE_BANGO,
-            'seller': self.seller,
+            'seller_product': self.product,
             'uuid': uid or self.uuid
         }
 
@@ -59,6 +60,7 @@ class TestTransaction(APITest):
         self.pay_url = self.get_list_url('pay')
         self.check_url = self.get_list_url('pay-check')
         self.seller = Seller.objects.create(uuid=self.uuid)
+        self.product = SellerProduct.objects.create(seller=self.seller)
         SellerPaypal.objects.create(seller=self.seller,
                                     paypal_id='foo@bar.com')
 
@@ -69,14 +71,14 @@ class TestTransaction(APITest):
                 'ipn_url': 'http://foo.com/ipn.url',
                 'cancel_url': 'http://foo.com/cancel.url',
                 'memo': 'Some memo',
-                'seller': self.uuid}
+                'seller_product': self.uuid}
 
     @patch('lib.paypal.client.Client.get_pay_key')
     def test_pay(self, key):
         key.return_value = {'pay_key': 'foo', 'status': 'CREATED',
                             'correlation_id': '123', 'uuid': '456'}
         res = self.client.post(self.pay_url, data=self.get_data())
-        eq_(res.status_code, 201)
+        eq_(res.status_code, 201, res.content)
         qs = Transaction.objects.all()
         eq_(qs.count(), 1)
 
@@ -84,7 +86,7 @@ class TestTransaction(APITest):
         eq_(obj.amount, 5)
         eq_(obj.uid_support, '123')
         eq_(obj.uuid, '456')
-        eq_(obj.seller, self.seller)
+        eq_(obj.seller_product, self.product)
         eq_(obj.status, constants.STATUS_PENDING)
 
     @patch('lib.paypal.client.Client.get_pay_key')
@@ -102,7 +104,7 @@ class TestTransaction(APITest):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
         pp = Transaction.create(uid_pay='foo', amount=5, uuid=self.uuid,
                                 provider=constants.SOURCE_PAYPAL,
-                                seller=self.seller)
+                                seller_product=self.product)
         res = self.client.post(self.check_url, data={'pay_key': 'foo'})
         eq_(res.status_code, 201)
         eq_(Transaction.objects.get(pk=pp.pk).status,
@@ -113,7 +115,7 @@ class TestTransaction(APITest):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
         pp = Transaction.create(uid_pay='foo', amount=5, uuid=self.uuid,
                                 provider=constants.SOURCE_PAYPAL,
-                                seller=self.seller)
+                                seller_product=self.product)
         self.client.post(self.check_url, data={'pay_key': 'foo'})
         eq_(Transaction.objects.get(pk=pp.pk).status,
             constants.STATUS_CHECKED)
@@ -129,6 +131,6 @@ class TestTransaction(APITest):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
         Transaction.create(uid_pay='bar', amount=5, uuid=self.uuid,
                            provider=constants.SOURCE_PAYPAL,
-                           seller=self.seller)
+                           seller_product=self.product)
         res = self.client.post(self.check_url, data={'pay_key': 'foo'})
         eq_(res.status_code, 404)

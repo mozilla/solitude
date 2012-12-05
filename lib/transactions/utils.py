@@ -53,7 +53,7 @@ def refund(detail, item, type_):
             # The correlation id does not seem to be present on IPN. But if
             # they change their mind, I'll take it.
             uid_pay=detail['pay_key'],
-            seller=record.seller,
+            seller_product=record.seller_product,
             amount=-item['amount']['amount'],
             currency=item['amount']['currency'],
             provider=constants.SOURCE_PAYPAL,

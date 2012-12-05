@@ -19,7 +19,7 @@ PAYPAL_PROXY = False
 PAYPAL_URL_WHITELIST = ('https://marketplace-dev.allizom.org',)
 
 # How tastypie processes error depends upon these settings.
-DEBUG = False
+DEBUG = True
 DEBUG_PROPAGATE_EXCEPTIONS = DEBUG
 TASTYPIE_FULL_DEBUG = DEBUG
 

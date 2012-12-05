@@ -14,9 +14,10 @@ class TestSeller(APITest):
         self.api_name = 'generic'
         self.uuid = 'sample:uid'
         self.list_url = self.get_list_url('transaction')
-        self.seller, self.paypal = make_seller_paypal('paypal:%s' % self.uuid)
+        self.seller, self.paypal, self.product = (
+            make_seller_paypal('paypal:%s' % self.uuid))
         self.trans = Transaction.objects.create(amount=5,
-                                            seller=self.seller,
+                                            seller_product=self.product,
                                             provider=constants.SOURCE_PAYPAL,
                                             uuid=self.uuid)
         self.detail_url = self.get_detail_url('transaction', self.trans.pk)

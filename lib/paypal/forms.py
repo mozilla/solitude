@@ -5,7 +5,7 @@ from django import forms
 
 from lib.buyers.models import Buyer
 from lib.paypal.constants import PAYPAL_CURRENCIES
-from lib.sellers.models import Seller, SellerPaypal
+from lib.sellers.models import SellerPaypal, SellerProduct
 from lib.transactions.models import Transaction
 
 from solitude.base import get_object_or_404
@@ -46,10 +46,11 @@ class MissingModelField(forms.ModelChoiceField):
 
 
 class PayValidation(ArgForm):
-    seller = forms.ModelChoiceField(queryset=Seller.objects.all(),
-                                    to_field_name='uuid')
+    seller_product = forms.ModelChoiceField(
+                            queryset=SellerProduct.objects.all(),
+                            to_field_name='seller__uuid')
     buyer = MissingModelField(queryset=Buyer.objects.all(),
-                                     to_field_name='uuid', required=False)
+                              to_field_name='uuid', required=False)
     # Note these amounts apply to all currencies.
     amount = forms.DecimalField(min_value=Decimal('0.1'),
                                 max_value=Decimal('5000'))
@@ -66,16 +67,17 @@ class PayValidation(ArgForm):
     _args = ('seller_email', 'amount', 'ipn_url', 'cancel_url', 'return_url')
     _kwargs = ('currency', 'preapproval', 'memo', 'uuid')
 
-    def clean_seller(self):
-        seller = self.cleaned_data['seller']
+    def clean_seller_product(self):
+        seller_product = self.cleaned_data['seller_product']
         self.cleaned_data['seller_email'] = ''
         try:
-            self.cleaned_data['seller_email'] = seller.paypal.paypal_id
+            self.cleaned_data['seller_email'] = (seller_product.seller
+                                                 .paypal.paypal_id)
         except ObjectDoesNotExist:
             pass
         if not self.cleaned_data['seller_email']:
             raise forms.ValidationError('No seller email found.')
-        return seller
+        return seller_product
 
     def clean(self):
         data = self.cleaned_data
