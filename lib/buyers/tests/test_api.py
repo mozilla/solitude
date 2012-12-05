@@ -1,6 +1,5 @@
 import json
 
-from django.core.urlresolvers import reverse
 from nose.tools import eq_
 
 from lib.buyers.models import Buyer, BuyerPaypal
@@ -102,33 +101,6 @@ class TestBuyer(APITest):
         eq_(obj.reget().uuid, self.uuid)
 
 
-class TestPinValidator(APITest):
-
-    def setUp(self):
-        self.api_name = 'generic'
-        self.uuid = 'sample:uid'
-        self.pin = '1234'
-        self.validator_url = reverse('check-pin')
-
-    def test_post_only(self):
-        res = self.client.get(self.validator_url)
-        eq_(res.status_code, 405)
-
-    def test_valid_pin(self):
-        Buyer.objects.create(uuid=self.uuid, pin=self.pin)
-        res = self.client.post(self.validator_url, data={'uuid': self.uuid,
-                                                         'pin': self.pin})
-        eq_(res.status_code, 200)
-        eq_(json.loads(res.content)['valid'], True)
-
-    def test_invalid_pin(self):
-        Buyer.objects.create(uuid=self.uuid, pin=self.pin)
-        res = self.client.post(self.validator_url, data={'uuid': self.uuid,
-                                                         'pin': 'bad pin'})
-        eq_(res.status_code, 200)
-        eq_(json.loads(res.content)['valid'], False)
-
-
 class TestBuyerPaypal(APITest):
 
     def setUp(self):
@@ -207,3 +179,38 @@ class TestBuyerPaypal(APITest):
         obj.save()
         self.client.patch(url, data={'key': ''})
         eq_(BuyerPaypal.objects.get(pk=obj.pk).key, None)
+
+
+class TestBuyerVerifyPin(APITest):
+
+    def setUp(self):
+        self.api_name = 'generic'
+        self.uuid = 'sample:uid'
+        self.pin = '1234'
+        self.buyer = Buyer.objects.create(uuid=self.uuid, pin=self.pin)
+        self.list_url = self.get_list_url('verify_pin')
+
+    def test_good_uuid_and_pin(self):
+        res = self.client.post(self.list_url, data={'uuid': self.uuid,
+                                                    'pin': self.pin})
+        eq_(res.status_code, 201)
+        data = json.loads(res.content)
+        assert data['valid']
+        eq_(data['uuid'], self.uuid)
+
+    def test_good_uuid_and_bad_pin(self):
+        res = self.client.post(self.list_url, data={'uuid': self.uuid,
+                                                    'pin': '4321'})
+        eq_(res.status_code, 201)
+        data = json.loads(res.content)
+        assert not data['valid']
+        eq_(data['uuid'], self.uuid)
+
+    def test_bad_uuid(self):
+        res = self.client.post(self.list_url, data={'uuid': 'bad:uuid',
+                                                    'pin': '4321'})
+        eq_(res.status_code, 404)
+
+    def test_empty_post(self):
+        res = self.client.post(self.list_url, data={})
+        eq_(res.status_code, 400)

@@ -1,14 +1,11 @@
 from django import forms
+
 from tastypie.validation import FormValidation
 
 from .models import Buyer
 
 
-class BuyerValidation(forms.ModelForm):
-
-    class Meta:
-        model = Buyer
-
+class PinMixin(object):
     def clean_pin(self):
         pin = self.cleaned_data['pin']
 
@@ -22,6 +19,17 @@ class BuyerValidation(forms.ModelForm):
             raise forms.ValidationError('PIN may only consists of numbers')
 
         return pin
+
+
+class BuyerForm(forms.ModelForm, PinMixin):
+
+    class Meta:
+        model = Buyer
+
+
+class BuyerVerifyPinForm(forms.Form, PinMixin):
+    uuid = forms.CharField(required=True)
+    pin = forms.CharField(required=True)
 
 
 class BuyerFormValidation(FormValidation):

@@ -4,8 +4,8 @@ from django.conf.urls.defaults import include, patterns, url
 from tastypie.api import Api
 
 from lib.bango.urls import bango
-from lib.buyers.resources import BuyerResource, BuyerPaypalResource
-from lib.buyers.views import check_pin
+from lib.buyers.resources import (BuyerResource, BuyerPaypalResource,
+                                  BuyerVerifyPinResource)
 from lib.paypal.urls import paypal
 from lib.sellers.resources import (SellerResource, SellerPaypalResource,
                                    SellerProductResource)
@@ -16,6 +16,7 @@ from lib.transactions.resources import TransactionResource
 # Generic APIs
 api = Api(api_name='generic')
 api.register(BuyerResource())
+api.register(BuyerVerifyPinResource())
 api.register(SellerResource())
 api.register(SellerProductResource())
 api.register(TransactionResource())
@@ -37,7 +38,6 @@ urlpatterns = patterns('',
     url(r'^', include(paypal.urls)),
     url(r'^', include(bango.urls)),
     url(r'^', include(service.urls)),
-    url(r'^buyer/check_pin', check_pin, name='check-pin'),
     url(r'^$', 'solitude.views.home', name='home'),
 )
 
