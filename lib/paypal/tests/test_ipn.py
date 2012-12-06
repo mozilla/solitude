@@ -11,6 +11,7 @@ from lib.paypal import constants
 from lib.paypal.ipn import IPN
 from lib.paypal.tests import samples
 from lib.sellers.models import Seller, SellerPaypal
+from lib.sellers.tests.utils import make_seller_paypal
 from lib.transactions import constants as transaction_constants
 from lib.transactions.models import Transaction
 from solitude.base import APITest
@@ -150,11 +151,10 @@ class TestIPNResource(APITest):
         self.api_name = 'paypal'
         self.uuid = 'sample:uid'
         self.list_url = self.get_list_url('ipn')
-        self.seller = Seller.objects.create(uuid='seller:uid')
-        self.paypal = SellerPaypal.objects.create(seller=self.seller)
+        self.seller, self.paypal, self.product = make_seller_paypal(self.uuid)
         self.transaction = Transaction.objects.create(uuid='5678',
             provider=transaction_constants.SOURCE_PAYPAL,
-            seller=self.seller, amount='10', uid_support='123')
+            seller_product=self.product, amount='10', uid_support='123')
 
     def test_nope(self, post):
         res = self.client.post(self.list_url, data={})

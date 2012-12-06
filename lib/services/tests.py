@@ -1,5 +1,6 @@
 import json
 
+from django.conf import settings
 from django.core.cache import cache
 
 from mock import patch
@@ -9,6 +10,7 @@ from solitude.base import APITest
 from lib.services.resources import StatusObject
 
 
+@patch.object(settings, 'DEBUG', False)
 class TestStatus(APITest):
 
     def setUp(self):
@@ -49,6 +51,7 @@ class TestStatus(APITest):
             self.failed(self.client.get(self.list_url), 'settings')
 
 
+@patch.object(settings, 'DEBUG', False)
 class TestError(APITest):
 
     def setUp(self):

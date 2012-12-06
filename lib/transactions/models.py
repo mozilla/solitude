@@ -21,7 +21,7 @@ class Transaction(Model):
                               choices=constants.SOURCES_CHOICES)
     related = models.ForeignKey('self', blank=True, null=True,
                               on_delete=models.PROTECT)
-    seller = models.ForeignKey('sellers.Seller', db_index=True)
+    seller_product = models.ForeignKey('sellers.SellerProduct', db_index=True)
     status = models.PositiveIntegerField(default=constants.STATUS_DEFAULT,
                               choices=constants.STATUSES_CHOICES)
     source = models.CharField(max_length=255, blank=True, null=True,
@@ -68,7 +68,7 @@ def create_paypal_transaction(sender, **kwargs):
             amount=clean['amount'],
             currency=clean['currency'],
             provider=constants.SOURCE_PAYPAL,
-            seller=clean['seller'],
+            seller_product=clean['seller_product'],
             source=clean.get('source', ''),
             type=constants.TYPE_PAYMENT,
             uid_pay=data['pay_key'],
@@ -103,12 +103,12 @@ def create_bango_transaction(sender, **kwargs):
     bundle = kwargs['bundle'].data
     data = kwargs['data']
     form = kwargs['form']
-    seller = form.cleaned_data['seller_product_bango'].seller_bango.seller
+    seller_product = form.cleaned_data['seller_product_bango'].seller_product
 
     transaction = Transaction.create(
             amount=form.cleaned_data['price_amount'],
             provider=constants.SOURCE_BANGO,
-            seller=seller,
+            seller_product=seller_product,
             source=data.get('source', ''),
             type=constants.TYPE_PAYMENT,
             uuid=data['externalTransactionId'],

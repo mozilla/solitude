@@ -1,10 +1,13 @@
 import json
 
+from django.conf import settings
+
 from mock import patch
 from nose.tools import eq_
 
 from lib.paypal.header import escape
-from lib.sellers.models import Seller, SellerPaypal
+from lib.sellers.models import SellerPaypal
+from lib.sellers.tests.utils import make_seller_paypal
 from solitude.base import APITest
 
 
@@ -13,9 +16,10 @@ class TestGet(APITest):
     def setUp(self):
         self.api_name = 'paypal'
         self.uid = 'sample:uid'
-        self.seller = Seller.objects.create(uuid=self.uid)
-        self.paypal = SellerPaypal.objects.create(seller=self.seller,
-                                                  token='f', secret='b')
+        self.seller, self.paypal, self.product = make_seller_paypal(self.uid)
+        self.paypal.token = 'f'
+        self.paypal.secret = 'b'
+        self.paypal.save()
 
     @patch('lib.paypal.client.Client.get_personal_basic')
     def test_basic_data(self, result):
@@ -28,6 +32,7 @@ class TestGet(APITest):
         eq_(obj.first_name, '..')
 
     @patch('lib.paypal.client.Client.get_personal_basic')
+    @patch.object(settings, 'DEBUG', False)
     def test_email_differs(self, result):
         result.return_value = {'email': 'foo@bar.com'}
         res = self.client.post(self.get_list_url('personal-basic'),

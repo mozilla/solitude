@@ -3,7 +3,7 @@ from decimal import Decimal
 from nose.tools import eq_
 import test_utils
 
-from lib.sellers.models import Seller, SellerPaypal
+from lib.sellers.models import Seller, SellerPaypal, SellerProduct
 from lib.transactions import constants
 from lib.transactions.models import Transaction
 from lib.transactions.utils import completed, refunded, reversal
@@ -14,6 +14,7 @@ class TestIPN(test_utils.TestCase):
     def setUp(self):
         self.transaction_uuid = 'transaction:uid'
         self.seller = Seller.objects.create(uuid='seller:uid')
+        self.product = SellerProduct.objects.create(seller=self.seller)
         self.paypal = SellerPaypal.objects.create(seller=self.seller,
                                                  paypal_id='foo@bar.com')
         self.transaction = Transaction.objects.create(
@@ -21,7 +22,7 @@ class TestIPN(test_utils.TestCase):
             status=constants.STATUS_PENDING,
             uid_support='asd',
             uid_pay='asd',
-            seller=self.seller,
+            seller_product=self.product,
             provider=constants.SOURCE_PAYPAL,
             amount=Decimal('10'),
             currency='USD',
@@ -70,7 +71,7 @@ class TestIPN(test_utils.TestCase):
             status=constants.STATUS_PENDING,
             uid_support='asd-123',
             uid_pay='asd-123',
-            seller=self.seller,
+            seller_product=self.product,
             amount=Decimal('-10'),
             currency='USD',
             provider=constants.SOURCE_PAYPAL,
@@ -89,7 +90,7 @@ class TestIPN(test_utils.TestCase):
             status=constants.STATUS_PENDING,
             uid_support='asd-123',
             uid_pay='asd-123',
-            seller=self.seller,
+            seller_product=self.product,
             amount=Decimal('-10'),
             currency='USD',
             provider=constants.SOURCE_PAYPAL,
