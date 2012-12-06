@@ -45,6 +45,9 @@ class SellerPaypal(Model):
 
 
 class SellerProduct(Model):
+    # An identifier for this product that corresponds to the
+    # seller's catalog.
+    external_id = models.CharField(max_length=255, db_index=True)
     seller = models.ForeignKey(Seller, related_name='product')
     # A generic secret field that can be used for this product, regardless
     # of backend.
@@ -53,6 +56,7 @@ class SellerProduct(Model):
 
     class Meta(Model.Meta):
         db_table = 'seller_product'
+        unique_together = (('seller', 'external_id'),)
 
 
 class SellerBango(Model):
@@ -67,7 +71,6 @@ class SellerBango(Model):
 
 
 class SellerProductBango(Model):
-    uuid = models.CharField(max_length=255, db_index=True, unique=True)
     seller_product = models.OneToOneField(SellerProduct,
                                           related_name='product')
     seller_bango = models.OneToOneField(SellerBango, related_name='bango')

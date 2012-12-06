@@ -148,9 +148,12 @@ class TestSellerProduct(APITest):
         self.seller = Seller.objects.create(uuid=uuid)
         self.list_url = self.get_list_url('product')
 
-    def data(self):
-        return {'seller': self.get_detail_url('seller', self.seller.pk),
-                'secret': 'hush'}
+    def data(self, **kw):
+        params = {'seller': self.get_detail_url('seller', self.seller.pk),
+                  'external_id': 'pre-generated-product-id',
+                  'secret': 'hush'}
+        params.update(**kw)
+        return params
 
     def test_post(self):
         res = self.client.post(self.list_url, data=self.data())
@@ -158,8 +161,33 @@ class TestSellerProduct(APITest):
         objs = SellerProduct.objects.all()
         eq_(objs.count(), 1)
 
-    def create(self):
-        return SellerProduct.objects.create(seller=self.seller)
+    def test_id_unique_for_seller_error(self):
+        res = self.client.post(self.list_url,
+                               data=self.data(external_id='unique-id'))
+        eq_(res.status_code, 201)
+        # Submit the same ID for the same seller.
+        res = self.client.post(self.list_url,
+                               data=self.data(external_id='unique-id'))
+        eq_(res.status_code, 400)
+        data = json.loads(res.content)
+        eq_(data, {'__all__': ['EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE']})
+
+    def test_id_unique_for_seller_ok(self):
+        res = self.client.post(self.list_url,
+                               data=self.data(external_id='unique-id'))
+        eq_(res.status_code, 201)
+
+        new_seller = Seller.objects.create(uuid='some-other-seller')
+
+        data = self.data(seller=self.get_detail_url('seller', new_seller.pk),
+                         external_id='unique-id')
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 201)
+
+    def create(self, **kw):
+        params = {'seller': self.seller, 'external_id': 'xyz'}
+        params.update(kw)
+        return SellerProduct.objects.create(**params)
 
     def create_url(self):
         obj = self.create()
@@ -172,17 +200,45 @@ class TestSellerProduct(APITest):
         self.allowed_verbs(self.list_url, ['post'])
         self.allowed_verbs(url, ['get', 'put', 'patch'])
 
-    def test_patch_get(self):
+    def test_patch_get_secret(self):
         obj, url = self.create_url()
 
         res = self.client.patch(url, json.dumps({'secret': 'hush'}))
         eq_(res.status_code, 202)
         res = self.client.get(url)
-        eq_(json.loads(res.content)['secret'], 'hush')
+        data = json.loads(res.content)
+        eq_(data['secret'], 'hush')
+
+    def test_patch_get_ext_id(self):
+        obj, url = self.create_url()
+        res = self.client.patch(url, json.dumps({'external_id': 'some-id'}))
+        eq_(res.status_code, 202)
+        data = obj.reget()
+        eq_(data.external_id, 'some-id')
 
     def test_put_get(self):
         obj, url = self.create_url()
 
-        res = self.client.put(url, json.dumps({'secret': 'hush'}))
+        res = self.client.put(url, json.dumps({'secret': 'hush',
+                                               'external_id': 'abc'}))
         eq_(res.status_code, 202)
-        eq_(obj.reget().secret, 'hush')
+        data = obj.reget()
+        eq_(data.secret, 'hush')
+        eq_(data.external_id, 'abc')
+
+    def test_patch_non_unique_ext_id(self):
+        self.create(external_id='some-id')
+        obj, url = self.create_url()
+        res = self.client.patch(url, json.dumps({'external_id': 'some-id'}))
+        eq_(res.status_code, 400)
+        data = json.loads(res.content)
+        eq_(data, {'__all__': ['EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE']})
+
+    def test_put_non_unique_ext_id(self):
+        self.create(external_id='some-id')
+        obj, url = self.create_url()
+        res = self.client.put(url, json.dumps({'secret': 'hush',
+                                               'external_id': 'some-id'}))
+        eq_(res.status_code, 400)
+        data = json.loads(res.content)
+        eq_(data, {'__all__': ['EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE']})

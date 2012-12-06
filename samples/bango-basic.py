@@ -34,7 +34,10 @@ print res
 seller_uri = res['resource_uri']
 
 print 'Creating seller product.'
-res = call('/generic/product/', 'post', {'seller': seller_uri, 'secret': 'n'})
+external_id = str(uuid.uuid4())
+res = call('/generic/product/', 'post', {'seller': seller_uri,
+                                         'external_id': external_id,
+                                         'secret': 'n'})
 seller_product_uri = res['resource_uri']
 
 print 'Create bango package.'
@@ -56,10 +59,8 @@ res = call('/bango/package/', 'post', {
 })
 seller_bango_uri = res['resource_uri']
 
-product_uuid = str(uuid.uuid4())
 print 'Creating seller bango product.'
 res = call('/bango/product/', 'post', {
-    'uuid': product_uuid,
     'seller_bango': seller_bango_uri,
     'seller_product': seller_product_uri,
     'name': 'A name for the number',

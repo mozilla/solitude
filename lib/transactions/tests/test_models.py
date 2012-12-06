@@ -14,7 +14,8 @@ class TestModel(APITest):
     def setUp(self):
         self.uuid = 'sample:uid'
         self.seller = Seller.objects.create(uuid=self.uuid)
-        self.product = SellerProduct.objects.create(seller=self.seller)
+        self.product = SellerProduct.objects.create(seller=self.seller,
+                                                    external_id='xyz')
 
     def get_data(self, uid=None):
         return {

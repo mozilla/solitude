@@ -24,7 +24,6 @@ good_bango_number = {
     'packageId': 1,
     'name': 'A name for the number',
     'categoryId': 1,
-    'uuid': 'some-pre-generated-product-id'
 }
 
 good_make_premium = {

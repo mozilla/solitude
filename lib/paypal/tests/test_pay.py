@@ -18,7 +18,8 @@ class TestPayPaypal(APITest):
         self.uuid = 'sample:uid'
         self.list_url = self.get_list_url('pay')
         self.seller = Seller.objects.create(uuid=self.uuid)
-        self.product = SellerProduct.objects.create(seller=self.seller)
+        self.product = SellerProduct.objects.create(seller=self.seller,
+                                                    external_id='xyz')
         SellerPaypal.objects.create(seller=self.seller,
                                     paypal_id='foo@bar.com')
         self.return_value = {'pay_key': 'foo', 'status': 'CREATED',

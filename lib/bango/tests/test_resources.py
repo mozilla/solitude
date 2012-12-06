@@ -27,7 +27,8 @@ class BangoAPI(APITest):
                                 support_person_id=3, finance_person_id=4)
         self.seller_bango_uri = self.get_detail_url('package',
                                                     self.seller_bango.pk)
-        self.seller_product = SellerProduct.objects.create(seller=self.seller)
+        self.seller_product = SellerProduct.objects.create(seller=self.seller,
+                                                           external_id='xyz')
 
 
 class TestSimple(APITest):
@@ -128,7 +129,6 @@ class TestBangoProduct(BangoAPI):
 
         obj = SellerProductBango.objects.get()
         eq_(obj.bango_id, 'some-bango-number')
-        eq_(obj.uuid, samples.good_bango_number['uuid'])
         eq_(obj.seller_product_id, self.seller_bango.pk)
 
 
