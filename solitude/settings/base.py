@@ -45,6 +45,7 @@ if not SOLITUDE_PROXY:
         'django.middleware.common.CommonMiddleware',
         'django_statsd.middleware.GraphiteMiddleware',
         'django_statsd.middleware.TastyPieRequestTimingMiddleware',
+        'django_paranoia.middleware.Middleware'
     )
 else:
     MIDDLEWARE_CLASSES = (
@@ -162,9 +163,14 @@ USE_METLOG_FOR_CEF = True
 
 # End Metlog configuration
 
-
 # Celery configs.
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERY_IGNORE_RESULT = False
 CELERY_RESULT_BACKEND = 'database'
 CELERYD_HIJACK_ROOT_LOGGER = False
+
+from django_paranoia import configure
+configure.config([
+    'django_paranoia.reporters.log',
+    'django_paranoia.reporters.cef_'
+])
