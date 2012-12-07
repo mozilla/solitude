@@ -32,6 +32,7 @@ from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.resources import (ModelResource as TastyPieModelResource,
                                 Resource as TastyPieResource)
 from tastypie.serializers import Serializer
+from tastypie.validation import FormValidation
 import test_utils
 
 log = logging.getLogger('s')
@@ -259,6 +260,22 @@ class BaseResource(object):
             except BaseResource.DoesNotExist:
                 pass
         return super(BaseResource, self).is_valid(bundle, request)
+
+
+class ModelFormValidation(FormValidation):
+
+    def is_valid(self, bundle, request=None):
+        # Based on is_valid above, we are getting the object into
+        # bundle.obj. Now lets pass that into the instance, so that normal
+        # form validation works.
+        data = bundle.data
+        if data is None:
+            data = {}
+
+        form = self.form_class(data, instance=bundle.obj)
+        if form.is_valid():
+            return {}
+        return form.errors
 
 
 class JWTDecodeError(Exception):

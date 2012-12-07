@@ -1,4 +1,4 @@
-from solitude.base import ModelResource
+from solitude.base import ModelResource, ModelFormValidation
 from tastypie import fields
 from tastypie.constants import ALL_WITH_RELATIONS
 from tastypie.validation import FormValidation
@@ -54,4 +54,4 @@ class SellerProductResource(ModelResource):
         list_allowed_methods = ['post']
         allowed_methods = ['get', 'put', 'patch']
         resource_name = 'product'
-        validation = FormValidation(form_class=SellerProductValidation)
+        validation = ModelFormValidation(form_class=SellerProductValidation)
