@@ -19,6 +19,8 @@ class TestBuyer(APITest):
                                                     'pin': self.pin})
         eq_(res.status_code, 201)
         eq_(Buyer.objects.filter(uuid=self.uuid).count(), 1)
+        data = json.loads(res.content)
+        eq_(data['pin'], True)
 
     def test_add_multiple(self):
         self.client.post(self.list_url, data={'uuid': self.uuid})
@@ -59,6 +61,17 @@ class TestBuyer(APITest):
         res = self.client.get(self.get_detail_url('buyer', obj))
         eq_(res.status_code, 200)
         eq_(json.loads(res.content)['uuid'], self.uuid)
+        data = json.loads(res.content)
+        eq_(data['pin'], True)
+
+    def test_get_without_pin(self):
+        obj = self.create(pin=None)
+        res = self.client.get(self.get_detail_url('buyer', obj))
+        eq_(res.status_code, 200)
+        eq_(json.loads(res.content)['uuid'], self.uuid)
+        data = json.loads(res.content)
+        eq_(data['pin'], False)
+
 
     def test_detail_allowed_verbs(self):
         obj = self.create()
@@ -73,6 +86,8 @@ class TestBuyer(APITest):
         res = self.client.put(detail_url, data={'uuid': obj.uuid,
                                                 'pin': new_pin})
         eq_(res.status_code, 202)
+        data = json.loads(res.content)
+        eq_(data['pin'], True)
         obj = Buyer.objects.get(pk=obj.pk)
         assert(obj.pin.check(new_pin))
 

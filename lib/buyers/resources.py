@@ -43,6 +43,9 @@ class BuyerResource(ModelResource):
                 pass
         return super(BuyerResource, self).is_valid(bundle, request)
 
+    def dehydrate_pin(self, bundle):
+        return bool(bundle.obj.pin)
+
 
 class BuyerPaypalResource(ModelResource):
     buyer = fields.ToOneField('lib.buyers.resources.BuyerResource',
