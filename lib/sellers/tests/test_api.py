@@ -204,7 +204,9 @@ class TestSellerProduct(APITest):
 
     def test_patch_get_secret(self):
         obj, url = self.create_url()
-        res = self.client.patch(url, json.dumps({'secret': 'hush'}))
+        res = self.client.patch(url, json.dumps({'seller': self.seller_url,
+                                                 'external_id': 'xyz',
+                                                 'secret': 'hush'}))
         eq_(res.status_code, 202, res.content)
         res = self.client.get(url)
         data = json.loads(res.content)
@@ -212,7 +214,8 @@ class TestSellerProduct(APITest):
 
     def test_patch_get_ext_id(self):
         obj, url = self.create_url()
-        res = self.client.patch(url, json.dumps({'external_id': 'some-id'}))
+        res = self.client.patch(url, json.dumps({'seller': self.seller_url,
+                                                 'external_id': 'some-id'}))
         eq_(res.status_code, 202)
         data = obj.reget()
         eq_(data.external_id, 'some-id')
