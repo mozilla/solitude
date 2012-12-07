@@ -17,6 +17,11 @@ import commander_settings as settings
 @task
 def create_virtualenv(ctx):
     venv = settings.VIRTUAL_ENV
+    if not venv.startswith('/data'):
+        raise Exception('venv must start with /data') # this is just to avoid rm'ing /
+
+    ctx.local('rm -rf %s' % venv)
+
     try:
         try:
             ctx.local("virtualenv --distribute --never-download %s" % venv)
