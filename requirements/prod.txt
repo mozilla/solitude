@@ -13,7 +13,7 @@ django-multidb-router==0.5
 django-nose==1.1
 django-paranoia==0.1.2
 django-picklefield==0.2.1
-django-raven-metlog==0.1
+#django-raven-metlog==0.1
 django-statsd-mozilla==0.3.8.3
 django-tastypie==0.9.11
 funfactory==2.1.1
@@ -31,7 +31,7 @@ ordereddict==1.1
 python-dateutil==1.5
 python-memcached==1.48
 pytz==2010e
-raven==2.0.10
+#raven==2.0.10
 requests==0.14.1
 schematic==0.2
 simplejson==2.6.2
