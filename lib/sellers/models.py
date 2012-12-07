@@ -3,6 +3,7 @@ from django.db import models
 from aesfield.field import AESField
 
 from solitude.base import Model
+from .constants import EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE
 
 
 class Seller(Model):
@@ -53,6 +54,8 @@ class SellerProduct(Model):
     # of backend.
     secret = AESField(blank=True, null=True,
                       aes_key='sellerproduct:secret')
+
+    unique_error_message = lambda *args: EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE
 
     class Meta(Model.Meta):
         db_table = 'seller_product'

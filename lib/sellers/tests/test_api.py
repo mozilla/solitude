@@ -2,6 +2,7 @@ import json
 
 from nose.tools import eq_
 
+from lib.sellers.constants import EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE
 from lib.sellers.models import Seller, SellerProduct, SellerPaypal
 from solitude.base import APITest
 
@@ -146,6 +147,7 @@ class TestSellerProduct(APITest):
     def setUp(self):
         self.api_name = 'generic'
         self.seller = Seller.objects.create(uuid=uuid)
+        self.seller_url = self.get_detail_url('seller', self.seller.pk)
         self.list_url = self.get_list_url('product')
 
     def data(self, **kw):
@@ -164,13 +166,13 @@ class TestSellerProduct(APITest):
     def test_id_unique_for_seller_error(self):
         res = self.client.post(self.list_url,
                                data=self.data(external_id='unique-id'))
-        eq_(res.status_code, 201)
+        eq_(res.status_code, 201, res.content)
         # Submit the same ID for the same seller.
         res = self.client.post(self.list_url,
                                data=self.data(external_id='unique-id'))
         eq_(res.status_code, 400)
-        data = json.loads(res.content)
-        eq_(data, {'__all__': ['EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE']})
+        eq_(self.get_errors(res.content, '__all__'),
+            [EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE], res.content)
 
     def test_id_unique_for_seller_ok(self):
         res = self.client.post(self.list_url,
@@ -202,9 +204,8 @@ class TestSellerProduct(APITest):
 
     def test_patch_get_secret(self):
         obj, url = self.create_url()
-
         res = self.client.patch(url, json.dumps({'secret': 'hush'}))
-        eq_(res.status_code, 202)
+        eq_(res.status_code, 202, res.content)
         res = self.client.get(url)
         data = json.loads(res.content)
         eq_(data['secret'], 'hush')
@@ -218,8 +219,8 @@ class TestSellerProduct(APITest):
 
     def test_put_get(self):
         obj, url = self.create_url()
-
-        res = self.client.put(url, json.dumps({'secret': 'hush',
+        res = self.client.put(url, json.dumps({'seller': self.seller_url,
+                                               'secret': 'hush',
                                                'external_id': 'abc'}))
         eq_(res.status_code, 202)
         data = obj.reget()
@@ -231,14 +232,15 @@ class TestSellerProduct(APITest):
         obj, url = self.create_url()
         res = self.client.patch(url, json.dumps({'external_id': 'some-id'}))
         eq_(res.status_code, 400)
-        data = json.loads(res.content)
-        eq_(data, {'__all__': ['EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE']})
+        eq_(self.get_errors(res.content, '__all__'),
+            [EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE], res.content)
 
     def test_put_non_unique_ext_id(self):
         self.create(external_id='some-id')
         obj, url = self.create_url()
-        res = self.client.put(url, json.dumps({'secret': 'hush',
+        res = self.client.put(url, json.dumps({'seller': self.seller_url,
+                                               'secret': 'hush',
                                                'external_id': 'some-id'}))
         eq_(res.status_code, 400)
-        data = json.loads(res.content)
-        eq_(data, {'__all__': ['EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE']})
+        eq_(self.get_errors(res.content, '__all__'),
+            [EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE], res.content)

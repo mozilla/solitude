@@ -1,16 +1,19 @@
 import json
 
+from django import forms
 from django.conf import settings
 
 import jwt
 import mock
-from nose.tools import eq_
+from nose.tools import eq_, raises
 import simplejson
 from tastypie.exceptions import ImmediateHttpResponse
 import test_utils
 
 from lib.paypal.errors import PaypalError
+from lib.sellers.resources import SellerResource
 from solitude.base import APITest, JWTDecodeError, JWTSerializer, Resource
+from solitude.fields import URLField
 
 
 class TestError(test_utils.TestCase):
@@ -144,3 +147,40 @@ class TestJWT(APITest):
         args = log_cef.call_args[0]
         eq_(args[0], 'JWT is required')
         eq_(args[1], 1)
+
+
+class TestURLField(test_utils.TestCase):
+
+    def test_valid(self):
+        self.field = URLField(to='lib.sellers.resources.SellerResource')
+        assert isinstance(self.field.to_instance(), SellerResource)
+
+    @raises(ValueError)
+    def test_nope(self):
+        self.field = URLField(to='lib.sellers.resources.Nope')
+        assert isinstance(self.field.to_instance(), SellerResource)
+
+    @raises(ValueError)
+    def test_module(self):
+        self.field = URLField(to='lib.nope')
+        assert isinstance(self.field.to_instance(), SellerResource)
+
+    @raises(ValueError)
+    def test_more_module(self):
+        self.field = URLField(to='nope')
+        assert isinstance(self.field.to_instance(), SellerResource)
+
+    @raises(forms.ValidationError)
+    def test_not_there(self):
+        self.field = URLField(to='lib.sellers.resources.SellerResource')
+        self.field.clean('/generic/seller/1/')
+
+    @raises(forms.ValidationError)
+    def test_not_found(self):
+        self.field = URLField(to='lib.sellers.resources.SellerResource')
+        self.field.clean('/blarg/blarg/1/')
+
+    def test_empty(self):
+        self.field = URLField(to='lib.sellers.resources.SellerResource',
+                              required=False)
+        eq_(self.field.clean(''), None)

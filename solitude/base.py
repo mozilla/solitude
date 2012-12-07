@@ -7,7 +7,7 @@ import uuid
 
 from django.conf import settings
 from django.core.cache import cache
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, resolve
 from django.db import models
 from django.test.client import Client
 from django.views import debug
@@ -52,6 +52,7 @@ def formatted_json(json):
 
 
 old = debug.technical_500_response
+
 
 def json_response(request, exc_type, exc_value, tb):
     # If you are doing requests in debug mode from say, curl,
@@ -239,6 +240,25 @@ class BaseResource(object):
 
         return (super(BaseResource, self)
                                 .dispatch(request_type, request, **kwargs))
+
+    def is_valid(self, bundle, request):
+        # Tastypie will check is_valid on the object by validating the form,
+        # but on PUTes and PATCHes it does so without instantiating the object.
+        # Without the object on the model.instance, the uuid check does not
+        # exclude the original object being changed and so the validation
+        # will fail. This patch will force the object to be added before
+        # validation,
+        #
+        # There are two ways to spot when we should be doing this:
+        # 1. When there is a specific resource_pk in the PUT or PATCH.
+        # 2. When the request.path resolves to having a pk in it.
+        # If either of those match, get_via_uri will do the right thing.
+        if 'resource_uri' in bundle.data or 'pk' in resolve(request.path)[2]:
+            try:
+                bundle.obj = self.get_via_uri(request.path)
+            except BaseResource.DoesNotExist:
+                pass
+        return super(BaseResource, self).is_valid(bundle, request)
 
 
 class JWTDecodeError(Exception):
