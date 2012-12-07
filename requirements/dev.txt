@@ -6,5 +6,4 @@
 -r compiled.txt
 
 django-extensions==1.0.0
-mock==1.0b1
 nose-blockage==0.1.2

@@ -25,6 +25,7 @@ m2secret==0.1.1
 metlog-cef==0.2
 metlog-py==0.9.8
 mimeparse==0.1.3
+mock==1.0b1
 nose==1.2.1
 ordereddict==1.1
 python-dateutil==1.5
