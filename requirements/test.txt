@@ -4,5 +4,4 @@
 # If it's something we only need on Jenkins it goes here.
 -r prod.txt
 
-mock==1.0b1
 nose-blockage==0.1.2
