@@ -76,7 +76,7 @@ class SellerBango(Model):
 class SellerProductBango(Model):
     seller_product = models.OneToOneField(SellerProduct,
                                           related_name='product')
-    seller_bango = models.OneToOneField(SellerBango, related_name='bango')
+    seller_bango = models.ForeignKey(SellerBango, related_name='bango')
     bango_id = models.CharField(max_length=50)
 
     class Meta(Model.Meta):

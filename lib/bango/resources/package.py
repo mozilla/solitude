@@ -1,3 +1,6 @@
+from tastypie import fields
+from tastypie.constants import ALL_WITH_RELATIONS
+
 from lib.sellers.models import SellerBango, SellerProductBango
 from solitude.base import ModelResource
 
@@ -67,12 +70,17 @@ class PackageResource(ModelResource):
 
 
 class BangoProductResource(ModelResource):
+    seller_product = fields.ForeignKey(
+        'lib.sellers.resources.SellerProductResource', 'seller_product')
 
     class Meta(ModelResource.Meta):
         queryset = SellerProductBango.objects.all()
-        list_allowed_methods = ['post']
+        list_allowed_methods = ['post', 'get']
         allowed_methods = ['get', 'patch']
         resource_name = 'product'
+        filtering = {
+            'seller_product': ALL_WITH_RELATIONS,
+        }
 
     def obj_create(self, bundle, request, **kw):
         """

@@ -150,18 +150,40 @@ class TestSellerProduct(APITest):
         self.seller_url = self.get_detail_url('seller', self.seller.pk)
         self.list_url = self.get_list_url('product')
 
+    def create(self, **kw):
+        params = {'seller': self.seller, 'external_id': 'xyz'}
+        params.update(kw)
+        return SellerProduct.objects.create(**params)
+
+    def create_url(self):
+        obj = self.create()
+        url = self.get_detail_url('product', obj)
+        return obj, url
+
     def data(self, **kw):
-        params = {'seller': self.get_detail_url('seller', self.seller.pk),
+        params = {'seller': self.seller_uri(),
                   'external_id': 'pre-generated-product-id',
                   'secret': 'hush'}
         params.update(**kw)
         return params
+
+    def seller_uri(self):
+        return self.get_detail_url('seller', self.seller.pk)
 
     def test_post(self):
         res = self.client.post(self.list_url, data=self.data())
         eq_(res.status_code, 201)
         objs = SellerProduct.objects.all()
         eq_(objs.count(), 1)
+
+    def test_get_by_external_id(self):
+        prod = self.create(external_id='my-id')
+        res = self.client.get(self.list_url, data={'seller': self.seller.pk,
+                                                   'external_id': 'my-id'})
+        eq_(res.status_code, 200)
+        data = json.loads(res.content)
+        eq_(data['meta']['total_count'], 1)
+        eq_(data['objects'][0]['resource_pk'], prod.pk)
 
     def test_id_unique_for_seller_error(self):
         res = self.client.post(self.list_url,
@@ -186,20 +208,10 @@ class TestSellerProduct(APITest):
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 201)
 
-    def create(self, **kw):
-        params = {'seller': self.seller, 'external_id': 'xyz'}
-        params.update(kw)
-        return SellerProduct.objects.create(**params)
-
-    def create_url(self):
-        obj = self.create()
-        url = self.get_detail_url('product', obj)
-        return obj, url
-
     def test_list_allowed(self):
         obj, url = self.create_url()
 
-        self.allowed_verbs(self.list_url, ['post'])
+        self.allowed_verbs(self.list_url, ['post', 'get'])
         self.allowed_verbs(url, ['get', 'put', 'patch'])
 
     def test_patch_get_secret(self):

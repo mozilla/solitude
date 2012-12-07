@@ -51,7 +51,11 @@ class SellerProductResource(ModelResource):
     class Meta(ModelResource.Meta):
         excludes = ['id']
         queryset = SellerProduct.objects.all()
-        list_allowed_methods = ['post']
+        list_allowed_methods = ['post', 'get']
         allowed_methods = ['get', 'put', 'patch']
         resource_name = 'product'
         validation = ModelFormValidation(form_class=SellerProductValidation)
+        filtering = {
+            'external_id': 'exact',
+            'seller': 'exact',
+        }

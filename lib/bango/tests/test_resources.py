@@ -29,6 +29,9 @@ class BangoAPI(APITest):
                                                     self.seller_bango.pk)
         self.seller_product = SellerProduct.objects.create(seller=self.seller,
                                                            external_id='xyz')
+        self.seller_product_uri = self.get_detail_url('product',
+                                                      self.seller_product.pk,
+                                                      api_name='generic')
 
 
 class TestSimple(APITest):
@@ -116,7 +119,7 @@ class TestBangoProduct(BangoAPI):
         self.list_url = self.get_list_url('product')
 
     def test_list_allowed(self):
-        self.allowed_verbs(self.list_url, ['post'])
+        self.allowed_verbs(self.list_url, ['post', 'get'])
 
     def test_create(self):
         self.create()
@@ -130,6 +133,31 @@ class TestBangoProduct(BangoAPI):
         obj = SellerProductBango.objects.get()
         eq_(obj.bango_id, 'some-bango-number')
         eq_(obj.seller_product_id, self.seller_bango.pk)
+
+    def test_get_by_seller_product(self):
+        self.create()
+
+        # This is a decoy product that should be ignored by the filter.
+        pr = SellerProduct.objects.create(seller=self.seller,
+                                          external_id='decoy-product')
+        SellerProductBango.objects.create(seller_product=pr,
+                                          seller_bango=self.seller_bango,
+                                          bango_id='999999')
+
+        # This is the product we want to fetch.
+        SellerProductBango.objects.create(seller_product=self.seller_product,
+                                          seller_bango=self.seller_bango,
+                                          bango_id='1234')
+
+        res = self.client.get(self.list_url, data=dict(
+            seller_product__seller=self.seller.pk,
+            seller_product__external_id=self.seller_product.external_id
+        ))
+
+        eq_(res.status_code, 200, res.content)
+        data = json.loads(res.content)
+        eq_(data['meta']['total_count'], 1, data)
+        eq_(data['objects'][0]['bango_id'], '1234')
 
 
 class SellerProductBangoBase(BangoAPI):
