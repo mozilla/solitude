@@ -73,7 +73,6 @@ class TestBuyer(APITest):
         data = json.loads(res.content)
         eq_(data['pin'], False)
 
-
     def test_detail_allowed_verbs(self):
         obj = self.create()
         self.allowed_verbs(self.get_detail_url('buyer', obj), ['get', 'patch',
@@ -82,23 +81,21 @@ class TestBuyer(APITest):
     def test_put_pin(self):
         obj = self.create()
         new_pin = self.pin[::-1]  # reverse it so it is different
-        assert(obj.pin.check(self.pin))
-        detail_url = self.get_detail_url('buyer', obj)
-        res = self.client.put(detail_url, data={'uuid': obj.uuid,
-                                                'pin': new_pin})
+        res = self.client.put(self.get_detail_url('buyer', obj),
+                              data={'uuid': obj.uuid,
+                                    'pin': new_pin})
         eq_(res.status_code, 202)
         data = json.loads(res.content)
         eq_(data['pin'], True)
-        obj = Buyer.objects.get(pk=obj.pk)
-        assert(obj.pin.check(new_pin))
+        assert obj.reget().pin.check(new_pin)
 
     def test_patch_pin(self):
         obj = self.create()
-        old = obj.pin
+        new_pin = self.pin[::-1]  # reverse it so it is different
         res = self.client.patch(self.get_detail_url('buyer', obj),
-                                data={'pin': '1234'})
+                                data={'pin': new_pin})
         eq_(res.status_code, 202)
-        assert obj.reget().pin != old
+        assert obj.reget().pin.check(new_pin)
 
     def test_patch_uuid(self):
         obj = self.create()
