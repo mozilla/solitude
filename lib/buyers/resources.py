@@ -24,25 +24,6 @@ class BuyerResource(ModelResource):
             'uuid': 'exact',
         }
 
-    def is_valid(self, bundle, request):
-        # Tastypie will check is_valid on the object by validating the form,
-        # but on PUTes and PATCHes it does so without instantiating the object.
-        # Without the object on the model.instance, the uuid check does not
-        # exclude the original object being changed and so the validation
-        # will fail. This patch will force the object to be added before
-        # validation,
-        #
-        # There are two ways to spot when we should be doing this:
-        # 1. When there is a specific resource_pk in the PUT or PATCH.
-        # 2. When the request.path resolves to having a pk in it.
-        # If either of those match, get_via_uri will do the right thing.
-        if 'resource_uri' in bundle.data or 'pk' in resolve(request.path)[2]:
-            try:
-                bundle.obj = self.get_via_uri(request.path)
-            except Buyer.DoesNotExist:
-                pass
-        return super(BuyerResource, self).is_valid(bundle, request)
-
     def dehydrate_pin(self, bundle):
         return bool(bundle.obj.pin)
 

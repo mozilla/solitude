@@ -1,5 +1,6 @@
 from django import forms
 
+from django_paranoia.forms import ParanoidForm, ParanoidModelForm
 from tastypie.validation import FormValidation
 
 from .models import Buyer
@@ -21,13 +22,13 @@ class PinMixin(object):
         return pin
 
 
-class BuyerForm(forms.ModelForm, PinMixin):
+class BuyerForm(ParanoidModelForm, PinMixin):
 
     class Meta:
         model = Buyer
 
 
-class BuyerVerifyPinForm(forms.Form, PinMixin):
+class BuyerVerifyPinForm(ParanoidForm, PinMixin):
     uuid = forms.CharField(required=True)
     pin = forms.CharField(required=True)
 

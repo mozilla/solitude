@@ -1,5 +1,6 @@
 import json
 
+import mock
 from nose.tools import eq_
 
 from lib.buyers.models import Buyer, BuyerPaypal
@@ -114,6 +115,14 @@ class TestBuyer(APITest):
                                       'pin': '1234'})
         eq_(res.status_code, 202)
         eq_(obj.reget().uuid, self.uuid)
+
+    @mock.patch('django_paranoia.reporters.cef_.log_cef')
+    def test_paranoid_pin(self, log_cef):
+        # A test of the paranoid form.
+        self.client.post(self.list_url, data={'uuid': self.uuid,
+                                              'pin': self.pin,
+                                              'foo': 'something naughty'})
+        assert log_cef.called
 
 
 class TestBuyerPaypal(APITest):
