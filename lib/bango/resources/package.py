@@ -12,9 +12,13 @@ class PackageResource(ModelResource):
 
     class Meta(ModelResource.Meta):
         queryset = SellerBango.objects.all()
-        list_allowed_methods = ['post']
+        list_allowed_methods = ['get', 'post']
         allowed_methods = ['get', 'patch']
         resource_name = 'package'
+        filtering = {
+            'uuid': 'exact',
+            'seller': ALL_WITH_RELATIONS
+        }
 
     def obj_create(self, bundle, request, **kw):
         """

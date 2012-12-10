@@ -13,6 +13,9 @@ class SellerResource(ModelResource):
     paypal = fields.ToOneField('lib.sellers.resources.SellerPaypalResource',
                                'paypal', blank=True, full=True,
                                null=True, readonly=True)
+    bango = fields.ToOneField('lib.bango.resources.package.PackageResource',
+                              'bango', blank=True, full=True,
+                              null=True, readonly=True)
 
     class Meta(ModelResource.Meta):
         queryset = Seller.objects.all()

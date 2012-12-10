@@ -52,7 +52,7 @@ class TestPackageResource(BangoAPI):
         self.list_url = self.get_list_url('package')
 
     def test_list_allowed(self):
-        self.allowed_verbs(self.list_url, ['post'])
+        self.allowed_verbs(self.list_url, ['get', 'post'])
 
     def test_create(self):
         post = samples.good_address.copy()
@@ -94,6 +94,12 @@ class TestPackageResource(BangoAPI):
         seller_bango = SellerBango.objects.get()
         data = json.loads(self.client.get(url).content)
         eq_(data['resource_pk'], seller_bango.pk)
+
+    def test_get_generic(self):
+        self.create()
+        url = self.get_detail_url('seller', self.seller.pk, api_name='generic')
+        data = json.loads(self.client.get(url).content)
+        eq_(data['bango']['resource_pk'], self.seller_bango.pk)
 
     def test_patch(self):
         self.create()
