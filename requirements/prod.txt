@@ -1,4 +1,4 @@
-Django==1.4.2
+Django==1.4.3
 PyJWT==0.1.4
 amqplib==1.0.2
 anyjson==0.3.3
