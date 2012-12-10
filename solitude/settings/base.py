@@ -168,9 +168,3 @@ CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERY_IGNORE_RESULT = False
 CELERY_RESULT_BACKEND = 'database'
 CELERYD_HIJACK_ROOT_LOGGER = False
-
-from django_paranoia import configure
-configure.config([
-    'django_paranoia.reporters.log',
-    'django_paranoia.reporters.cef_'
-])
