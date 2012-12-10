@@ -4,9 +4,9 @@ from django.conf.urls.defaults import include, patterns, url
 from tastypie.api import Api
 
 from lib.bango.urls import bango
-from lib.buyers.resources import (BuyerResource, BuyerPaypalResource,
-                                  BuyerVerifyPinResource)
 from lib.delayable.resources import DelayableResource, ReplayResource
+from lib.buyers.resources import (BuyerConfirmPinResource, BuyerPaypalResource,
+                                  BuyerResource, BuyerVerifyPinResource)
 from lib.paypal.urls import paypal
 from lib.sellers.resources import (SellerResource, SellerPaypalResource,
                                    SellerProductResource)
@@ -17,6 +17,7 @@ from lib.transactions.resources import TransactionResource
 # Generic APIs
 api = Api(api_name='generic')
 api.register(BuyerResource())
+api.register(BuyerConfirmPinResource())
 api.register(BuyerVerifyPinResource())
 api.register(SellerResource())
 api.register(SellerProductResource())

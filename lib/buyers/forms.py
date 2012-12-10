@@ -28,7 +28,7 @@ class BuyerForm(ParanoidModelForm, PinMixin):
         model = Buyer
 
 
-class BuyerVerifyPinForm(ParanoidForm, PinMixin):
+class PinForm(ParanoidForm, PinMixin):
     uuid = forms.CharField(required=True)
     pin = forms.CharField(required=True)
 

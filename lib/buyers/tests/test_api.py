@@ -208,7 +208,8 @@ class TestBuyerVerifyPin(APITest):
         self.api_name = 'generic'
         self.uuid = 'sample:uid'
         self.pin = '1234'
-        self.buyer = Buyer.objects.create(uuid=self.uuid, pin=self.pin)
+        self.buyer = Buyer.objects.create(uuid=self.uuid, pin=self.pin,
+                                          pin_confirmed=True)
         self.list_url = self.get_list_url('verify_pin')
 
     def test_good_uuid_and_pin(self):
@@ -221,10 +222,57 @@ class TestBuyerVerifyPin(APITest):
 
     def test_good_uuid_and_bad_pin(self):
         res = self.client.post(self.list_url, data={'uuid': self.uuid,
-                                                    'pin': '4321'})
+                                                    'pin': self.pin[::-1]})
         eq_(res.status_code, 201)
         data = json.loads(res.content)
         assert not data['valid']
+        eq_(data['uuid'], self.uuid)
+
+    def test_good_uuid_and_good_pin_and_bad_confirmed(self):
+        self.buyer.pin_confirmed = False
+        self.buyer.save()
+        res = self.client.post(self.list_url, data={'uuid': self.uuid,
+                                                    'pin': self.pin})
+        eq_(res.status_code, 201)
+        data = json.loads(res.content)
+        assert not data['valid']
+        eq_(data['uuid'], self.uuid)
+
+    def test_bad_uuid(self):
+        res = self.client.post(self.list_url, data={'uuid': 'bad:uuid',
+                                                    'pin': self.pin})
+        eq_(res.status_code, 404)
+
+    def test_empty_post(self):
+        res = self.client.post(self.list_url, data={})
+        eq_(res.status_code, 400)
+
+
+class TestBuyerConfirmPin(APITest):
+
+    def setUp(self):
+        self.api_name = 'generic'
+        self.uuid = 'sample:uid'
+        self.pin = '1234'
+        self.buyer = Buyer.objects.create(uuid=self.uuid, pin=self.pin)
+        self.list_url = self.get_list_url('confirm_pin')
+
+    def test_good_uuid_and_pin(self):
+        res = self.client.post(self.list_url, data={'uuid': self.uuid,
+                                                    'pin': self.pin})
+        eq_(res.status_code, 201)
+        data = json.loads(res.content)
+        assert data['confirmed']
+        assert self.buyer.reget().pin_confirmed
+        eq_(data['uuid'], self.uuid)
+
+    def test_good_uuid_and_bad_pin(self):
+        res = self.client.post(self.list_url, data={'uuid': self.uuid,
+                                                    'pin': '4321'})
+        eq_(res.status_code, 201)
+        data = json.loads(res.content)
+        assert not data['confirmed']
+        assert not self.buyer.reget().pin_confirmed
         eq_(data['uuid'], self.uuid)
 
     def test_bad_uuid(self):
