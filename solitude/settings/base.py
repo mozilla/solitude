@@ -34,7 +34,8 @@ else:
     INSTALLED_APPS += (
         'lib.buyers',
         'lib.sellers',
-        'lib.transactions'
+        'lib.transactions',
+        'lib.delayable'
     )
 
 TEST_RUNNER = 'test_utils.runner.RadicalTestSuiteRunner'

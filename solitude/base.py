@@ -35,6 +35,9 @@ from tastypie.serializers import Serializer
 from tastypie.validation import FormValidation
 import test_utils
 
+from lib.delayable.tasks import delayable
+
+
 log = logging.getLogger('s')
 tasty_log = logging.getLogger('django.request.tastypie')
 
@@ -227,20 +230,41 @@ class BaseResource(object):
             formatted_json(result)
         return result
 
-    def dispatch(self, request_type, request, **kwargs):
+    def dispatch(self, request_type, request, **kw):
         method = request.META['REQUEST_METHOD']
+        delay = request.META.get('HTTP_SOLITUDE_ASYNC', False)
+        if delay:
+            # Only do async on these requests.
+            if method not in ['PATCH', 'POST', 'PUT']:
+                raise ImmediateHttpResponse(response=
+                        http.HttpMethodNotAllowed())
+
+            # Create a delayed dispatch.
+            uid = str(uuid.uuid4())
+            # We only need a subset of meta.
+            whitelist = ['PATH_INFO', 'REQUEST_METHOD', 'QUERY_STRING']
+            meta = dict([k, request.META[k]] for k in whitelist)
+            # Celery could magically serialise some of this, but I don't
+            # trust it that much.
+            delayable.delay(self.__class__.__module__, self.__class__.__name__,
+                            request_type, meta, request.body, kw, uid)
+            content = json.dumps({'replay': '/delay/replay/%s/' % uid,
+                                  'result': '/delay/result/%s/' % uid})
+            return http.HttpResponse(content, status=202,
+                                     content_type='application/json')
+
+        # Log the call with CEF and logging.
         if settings.DUMP_REQUESTS:
             print colorize('brace', method), request.get_full_path()
         else:
             log.info('%s %s' % (colorize('brace', method),
                                 request.get_full_path()))
 
-        msg = '%s:%s' % (kwargs.get('api_name', 'unknown'),
-                         kwargs.get('resource_name', 'unknown'))
+        msg = '%s:%s' % (kw.get('api_name', 'unknown'),
+                         kw.get('resource_name', 'unknown'))
         log_cef(msg, request)
 
-        return (super(BaseResource, self)
-                                .dispatch(request_type, request, **kwargs))
+        return super(BaseResource, self).dispatch(request_type, request, **kw)
 
     def is_valid(self, bundle, request):
         # Tastypie will check is_valid on the object by validating the form,

@@ -6,6 +6,7 @@ from tastypie.api import Api
 from lib.bango.urls import bango
 from lib.buyers.resources import (BuyerResource, BuyerPaypalResource,
                                   BuyerVerifyPinResource)
+from lib.delayable.resources import DelayableResource, ReplayResource
 from lib.paypal.urls import paypal
 from lib.sellers.resources import (SellerResource, SellerPaypalResource,
                                    SellerProductResource)
@@ -32,12 +33,18 @@ if settings.CLEANSED_SETTINGS_ACCESS:
     service.register(SettingsResource())
 service.register(StatusResource())
 
+# URLs to query delayed jobs.
+delayable = Api(api_name='delay')
+delayable.register(DelayableResource())
+delayable.register(ReplayResource())
+
 urlpatterns = patterns('',
     url(r'^proxy/', include('lib.proxy.urls')),
     url(r'^', include(api.urls)),
     url(r'^', include(paypal.urls)),
     url(r'^', include(bango.urls)),
     url(r'^', include(service.urls)),
+    url(r'^', include(delayable.urls)),
     url(r'^$', 'solitude.views.home', name='home'),
 )
 

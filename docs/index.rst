@@ -37,6 +37,7 @@ Contents
    topics/generic.rst
    topics/bango.rst
    topics/paypal.rst
+   topics/async.rst
 
 Indices and tables
 ------------------
