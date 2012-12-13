@@ -15,7 +15,7 @@ class CreateBankDetailsResource(SimpleResource):
 class UpdateRatingResource(SimpleResource):
 
     class Meta(SimpleResource.Meta):
-        resource_name = 'update-rating'
+        resource_name = 'rating'
         simple_form = UpdateRatingForm
         simple_api = 'UpdateRating'
 
@@ -23,6 +23,6 @@ class UpdateRatingResource(SimpleResource):
 class MakePremiumResource(SimpleResource):
 
     class Meta(SimpleResource.Meta):
-        resource_name = 'make-premium'
+        resource_name = 'premium'
         simple_form = MakePremiumForm
         simple_api = 'MakePremiumPerAccess'

@@ -96,7 +96,7 @@ def completed_paypal_transaction(sender, **kwargs):
 
 @receiver(bango_create, dispatch_uid='transaction-create-bango')
 def create_bango_transaction(sender, **kwargs):
-    if sender.__class__._meta.resource_name != 'create-billing':
+    if sender.__class__._meta.resource_name != 'billing':
         return
 
     # Pull information from all the over the place.

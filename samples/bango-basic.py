@@ -85,7 +85,7 @@ print 'Checking bango id, as an example.'
 res = call(bango_product_uri, 'get', {})
 
 print 'Making premium.'
-res = call('/bango/make-premium/', 'post',  {
+res = call('/bango/premium/', 'post',  {
     'bango': '123',
     'price': 1,
     'currencyIso': 'CAD',
@@ -93,7 +93,7 @@ res = call('/bango/make-premium/', 'post',  {
 })
 
 print 'Updating rating.'
-res = call('/bango/update-rating/', 'post',  {
+res = call('/bango/rating/', 'post',  {
     'bango': '123',
     'price': 1,
     'rating': 'UNIVERSAL',
@@ -117,7 +117,7 @@ print ('Support id %s to %s' % (old_support_id, res['support_person_id']))
 print ('Finance id %s to %s' % (old_financial_id, res['finance_person_id']))
 
 print 'Request billing configuration.'
-call('/bango/create-billing/', 'post', {
+call('/bango/billing/', 'post', {
     'pageTitle': 'yep',
     'price_currency': 'CAD',
     'price_amount': 1,

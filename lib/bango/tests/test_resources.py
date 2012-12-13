@@ -186,7 +186,7 @@ class TestBangoMarkPremium(SellerProductBangoBase):
 
     def setUp(self):
         super(TestBangoMarkPremium, self).setUp()
-        self.list_url = self.get_list_url('make-premium')
+        self.list_url = self.get_list_url('premium')
 
     def test_mark(self):
         self.create()
@@ -212,7 +212,7 @@ class TestBangoUpdateRating(SellerProductBangoBase):
 
     def setUp(self):
         super(TestBangoUpdateRating, self).setUp()
-        self.list_url = self.get_list_url('update-rating')
+        self.list_url = self.get_list_url('rating')
 
     def test_update(self):
         self.create()
@@ -235,7 +235,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
 
     def setUp(self):
         super(TestCreateBillingConfiguration, self).setUp()
-        self.list_url = self.get_list_url('create-billing')
+        self.list_url = self.get_list_url('billing')
 
     def test_good(self):
         self.create()

@@ -8,7 +8,7 @@ from lib.bango.signals import create
 class CreateBillingConfigurationResource(Resource):
 
     class Meta(Resource.Meta):
-        resource_name = 'create-billing'
+        resource_name = 'billing'
         list_allowed_methods = ['post']
 
     def obj_create(self, bundle, request, **kwargs):
