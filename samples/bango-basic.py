@@ -95,7 +95,6 @@ res = call('/bango/premium/', 'post',  {
 print 'Updating rating.'
 res = call('/bango/rating/', 'post',  {
     'bango': '123',
-    'price': 1,
     'rating': 'UNIVERSAL',
     'ratingScheme': 'GLOBAL',
     'seller_product_bango': bango_product_uri
