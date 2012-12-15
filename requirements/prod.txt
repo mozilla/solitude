@@ -14,6 +14,7 @@ django-nose==1.1
 django-paranoia==0.1.5
 django-picklefield==0.2.1
 django-raven-metlog==0.1
+django-sha2==0.4
 django-statsd-mozilla==0.3.8.3
 django-tastypie==0.9.11
 funfactory==2.1.1
@@ -40,6 +41,5 @@ suds==0.4
 tower==0.3.4
 
 # not on pypi
--e git+https://github.com/fwenzel/django-sha2.git@f4519bf0cc9b1dd7a7d78394fa4aec4504bc86e9#egg=django-sha2
 -e git+https://github.com/mozilla/nuggets.git@96e80a64aa4bfcfef4f43fc3ab6966450ccd7325#egg=nuggets
 -e git+https://github.com/andymckay/test-utils.git@263cbb6aaee6ceff75155eb7f3a4b7afc5b47433#egg=test-utils
