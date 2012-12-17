@@ -40,6 +40,11 @@ else:
 
 TEST_RUNNER = 'test_utils.runner.RadicalTestSuiteRunner'
 
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+)
+
 if not SOLITUDE_PROXY:
     MIDDLEWARE_CLASSES = (
         'django.middleware.transaction.TransactionMiddleware',
