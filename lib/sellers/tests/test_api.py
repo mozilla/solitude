@@ -170,6 +170,24 @@ class TestSellerProduct(APITest):
     def seller_uri(self):
         return self.get_detail_url('seller', self.seller.pk)
 
+    def test_get_miss(self):
+        # A test that filtering on the wrong uuid returns zero.
+        self.create()
+        res = self.client.get(self.list_url, data={'seller__uuid': 'foo')
+        eq_(json.loads(res.content)['meta']['total_count'], 0)
+
+    def test_get_all(self):
+        # No filters at all still returns everything.
+        self.create()
+        res = self.client.get(self.list_url)
+        eq_(json.loads(res.content)['meta']['total_count'], 1)
+
+    def test_get_one(self):
+        # Getting just one object just works.
+        self.create()
+        res = self.client.get(self.list_url, data={'seller__uuid': uuid})
+        eq_(json.loads(res.content)['meta']['total_count'], 1)
+
     def test_post(self):
         res = self.client.post(self.list_url, data=self.data())
         eq_(res.status_code, 201)

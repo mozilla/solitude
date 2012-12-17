@@ -12,7 +12,7 @@ class BuyerResource(ModelResource):
                                null=True, readonly=True)
 
     class Meta(ModelResource.Meta):
-        queryset = Buyer.objects.all()
+        queryset = Buyer.objects.filter()
         fields = ['uuid', 'pin']
         list_allowed_methods = ['get', 'post', 'put']
         allowed_methods = ['get', 'patch', 'put']
@@ -32,7 +32,7 @@ class BuyerPaypalResource(ModelResource):
     key = fields.BooleanField(attribute='key_exists')
 
     class Meta(ModelResource.Meta):
-        queryset = BuyerPaypal.objects.all()
+        queryset = BuyerPaypal.objects.filter()
         fields = ['buyer', 'currency', 'expiry', 'key']
         list_allowed_methods = ['post']
         allowed_methods = ['get', 'delete', 'patch']

@@ -22,7 +22,7 @@ class DelayableResource(BaseMixin, ModelResource):
     """This is a resource that points to the raw resource results."""
 
     class Meta(ModelResource.Meta):
-        queryset = Delayable.objects.order_by('-id')
+        queryset = Delayable.objects.filter().order_by('-id')
         list_allowed_methods = ['get']
         allowed_methods = ['get']
         resource_name = 'result'

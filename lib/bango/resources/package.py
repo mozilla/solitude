@@ -13,7 +13,7 @@ class PackageResource(ModelResource):
                                'seller')
 
     class Meta(ModelResource.Meta):
-        queryset = SellerBango.objects.all()
+        queryset = SellerBango.objects.filter()
         list_allowed_methods = ['get', 'post']
         allowed_methods = ['get', 'patch']
         resource_name = 'package'
@@ -80,7 +80,7 @@ class BangoProductResource(ModelResource):
         'lib.sellers.resources.SellerProductResource', 'seller_product')
 
     class Meta(ModelResource.Meta):
-        queryset = SellerProductBango.objects.all()
+        queryset = SellerProductBango.objects.filter()
         list_allowed_methods = ['post', 'get']
         allowed_methods = ['get', 'patch']
         resource_name = 'product'

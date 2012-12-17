@@ -18,7 +18,7 @@ class SellerResource(ModelResource):
                               null=True, readonly=True)
 
     class Meta(ModelResource.Meta):
-        queryset = Seller.objects.all()
+        queryset = Seller.objects.filter()
         fields = ('uuid',)
         list_allowed_methods = ('post', 'get')
         allowed_methods = ('get',)
@@ -36,7 +36,7 @@ class SellerPaypalResource(ModelResource):
     token = fields.BooleanField(readonly=True, attribute='token_exists')
 
     class Meta(ModelResource.Meta):
-        queryset = SellerPaypal.objects.all()
+        queryset = SellerPaypal.objects.filter()
         excludes = ['id']
         list_allowed_methods = ['post']
         allowed_methods = ['get', 'put', 'patch']
@@ -53,12 +53,12 @@ class SellerProductResource(ModelResource):
 
     class Meta(ModelResource.Meta):
         excludes = ['id']
-        queryset = SellerProduct.objects.all()
+        queryset = SellerProduct.objects.filter()
         list_allowed_methods = ['post', 'get']
         allowed_methods = ['get', 'put', 'patch']
         resource_name = 'product'
         validation = ModelFormValidation(form_class=SellerProductValidation)
         filtering = {
             'external_id': 'exact',
-            'seller': 'exact',
+            'seller': ALL_WITH_RELATIONS,
         }

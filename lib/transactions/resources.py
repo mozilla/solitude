@@ -15,7 +15,7 @@ class TransactionResource(ModelResource):
                 'related', blank=True, full=False, null=True, readonly=True)
 
     class Meta(ModelResource.Meta):
-        queryset = Transaction.objects.all()
+        queryset = Transaction.objects.filter()
         fields = ['uuid', 'seller_product', 'amount', 'currency', 'provider',
                   'uid_support', 'type', 'status', 'related']
         list_allowed_methods = ['get']
