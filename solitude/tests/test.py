@@ -29,7 +29,7 @@ class TestError(test_utils.TestCase):
             res = self.resource._handle_500(self.request, error)
 
         data = json.loads(res.content)
-        eq_(data['error_code'], '')
+        eq_(data['error_code'], 'ZeroDivisionError')
         eq_(data['error_message'], 'integer division or modulo by zero')
 
     def test_paypal_error(self):
