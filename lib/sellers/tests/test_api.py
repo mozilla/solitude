@@ -173,7 +173,7 @@ class TestSellerProduct(APITest):
     def test_get_miss(self):
         # A test that filtering on the wrong uuid returns zero.
         self.create()
-        res = self.client.get(self.list_url, data={'seller__uuid': 'foo')
+        res = self.client.get(self.list_url, data={'seller__uuid': 'foo'})
         eq_(json.loads(res.content)['meta']['total_count'], 0)
 
     def test_get_all(self):
