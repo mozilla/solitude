@@ -19,6 +19,7 @@ django-statsd-mozilla==0.3.8.3
 django-tastypie==0.9.11
 funfactory==2.1.1
 gunicorn==0.15.0
+jingo==0.4
 importlib==1.0.2
 kombu==2.1.2
 m2secret==0.1.1
@@ -42,4 +43,4 @@ tower==0.3.4
 
 # not on pypi
 -e git+https://github.com/mozilla/nuggets.git@96e80a64aa4bfcfef4f43fc3ab6966450ccd7325#egg=nuggets
--e git+https://github.com/andymckay/test-utils.git@263cbb6aaee6ceff75155eb7f3a4b7afc5b47433#egg=test-utils
+-e git+https://github.com/jbalogh/test-utils.git@3c2214d193d1b0c0d74c77b3731c8afb0173e669#egg=test-utils
