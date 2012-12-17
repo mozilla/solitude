@@ -138,6 +138,9 @@ CLIENT_JWT_KEYS = {}
 
 # Bango API settings.
 BANGO_AUTH = {'USER': 'Mozilla', 'PASSWORD': ''}
+# The Bango API environment. This value must be an existing subdirectory
+# under lib/bango/wsdl.
+BANGO_ENV = 'test'
 BANGO_MOCK = False
 BANGO_PROXY = ''
 
