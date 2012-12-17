@@ -32,7 +32,7 @@ From github::
 If you used a virtualenv_ activate it and compile some playdoh dependencies::
 
         cd solitude
-        pip install -r requirements/dev.txt
+        pip install --no-deps -r requirements/dev.txt
 
 Setup settings::
 
