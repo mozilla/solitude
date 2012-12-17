@@ -40,10 +40,12 @@ else:
 
 TEST_RUNNER = 'test_utils.runner.RadicalTestSuiteRunner'
 
+# Remove traces of jinja and jingo from solitude.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
 )
+JINJA_CONFIG = lambda: ''
 
 if not SOLITUDE_PROXY:
     MIDDLEWARE_CLASSES = (

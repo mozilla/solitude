@@ -63,7 +63,7 @@ def json_response(request, exc_type, exc_value, tb):
     # it's nice to be able to get some JSON back for an error, not a
     # gazillion lines of HTML.
     if request.META['CONTENT_TYPE'] == 'application/json':
-        return   http.HttpApplicationError(
+        return http.HttpApplicationError(
             content=json.dumps({'traceback':
                                 traceback.format_tb(tb),
                                 'type': str(exc_type),
