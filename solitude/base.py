@@ -214,7 +214,8 @@ class BaseResource(object):
                         extra={'status_code': 500, 'request': request})
         data = {
             'error_message': str(exception),
-            'error_code': getattr(exception, 'id', ''),
+            'error_code': getattr(exception, 'id',
+                                  exception.__class__.__name__),
             'error_data': getattr(exception, 'data', {})
         }
         # We'll also cef log any errors.
