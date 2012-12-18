@@ -19,13 +19,14 @@ class SellerResource(ModelResource):
 
     class Meta(ModelResource.Meta):
         queryset = Seller.objects.filter()
-        fields = ('uuid',)
+        fields = ('uuid', 'active')
         list_allowed_methods = ('post', 'get')
         allowed_methods = ('get',)
         resource_name = 'seller'
         validation = FormValidation(form_class=SellerValidation)
         filtering = {
             'uuid': 'exact',
+            'active': 'exact',
         }
 
 

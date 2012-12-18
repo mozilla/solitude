@@ -65,6 +65,13 @@ class TestBuyer(APITest):
         data = json.loads(res.content)
         eq_(data['pin'], True)
 
+    def test_not_active(self):
+        obj = self.create()
+        obj.active = False
+        obj.save()
+        res = self.client.get(self.list_url, data={'active': True})
+        eq_(json.loads(res.content)['meta']['total_count'], 0)
+
     def test_get_without_pin(self):
         obj = self.create(pin=None)
         res = self.client.get(self.get_detail_url('buyer', obj))
