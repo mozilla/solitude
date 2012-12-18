@@ -188,6 +188,14 @@ class TestSellerProduct(APITest):
         res = self.client.get(self.list_url, data={'seller__uuid': uuid})
         eq_(json.loads(res.content)['meta']['total_count'], 1)
 
+    def test_not_active(self):
+        obj = self.create()
+        obj.seller.active = False
+        obj.seller.save()
+        res = self.client.get(self.list_url, data={'seller__uuid': uuid,
+                                                   'seller__active': True})
+        eq_(json.loads(res.content)['meta']['total_count'], 0)
+
     def test_post(self):
         res = self.client.post(self.list_url, data=self.data())
         eq_(res.status_code, 201)

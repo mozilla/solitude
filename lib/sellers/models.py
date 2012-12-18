@@ -8,6 +8,7 @@ from .constants import EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE
 
 class Seller(Model):
     uuid = models.CharField(max_length=255, db_index=True, unique=True)
+    active = models.BooleanField(default=True, db_index=True)
 
     class Meta(Model.Meta):
         db_table = 'seller'

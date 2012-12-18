@@ -10,6 +10,7 @@ class Buyer(Model):
     uuid = models.CharField(max_length=255, db_index=True, unique=True)
     pin = HashField(blank=True, null=True)
     pin_confirmed = models.BooleanField(default=False)
+    active = models.BooleanField(default=True, db_index=True)
 
     class Meta(Model.Meta):
         db_table = 'buyer'

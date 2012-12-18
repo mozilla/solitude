@@ -13,13 +13,14 @@ class BuyerResource(ModelResource):
 
     class Meta(ModelResource.Meta):
         queryset = Buyer.objects.filter()
-        fields = ['uuid', 'pin']
+        fields = ['uuid', 'pin', 'active']
         list_allowed_methods = ['get', 'post', 'put']
         allowed_methods = ['get', 'patch', 'put']
         resource_name = 'buyer'
         validation = BuyerFormValidation(form_class=BuyerForm)
         filtering = {
             'uuid': 'exact',
+            'active': 'exact',
         }
 
     def dehydrate_pin(self, bundle):
