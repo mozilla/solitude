@@ -140,6 +140,18 @@ class TestBangoProduct(BangoAPI):
         eq_(obj.bango_id, 'some-bango-number')
         eq_(obj.seller_product_id, self.seller_bango.pk)
 
+    def test_create_multiple(self):
+        # Just a generic test to ensure that multiple posts are 400.
+        self.create()
+        data = samples.good_bango_number
+        data['seller_product'] = ('/generic/product/%s/' %
+                                  self.seller_product.pk)
+        data['seller_bango'] = self.seller_bango_uri
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 201, res.content)
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 400, res.content)
+
     def test_get_by_seller_product(self):
         self.create()
 

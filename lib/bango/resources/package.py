@@ -2,10 +2,10 @@ from tastypie import fields
 from tastypie.constants import ALL_WITH_RELATIONS
 
 from lib.sellers.models import SellerBango, SellerProductBango
-from solitude.base import ModelResource
+from solitude.base import ModelFormValidation, ModelResource
 
 from ..client import get_client
-from ..forms import CreateBangoNumberForm, PackageForm, UpdateForm
+from ..forms import CreateBangoNumberForm, PackageForm, ProductForm, UpdateForm
 
 
 class PackageResource(ModelResource):
@@ -87,6 +87,8 @@ class BangoProductResource(ModelResource):
         filtering = {
             'seller_product': ALL_WITH_RELATIONS,
         }
+        validation = ModelFormValidation(form_class=ProductForm)
+
 
     def obj_create(self, bundle, request, **kw):
         """
