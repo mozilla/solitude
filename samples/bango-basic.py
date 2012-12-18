@@ -88,7 +88,7 @@ print 'Making premium.'
 res = call('/bango/premium/', 'post',  {
     'bango': '123',
     'price': 1,
-    'currencyIso': 'CAD',
+    'currencyIso': 'EUR',
     'seller_product_bango': bango_product_uri
 })
 
