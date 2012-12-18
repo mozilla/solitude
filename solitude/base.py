@@ -190,7 +190,7 @@ class BaseResource(object):
 
         response = http.HttpBadRequest(json.dumps(errors),
                                        content_type='application/json')
-        return ImmediateHttpResponse(response=response)
+        raise ImmediateHttpResponse(response=response)
 
     def dehydrate(self, bundle):
         bundle.data['resource_pk'] = bundle.obj.pk

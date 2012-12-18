@@ -1,10 +1,22 @@
+import uuid
+
 from django import forms
 
-from solitude.fields import URLField
-from .constants import (COUNTRIES, CURRENCIES, PAYMENT_TYPES, RATINGS,
+from lib.bango.constants import (COUNTRIES, CURRENCIES, PAYMENT_TYPES, RATINGS,
                         RATINGS_SCHEME)
+from lib.sellers.models import SellerProductBango
+from solitude.fields import URLField
 
-import uuid
+
+class ProductForm(forms.ModelForm):
+    seller_bango = URLField(to='lib.bango.resources.package.PackageResource')
+    seller_product = URLField(to='lib.sellers.resources.SellerProductResource')
+    name = forms.CharField()
+    packageId = forms.IntegerField()
+
+    class Meta:
+        model = SellerProductBango
+        fields = ('seller_bango', 'seller_product', 'name', 'packageId')
 
 
 class PackageForm(forms.Form):
