@@ -237,24 +237,38 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         super(TestCreateBillingConfiguration, self).setUp()
         self.list_url = self.get_list_url('billing')
 
-    def test_good(self):
+    def good(self):
         self.create()
         data = samples.good_billing_request.copy()
         data['seller_product_bango'] = self.seller_product_bango_uri
+        return data
+
+    def test_good(self):
+        data = self.good()
         res = self.client.post(self.list_url, data=data)
-        eq_(res.status_code, 201)
+        eq_(res.status_code, 201, res)
         assert 'billingConfigurationId' in json.loads(res.content)
 
-    def test_missing(self):
-        data = samples.good_billing_request.copy()
+    def test_missing_price(self):
+        data = self.good()
         del data['price_currency']
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 400)
 
+    def test_missing_success_url(self):
+        data = self.good()
+        del data['redirect_url_onsuccess']
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 400, res)
+
+    def test_missing_error_url(self):
+        data = self.good()
+        del data['redirect_url_onerror']
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 400, res)
+
     def test_transaction(self):
-        self.create()
-        data = samples.good_billing_request.copy()
-        data['seller_product_bango'] = self.seller_product_bango_uri
+        data = self.good()
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 201, res.content)
 

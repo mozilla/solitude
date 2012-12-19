@@ -40,7 +40,9 @@ good_update_rating = {
 good_billing_request = {
     'price_amount': 1,
     'price_currency': 'CAD',
-    'pageTitle': 'wat!'
+    'pageTitle': 'wat!',
+    'redirect_url_onsuccess': 'https://nowhere.com/success',
+    'redirect_url_onerror': 'https://nowhere.com/error',
 }
 
 good_bank_details = {

@@ -86,6 +86,8 @@ class CreateBillingConfigurationForm(SellerProductForm):
     price_amount = forms.DecimalField()
     price_currency = forms.ChoiceField(choices=([r, r] for r
                                                 in CURRENCIES.keys()))
+    redirect_url_onsuccess = forms.CharField(max_length=200)
+    redirect_url_onerror = forms.CharField(max_length=200)
     pageTitle = forms.CharField()
 
     @property
