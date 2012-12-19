@@ -29,7 +29,9 @@ class CreateBillingConfigurationResource(Resource):
         configs = {
             'APPLICATION_CATEGORY_ID': '18',
             'APPLICATION_SIZE_KB': 2,
-            'BILLING_CONFIGURATION_TIME_OUT': 120
+            'BILLING_CONFIGURATION_TIME_OUT': 120,
+            'REDIRECT_URL_ONSUCCESS': data.pop('redirect_url_onsuccess'),
+            'REDIRECT_URL_ONERROR': data.pop('redirect_url_onerror'),
         }
         for k, v in configs.items():
             opt = billing.factory.create('BillingConfigurationOption')
