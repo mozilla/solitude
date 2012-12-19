@@ -31,3 +31,6 @@ PASSWORD_HASHERS = get_password_hashers(BASE_PASSWORD_HASHERS, HMAC_KEYS)
 
 # Celery.
 CELERY_ALWAYS_EAGER = True
+
+# Send all statsd to nose.
+STATSD_CLIENT = 'django_statsd.clients.nose'
