@@ -65,6 +65,7 @@ res = call('/bango/product/', 'post', {
     'seller_product': seller_product_uri,
     'name': 'A name for the number',
     'categoryId': 1,
+    'packageId': 1,
     'secret': 'n'
 })
 bango_product_uri = res['resource_uri']
@@ -120,5 +121,7 @@ call('/bango/billing/', 'post', {
     'pageTitle': 'yep',
     'price_currency': 'CAD',
     'price_amount': 1,
-    'seller_product_bango': bango_product_uri
+    'seller_product_bango': bango_product_uri,
+    'redirect_url_onerror': 'https://marketplace-dev.allizom.org/mozpay/err',
+    'redirect_url_onsuccess': 'https://marketplace-dev.allizom.org/mozpay/ok',
 })
