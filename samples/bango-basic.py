@@ -119,8 +119,7 @@ print ('Finance id %s to %s' % (old_financial_id, res['finance_person_id']))
 print 'Request billing configuration.'
 call('/bango/billing/', 'post', {
     'pageTitle': 'yep',
-    'price_currency': 'CAD',
-    'price_amount': 1,
+    'prices': [{'amount': 1, 'currency': 'EUR'}],
     'seller_product_bango': bango_product_uri,
     'redirect_url_onerror': 'https://marketplace-dev.allizom.org/mozpay/err',
     'redirect_url_onsuccess': 'https://marketplace-dev.allizom.org/mozpay/ok',

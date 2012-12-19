@@ -264,8 +264,13 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
     def test_missing_price(self):
         data = self.good()
         del data['price_currency']
+
+    def test_missing(self):
+        data = samples.good_billing_request.copy()
+        del data['prices']
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 400)
+        assert 'prices' in json.loads(res.content)
 
     def test_missing_success_url(self):
         data = self.good()
@@ -283,7 +288,6 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         data = self.good()
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 201, res.content)
-
         tran = Transaction.objects.get()
         eq_(tran.provider, 1)
 

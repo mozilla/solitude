@@ -34,3 +34,11 @@ class URLField(forms.CharField):
             return self.to_instance().get_via_uri(value)
         except (ObjectDoesNotExist, NotFound):
             raise forms.ValidationError('Not a valid resource.')
+
+
+class ListField(forms.CharField):
+
+    def clean(self, value):
+        if not isinstance(value, list):
+            raise forms.ValidationError('Invalid list.')
+        return value

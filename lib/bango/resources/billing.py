@@ -20,10 +20,14 @@ class CreateBillingConfigurationResource(Resource):
         billing = client.client('billing')
 
         data = form.bango_data
-        price = billing.factory.create('Price')
-        price.amount = data.pop('price_amount')
-        price.currency = data.pop('price_currency')
-        data['priceList'] = [price]
+        price_list = []
+        for item in form.cleaned_data['prices']:
+            price = billing.factory.create('Price')
+            price.amount = item.cleaned_data['amount']
+            price.currency = item.cleaned_data['currency']
+            price_list.append(price)
+
+        data['priceList'] = price_list
 
         config = billing.factory.create('ArrayOfBillingConfigurationOption')
         configs = {

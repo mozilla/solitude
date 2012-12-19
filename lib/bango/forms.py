@@ -5,7 +5,7 @@ from django import forms
 from lib.bango.constants import (COUNTRIES, CURRENCIES, PAYMENT_TYPES, RATINGS,
                         RATINGS_SCHEME)
 from lib.sellers.models import SellerProductBango
-from solitude.fields import URLField
+from solitude.fields import ListField, URLField
 
 
 class ProductForm(forms.ModelForm):
@@ -95,11 +95,9 @@ class UpdateRatingForm(SellerProductForm):
 
 
 class CreateBillingConfigurationForm(SellerProductForm):
-    price_amount = forms.DecimalField()
-    price_currency = forms.ChoiceField(choices=([r, r] for r
-                                                in CURRENCIES.keys()))
     redirect_url_onsuccess = forms.URLField()
     redirect_url_onerror = forms.URLField()
+    prices = ListField()
     pageTitle = forms.CharField()
 
     @property
@@ -107,7 +105,30 @@ class CreateBillingConfigurationForm(SellerProductForm):
         data = super(CreateBillingConfigurationForm, self).bango_data
         data['typeFilter'] = PAYMENT_TYPES
         data['externalTransactionId'] = uuid.uuid4()
+        del data['prices']
         return data
+
+    def clean_prices(self):
+        # Remarkably like a formset, but without the drama.
+        prices = self.cleaned_data.get('prices', [])
+        results = []
+        for price in prices:
+            result = PriceForm(price)
+            try:
+                if not result.is_valid():
+                    raise forms.ValidationError(result.errors)
+            except AttributeError:
+                raise forms.ValidationError('Invalid JSON.')
+            results.append(result)
+        if not results:
+            raise forms.ValidationError(self.fields['prices']
+                                            .error_messages['required'])
+        return results
+
+
+class PriceForm(forms.Form):
+    amount = forms.DecimalField()
+    currency = forms.ChoiceField(choices=([r, r] for r in CURRENCIES.keys()))
 
 
 class CreateBankDetailsForm(forms.Form):

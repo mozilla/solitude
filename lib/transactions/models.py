@@ -13,7 +13,10 @@ log = commonware.log.getLogger('s.transaction')
 
 
 class Transaction(Model):
-    amount = models.DecimalField(max_digits=9, decimal_places=2)
+    # In the case of some transactions (e.g. Bango) we don't know the amount
+    # until the transaction reaches a certain stage.
+    amount = models.DecimalField(max_digits=9, decimal_places=2, blank=True,
+                                 null=True)
     buyer = models.ForeignKey('buyers.Buyer', blank=True, null=True,
                               db_index=True)
     currency = models.CharField(max_length=3, default='USD')
@@ -106,7 +109,6 @@ def create_bango_transaction(sender, **kwargs):
     seller_product = form.cleaned_data['seller_product_bango'].seller_product
 
     transaction = Transaction.create(
-            amount=form.cleaned_data['price_amount'],
             provider=constants.SOURCE_BANGO,
             seller_product=seller_product,
             source=data.get('source', ''),
