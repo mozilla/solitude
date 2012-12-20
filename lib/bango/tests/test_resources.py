@@ -261,10 +261,6 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         eq_(res.status_code, 201, res)
         assert 'billingConfigurationId' in json.loads(res.content)
 
-    def test_missing_price(self):
-        data = self.good()
-        del data['price_currency']
-
     def test_missing(self):
         data = samples.good_billing_request.copy()
         del data['prices']
