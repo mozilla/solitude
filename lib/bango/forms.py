@@ -95,10 +95,10 @@ class UpdateRatingForm(SellerProductForm):
 
 
 class CreateBillingConfigurationForm(SellerProductForm):
-    redirect_url_onsuccess = forms.URLField()
-    redirect_url_onerror = forms.URLField()
-    prices = ListField()
     pageTitle = forms.CharField()
+    prices = ListField()
+    redirect_url_onerror = forms.URLField()
+    redirect_url_onsuccess = forms.URLField()
 
     @property
     def bango_data(self):

@@ -38,16 +38,13 @@ good_update_rating = {
 }
 
 good_billing_request = {
-    'price_amount': 1,
-    'price_currency': 'CAD',
     'pageTitle': 'wat!',
-    'redirect_url_onsuccess': 'https://nowhere.com/success',
-    'redirect_url_onerror': 'https://nowhere.com/error',
     'prices': [
         {'amount': 2, 'currency': 'CAD'},
         {'amount': 1, 'currency': 'EUR'},
     ],
-    'pageTitle': 'wat!'
+    'redirect_url_onsuccess': 'https://nowhere.com/success',
+    'redirect_url_onerror': 'https://nowhere.com/error',
 }
 
 good_bank_details = {
