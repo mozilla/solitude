@@ -1,13 +1,17 @@
-STATUS_PENDING = 0
+STATUS_PENDING = 0  # When the payment has been started.
 STATUS_COMPLETED = 1  # When the IPN says its ok.
 STATUS_CHECKED = 2  # When someone calls pay-check on the transaction.
+# When we we've got a request for a payment, but more work needs to be done
+# before we can proceed to the next stage, pending.
+STATUS_RECEIVED = 3
 
 STATUS_DEFAULT = STATUS_PENDING
 
 STATUSES = {
-    'pending': STATUS_PENDING,
-    'completed': STATUS_COMPLETED,
     'checked': STATUS_CHECKED,
+    'completed': STATUS_COMPLETED,
+    'pending': STATUS_PENDING,
+    'received': STATUS_RECEIVED,
 }
 
 TYPE_PAYMENT = 0

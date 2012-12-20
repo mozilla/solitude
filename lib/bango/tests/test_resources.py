@@ -3,10 +3,11 @@ import json
 from django.conf import settings
 
 import mock
-from nose.tools import eq_
+from nose.tools import eq_, ok_
 
 from lib.sellers.models import (Seller, SellerBango, SellerProduct,
                                 SellerProductBango)
+from lib.transactions import constants
 from lib.transactions.models import Transaction
 from solitude.base import APITest
 
@@ -249,17 +250,43 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         super(TestCreateBillingConfiguration, self).setUp()
         self.list_url = self.get_list_url('billing')
 
+    def create(self):
+        super(TestCreateBillingConfiguration, self).create()
+        self.transaction = Transaction.objects.create(
+            provider=constants.SOURCE_BANGO,
+            seller_product=self.seller_product,
+            status=constants.STATUS_RECEIVED,
+            uuid=self.uuid)
+
     def good(self):
         self.create()
         data = samples.good_billing_request.copy()
         data['seller_product_bango'] = self.seller_product_bango_uri
+        data['transaction_uuid'] = self.transaction.uuid
         return data
 
     def test_good(self):
-        data = self.good()
-        res = self.client.post(self.list_url, data=data)
-        eq_(res.status_code, 201, res)
+        res = self.client.post(self.list_url, data=self.good())
+        eq_(res.status_code, 201, res.content)
         assert 'billingConfigurationId' in json.loads(res.content)
+
+    def test_not_found(self):
+        data = self.good()
+        self.transaction.provider = constants.SOURCE_PAYPAL
+        self.transaction.save()
+        with self.assertRaises(Transaction.DoesNotExist):
+            self.client.post(self.list_url, data=data)
+
+    def test_changed(self):
+        res = self.client.post(self.list_url, data=self.good())
+        eq_(res.status_code, 201)
+        transactions = Transaction.objects.all()
+        eq_(len(transactions), 1)
+        transaction = transactions[0]
+        eq_(transaction.status, constants.STATUS_PENDING)
+        eq_(transaction.type, constants.TYPE_PAYMENT)
+        ok_(transaction.uid_pay)
+        ok_(transaction.uid_support)
 
     def test_missing(self):
         data = samples.good_billing_request.copy()
@@ -286,6 +313,13 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         eq_(res.status_code, 201, res.content)
         tran = Transaction.objects.get()
         eq_(tran.provider, 1)
+
+    def test_no_transaction(self):
+        data = self.good()
+        del data['transaction_uuid']
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 400, res)
+        assert 'transaction_uuid' in json.loads(res.content)
 
 
 @mock.patch.object(settings, 'BANGO_MOCK', True)

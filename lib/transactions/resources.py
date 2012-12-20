@@ -1,5 +1,6 @@
+import uuid
+
 from tastypie import fields
-from tastypie.constants import ALL_WITH_RELATIONS
 
 from lib.transactions.models import Transaction
 from solitude.base import ModelResource
@@ -8,17 +9,16 @@ from solitude.base import ModelResource
 class TransactionResource(ModelResource):
     seller_product = fields.ToOneField(
                 'lib.sellers.resources.SellerProductResource',
-                'seller_product', blank=True, full=False, null=True,
-                readonly=True)
+                'seller_product', blank=True, full=False, null=True)
     related = fields.ToOneField(
                 'lib.transactions.resources.TransactionResource',
-                'related', blank=True, full=False, null=True, readonly=True)
+                'related', blank=True, full=False, null=True)
 
     class Meta(ModelResource.Meta):
         queryset = Transaction.objects.filter()
         fields = ['uuid', 'seller_product', 'amount', 'currency', 'provider',
                   'uid_support', 'type', 'status', 'related']
-        list_allowed_methods = ['get']
+        list_allowed_methods = ['get', 'post']
         allowed_methods = ['get']
         resource_name = 'transaction'
         filtering = {
@@ -26,3 +26,7 @@ class TransactionResource(ModelResource):
             'seller': 'exact',
             'provider': 'exact'
         }
+
+    def hydrate_uuid(self, bundle):
+        bundle.data.setdefault('uuid', str(uuid.uuid4()))
+        return bundle

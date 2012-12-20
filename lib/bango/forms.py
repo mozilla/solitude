@@ -99,6 +99,7 @@ class CreateBillingConfigurationForm(SellerProductForm):
     prices = ListField()
     redirect_url_onerror = forms.URLField()
     redirect_url_onsuccess = forms.URLField()
+    transaction_uuid = forms.CharField()
 
     @property
     def bango_data(self):

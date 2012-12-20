@@ -19,7 +19,7 @@ class Transaction(Model):
                                  null=True)
     buyer = models.ForeignKey('buyers.Buyer', blank=True, null=True,
                               db_index=True)
-    currency = models.CharField(max_length=3, default='USD')
+    currency = models.CharField(max_length=3, blank=True)
     provider = models.PositiveIntegerField(
                               choices=constants.SOURCES_CHOICES)
     related = models.ForeignKey('self', blank=True, null=True,
@@ -38,7 +38,8 @@ class Transaction(Model):
                                    null=True)
     # An ID from the provider that relates to this transaction.
     uid_pay = models.CharField(max_length=255, db_index=True)
-    # An ID we generate for this transaction.
+    # An ID we generate for this transaction, we'll generate one for you if
+    # you don't specify one.
     uuid = models.CharField(max_length=255, db_index=True, unique=True)
 
     class Meta(Model.Meta):
@@ -108,12 +109,15 @@ def create_bango_transaction(sender, **kwargs):
     form = kwargs['form']
     seller_product = form.cleaned_data['seller_product_bango'].seller_product
 
-    transaction = Transaction.create(
-            provider=constants.SOURCE_BANGO,
-            seller_product=seller_product,
-            source=data.get('source', ''),
-            type=constants.TYPE_PAYMENT,
-            uuid=data['externalTransactionId'],
-            uid_pay=bundle['billingConfigurationId'])
+    transaction = Transaction.objects.get(uuid=data['transaction_uuid'],
+                                          status=constants.STATUS_RECEIVED,
+                                          provider=constants.SOURCE_BANGO)
+    transaction.source = data.get('source', '')
+    transaction.uid_support = data['externalTransactionId']
+    transaction.uid_pay = bundle['billingConfigurationId']
+    transaction.seller_product = seller_product
+    transaction.status = constants.STATUS_PENDING
+    transaction.type = constants.TYPE_PAYMENT
+    transaction.save()
 
     log.info('Bango transaction: %s pending' % (transaction.pk,))

@@ -35,6 +35,7 @@ class TestBilling(TestCase):
 
     def setUp(self):
         self.billing = good_billing_request.copy()
+        self.billing['transaction_uuid'] = 'foo'
         self.billing['seller_product_bango'] = '/blah/'
 
     def test_form(self, clean):
