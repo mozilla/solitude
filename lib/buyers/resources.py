@@ -13,7 +13,7 @@ class BuyerResource(ModelResource):
 
     class Meta(ModelResource.Meta):
         queryset = Buyer.objects.filter()
-        fields = ['uuid', 'pin', 'active']
+        fields = ['uuid', 'pin', 'active', 'new_pin', 'needs_pin_reset']
         list_allowed_methods = ['get', 'post', 'put']
         allowed_methods = ['get', 'patch', 'put']
         resource_name = 'buyer'
@@ -25,6 +25,9 @@ class BuyerResource(ModelResource):
 
     def dehydrate_pin(self, bundle):
         return bool(bundle.obj.pin)
+
+    def dehydrate_new_pin(self, bundle):
+        return bool(bundle.obj.new_pin)
 
 
 class BuyerPaypalResource(ModelResource):
@@ -92,4 +95,25 @@ class BuyerVerifyPinResource(BuyerEndpointBase):
             bundle.obj.valid = buyer.pin == bundle.data.pop('pin')
         else:
             bundle.obj.valid = False
+        return bundle
+
+
+class BuyerResetPinResource(BuyerEndpointBase):
+    confirmed = fields.BooleanField(attribute='confirmed')
+
+    class Meta(BuyerEndpointBase.Meta):
+        resource_name = 'reset_confirm_pin'
+
+    def obj_create(self, bundle, request=None, **kwargs):
+        buyer = self.get_data(bundle)
+        pin = bundle.data.pop('pin')
+        if buyer.new_pin == pin:
+            buyer.pin = pin
+            buyer.new_pin = None
+            buyer.needs_pin_reset = False
+            buyer.pin_confirmed = True
+            buyer.save()
+            bundle.obj.confirmed = True
+        else:
+            bundle.obj.confirmed = False
         return bundle

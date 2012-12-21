@@ -5,7 +5,8 @@ from tastypie.api import Api
 
 from lib.bango.urls import bango
 from lib.delayable.resources import DelayableResource, ReplayResource
-from lib.buyers.resources import (BuyerConfirmPinResource, BuyerPaypalResource,
+from lib.buyers.resources import (BuyerConfirmPinResource,
+                                  BuyerResetPinResource, BuyerPaypalResource,
                                   BuyerResource, BuyerVerifyPinResource)
 from lib.paypal.urls import paypal
 from lib.sellers.resources import (SellerResource, SellerPaypalResource,
@@ -19,6 +20,7 @@ api = Api(api_name='generic')
 api.register(BuyerResource())
 api.register(BuyerConfirmPinResource())
 api.register(BuyerVerifyPinResource())
+api.register(BuyerResetPinResource())
 api.register(SellerResource())
 api.register(SellerProductResource())
 api.register(TransactionResource())

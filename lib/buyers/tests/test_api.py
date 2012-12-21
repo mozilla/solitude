@@ -292,3 +292,48 @@ class TestBuyerConfirmPin(APITest):
     def test_empty_post(self):
         res = self.client.post(self.list_url, data={})
         eq_(res.status_code, 400)
+
+
+class TestBuyerResetPin(APITest):
+
+    def setUp(self):
+        self.api_name = 'generic'
+        self.uuid = 'sample:uid'
+        self.pin = '1234'
+        self.new_pin = '4321'
+        self.buyer = Buyer.objects.create(uuid=self.uuid, pin=self.pin,
+                                          new_pin=self.new_pin,
+                                          needs_pin_reset=True)
+        self.list_url = self.get_list_url('reset_confirm_pin')
+
+    def test_good_uuid_and_pin(self):
+        res = self.client.post(self.list_url, data={'uuid': self.uuid,
+                                                    'pin': self.new_pin})
+        eq_(res.status_code, 201)
+        data = json.loads(res.content)
+        assert data.get('confirmed', False)
+        buyer = self.buyer.reget()
+        assert not buyer.needs_pin_reset
+        assert buyer.pin_confirmed
+        eq_(buyer.pin, self.new_pin)
+        eq_(data['uuid'], self.uuid)
+
+    def test_good_uuid_and_bad_pin(self):
+        res = self.client.post(self.list_url, data={'uuid': self.uuid,
+                                                    'pin': self.pin})
+        eq_(res.status_code, 201)
+        data = json.loads(res.content)
+        assert not data.get('confirmed', False)
+        buyer = self.buyer.reget()
+        assert not buyer.pin == self.new_pin
+        assert buyer.needs_pin_reset
+        eq_(data['uuid'], self.uuid)
+
+    def test_bad_uuid(self):
+        res = self.client.post(self.list_url, data={'uuid': 'bad:uuid',
+                                                    'pin': '4321'})
+        eq_(res.status_code, 404)
+
+    def test_empty_post(self):
+        res = self.client.post(self.list_url, data={})
+        eq_(res.status_code, 400)
