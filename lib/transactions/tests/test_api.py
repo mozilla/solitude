@@ -1,5 +1,7 @@
 import json
 
+from django.core.urlresolvers import reverse
+
 from nose.tools import eq_, ok_
 
 from lib.sellers.tests.utils import make_seller_paypal
@@ -20,11 +22,14 @@ class TestSeller(APITest):
                                             seller_product=self.product,
                                             provider=constants.SOURCE_PAYPAL,
                                             uuid=self.uuid)
-        self.detail_url = self.get_detail_url('transaction', self.trans.pk)
+        self.detail_url = reverse('api_dispatch_detail',
+                                  kwargs={'api_name': self.api_name,
+                                          'resource_name': 'transaction',
+                                          'uuid': self.uuid})
 
     def test_list_allowed(self):
-        self.allowed_verbs(self.list_url, ['get', 'post', 'patch'])
-        self.allowed_verbs(self.detail_url, ['get', 'put'])
+        self.allowed_verbs(self.list_url, ['get', 'post'])
+        self.allowed_verbs(self.detail_url, ['get', 'patch'])
 
     def test_list(self):
         res = self.client.get(self.list_url, data={'uuid': self.uuid})
@@ -48,3 +53,10 @@ class TestSeller(APITest):
                                                    constants.SOURCE_BANGO})
         eq_(res.status_code, 200)
         eq_(json.loads(res.content)['meta']['total_count'], 0, res.content)
+
+    def test_patch(self):
+        res = self.client.patch(self.detail_url,
+                                data={'status': constants.STATUS_COMPLETED})
+        eq_(res.status_code, 202)
+        eq_(Transaction.objects.get(pk=self.trans.pk).status,
+            constants.STATUS_COMPLETED)
