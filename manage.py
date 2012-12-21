@@ -26,8 +26,3 @@ manage.setup_environ(__file__, more_pythonic=True)
 
 if __name__ == "__main__":
     manage.main()
-
-    # This isn't great, but it's evolving. Will move around hopefully.
-    from django.conf import settings
-    from django_paranoia import configure
-    configure.config(settings.DJANGO_PARANOIA_REPORTERS)

@@ -36,4 +36,9 @@ CELERY_ALWAYS_EAGER = True
 STATSD_CLIENT = 'django_statsd.clients.nose'
 
 # No need for paranoia in tests.
+from django_paranoia.signals import process
+process.disconnect(dispatch_uid='paranoia.reporter.django_paranoia'
+                                '.reporters.cef_')
+process.disconnect(dispatch_uid='paranoia.reporter.django_paranoia'
+                                '.reporters.log')
 DJANGO_PARANOIA_REPORTERS = []
