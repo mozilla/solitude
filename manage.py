@@ -23,13 +23,11 @@ except ImportError:
 
 manage.setup_environ(__file__, more_pythonic=True)
 
-# This isn't great, but it's evolving. Will move around hopefully.
-from django_paranoia import configure
-configure.config([
-    'django_paranoia.reporters.log',
-    'django_paranoia.reporters.cef_'
-])
-
 
 if __name__ == "__main__":
     manage.main()
+
+    # This isn't great, but it's evolving. Will move around hopefully.
+    from django.conf import settings
+    from django_paranoia import configure
+    configure.config(settings.DJANGO_PARANOIA_REPORTERS)

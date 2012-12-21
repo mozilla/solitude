@@ -1,5 +1,6 @@
 import json
 
+from django_paranoia.signals import warning
 import mock
 from nose.tools import eq_
 
@@ -120,13 +121,14 @@ class TestBuyer(APITest):
         eq_(res.status_code, 202)
         eq_(obj.reget().uuid, self.uuid)
 
-    @mock.patch('django_paranoia.reporters.cef_.log_cef')
-    def test_paranoid_pin(self, log_cef):
-        # A test of the paranoid form.
+    def test_paranoid_pin(self):
+        mthd = mock.Mock()
+        mthd.__name__ = 'mock_signal'
+        warning.connect(mthd, weak=False)
         self.client.post(self.list_url, data={'uuid': self.uuid,
                                               'pin': self.pin,
                                               'foo': 'something naughty'})
-        assert log_cef.called
+        assert mthd.called
 
 
 class TestBuyerPaypal(APITest):

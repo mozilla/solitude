@@ -180,3 +180,9 @@ CELERY_IGNORE_RESULT = False
 CELERY_IMPORTS = ('lib.delayable.tasks',)
 CELERY_RESULT_BACKEND = 'database'
 CELERYD_HIJACK_ROOT_LOGGER = False
+
+# Paranoia levels.
+DJANGO_PARANOIA_REPORTERS = [
+    'django_paranoia.reporters.log',
+    'django_paranoia.reporters.cef_'
+]

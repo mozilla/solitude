@@ -34,3 +34,6 @@ CELERY_ALWAYS_EAGER = True
 
 # Send all statsd to nose.
 STATSD_CLIENT = 'django_statsd.clients.nose'
+
+# No need for paranoia in tests.
+DJANGO_PARANOIA_REPORTERS = []
