@@ -1,6 +1,6 @@
 class BangoError(Exception):
     def __init__(self, id, message):
-        self.id = type
+        self.id = id
         self.message = message
 
     def __str__(self):

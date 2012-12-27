@@ -11,7 +11,9 @@ from lib.transactions import constants
 from lib.transactions.models import Transaction
 from solitude.base import APITest
 
+from ..constants import BANGO_ALREADY_PREMIUM_ENABLED
 from ..client import ClientMock
+from ..errors import BangoError
 from ..resources.cached import SimpleResource
 
 import samples
@@ -201,20 +203,36 @@ class TestBangoMarkPremium(SellerProductBangoBase):
         super(TestBangoMarkPremium, self).setUp()
         self.list_url = self.get_list_url('premium')
 
-    def test_mark(self):
-        self.create()
+    def create(self):
+        super(TestBangoMarkPremium, self).create()
         data = samples.good_make_premium.copy()
         data['seller_product_bango'] = self.seller_product_bango_uri
-        res = self.client.post(self.list_url, data=data)
+        return data
+
+    def test_mark(self):
+        res = self.client.post(self.list_url, data=self.create())
         eq_(res.status_code, 201)
 
     def test_fail(self):
-        self.create()
-        data = samples.good_make_premium.copy()
+        data = self.create()
         data['currencyIso'] = 'FOO'
-        data['seller_product_bango'] = self.seller_product_bango_uri
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 400)
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_other_error(self, mock_results):
+        data = self.create()
+        mock_results.return_value = {'responseCode': 'wat?'}
+        with self.assertRaises(BangoError):
+            self.client.post(self.list_url, data=data)
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_done_twice(self, mock_results):
+        data = self.create()
+        mock_results.return_value = {'responseCode':
+                                     BANGO_ALREADY_PREMIUM_ENABLED}
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 204)
 
 
 @mock.patch.object(settings, 'BANGO_MOCK', True)
