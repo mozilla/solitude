@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 
 from django.conf import settings
@@ -66,6 +67,14 @@ class TestPackageResource(BangoAPI):
         eq_(res.status_code, 201, res.content)
         seller_bango = SellerBango.objects.get()
         eq_(json.loads(res.content)['resource_pk'], seller_bango.pk)
+
+    def test_unicode(self):
+        post = samples.good_address.copy()
+        post['companyName'] = u'འབྲུག་ཡུལ།'
+        post['seller'] = ('/generic/seller/%s/' %
+                          Seller.objects.create(uuid=self.uuid).pk)
+        res = self.client.post(self.list_url, data=post)
+        eq_(res.status_code, 201, res.content)
 
     def test_missing_field(self):
         data = {'adminEmailAddress': 'admin@place.com',
