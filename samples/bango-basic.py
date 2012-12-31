@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 import pprint
 import sys
@@ -47,7 +48,7 @@ res = call('/bango/package/', 'post', {
     'supportEmailAddress': 'support@place.com',
     'financeEmailAddress': 'finance@place.com',
     'paypalEmailAddress': 'paypal@place.com',
-    'vendorName': 'Some Company',
+    'vendorName': u'འབྲུག་ཡུལ།',
     'companyName': 'Some Company, LLC',
     'address1': '111 Somewhere',
     'addressCity': 'Pleasantville',
