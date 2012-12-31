@@ -3,6 +3,7 @@ import json
 from django.conf import settings
 
 import mock
+from nose.exc import SkipTest
 from nose.tools import eq_, ok_
 
 from lib.sellers.models import (Seller, SellerBango, SellerProduct,
@@ -289,6 +290,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         assert 'billingConfigurationId' in json.loads(res.content)
 
     def test_not_found(self):
+        raise SkipTest('signals disabled until bug 820198')
         data = self.good()
         self.transaction.provider = constants.SOURCE_PAYPAL
         self.transaction.save()
@@ -296,6 +298,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
             self.client.post(self.list_url, data=data)
 
     def test_changed(self):
+        raise SkipTest('signals disabled until bug 820198')
         res = self.client.post(self.list_url, data=self.good())
         eq_(res.status_code, 201)
         transactions = Transaction.objects.all()

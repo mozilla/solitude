@@ -20,6 +20,8 @@ class CreateBillingConfigurationResource(Resource):
         billing = client.client('billing')
 
         data = form.bango_data
+        # Exclude transaction from Bango but send it to the signal later.
+        transaction_uuid = data.pop('transaction_uuid')
         price_list = []
         for item in form.cleaned_data['prices']:
             price = billing.factory.create('Price')
@@ -48,5 +50,10 @@ class CreateBillingConfigurationResource(Resource):
         bundle.data = {'responseCode': resp.responseCode,
                        'responseMessage': resp.responseMessage,
                        'billingConfigurationId': resp.billingConfigurationId}
-        create.send(sender=self, bundle=bundle, data=data, form=form)
+
+        # Uncomment this when bug 820198 lands.
+        # Until then, transactions are managed in webpay not solitude.
+        #create_data = data.copy()
+        #create_data['transaction_uuid'] = transaction_uuid
+        #create.send(sender=self, bundle=bundle, data=create_data, form=form)
         return bundle
