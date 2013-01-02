@@ -1,6 +1,7 @@
 from cached import Resource
 
 from lib.bango.client import get_client
+from lib.bango.constants import PAYMENT_TYPES
 from lib.bango.forms import CreateBillingConfigurationForm
 from lib.bango.signals import create
 
@@ -22,12 +23,18 @@ class CreateBillingConfigurationResource(Resource):
         data = form.bango_data
         # Exclude transaction from Bango but send it to the signal later.
         transaction_uuid = data.pop('transaction_uuid')
-        price_list = []
+
+        types = billing.factory.create('ArrayOfString')
+        for f in PAYMENT_TYPES:
+            types.string.append(f)
+        data['typeFilter'] = types
+
+        price_list = billing.factory.create('ArrayOfPrice')
         for item in form.cleaned_data['prices']:
             price = billing.factory.create('Price')
             price.amount = item.cleaned_data['amount']
             price.currency = item.cleaned_data['currency']
-            price_list.append(price)
+            price_list.Price.append(price)
 
         data['priceList'] = price_list
 

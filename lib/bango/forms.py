@@ -2,8 +2,7 @@ import uuid
 
 from django import forms
 
-from lib.bango.constants import (COUNTRIES, CURRENCIES, PAYMENT_TYPES, RATINGS,
-                        RATINGS_SCHEME)
+from lib.bango.constants import COUNTRIES, CURRENCIES, RATINGS, RATINGS_SCHEME
 from lib.sellers.models import SellerProductBango
 from solitude.fields import ListField, URLField
 
@@ -104,7 +103,6 @@ class CreateBillingConfigurationForm(SellerProductForm):
     @property
     def bango_data(self):
         data = super(CreateBillingConfigurationForm, self).bango_data
-        data['typeFilter'] = PAYMENT_TYPES
         data['externalTransactionId'] = uuid.uuid4()
         del data['prices']
         return data
