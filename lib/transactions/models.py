@@ -42,6 +42,9 @@ class Transaction(Model):
     # you don't specify one.
     uuid = models.CharField(max_length=255, db_index=True, unique=True)
 
+    # A general "store whatever you like" field. Solitude wont use this.
+    notes = models.TextField(blank=True, null=True)
+
     class Meta(Model.Meta):
         db_table = 'transaction'
         ordering = ('-id',)
