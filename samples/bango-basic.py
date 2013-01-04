@@ -9,10 +9,11 @@ import requests
 root = 'http://localhost:8001'
 
 def call(url, method, data):
+    print
     method = getattr(requests, method)
     url = root + url
     print 'Calling url:', url
-    print 'Data:'
+    print 'Request data:'
     pprint.pprint(data)
     data = json.dumps(data)
     result = method(url, data=data,
@@ -21,10 +22,13 @@ def call(url, method, data):
     if result.status_code not in (200, 201, 202, 204):
         print 'Error:', result.content
         sys.exit()
-    print 'Data:'
-    pprint.pprint(result.json)
-    print
-    return result.json
+
+    if result.content:
+        print 'Response data:'
+        data = result.json
+        pprint.pprint(data)
+        return data
+
 
 uid = str(uuid.uuid4())
 
@@ -121,6 +125,7 @@ print 'Request billing configuration.'
 call('/bango/billing/', 'post', {
     'pageTitle': 'yep',
     'prices': [{'amount': 1, 'currency': 'EUR'}],
+    'transaction_uuid': str(uuid.uuid4()),
     'seller_product_bango': bango_product_uri,
     'redirect_url_onerror': 'https://marketplace-dev.allizom.org/mozpay/err',
     'redirect_url_onsuccess': 'https://marketplace-dev.allizom.org/mozpay/ok',
