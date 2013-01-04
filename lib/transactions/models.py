@@ -112,13 +112,14 @@ def create_bango_transaction(sender, **kwargs):
     form = kwargs['form']
     seller_product = form.cleaned_data['seller_product_bango'].seller_product
 
-    transaction = Transaction.objects.get(uuid=data['transaction_uuid'],
-                                          status=constants.STATUS_RECEIVED,
-                                          provider=constants.SOURCE_BANGO)
+    transaction, c = Transaction.objects.safer_get_or_create(
+            uuid=data['transaction_uuid'],
+            status=constants.STATUS_RECEIVED,
+            provider=constants.SOURCE_BANGO,
+            seller_product=seller_product)
     transaction.source = data.get('source', '')
     transaction.uid_support = data['externalTransactionId']
     transaction.uid_pay = bundle['billingConfigurationId']
-    transaction.seller_product = seller_product
     transaction.status = constants.STATUS_PENDING
     transaction.type = constants.TYPE_PAYMENT
     transaction.save()

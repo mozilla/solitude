@@ -297,12 +297,15 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         eq_(res.status_code, 201, res.content)
         assert 'billingConfigurationId' in json.loads(res.content)
 
-    def test_not_found(self):
+    def test_create_trans_if_not_existing(self):
         data = self.good()
+        data['transaction_uuid'] = '<some-new-trans-uuid>'
         self.transaction.provider = constants.SOURCE_PAYPAL
         self.transaction.save()
-        with self.assertRaises(Transaction.DoesNotExist):
-            self.client.post(self.list_url, data=data)
+        res = self.client.post(self.list_url, data=data)
+        data = json.loads(res.content)
+        tr = Transaction.objects.get(uid_pay=data['billingConfigurationId'])
+        assert tr is not self.transaction
 
     def test_changed(self):
         res = self.client.post(self.list_url, data=self.good())
