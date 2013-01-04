@@ -23,8 +23,8 @@ class TestSeller(APITest):
         self.detail_url = self.get_detail_url('transaction', self.trans.pk)
 
     def test_list_allowed(self):
-        self.allowed_verbs(self.list_url, ['get', 'post'])
-        self.allowed_verbs(self.detail_url, ['get'])
+        self.allowed_verbs(self.list_url, ['get', 'post', 'patch'])
+        self.allowed_verbs(self.detail_url, ['get', 'put'])
 
     def test_list(self):
         res = self.client.get(self.list_url, data={'uuid': self.uuid})

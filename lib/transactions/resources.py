@@ -17,9 +17,10 @@ class TransactionResource(ModelResource):
     class Meta(ModelResource.Meta):
         queryset = Transaction.objects.filter()
         fields = ['uuid', 'seller_product', 'amount', 'currency', 'provider',
-                  'uid_support', 'type', 'status', 'related', 'notes']
-        list_allowed_methods = ['get', 'post']
-        allowed_methods = ['get']
+                  'uid_pay', 'uid_support', 'type', 'status', 'related',
+                  'notes']
+        list_allowed_methods = ['get', 'post', 'patch']
+        allowed_methods = ['get', 'put']
         resource_name = 'transaction'
         filtering = {
             'uuid': 'exact',
