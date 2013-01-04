@@ -11,6 +11,7 @@ from tastypie.exceptions import ImmediateHttpResponse
 import test_utils
 
 from lib.paypal.errors import PaypalError
+from lib.sellers.models import Seller
 from lib.sellers.resources import SellerResource
 from solitude.base import APITest, JWTDecodeError, JWTSerializer, Resource
 from solitude.fields import URLField
@@ -184,3 +185,14 @@ class TestURLField(test_utils.TestCase):
         self.field = URLField(to='lib.sellers.resources.SellerResource',
                               required=False)
         eq_(self.field.clean(''), None)
+
+
+class TestModel(test_utils.TestCase):
+
+    def test_safer_get_or_create(self):
+        data = dict(uuid='some-unique-value')
+        a, c = Seller.objects.safer_get_or_create(**data)
+        assert c
+        b, c = Seller.objects.safer_get_or_create(**data)
+        assert not c
+        eq_(a, b)
