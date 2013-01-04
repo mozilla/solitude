@@ -60,7 +60,7 @@ class CreateBillingConfigurationResource(Resource):
 
         # Uncomment this when bug 820198 lands.
         # Until then, transactions are managed in webpay not solitude.
-        #create_data = data.copy()
-        #create_data['transaction_uuid'] = transaction_uuid
-        #create.send(sender=self, bundle=bundle, data=create_data, form=form)
+        create_data = data.copy()
+        create_data['transaction_uuid'] = transaction_uuid
+        create.send(sender=self, bundle=bundle, data=create_data, form=form)
         return bundle
