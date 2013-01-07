@@ -44,6 +44,7 @@ class BuyerForm(ParanoidModelForm, PinMixin):
 
     class Meta:
         model = Buyer
+        exclude = ['pin_locked_out', 'pin_failures']
 
 
 class PinForm(ParanoidForm, PinMixin):

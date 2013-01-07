@@ -1,3 +1,6 @@
+from datetime import datetime
+
+from django.conf import settings
 from django.db import models
 
 from aesfield.field import AESField
@@ -10,12 +13,38 @@ class Buyer(Model):
     uuid = models.CharField(max_length=255, db_index=True, unique=True)
     pin = HashField(blank=True, null=True)
     pin_confirmed = models.BooleanField(default=False)
+    pin_failures = models.IntegerField(default=0)
+    pin_locked_out = models.DateTimeField(blank=True, null=True)
     active = models.BooleanField(default=True, db_index=True)
     new_pin = HashField(blank=True, null=True)
     needs_pin_reset = models.BooleanField(default=False)
 
     class Meta(Model.Meta):
         db_table = 'buyer'
+
+    @property
+    def locked_out(self):
+        return bool(self.pin_locked_out)
+
+    def clear_lockout(self):
+        self.pin_failures = 0
+        self.pin_locked_out = None
+        self.save()
+
+    def incr_lockout(self):
+        # Use F to avoid race conditions, although this means an extra
+        # query to check if we've gone over the limit.
+        self.pin_failures = models.F('pin_failures') + 1
+        self.save()
+
+        failing = self.reget()
+        if failing.pin_failures >= settings.PIN_FAILURES:
+            failing.pin_locked_out = datetime.now()
+            failing.save()
+            # Indicate to the caller that we are now locked out.
+            return True
+
+        return False
 
 
 class BuyerPaypal(Model):

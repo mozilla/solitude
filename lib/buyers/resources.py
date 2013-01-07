@@ -1,5 +1,8 @@
-from solitude.base import get_object_or_404, ModelResource, Resource
+from django.http import HttpResponseForbidden
+
+from solitude.base import get_object_or_404, log_cef, ModelResource, Resource
 from tastypie import fields
+from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.validation import FormValidation
 
 from .forms import BuyerForm, BuyerFormValidation, PinForm
@@ -10,6 +13,9 @@ class BuyerResource(ModelResource):
     paypal = fields.ToOneField('lib.buyers.resources.BuyerPaypalResource',
                                'paypal', blank=True, full=True,
                                null=True, readonly=True)
+    pin_failures = fields.IntegerField(attribute='pin_failures', readonly=True)
+    pin_locked_out = fields.DateTimeField(attribute='pin_locked_out',
+                                          blank=True, null=True, readonly=True)
 
     class Meta(ModelResource.Meta):
         queryset = Buyer.objects.filter()
@@ -92,7 +98,17 @@ class BuyerVerifyPinResource(BuyerEndpointBase):
     def obj_create(self, bundle, request=None, **kwargs):
         buyer = self.get_data(bundle)
         if buyer.pin_confirmed:
+            if buyer.locked_out:
+                log_cef('Attempted access to locked out account: %s'
+                        % buyer.uuid, request, severity=1)
+                raise ImmediateHttpResponse(response=HttpResponseForbidden())
+
             bundle.obj.valid = buyer.pin == bundle.data.pop('pin')
+            if not bundle.obj.valid:
+                locked = buyer.incr_lockout()
+                if locked:
+                    log_cef('Locked out account: %s' % buyer.uuid,
+                            request, severity=1)
         else:
             bundle.obj.valid = False
         return bundle

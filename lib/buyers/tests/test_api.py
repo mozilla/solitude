@@ -1,4 +1,7 @@
+from datetime import datetime
 import json
+
+from django.conf import settings
 
 from django_paranoia.signals import warning
 import mock
@@ -62,9 +65,28 @@ class TestBuyer(APITest):
         obj = self.create()
         res = self.client.get(self.get_detail_url('buyer', obj))
         eq_(res.status_code, 200)
-        eq_(json.loads(res.content)['uuid'], self.uuid)
+        data = json.loads(res.content)
+        eq_(data['uuid'], self.uuid)
+        eq_(data['pin'], True)
+        eq_(data['pin_failures'], 0)
+        eq_(data['pin_locked_out'], None)
+
+    @mock.patch.object(settings, 'PIN_FAILURES', 1)
+    def test_locked_out(self):
+        obj = self.create()
+        obj.incr_lockout()
+        res = self.client.get(self.get_detail_url('buyer', obj))
+        eq_(res.status_code, 200)
         data = json.loads(res.content)
         eq_(data['pin'], True)
+        eq_(data['pin_failures'], 1)
+        assert data['pin_locked_out'] is not None
+
+    def test_not_patch_failures(self):
+        obj = self.create()
+        self.client.patch(self.get_detail_url('buyer', obj),
+                          data={'pin_failures': 5, 'pin': '1234'})
+        eq_(obj.reget().pin_failures, 0)
 
     def test_not_active(self):
         obj = self.create()
@@ -236,6 +258,29 @@ class TestBuyerVerifyPin(APITest):
         data = json.loads(res.content)
         assert not data['valid']
         eq_(data['uuid'], self.uuid)
+
+    def test_failure_counted(self):
+        self.client.post(self.list_url, data={'uuid': self.uuid,
+                                              'pin': self.pin[::-1]})
+        eq_(self.buyer.reget().pin_failures, 1)
+
+    @mock.patch.object(settings, 'PIN_FAILURES', 1)
+    @mock.patch('solitude.base.log_cef')
+    def test_locked_out(self, log_cef):
+        self.client.post(self.list_url, data={'uuid': self.uuid,
+                                              'pin': self.pin[::-1]})
+        assert self.buyer.reget().locked_out
+        assert log_cef.called
+
+    @mock.patch('solitude.base.log_cef')
+    def test_good_pin_but_locked_out(self, log_cef):
+        self.buyer.pin_locked_out = datetime.now()
+        self.buyer.save()
+
+        res = self.client.post(self.list_url, data={'uuid': self.uuid,
+                                                    'pin': self.pin})
+        assert log_cef.called
+        eq_(res.status_code, 403)
 
     def test_good_uuid_and_good_pin_and_bad_confirmed(self):
         self.buyer.pin_confirmed = False

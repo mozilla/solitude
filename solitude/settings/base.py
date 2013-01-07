@@ -186,3 +186,6 @@ DJANGO_PARANOIA_REPORTERS = [
     'django_paranoia.reporters.log',
     'django_paranoia.reporters.cef_'
 ]
+
+# The number of PIN failures before we lock them out.
+PIN_FAILURES = 5
