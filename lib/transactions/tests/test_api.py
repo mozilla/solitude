@@ -65,3 +65,8 @@ class TestSeller(APITest):
         res = self.client.patch(self.detail_url, data={'uuid': 5})
         eq_(res.status_code, 400)
         eq_(json.loads(res.content)['__all__'], ['Cannot alter fields: uuid'])
+
+    def test_patch_uid_pay(self):
+        res = self.client.patch(self.detail_url, data={'uid_pay': 'xyz'})
+        eq_(res.status_code, 202)
+        eq_(self.trans.reget().uid_pay, 'xyz')
