@@ -7,6 +7,8 @@ from tastypie import fields
 from lib.transactions.models import Transaction
 from solitude.base import ModelResource
 
+from .forms import UpdateForm
+
 
 class TransactionResource(ModelResource):
     seller_product = fields.ToOneField(
@@ -29,6 +31,13 @@ class TransactionResource(ModelResource):
             'seller': 'exact',
             'provider': 'exact'
         }
+
+    def update_in_place(self, request, original_data, new_data):
+        form = UpdateForm(new_data)
+        if form.is_valid():
+            return (super(TransactionResource, self)
+                    .update_in_place(request, original_data, new_data))
+        raise self.form_errors(form)
 
     def override_urls(self):
          return [
