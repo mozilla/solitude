@@ -282,6 +282,15 @@ class TestBuyerVerifyPin(APITest):
         assert log_cef.called
         eq_(res.status_code, 403)
 
+    def test_good_reset_failures(self):
+        self.buyer.pin_failures = 1
+        self.buyer.save()
+
+        res = self.client.post(self.list_url, data={'uuid': self.uuid,
+                                                    'pin': self.pin})
+        eq_(res.status_code, 201)
+        eq_(self.buyer.reget().pin_failures, 0)
+
     def test_good_uuid_and_good_pin_and_bad_confirmed(self):
         self.buyer.pin_confirmed = False
         self.buyer.save()

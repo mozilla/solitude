@@ -109,6 +109,8 @@ class BuyerVerifyPinResource(BuyerEndpointBase):
                 if locked:
                     log_cef('Locked out account: %s' % buyer.uuid,
                             request, severity=1)
+            if bundle.obj.valid and buyer.pin_failures:
+                buyer.clear_lockout()
         else:
             bundle.obj.valid = False
         return bundle
