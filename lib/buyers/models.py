@@ -24,7 +24,15 @@ class Buyer(Model):
 
     @property
     def locked_out(self):
-        return bool(self.pin_locked_out)
+        if not self.pin_locked_out:
+            return False
+
+        if ((datetime.now() - self.pin_locked_out).seconds >
+            settings.PIN_FAILURE_LENGTH):
+            self.clear_lockout()
+            return False
+
+        return True
 
     def clear_lockout(self):
         self.pin_failures = 0

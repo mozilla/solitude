@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 
 from django.conf import settings
@@ -281,6 +281,17 @@ class TestBuyerVerifyPin(APITest):
                                                     'pin': self.pin})
         assert log_cef.called
         eq_(res.status_code, 403)
+
+    def test_locked_out_over_time(self):
+        self.buyer.pin_locked_out = (datetime.now() -
+            timedelta(seconds=settings.PIN_FAILURE_LENGTH + 60))
+        self.buyer.save()
+
+        res = self.client.post(self.list_url, data={'uuid': self.uuid,
+                                                    'pin': self.pin})
+        eq_(res.status_code, 201)
+        data = json.loads(res.content)
+        assert data['valid']
 
     def test_good_reset_failures(self):
         self.buyer.pin_failures = 1

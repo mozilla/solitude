@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from aesfield.field import EncryptedField
 from nose.tools import eq_
@@ -41,6 +41,13 @@ class TestEncryption(TestCase):
         with self.assertRaises(EncryptedField):
             BuyerPaypal.objects.filter(key='bar')
 
+
+class TestLockout(TestCase):
+
+    def setUp(self):
+        self.uid = 'test:uid'
+        self.buyer = Buyer.objects.create(uuid=self.uid)
+
     def test_locked_out(self):
         assert not self.buyer.locked_out
         self.buyer.pin_locked_out = datetime.now()
@@ -67,3 +74,16 @@ class TestEncryption(TestCase):
         self.buyer.clear_lockout()
         eq_(self.buyer.pin_failures, 0)
         eq_(self.buyer.pin_locked_out, None)
+
+    def test_under_timeout(self):
+        self.buyer.pin_locked_out = (datetime.now() -
+            timedelta(seconds=settings.PIN_FAILURE_LENGTH - 60))
+        self.buyer.save()
+        assert self.buyer.locked_out
+
+    def test_over_timeout(self):
+        self.buyer.pin_locked_out = (datetime.now() -
+            timedelta(seconds=settings.PIN_FAILURE_LENGTH + 60))
+        self.buyer.save()
+        assert not self.buyer.locked_out
+        eq_(self.buyer.reget().pin_locked_out, None)

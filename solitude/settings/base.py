@@ -189,3 +189,5 @@ DJANGO_PARANOIA_REPORTERS = [
 
 # The number of PIN failures before we lock them out.
 PIN_FAILURES = 5
+# The amount of time before you can try it again in seconds.
+PIN_FAILURE_LENGTH = 600
