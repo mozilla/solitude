@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime, timedelta
 import json
 
 from django.conf import settings
@@ -16,6 +17,7 @@ from ..constants import BANGO_ALREADY_PREMIUM_ENABLED
 from ..client import ClientMock
 from ..errors import BangoError
 from ..resources.cached import SimpleResource
+from ..utils import sign
 
 import samples
 
@@ -365,3 +367,70 @@ class TestCreateBankConfiguration(BangoAPI):
         data['seller_bango'] = self.seller_bango_uri
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 201)
+
+
+class TestPaymentNotice(APITest):
+    api_name = 'bango'
+
+    def setUp(self):
+        self.trans_uuid = 'some-transaction-uid'
+        self.seller = Seller.objects.create(uuid='seller-uuid')
+        self.product = SellerProduct.objects.create(seller=self.seller,
+                                                    external_id='xyz')
+        self.trans = Transaction.objects.create(
+            amount=1, provider=constants.SOURCE_BANGO,
+            seller_product=self.product,
+            uuid=self.trans_uuid,
+            uid_pay='external-trans-uid'
+        )
+        self.url = self.get_list_url('payment_notice')
+
+    def data(self, overrides=None):
+        data = {'moz_transaction': self.trans_uuid,
+                'moz_signature': sign(self.trans_uuid),
+                'billing_config_id': '1234',
+                'bango_trans_id': '56789',
+                'bango_response_code': 'OK',
+                'bango_response_message': 'Success'}
+        if overrides:
+            data.update(overrides)
+        return data
+
+    def post(self, data, expected_status=201):
+        res = self.client.post(self.url, data=data)
+        eq_(res.status_code, expected_status, res.content)
+        return json.loads(res.content)
+
+    def test_success(self):
+        self.post(self.data())
+        tr = self.trans.reget()
+        eq_(tr.status, constants.STATUS_COMPLETED)
+
+    def test_incorrect_sig(self):
+        data = self.data({'moz_signature': sign(self.trans_uuid) + 'garbage'})
+        self.post(data, expected_status=400)
+
+    def test_missing_sig(self):
+        data = self.data()
+        del data['moz_signature']
+        self.post(data, expected_status=400)
+
+    def test_missing_transaction(self):
+        data = self.data()
+        del data['moz_transaction']
+        self.post(data, expected_status=400)
+
+    def test_unknown_transaction(self):
+        self.post(self.data({'moz_transaction': 'does-not-exist'}),
+                  expected_status=400)
+
+    def test_already_completed(self):
+        self.trans.status = constants.STATUS_COMPLETED
+        self.trans.save()
+        self.post(self.data(), expected_status=400)
+
+    def test_expired_transaction(self):
+        self.trans.created = datetime.now() - timedelta(seconds=62)
+        self.trans.save()
+        with self.settings(TRANSACTION_EXPIRY=60):
+            self.post(self.data(), expected_status=400)

@@ -82,6 +82,7 @@ example::
             'sellerpaypal:token': 'foo.key',
             'sellerpaypal:secret': 'foo.key',
             'sellerproduct:secret': 'foo.key',
+            'bango:signature': 'foo.key',
         }
 
 Then run::

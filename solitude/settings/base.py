@@ -92,7 +92,7 @@ LOGGING = {
     },
     'loggers': {
         's': {
-            'handlers': ['unicodesyslog'],
+            'handlers': ['unicodesyslog', 'console'],
             'level': 'INFO',
         },
         'suds': {
@@ -150,6 +150,10 @@ BANGO_AUTH = {'USER': 'Mozilla', 'PASSWORD': ''}
 BANGO_ENV = 'test'
 BANGO_MOCK = False
 BANGO_PROXY = ''
+
+# Time in seconds that a transaction expires. If you try to complete a
+# transaction after this time, it will fail.
+TRANSACTION_EXPIRY = 60 * 30
 
 # Metlog configuration
 METLOG_CONF = {
