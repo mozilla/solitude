@@ -188,6 +188,18 @@ Optional settings
 * **TASTYPIE_FULL_DEBUG**: `True` or `False`. Set this to `True` in development
   along with `DEBUG` to get lots of tracebacks.
 
+* Chances are you'll want tracebacks in solitude to go somewhere useful, like
+  a console. So for that you'll want to change logging::
+
+        LOGGING = {
+                'loggers': {
+                        'django.request.tastypie': {
+                                'handlers': ['console'],
+                                'level': 'DEBUG',
+                        },
+                },
+        }
+
 .. _curlish: http://pypi.python.org/pypi/curlish/
 .. _homebrew: http://mxcl.github.com/homebrew/
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
