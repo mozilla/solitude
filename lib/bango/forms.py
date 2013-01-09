@@ -1,10 +1,18 @@
-import uuid
+from datetime import datetime, timedelta
+
+import commonware.log
 
 from django import forms
+from django.conf import settings
 
 from lib.bango.constants import COUNTRIES, CURRENCIES, RATINGS, RATINGS_SCHEME
+from lib.bango.utils import verify_sig
 from lib.sellers.models import SellerProductBango
+from lib.transactions.constants import STATUS_COMPLETED
+from lib.transactions.models import Transaction
 from solitude.fields import ListField, URLField
+
+log = commonware.log.getLogger('s.bango')
 
 
 class ProductForm(forms.ModelForm):
@@ -103,7 +111,7 @@ class CreateBillingConfigurationForm(SellerProductForm):
     @property
     def bango_data(self):
         data = super(CreateBillingConfigurationForm, self).bango_data
-        data['externalTransactionId'] = uuid.uuid4()
+        data['externalTransactionId'] = data.pop('transaction_uuid')
         del data['prices']
         return data
 
@@ -157,3 +165,55 @@ class CreateBankDetailsForm(forms.Form):
         result['packageId'] = result['seller_bango'].package_id
         del result['seller_bango']
         return result
+
+
+class PaymentNoticeForm(forms.Form):
+    # This is our own signature of the moz_transaction that we sent to
+    # the Billing Config API
+    moz_signature = forms.CharField()
+    # When passed into the form, this must be a valid transaction_uuid.
+    moz_transaction = forms.CharField()
+    # This is the Bango billing config ID we created with the API.
+    billing_config_id = forms.CharField()
+    # These parameters arrive in the query string.
+    bango_response_code = forms.CharField()
+    bango_response_message = forms.CharField()
+    bango_trans_id = forms.CharField()
+
+    def clean(self):
+        cleaned_data = super(PaymentNoticeForm, self).clean()
+        trans = cleaned_data.get('moz_transaction')
+        sig = cleaned_data.get('moz_signature')
+        if trans and sig:
+            # Both fields were non-empty so check the signature.
+            if not verify_sig(sig, trans.uuid):
+                log.info('Bango payment notice signature failed for '
+                         'billing_config_id %r'
+                         % cleaned_data.get('billing_config_id'))
+                raise forms.ValidationError(
+                        'Signature %r of transaction UUID %r did not match'
+                        % (sig, trans.uuid))
+        return cleaned_data
+
+    def clean_moz_transaction(self):
+        uuid = self.cleaned_data['moz_transaction']
+        try:
+            trans = Transaction.objects.get(uuid=uuid)
+        except Transaction.DoesNotExist:
+            log.info('Bango payment notice moz_transaction does not exist for '
+                     'billing_config_id %r'
+                     % self.cleaned_data.get('billing_config_id'))
+            raise forms.ValidationError('Transaction by UUID %r does not exist'
+                                        % uuid)
+        if trans.status == STATUS_COMPLETED:
+            raise forms.ValidationError('Transaction UUID %r has already been '
+                                        'completed' % uuid)
+        if trans.created < (datetime.now() -
+                            timedelta(seconds=settings.TRANSACTION_EXPIRY)):
+            log.info('Bango payment notice moz_transaction expired for '
+                     'billing_config_id %r'
+                     % self.cleaned_data.get('billing_config_id'))
+            raise forms.ValidationError('Transaction UUID %r cannot be completed '
+                                        'because it expired.' % uuid)
+        # TODO(Kumar): check for a failed state per bug 828513.
+        return trans
