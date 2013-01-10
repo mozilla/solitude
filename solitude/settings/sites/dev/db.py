@@ -2,12 +2,17 @@
 
 import logging
 
+import dj_database_url
+
 import private_base as private
 
 
 ADMINS = ()
 
-DATABASES = {'default': {}}
+DATABASES = {}
+DATABASES['default'] = dj_database_url.parse(private.DATABASES_DEFAULT_URL)
+DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
+DATABASES['default']['OPTIONS'] = {'init_command': 'SET storage_engine=InnoDB'}
 
 DEBUG = False
 DEBUG_PROPAGATE_EXCEPTIONS = False
@@ -28,16 +33,13 @@ SYSLOG_TAG = 'http_app_payments_dev'
 TEMPLATE_DEBUG = DEBUG
 
 # Solitude specific settings.
-AES_KEYS = {}
+AES_KEYS = private.AES_KEYS
 
 CLEANSED_SETTINGS_ACCESS = True
 CLIENT_JWT_KEYS = private.CLIENT_JWT_KEYS
 
-PAYPAL_APP_ID = private.PAYPAL_APP_ID
-PAYPAL_AUTH = private.PAYPAL_AUTH
-PAYPAL_CHAINS = private.PAYPAL_CHAINS
+PAYPAL_PROXY = private.PAYPAL_PROXY
 PAYPAL_URL_WHITELIST = ('https://marketplace-dev.allizom.org',)
-PAYPAL_USE_SANDBOX = True
 
 BANGO_ENV = 'test'
 BANGO_AUTH = private.BANGO_AUTH
