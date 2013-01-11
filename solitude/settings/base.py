@@ -16,7 +16,6 @@ INSTALLED_APPS = (
     'django_statsd',
     'djcelery',
     'solitude',
-    'raven.contrib.django',
 )
 
 LOCALE_PATHS = ()
@@ -154,29 +153,6 @@ BANGO_PROXY = ''
 # Time in seconds that a transaction expires. If you try to complete a
 # transaction after this time, it will fail.
 TRANSACTION_EXPIRY = 60 * 30
-
-# Metlog configuration
-METLOG_CONF = {
-    'sender': {
-        'class': 'metlog.senders.DebugCaptureSender',
-    },
-    'plugins': {'cef': ('metlog_cef.cef_plugin:config_plugin', {})},
-}
-
-from metlog.config import client_from_dict_config
-METLOG = client_from_dict_config(METLOG_CONF)
-
-# Route statsd and sentry messages through metlog
-STATSD_CLIENT = 'django_statsd.clients.moz_metlog'
-SENTRY_CLIENT = 'djangoraven.metlog.MetlogDjangoClient'
-
-# This must be enabled in the settings file to route stacktraces to
-# sentry, which in turn will route messages to metlog.
-RAVEN_CONFIG = {'register_signals': True}
-
-USE_METLOG_FOR_CEF = True
-
-# End Metlog configuration
 
 # Celery configs.
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True

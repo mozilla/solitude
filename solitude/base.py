@@ -19,11 +19,7 @@ try:
 except ImportError:
     pass
 
-if settings.USE_METLOG_FOR_CEF:
-    _log_cef = settings.METLOG.cef
-else:
-    from cef import log_cef as _log_cef
-
+from cef import log_cef as _log_cef
 import jwt
 from tastypie import http
 from tastypie.authentication import Authentication
