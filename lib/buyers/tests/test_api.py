@@ -267,10 +267,13 @@ class TestBuyerVerifyPin(APITest):
     @mock.patch.object(settings, 'PIN_FAILURES', 1)
     @mock.patch('solitude.base.log_cef')
     def test_locked_out(self, log_cef):
-        self.client.post(self.list_url, data={'uuid': self.uuid,
-                                              'pin': self.pin[::-1]})
+        res = self.client.post(self.list_url, data={'uuid': self.uuid,
+                                                    'pin': self.pin[::-1]})
         assert self.buyer.reget().locked_out
         assert log_cef.called
+        data = json.loads(res.content)
+        assert not data.get('valid')
+        assert data.get('locked')
 
     @mock.patch('solitude.base.log_cef')
     def test_good_pin_but_locked_out(self, log_cef):
@@ -280,7 +283,10 @@ class TestBuyerVerifyPin(APITest):
         res = self.client.post(self.list_url, data={'uuid': self.uuid,
                                                     'pin': self.pin})
         assert log_cef.called
-        eq_(res.status_code, 403)
+        eq_(res.status_code, 201)
+        data = json.loads(res.content)
+        assert not data.get('valid')
+        assert data.get('locked')
 
     def test_locked_out_over_time(self):
         self.buyer.pin_locked_out = (datetime.now() -
@@ -292,6 +298,7 @@ class TestBuyerVerifyPin(APITest):
         eq_(res.status_code, 201)
         data = json.loads(res.content)
         assert data['valid']
+        assert not data['locked']
 
     def test_good_reset_failures(self):
         self.buyer.pin_failures = 1

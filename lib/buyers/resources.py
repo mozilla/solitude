@@ -90,7 +90,8 @@ class BuyerConfirmPinResource(BuyerEndpointBase):
 
 
 class BuyerVerifyPinResource(BuyerEndpointBase):
-    valid = fields.BooleanField(attribute='valid')
+    valid = fields.BooleanField(attribute='valid', default=False)
+    locked = fields.BooleanField(attribute='locked', default=False)
 
     class Meta(BuyerEndpointBase.Meta):
         resource_name = 'verify_pin'
@@ -101,12 +102,13 @@ class BuyerVerifyPinResource(BuyerEndpointBase):
             if buyer.locked_out:
                 log_cef('Attempted access to locked out account: %s'
                         % buyer.uuid, request, severity=1)
-                raise ImmediateHttpResponse(response=HttpResponseForbidden())
-
+                bundle.obj.locked = True
+                return bundle
             bundle.obj.valid = buyer.pin == bundle.data.pop('pin')
             if not bundle.obj.valid:
                 locked = buyer.incr_lockout()
                 if locked:
+                    bundle.obj.locked = True
                     log_cef('Locked out account: %s' % buyer.uuid,
                             request, severity=1)
             if bundle.obj.valid and buyer.pin_failures:
