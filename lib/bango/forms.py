@@ -167,7 +167,7 @@ class CreateBankDetailsForm(forms.Form):
         return result
 
 
-class PaymentNoticeForm(forms.Form):
+class NotificationForm(forms.Form):
     # This is our own signature of the moz_transaction that we sent to
     # the Billing Config API
     moz_signature = forms.CharField()
@@ -181,39 +181,35 @@ class PaymentNoticeForm(forms.Form):
     bango_trans_id = forms.CharField()
 
     def clean(self):
-        cleaned_data = super(PaymentNoticeForm, self).clean()
+        cleaned_data = super(NotificationForm, self).clean()
         trans = cleaned_data.get('moz_transaction')
         sig = cleaned_data.get('moz_signature')
         if trans and sig:
             # Both fields were non-empty so check the signature.
             if not verify_sig(sig, trans.uuid):
-                log.info('Bango payment notice signature failed for '
-                         'billing_config_id %r'
+                log.info('Signature failed: %s'
                          % cleaned_data.get('billing_config_id'))
                 raise forms.ValidationError(
-                        'Signature %r of transaction UUID %r did not match'
+                        'Signature did not match: %s for %s'
                         % (sig, trans.uuid))
         return cleaned_data
 
     def clean_moz_transaction(self):
         uuid = self.cleaned_data['moz_transaction']
+        billing_id = self.cleaned_data.get('billing_config_id')
+
         try:
             trans = Transaction.objects.get(uuid=uuid)
         except Transaction.DoesNotExist:
-            log.info('Bango payment notice moz_transaction does not exist for '
-                     'billing_config_id %r'
-                     % self.cleaned_data.get('billing_config_id'))
-            raise forms.ValidationError('Transaction by UUID %r does not exist'
-                                        % uuid)
+            log.info('Transaction not found: %s' % billing_id)
+            raise forms.ValidationError('Transaction not found: %s' % uuid)
+
         if trans.status == STATUS_COMPLETED:
-            raise forms.ValidationError('Transaction UUID %r has already been '
-                                        'completed' % uuid)
+            raise forms.ValidationError('Transaction completed: %s' % uuid)
+
         if trans.created < (datetime.now() -
                             timedelta(seconds=settings.TRANSACTION_EXPIRY)):
-            log.info('Bango payment notice moz_transaction expired for '
-                     'billing_config_id %r'
-                     % self.cleaned_data.get('billing_config_id'))
-            raise forms.ValidationError('Transaction UUID %r cannot be completed '
-                                        'because it expired.' % uuid)
-        # TODO(Kumar): check for a failed state per bug 828513.
+            log.info('Transaction: %s' % billing_id)
+            raise forms.ValidationError('Transaction expired: %s' % uuid)
+
         return trans

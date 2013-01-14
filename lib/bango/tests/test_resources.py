@@ -369,7 +369,7 @@ class TestCreateBankConfiguration(BangoAPI):
         eq_(res.status_code, 201)
 
 
-class TestPaymentNotice(APITest):
+class TestNotification(APITest):
     api_name = 'bango'
 
     def setUp(self):

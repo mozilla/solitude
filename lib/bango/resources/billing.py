@@ -3,11 +3,9 @@ import commonware.log
 from cached import Resource
 from lib.bango.client import get_client
 from lib.bango.constants import PAYMENT_TYPES
-from lib.bango.forms import (CreateBillingConfigurationForm,
-                             PaymentNoticeForm)
+from lib.bango.forms import CreateBillingConfigurationForm
 from lib.bango.signals import create
 from lib.bango.utils import sign
-from lib.transactions.constants import STATUS_COMPLETED
 
 log = commonware.log.getLogger('s.bango')
 
@@ -82,49 +80,4 @@ class CreateBillingConfigurationResource(Resource):
         create_data = data.copy()
         create_data['transaction_uuid'] = data.pop('externalTransactionId')
         create.send(sender=self, bundle=bundle, data=create_data, form=form)
-        return bundle
-
-
-class PaymentNoticeResource(Resource):
-    """
-    Process a Bango payment notice.
-
-    Here is an example of a successful Bango redirect URL query string:
-
-    ?ResponseCode=OK&ResponseMessage=Success&BangoUserId=412448521
-    &MerchantTransactionId=86c8a8fa-d45a-43ff-8291-012ca1e26a51
-    &BangoTransactionId=668694391
-    &TransactionMethods=USA_TMOBILE%2cT-Mobile+USA%2cTESTPAY%2cTest+Pay
-    &BillingConfigurationId=2830&MozSignature
-    =0dfa157725e7f20f5928951154de919c347b1dbcf41b8f406b7a44d193a81bbb&P=
-    """
-
-    class Meta(Resource.Meta):
-        resource_name = 'payment_notice'
-        list_allowed_methods = ['post']
-
-    def obj_create(self, bundle, request, **kwargs):
-        form = PaymentNoticeForm(bundle.data)
-        bill_conf_id = form.data.get('billing_config_id')
-        log.info('Received Bango payment notice for billing_config_id %r: '
-                 'bango_response_code: %r; bango_response_message: %r; '
-                 'bango_trans_id: %r'
-                 % (bill_conf_id,
-                    form.data.get('bango_response_code'),
-                    form.data.get('bango_response_message'),
-                    form.data.get('bango_trans_id')))
-        if not form.is_valid():
-            log.info('Bango payment notice invalid for billing_config_id %r'
-                     % bill_conf_id)
-            raise self.form_errors(form)
-
-        trans = form.cleaned_data['moz_transaction']
-        if form.cleaned_data['bango_response_code'] == 'OK':
-            log.info('Marking Bango transaction %r completed'
-                     % trans.uuid)
-            trans.status = STATUS_COMPLETED
-        else:
-            raise NotImplementedError('Failures will be in bug 828513')
-        trans.save()
-
         return bundle
