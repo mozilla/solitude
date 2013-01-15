@@ -6,12 +6,16 @@ STATUS_CHECKED = 2  # When someone calls pay-check on the transaction.
 STATUS_RECEIVED = 3
 # Something went wrong and this transaction failed completely.
 STATUS_FAILED = 4
+# Explicit cancel action.
+STATUS_CANCELLED = 5
 
 STATUS_DEFAULT = STATUS_PENDING
 
 STATUSES = {
+    'cancelled': STATUS_CANCELLED,
     'checked': STATUS_CHECKED,
     'completed': STATUS_COMPLETED,
+    'failed': STATUS_FAILED,
     'pending': STATUS_PENDING,
     'received': STATUS_RECEIVED,
 }

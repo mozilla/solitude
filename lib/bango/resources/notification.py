@@ -3,8 +3,10 @@ import commonware.log
 from django_statsd.clients import statsd
 
 from cached import Resource
+from lib.bango.constants import CANCELLED, OK
 from lib.bango.forms import NotificationForm
-from lib.transactions.constants import STATUS_COMPLETED, STATUS_FAILED
+from lib.transactions.constants import (STATUS_CANCELLED, STATUS_COMPLETED,
+                                        STATUS_FAILED)
 
 log = commonware.log.getLogger('s.bango')
 
@@ -42,15 +44,14 @@ class NotificationResource(Resource):
             raise self.form_errors(form)
 
         trans = form.cleaned_data['moz_transaction']
-        if form.cleaned_data['bango_response_code'] == 'OK':
-            log.info('Transaction completed: %s' % trans.uuid)
-            statsd.incr('bango.notification.completed')
-            trans.status = STATUS_COMPLETED
+        states = {OK: ['completed', STATUS_COMPLETED],
+                  CANCELLED: ['cancelled', STATUS_CANCELLED]}
+        message, state = states.get(form.cleaned_data['bango_response_code'],
+                                    ['failed', STATUS_FAILED])
 
-        else:
-            log.info('Transaction failed: %s' % trans.uuid)
-            statsd.incr('bango.notification.failed')
-            trans.status = STATUS_FAILED
+        log.info('Transaction %s: %s' % (message, trans.uuid))
+        statsd.incr('bango.notification.%s' % message)
+        trans.status = state
 
         trans.save()
         return bundle

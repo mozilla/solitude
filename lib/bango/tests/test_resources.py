@@ -13,7 +13,7 @@ from lib.transactions import constants
 from lib.transactions.models import Transaction
 from solitude.base import APITest
 
-from ..constants import BANGO_ALREADY_PREMIUM_ENABLED
+from ..constants import CANCELLED, BANGO_ALREADY_PREMIUM_ENABLED
 from ..client import ClientMock
 from ..errors import BangoError
 from ..resources.cached import SimpleResource
@@ -410,6 +410,12 @@ class TestNotification(APITest):
         self.post(self.data(overrides={'bango_response_code': 'NOT OK'}))
         tr = self.trans.reget()
         eq_(tr.status, constants.STATUS_FAILED)
+
+    def test_failed(self):
+        self.post(self.data(overrides={'bango_response_code':
+                                       CANCELLED}))
+        tr = self.trans.reget()
+        eq_(tr.status, constants.STATUS_CANCELLED)
 
     def test_incorrect_sig(self):
         data = self.data({'moz_signature': sign(self.trans_uuid) + 'garbage'})
