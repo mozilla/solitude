@@ -4,6 +4,8 @@ STATUS_CHECKED = 2  # When someone calls pay-check on the transaction.
 # When we we've got a request for a payment, but more work needs to be done
 # before we can proceed to the next stage, pending.
 STATUS_RECEIVED = 3
+# Something went wrong and this transaction failed completely.
+STATUS_FAILED = 4
 
 STATUS_DEFAULT = STATUS_PENDING
 

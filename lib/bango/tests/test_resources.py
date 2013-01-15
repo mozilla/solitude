@@ -383,7 +383,7 @@ class TestNotification(APITest):
             uuid=self.trans_uuid,
             uid_pay='external-trans-uid'
         )
-        self.url = self.get_list_url('payment_notice')
+        self.url = self.get_list_url('notification')
 
     def data(self, overrides=None):
         data = {'moz_transaction': self.trans_uuid,
@@ -405,6 +405,11 @@ class TestNotification(APITest):
         self.post(self.data())
         tr = self.trans.reget()
         eq_(tr.status, constants.STATUS_COMPLETED)
+
+    def test_failed(self):
+        self.post(self.data(overrides={'bango_response_code': 'NOT OK'}))
+        tr = self.trans.reget()
+        eq_(tr.status, constants.STATUS_FAILED)
 
     def test_incorrect_sig(self):
         data = self.data({'moz_signature': sign(self.trans_uuid) + 'garbage'})

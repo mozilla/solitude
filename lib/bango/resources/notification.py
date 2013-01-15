@@ -1,8 +1,10 @@
 import commonware.log
 
+from django_statsd.clients import statsd
+
 from cached import Resource
 from lib.bango.forms import NotificationForm
-from lib.transactions.constants import STATUS_COMPLETED
+from lib.transactions.constants import STATUS_COMPLETED, STATUS_FAILED
 
 log = commonware.log.getLogger('s.bango')
 
@@ -21,7 +23,7 @@ class NotificationResource(Resource):
     """
 
     class Meta(Resource.Meta):
-        resource_name = 'payment_notice'
+        resource_name = 'notification'
         list_allowed_methods = ['post']
 
     def obj_create(self, bundle, request, **kwargs):
@@ -42,11 +44,13 @@ class NotificationResource(Resource):
         trans = form.cleaned_data['moz_transaction']
         if form.cleaned_data['bango_response_code'] == 'OK':
             log.info('Transaction completed: %s' % trans.uuid)
+            statsd.incr('bango.notification.completed')
             trans.status = STATUS_COMPLETED
 
         else:
             log.info('Transaction failed: %s' % trans.uuid)
-            raise NotImplementedError('Failures will be in bug 828513')
+            statsd.incr('bango.notification.failed')
+            trans.status = STATUS_FAILED
 
         trans.save()
         return bundle
