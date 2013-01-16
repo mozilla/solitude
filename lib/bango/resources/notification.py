@@ -3,7 +3,7 @@ import commonware.log
 from django_statsd.clients import statsd
 
 from cached import Resource
-from lib.bango.constants import CANCELLED, OK
+from lib.bango.constants import CANCEL, OK
 from lib.bango.forms import NotificationForm
 from lib.transactions.constants import (STATUS_CANCELLED, STATUS_COMPLETED,
                                         STATUS_FAILED)
@@ -45,7 +45,7 @@ class NotificationResource(Resource):
 
         trans = form.cleaned_data['moz_transaction']
         states = {OK: ['completed', STATUS_COMPLETED],
-                  CANCELLED: ['cancelled', STATUS_CANCELLED]}
+                  CANCEL: ['cancelled', STATUS_CANCELLED]}
         message, state = states.get(form.cleaned_data['bango_response_code'],
                                     ['failed', STATUS_FAILED])
 
