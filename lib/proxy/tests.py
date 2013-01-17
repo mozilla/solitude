@@ -9,6 +9,7 @@ import requests
 import test_utils
 
 from lib.bango.constants import HEADERS_SERVICE_GET
+from lib.bango.tests import samples
 
 from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
 from lib.paypal.map import urls
@@ -56,18 +57,23 @@ class TestProxy(test_utils.TestCase):
 
 @mock.patch.object(settings, 'SOLITUDE_PROXY', True)
 @mock.patch.object(settings, 'BANGO_MOCK', True)
+@mock.patch.object(settings, 'BANGO_AUTH', {'USER': 'me', 'PASSWORD': 'shh'})
+@mock.patch('lib.proxy.views.requests.post')
 class TestBango(test_utils.TestCase):
 
     def setUp(self):
         self.url = reverse('bango.proxy')
 
-    def test_not_present(self):
+    def test_not_present(self, post):
         with self.assertRaises(KeyError):
-            self.client.post(self.url)
+            self.client.post(self.url, samples.sample_request,
+                             **{'content_type': 'text/xml'})
 
-    def test_good(self):
-        res = self.client.post(self.url,
-                               json.dumps({'adminEmailAddress': 'bar'}),
-                               **{'content_type': 'application/json',
-                                  HEADERS_SERVICE_GET: 'CreatePackage'})
-        assert json.loads(res.content)['adminPersonId'] > 1
+    def test_good(self, post):
+        self.client.post(self.url,
+                         samples.sample_request,
+                         **{'content_type': 'text/xml',
+                            HEADERS_SERVICE_GET: 'http://url.com/b'})
+        body = post.call_args[1]['data']
+        assert '<ns0:username>me</ns0:username>' in body
+        assert '<ns0:password>shh</ns0:password>' in body

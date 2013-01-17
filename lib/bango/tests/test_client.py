@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-import json
-
 import mock
 from nose.tools import eq_
 import test_utils
 
-from ..client import get_client, Client, ClientMock, ClientProxy, response_to_dict, dict_to_mock
+from ..client import (Client, ClientMock, ClientProxy, dict_to_mock,
+                      get_client, response_to_dict)
 from ..constants import OK, ACCESS_DENIED
 from ..errors import AuthError, BangoError
 
@@ -81,38 +80,39 @@ class TestProxy(test_utils.TestCase):
     def test_call(self, post):
         resp = mock.Mock()
         resp.status_code = 200
-        resp.content = json.dumps({'responseCode': OK,
-                                   'responseMessage': 'oops'})
+        resp.content = samples.premium_response
         post.return_value = resp
+
         with self.settings(BANGO_PROXY=self.url):
-            self.bango.CreatePackage({'foo': 'bar'})
+            self.bango.MakePremiumPerAccess(samples.good_make_premium)
 
         args = post.call_args
         eq_(args[0][0], self.url)
-        eq_(args[0][1], {'foo': 'bar'})
-        eq_(args[1]['headers']['x-solitude-service'], 'CreatePackage')
+        eq_(args[1]['headers']['x-solitude-service'],
+            'https://webservices.test.bango.org/mozillaexporter/service.asmx')
 
     @mock.patch('lib.bango.client.post')
     def test_failure(self, post):
         resp = mock.Mock()
         resp.status_code = 500
-        resp.content = json.dumps({'responseCode': 'wat',
-                                   'responseMessage': 'oops'})
+        resp.content = samples.premium_response_failure
         post.return_value = resp
+
         with self.settings(BANGO_PROXY=self.url):
             with self.assertRaises(BangoError):
-                self.bango.CreatePackage({'foo': 'bar'})
+                self.bango.MakePremiumPerAccess(samples.good_make_premium)
 
     @mock.patch('lib.bango.client.post')
     def test_ok(self, post):
         resp = mock.Mock()
         resp.status_code = 200
-        resp.content = json.dumps({'responseCode': OK,
-                                   'responseMessage': '',
-                                   'packageId': 1})
+        resp.content = samples.package_response
         post.return_value = resp
+
         with self.settings(BANGO_PROXY=self.url):
-            res = self.bango.CreatePackage({'foo': 'bar'})
+            address = samples.good_address.copy()
+            del address['seller']
+            res = self.bango.CreatePackage(address)
             eq_(res.packageId, 1)
             assert 'CreatePackageResponse' in str(res)
 

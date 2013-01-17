@@ -1,5 +1,4 @@
 import functools
-import json
 import os
 import re
 import uuid
@@ -12,6 +11,8 @@ from django_statsd.clients import statsd
 from mock import Mock
 from requests import post
 from suds import client as sudsclient
+from suds.transport import Reply
+from suds.transport.http import HttpTransport
 
 from .constants import OK, ACCESS_DENIED, HEADERS_SERVICE
 from .errors import AuthError, BangoError
@@ -96,27 +97,20 @@ class Client(object):
             raise BangoError(code, message)
 
 
+class Proxy(HttpTransport):
+
+    def send(self, request):
+        response = post(settings.BANGO_PROXY,
+                data=request.message,
+                headers={HEADERS_SERVICE: request.url},
+            verify=False)
+        return Reply(response.status_code, {}, response.content)
+
+
 class ClientProxy(Client):
 
-    def call(self, name, data, wsdl='exporter'):
-        with statsd.timer('solitude.proxy.bango.%s' % get_statsd_name(name)):
-            log.info('Calling proxy: %s' % name)
-            response = post(settings.BANGO_PROXY, data,
-                            headers={HEADERS_SERVICE: name,
-                                     'Content-Type': 'application/json'},
-                            verify=False)
-            result = json.loads(response.content)
-            self.is_error(result['responseCode'], result['responseMessage'])
-
-            # If it all worked, we need to find a result object and map
-            # everything back on to it, so that a result from the proxy
-            # looks exactly the same.
-            client = self.client(wsdl)
-            result_obj = getattr(client.factory.create(get_response(name)),
-                                 get_result(name))
-            for k, v in result.iteritems():
-                setattr(result_obj, k, v)
-            return result_obj
+    def client(self, name):
+        return sudsclient.Client(wsdl[name], transport=Proxy())
 
 
 # Add in your mock method data here. If the method only returns a

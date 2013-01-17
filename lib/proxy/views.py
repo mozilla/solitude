@@ -6,6 +6,7 @@ from django import http
 from django.conf import settings
 
 from django_statsd.clients import statsd
+from lxml import etree
 import requests
 
 from lib.bango.client import get_client as bango_client, response_to_dict
@@ -109,29 +110,20 @@ class BangoProxy(Proxy):
         self.timeout = getattr(settings, 'BANGO_TIMEOUT', 10)
 
     def pre(self, request):
-        self.body = ''
-        if request.META['CONTENT_TYPE'] == 'application/json':
-            self.body = json.loads(request.raw_post_data)
-        self.name = request.META[HEADERS_SERVICE_GET]
+        self.url = request.META[HEADERS_SERVICE_GET]
+        self.headers = {'Content-Type': 'text/xml; charset=utf-8'}
 
-    def call(self):
-        result = None
-        response = http.HttpResponse()
-        client = bango_client()
-        try:
-            result = client.call(self.name, self.body)
-        except BangoError, err:
-            log.error(err.message)
-            response.status_code = 500
-            response.content = json.dumps({
-                'responseCode': err.type,
-                'responseMessage': err.message
-            })
-            return response
+        # Alter the XML to include the username and password from the config.
+        # Perhaps this can be done quicker with XPath.
+        root = etree.fromstring(request.raw_post_data)
+        for element in root.iter():
+            tag = lambda el, nm: '{%s}%s' % (el.nsmap.get('ns0'), nm)
+            if element.tag == tag(element, 'username'):
+                element.text = settings.BANGO_AUTH.get('USER', '')
+            if element.tag == tag(element, 'password'):
+                element.text = settings.BANGO_AUTH.get('PASSWORD', '')
 
-        response.status_code = 200
-        response.content = json.dumps(response_to_dict(result))
-        return response
+        self.body = etree.tostring(root)
 
 
 def paypal(request):

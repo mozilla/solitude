@@ -56,3 +56,70 @@ good_bank_details = {
     'bankAddressZipCode': 'V1V 1V1',
     'bankAddressIso': 'BRA'
 }
+
+premium_response = """<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <soap:Body>
+        <MakePremiumPerAccessResponse
+            xmlns="com.bango.webservices.mozillaexporter">
+            <MakePremiumPerAccessResult>
+                <responseCode>OK</responseCode>
+                <responseMessage>Success</responseMessage>
+            </MakePremiumPerAccessResult>
+        </MakePremiumPerAccessResponse>
+    </soap:Body>
+</soap:Envelope>"""
+
+premium_response_failure = """<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <soap:Body>
+        <MakePremiumPerAccessResponse
+            xmlns="com.bango.webservices.mozillaexporter">
+            <MakePremiumPerAccessResult>
+                <responseCode>wat</responseCode>
+                <responseMessage>oops</responseMessage>
+            </MakePremiumPerAccessResult>
+        </MakePremiumPerAccessResponse>
+    </soap:Body>
+</soap:Envelope>"""
+
+package_response = """<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <soap:Body>
+        <CreatePackageResponse xmlns="com.bango.webservices.mozillaexporter">
+            <CreatePackageResult>
+                <responseCode>OK</responseCode>
+                <responseMessage>Success</responseMessage>
+                <packageId>1</packageId>
+                <adminPersonId>2</adminPersonId>
+                <adminPersonPassword />
+                <supportPersonId>3</supportPersonId>
+                <supportPersonPassword />
+                <financePersonId>4</financePersonId>
+                <financePersonPassword />
+            </CreatePackageResult>
+        </CreatePackageResponse>
+    </soap:Body>
+</soap:Envelope>"""
+
+sample_request = """<SOAP-ENV:Envelope
+    xmlns:ns0="com.bango.webservices.mozillaexporter"
+    xmlns:ns1="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <SOAP-ENV:Header/>
+    <ns1:Body>
+        <ns0:CreatePackage>
+            <ns0:request>
+                <ns0:username>weee!</ns0:username>
+                <ns0:password>wooo!</ns0:password>
+            </ns0:request>
+        </ns0:CreatePackage>
+    </ns1:Body>
+</SOAP-ENV:Envelope>"""
