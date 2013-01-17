@@ -7,6 +7,7 @@ from time import time
 
 from django.conf import settings
 
+from curling.lib import Encoder
 import commonware.log
 from django_statsd.clients import statsd
 from mock import Mock
@@ -101,7 +102,8 @@ class ClientProxy(Client):
     def call(self, name, data, wsdl='exporter'):
         with statsd.timer('solitude.proxy.bango.%s' % get_statsd_name(name)):
             log.info('Calling proxy: %s' % name)
-            response = post(settings.BANGO_PROXY, data,
+            response = post(settings.BANGO_PROXY,
+                            json.dumps(data, cls=Encoder),
                             headers={HEADERS_SERVICE: name,
                                      'Content-Type': 'application/json'},
                             verify=False)
