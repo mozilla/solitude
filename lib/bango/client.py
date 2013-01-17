@@ -102,8 +102,7 @@ class ClientProxy(Client):
     def call(self, name, data, wsdl='exporter'):
         with statsd.timer('solitude.proxy.bango.%s' % get_statsd_name(name)):
             log.info('Calling proxy: %s' % name)
-            response = post(settings.BANGO_PROXY,
-                            json.dumps(data, cls=Encoder),
+            response = post(settings.BANGO_PROXY, data,
                             headers={HEADERS_SERVICE: name,
                                      'Content-Type': 'application/json'},
                             verify=False)
