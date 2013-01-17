@@ -78,7 +78,7 @@ def update_db(ctx):
     Uses schematic by default. Change to south if you need to.
 
     """
-    if not settings.IS_PROXY:
+    if not getattr(settings, 'IS_PROXY', False):
         with ctx.lcd(settings.SRC_DIR):
             ctx.local("%s %s/bin/schematic migrations" %
                       (settings.PYTHON, settings.VIRTUAL_ENV))
