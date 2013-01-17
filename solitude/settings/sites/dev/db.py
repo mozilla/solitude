@@ -41,5 +41,9 @@ CLIENT_JWT_KEYS = private.CLIENT_JWT_KEYS
 PAYPAL_PROXY = private.PAYPAL_PROXY
 PAYPAL_URL_WHITELIST = ('https://marketplace-dev.allizom.org',)
 
+# Swap these around when bug 831576 is fixed.
+# Speak to Bango directly.
 BANGO_ENV = 'test'
 BANGO_AUTH = private.BANGO_AUTH
+# Use the proxy.
+#BANGO_PROXY = private.BANGO_PROXY
