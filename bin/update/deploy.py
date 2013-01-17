@@ -78,9 +78,10 @@ def update_db(ctx):
     Uses schematic by default. Change to south if you need to.
 
     """
-    with ctx.lcd(settings.SRC_DIR):
-        ctx.local("%s %s/bin/schematic migrations" %
-                  (settings.PYTHON, settings.VIRTUAL_ENV))
+    if not settings.IS_PROXY:
+        with ctx.lcd(settings.SRC_DIR):
+            ctx.local("%s %s/bin/schematic migrations" %
+                      (settings.PYTHON, settings.VIRTUAL_ENV))
 
 @task
 def checkin_changes(ctx):
