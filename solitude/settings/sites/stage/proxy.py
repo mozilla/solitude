@@ -4,6 +4,8 @@ import logging
 
 import private_base as private
 
+from solitude.settings import base
+from django_sha2 import get_password_hashers
 
 ADMINS = ()
 
@@ -13,6 +15,8 @@ DEBUG = False
 DEBUG_PROPAGATE_EXCEPTIONS = False
 
 HMAC_KEYS = private.HMAC_KEYS
+
+PASSWORD_HASHERS = get_password_hashers(base.BASE_PASSWORD_HASHERS, HMAC_KEYS)
 
 LOG_LEVEL = logging.DEBUG
 
