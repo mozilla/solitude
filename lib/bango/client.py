@@ -7,7 +7,6 @@ from time import time
 
 from django.conf import settings
 
-from curling.lib import Encoder
 import commonware.log
 from django_statsd.clients import statsd
 from mock import Mock
