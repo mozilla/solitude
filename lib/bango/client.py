@@ -100,6 +100,8 @@ class Client(object):
 class Proxy(HttpTransport):
 
     def send(self, request):
+        print '-' * 40
+        print request.message
         response = post(settings.BANGO_PROXY,
                 data=request.message,
                 headers={HEADERS_SERVICE: request.url},
