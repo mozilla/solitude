@@ -98,9 +98,6 @@ class BuyerVerifyPinResource(BuyerEndpointBase):
 
     def obj_create(self, bundle, request=None, **kwargs):
         buyer = self.get_data(bundle)
-        bundle.obj.valid = True
-        return bundle
-
         if buyer.pin_confirmed:
             if buyer.locked_out:
                 log_cef('Attempted access to locked out account: %s'
