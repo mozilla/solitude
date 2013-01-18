@@ -61,6 +61,8 @@ else:
 
 SESSION_COOKIE_SECURE = True
 
+STATSD_CLIENT = 'django_statsd.clients.normal'
+
 # PayPal values.
 PAYPAL_APP_ID = ''
 PAYPAL_AUTH = {'USER': '', 'PASSWORD': '', 'SIGNATURE': ''}
