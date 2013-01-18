@@ -186,6 +186,6 @@ def get_client():
     """
     if settings.BANGO_MOCK:
         return ClientMock()
-    if settings.BANGO_PROXY and not settings.SOLITUDE_PROXY:
+    if settings.BANGO_PROXY:
         return ClientProxy()
     return Client()
