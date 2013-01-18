@@ -77,3 +77,12 @@ class TestBango(test_utils.TestCase):
         body = post.call_args[1]['data']
         assert '<ns0:username>me</ns0:username>' in body
         assert '<ns0:password>shh</ns0:password>' in body
+
+    def test_billing(self, post):
+        self.client.post(self.url,
+                         samples.billing_request,
+                         **{'content_type': 'text/xml',
+                            HEADERS_SERVICE_GET: 'http://url.com/b'})
+        body = post.call_args[1]['data']
+        assert '<ns1:username>me</ns1:username>' in body
+        assert '<ns1:password>shh</ns1:password>' in body

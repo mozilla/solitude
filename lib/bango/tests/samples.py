@@ -123,3 +123,21 @@ sample_request = """<SOAP-ENV:Envelope
         </ns0:CreatePackage>
     </ns1:Body>
 </SOAP-ENV:Envelope>"""
+
+billing_request = """<?xml version="1.0" encoding="UTF-8"?>
+    <SOAP-ENV:Envelope
+        xmlns:ns0="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:ns1="com.bango.webservices.billingconfiguration"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <SOAP-ENV:Header/>
+    <ns0:Body>
+        <ns1:CreateBillingConfiguration>
+            <ns1:request>
+                <ns1:username>Mozilla</ns1:username>
+                <ns1:password></ns1:password>
+                <ns1:bango>1</ns1:bango>
+            </ns1:request>
+        </ns1:CreateBillingConfiguration>
+    </ns0:Body>
+</SOAP-ENV:Envelope>"""

@@ -1,4 +1,3 @@
-import json
 import logging
 import urlparse
 
@@ -9,9 +8,7 @@ from django_statsd.clients import statsd
 from lxml import etree
 import requests
 
-from lib.bango.client import get_client as bango_client, response_to_dict
 from lib.bango.constants import HEADERS_SERVICE_GET
-from lib.bango.errors import BangoError
 
 from lib.paypal.client import get_client as paypal_client
 from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
@@ -104,10 +101,15 @@ class PaypalProxy(Proxy):
 
 class BangoProxy(Proxy):
     name = 'bango'
+    namespaces = ['com.bango.webservices.billingconfiguration',
+                  'com.bango.webservices.mozillaexporter']
 
     def __init__(self):
         self.enabled = getattr(settings, 'SOLITUDE_PROXY', False)
         self.timeout = getattr(settings, 'BANGO_TIMEOUT', 10)
+
+    def tags(self, name):
+        return ['{%s}%s' % (n, name) for n in self.namespaces]
 
     def pre(self, request):
         self.url = request.META[HEADERS_SERVICE_GET]
@@ -116,13 +118,23 @@ class BangoProxy(Proxy):
         # Alter the XML to include the username and password from the config.
         # Perhaps this can be done quicker with XPath.
         root = etree.fromstring(request.raw_post_data)
-        log.info(request.raw_post_data)
+        #log.info(request.raw_post_data)
+        username = self.tags('username')
+        password = self.tags('password')
+        changed_username = False
+        changed_password = False
         for element in root.iter():
-            tag = lambda el, nm: '{%s}%s' % (el.nsmap.get('ns0'), nm)
-            if element.tag == tag(element, 'username'):
+            if element.tag in username:
                 element.text = settings.BANGO_AUTH.get('USER', '')
-            if element.tag == tag(element, 'password'):
+                changed_username = True
+            elif element.tag in password:
                 element.text = settings.BANGO_AUTH.get('PASSWORD', '')
+                changed_password = True
+            if changed_username and changed_password:
+                break
+
+        if not changed_username and not changed_password:
+            log.info('Did not set a username and password on the request.')
 
         self.body = etree.tostring(root)
 
