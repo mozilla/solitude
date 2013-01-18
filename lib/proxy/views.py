@@ -116,12 +116,21 @@ class BangoProxy(Proxy):
         # Alter the XML to include the username and password from the config.
         # Perhaps this can be done quicker with XPath.
         root = etree.fromstring(request.raw_post_data)
+        user, password = False, False
         for element in root.iter():
-            tag = lambda el, nm: '{%s}%s' % (el.nsmap.get('ns0'), nm)
-            if element.tag == tag(element, 'username'):
+            # I can do namespace aware lookup right? Go read up on this.
+            tag = lambda el, nm: '}%s' % nm
+            if element.tag.endswith(tag(element, 'username')):
                 element.text = settings.BANGO_AUTH.get('USER', '')
-            if element.tag == tag(element, 'password'):
+                user = True
+            if element.tag.endswith(tag(element, 'password')):
                 element.text = settings.BANGO_AUTH.get('PASSWORD', '')
+                password = True
+
+        if not user and not password:
+            log.error('Could not set user and password.\n %s' %
+                      etree.tostring(root))
+            raise ValueError('Could not set user and password')
 
         self.body = etree.tostring(root)
 
