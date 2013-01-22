@@ -108,7 +108,6 @@ class TestSerialize(test_utils.TestCase):
 class TestJWT(APITest):
     urls = 'solitude.tests.urls'
     url = '/test/fake/'
-    service_url = '/test/fake-service/'
 
     def test_just_json(self):
         res = self.client.post(self.url, json.dumps({'foo': 'bar'}))
@@ -132,12 +131,6 @@ class TestJWT(APITest):
             enc = jwt.encode({'jwt-encode-key': 'f', 'name': 'x'}, 'b')
             res = self.client.post(self.url, data=enc,
                                    content_type='application/jwt')
-            eq_(res.status_code, 201, res.status_code)
-
-    def test_service(self):
-        with self.settings(REQUIRE_JWT=True):
-            res = self.client.post(self.service_url,
-                                   json.dumps({'foo': 'bar'}))
             eq_(res.status_code, 201, res.status_code)
 
     @mock.patch('solitude.base._log_cef')

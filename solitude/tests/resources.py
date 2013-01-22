@@ -1,6 +1,6 @@
 from tastypie import fields
 
-from solitude.base import Resource, ServiceResource
+from solitude.base import Resource
 
 
 class Fake(object):
@@ -24,9 +24,3 @@ class FakeResource(Resource):
         return '/'
 
 
-class FakeServiceResource(FakeResource, ServiceResource):
-
-    class Meta(ServiceResource.Meta):
-        resource_name = 'fake-service'
-        list_allowed_methods = ['post']
-        object_class = Fake
