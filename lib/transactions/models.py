@@ -118,7 +118,8 @@ def create_bango_transaction(sender, **kwargs):
             provider=constants.SOURCE_BANGO,
             seller_product=seller_product)
     transaction.source = data.get('source', '')
-    transaction.uid_support = data['externalTransactionId']
+    # uid_support will be set with the transaction id.
+    # uid_pay is the uid of the billingConfiguration request.
     transaction.uid_pay = bundle['billingConfigurationId']
     transaction.status = constants.STATUS_PENDING
     transaction.type = constants.TYPE_PAYMENT

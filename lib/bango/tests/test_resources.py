@@ -318,7 +318,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         eq_(transaction.status, constants.STATUS_PENDING)
         eq_(transaction.type, constants.TYPE_PAYMENT)
         ok_(transaction.uid_pay)
-        ok_(transaction.uid_support)
+        eq_(transaction.uid_support, None)
 
     def test_missing(self):
         data = samples.good_billing_request.copy()
@@ -441,6 +441,7 @@ class TestNotification(APITest):
         self.post(self.data())
         tr = self.trans.reget()
         eq_(tr.status, constants.STATUS_COMPLETED)
+        ok_(tr.uid_support)
 
     def test_failed(self):
         self.post(self.data(overrides={'bango_response_code': 'NOT OK'}))

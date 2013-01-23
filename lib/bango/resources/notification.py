@@ -52,6 +52,7 @@ class NotificationResource(Resource):
         log.info('Transaction %s: %s' % (message, trans.uuid))
         statsd.incr('bango.notification.%s' % message)
         trans.status = state
-
+        # This is the id for the actual transaction, useful for refunds.
+        trans.uid_support = form.data.get('bango_trans_id')
         trans.save()
         return bundle
