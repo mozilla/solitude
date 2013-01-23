@@ -1,89 +1,16 @@
 from lib.sellers.models import Seller
-from solitude.base import ServiceResource
 
 from django.conf import settings
 from django.core.cache import cache
-from django.core.urlresolvers import reverse
 from django.db import DatabaseError
-from django.views import debug
 
-from tastypie import fields
-from tastypie import http
-from tastypie.exceptions import ImmediateHttpResponse
+from services.services import StatusError, StatusObject as Base
 
 import logging
 
 log = logging.getLogger('s.services')
 
-
-class TestError(Exception):
-    pass
-
-
-class StatusError(Exception):
-    pass
-
-
-class ErrorResource(ServiceResource):
-
-    class Meta(ServiceResource.Meta):
-        list_allowed_methods = ['get']
-        resource_name = 'error'
-
-    def obj_get_list(self, request=None, **kwargs):
-        # All this does is throw an error. This is used for testing
-        # the error handling on dev servers.
-        raise TestError('This is a test.')
-
-
-class SettingsObject(object):
-
-    def __init__(self, name):
-        self.pk = name
-        cleansed = debug.get_safe_settings()
-        self.cleansed = debug.cleanse_setting(name, cleansed[name])
-
-
-class SettingsResource(ServiceResource):
-    value = fields.CharField(readonly=True, attribute='cleansed', null=True)
-    key = fields.CharField(readonly=True, attribute='pk')
-
-    class Meta(ServiceResource.Meta):
-        list_allowed_methods = ['get']
-        allowed_methods = ['get']
-        resource_name = 'settings'
-
-    def get_resource_uri(self, bundle):
-        return reverse('api_dispatch_detail',
-                        kwargs={'api_name': 'services',
-                                'resource_name': 'settings',
-                                'pk': bundle.obj.pk})
-
-    def obj_get(self, request, **kwargs):
-        pk = kwargs['pk']
-        cleansed = debug.get_safe_settings()
-        if pk not in cleansed:
-            raise ImmediateHttpResponse(response=http.HttpNotFound())
-        return SettingsObject(pk)
-
-    def obj_get_list(self, request, **kwargs):
-        keys = sorted(debug.get_safe_settings().keys())
-        return [SettingsObject(k) for k in keys]
-
-
-class StatusObject(object):
-    pk = 'status'
-    cache = False
-    db = False
-    settings = True
-
-    def __repr__(self):
-        values = ['%s: %s' % (k, v) for k, v in self.checks]
-        return '<Status: %s>' % ', '.join(values)
-
-    @property
-    def checks(self):
-        return [(k, getattr(self, k)) for k in ['cache', 'db', 'settings']]
+class StatusObject(Base):
 
     @property
     def is_proxy(self):
@@ -130,31 +57,16 @@ class StatusObject(object):
                     log.error('Proxy cache set to: %s' % backend)
                     self.settings = False
 
+    def test(self):
+        self.test_cache()
+        self.test_db()
+        self.test_settings()
 
-class StatusResource(ServiceResource):
-    cache = fields.BooleanField(readonly=True, attribute='cache')
-    db = fields.BooleanField(readonly=True, attribute='db')
-    settings = fields.BooleanField(readonly=True, attribute='settings')
+        if self.is_proxy:
+            if self.settings and not (self.db and self.cache):
+                return self
+            raise StatusError(str(self))
 
-    class Meta(ServiceResource.Meta):
-        list_allowed_methods = ['get']
-        allowed_methods = ['get']
-        resource_name = 'status'
-
-    def obj_get(self, request, **kwargs):
-        obj = StatusObject()
-        obj.test_cache()
-        obj.test_db()
-        obj.test_settings()
-
-        if obj.is_proxy:
-            if obj.settings and not (obj.db and obj.cache):
-                return obj
-            raise StatusError(str(obj))
-
-        if obj.db and obj.cache:
-            return obj
-        raise StatusError(str(obj))
-
-    def obj_get_list(self, request=None, **kwargs):
-        return [self.obj_get(request, **kwargs)]
+        if self.db and self.cache:
+            return self
+        raise StatusError(str(self))

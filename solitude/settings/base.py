@@ -76,6 +76,8 @@ PAYPAL_MOCK = False
 
 # Access the cleansed settings values.
 CLEANSED_SETTINGS_ACCESS = False
+# The status object for tastypie services.
+SERVICES_STATUS_MODULE = 'lib.services.resources'
 
 LOGGING = {
     'filters': {},

@@ -366,16 +366,6 @@ class ModelResource(BaseResource, TastyPieModelResource):
         serializer = JWTSerializer()
 
 
-# For resources that do not want to use JWT, eg: nagios checks.
-class ServiceResource(Resource):
-
-    class Meta:
-        always_return_data = True
-        authentication = Authentication()
-        authorization = Authorization()
-        serializer = Serializer(formats=['json'])
-
-
 class Cached(object):
 
     def __init__(self, prefix='cached', pk=None):

@@ -17,10 +17,6 @@ class TestStatus(APITest):
         self.api_name = 'services'
         self.list_url = self.get_list_url('status')
 
-    def test_working_status(self):
-        res = self.client.get(self.list_url)
-        eq_(res.status_code, 200)
-
     def failed(self, res, on):
         eq_(res.status_code, 500)
         data = json.loads(res.content)
