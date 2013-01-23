@@ -22,6 +22,7 @@ funfactory==2.1.1
 gunicorn==0.15.0
 importlib==1.0.2
 kombu==2.1.2
+lxml==2.2.6
 m2secret==0.1.1
 metlog-cef==0.2
 metlog-py==0.9.8
