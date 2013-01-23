@@ -69,6 +69,10 @@ class SellerBango(Model):
     admin_person_id = models.IntegerField()
     support_person_id = models.IntegerField()
     finance_person_id = models.IntegerField()
+    # There are a few fields around SBI, but all we really care about
+    # is when it expires. We'll store this so we can quickly find out
+    # all the people it is about to expire for.
+    sbi_expires = models.DateTimeField(blank=True, null=True)
 
     class Meta(Model.Meta):
         db_table = 'seller_bango'

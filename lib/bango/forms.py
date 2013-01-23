@@ -213,3 +213,14 @@ class NotificationForm(forms.Form):
             raise forms.ValidationError('Transaction expired: %s' % uuid)
 
         return trans
+
+
+class SBIForm(forms.Form):
+    seller_bango = URLField(to='lib.bango.resources.package.PackageResource')
+
+    @property
+    def bango_data(self):
+        result = self.cleaned_data.copy()
+        result['packageId'] = result['seller_bango'].package_id
+        del result['seller_bango']
+        return result

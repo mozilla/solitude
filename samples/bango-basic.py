@@ -8,8 +8,8 @@ import requests
 
 root = 'http://localhost:8001'
 
+
 def call(url, method, data):
-    print
     method = getattr(requests, method)
     url = root + url
     print 'Calling url:', url
@@ -27,7 +27,10 @@ def call(url, method, data):
         print 'Response data:'
         data = result.json
         pprint.pprint(data)
+        print
         return data
+
+    print
 
 
 uid = str(uuid.uuid4())
@@ -64,6 +67,16 @@ res = call('/bango/package/', 'post', {
 })
 seller_bango_uri = res['resource_uri']
 
+print 'Getting SBI agreement'
+res = call('/bango/sbi/agreement/', 'get', {
+    'seller_bango': seller_bango_uri,
+})
+
+print 'Agreeing to SBI agreement'
+res = call('/bango/sbi/', 'post', {
+    'seller_bango': seller_bango_uri,
+})
+
 print 'Creating seller bango product.'
 res = call('/bango/product/', 'post', {
     'seller_bango': seller_bango_uri,
@@ -91,7 +104,7 @@ print 'Checking bango id, as an example.'
 res = call(bango_product_uri, 'get', {})
 
 print 'Making premium.'
-res = call('/bango/premium/', 'post',  {
+res = call('/bango/premium/', 'post', {
     'bango': '123',
     'price': 1,
     'currencyIso': 'EUR',
@@ -99,7 +112,7 @@ res = call('/bango/premium/', 'post',  {
 })
 
 print 'Updating rating.'
-res = call('/bango/rating/', 'post',  {
+res = call('/bango/rating/', 'post', {
     'bango': '123',
     'rating': 'UNIVERSAL',
     'ratingScheme': 'GLOBAL',

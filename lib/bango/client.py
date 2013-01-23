@@ -1,6 +1,5 @@
 import functools
 import os
-import re
 import uuid
 from time import time
 
@@ -25,9 +24,12 @@ wsdl = {
 
 # Add in the whitelist of supported methods here.
 exporter = [
+    'AcceptSBIAgreement',
     'CreateBangoNumber',
     'CreateBankDetails',
     'CreatePackage',
+    'GetAcceptedSBIAgreement',
+    'GetSBIAgreement',
     'MakePremiumPerAccess',
     'UpdateFinanceEmailAddress',
     'UpdateRating',
@@ -53,11 +55,6 @@ def get_result(name):
     return name + 'Result'
 
 
-# If we use . in the names we can do queries like update.*
-def get_statsd_name(name):
-    return re.sub('(?<=\w)(?=[A-Z])', '.', name).lower()
-
-
 log = commonware.log.getLogger('s.bango')
 
 
@@ -79,7 +76,7 @@ class Client(object):
         package.password = settings.BANGO_AUTH.get('PASSWORD', '')
 
         # Actually call Bango.
-        with statsd.timer('solitude.bango.%s' % get_statsd_name(name)):
+        with statsd.timer('solitude.bango.request.%s' % name.lower()):
             response = getattr(client.service, name)(package)
         self.is_error(response.responseCode, response.responseMessage)
         return response
@@ -89,7 +86,7 @@ class Client(object):
 
     def is_error(self, code, message):
         # Count the numbers of responses we get.
-        statsd.incr('solitude.bango.%s' % code.lower())
+        statsd.incr('solitude.bango.response.%s' % code.lower())
         # If there was an error raise it.
         if code == ACCESS_DENIED:
             raise AuthError(ACCESS_DENIED, message)
@@ -139,6 +136,15 @@ mock_data = {
     },
     'CreateBillingConfiguration': {
         'billingConfigurationId': uuid.uuid4
+    },
+    'GetAcceptedSBIAgreement': {
+        'sbiAgreementAccepted': True,
+        'acceptedSBIAgreement': '2013-01-23 00:00:00',
+        'sbiAgreementExpires': '2014-01-23 00:00:00'
+    },
+    'GetSBIAgreement': {
+        'sbiAgreement': 'Blah...',
+        'sbiAgreementValidFrom': '2010-08-31 00:00:00',
     }
 }
 

@@ -369,6 +369,42 @@ class TestCreateBankConfiguration(BangoAPI):
         eq_(res.status_code, 201)
 
 
+@mock.patch.object(settings, 'BANGO_MOCK', True)
+class TestGetSBI(BangoAPI):
+
+    def setUp(self):
+        self.get_url = '/bango/sbi/agreement/'
+        self.list_url = '/bango/sbi/'
+
+    def test_not_there(self):
+        res = self.client.get_with_body(self.get_url,
+                data={'seller_bango': '/some/uri/4/'})
+        eq_(res.status_code, 400)
+
+    def test_wrong_url(self):
+        res = self.client.get('/bango/sbi/foo/')
+        eq_(res.status_code, 404)
+
+    def test_sbi(self):
+        self.create()
+        res = self.client.get_with_body(self.get_url,
+                data={'seller_bango': self.seller_bango_uri})
+        eq_(res.status_code, 200)
+        data = json.loads(res.content)
+        eq_(data['text'], 'Blah...')
+        eq_(data['valid'], '2010-08-31')
+
+    def test_post(self):
+        self.create()
+        res = self.client.post(self.list_url,
+                data={'seller_bango': self.seller_bango_uri})
+        eq_(res.status_code, 201)
+        data = json.loads(res.content)
+        eq_(data['accepted'], '2014-01-23')
+        eq_(data['expires'], '2013-01-23')
+        eq_(str(self.seller_bango.reget().sbi_expires), '2014-01-23 00:00:00')
+
+
 class TestNotification(APITest):
     api_name = 'bango'
 

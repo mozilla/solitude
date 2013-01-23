@@ -80,6 +80,13 @@ class APIClient(Client):
             kwargs['data'] = json.dumps(kwargs['data'])
         return kwargs
 
+    def get_with_body(self, *args, **kwargs):
+        # The Django test client automatically serializes data, not allowing
+        # you to do a GET with a body. We want to be able to do that in our
+        # tests.
+        return super(APIClient, self).post(*args, REQUEST_METHOD='GET',
+                                           **self._process(kwargs))
+
     def post(self, *args, **kwargs):
         return super(APIClient, self).post(*args, **self._process(kwargs))
 
