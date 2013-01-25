@@ -50,6 +50,9 @@ class SellerProduct(Model):
     # An identifier for this product that corresponds to the
     # seller's catalog.
     external_id = models.CharField(max_length=255, db_index=True)
+    # An publily visible id used in in-app payments so that we
+    # can identify the seller. This will be the iss field in JWT.
+    public_id = models.CharField(max_length=255, db_index=True, unique=True)
     seller = models.ForeignKey(Seller, related_name='product')
     # A generic secret field that can be used for this product, regardless
     # of backend.
