@@ -20,17 +20,16 @@ class Transaction(Model):
     buyer = models.ForeignKey('buyers.Buyer', blank=True, null=True,
                               db_index=True)
     currency = models.CharField(max_length=3, blank=True)
-    provider = models.PositiveIntegerField(
-                              choices=constants.SOURCES_CHOICES)
+    provider = models.PositiveIntegerField(choices=constants.SOURCES_CHOICES)
     related = models.ForeignKey('self', blank=True, null=True,
-                              on_delete=models.PROTECT)
+                                on_delete=models.PROTECT)
     seller_product = models.ForeignKey('sellers.SellerProduct', db_index=True)
     status = models.PositiveIntegerField(default=constants.STATUS_DEFAULT,
-                              choices=constants.STATUSES_CHOICES)
+                                         choices=constants.STATUSES_CHOICES)
     source = models.CharField(max_length=255, blank=True, null=True,
                               db_index=True)
     type = models.PositiveIntegerField(default=constants.TYPE_DEFAULT,
-                              choices=constants.TYPES_CHOICES)
+                                       choices=constants.TYPES_CHOICES)
     # Lots of IDs.
     # An ID from the provider that can be used for support on this specific
     # transaction. Optional.
@@ -72,15 +71,15 @@ def create_paypal_transaction(sender, **kwargs):
     clean = kwargs['form']
 
     transaction = Transaction.create(
-            amount=clean['amount'],
-            currency=clean['currency'],
-            provider=constants.SOURCE_PAYPAL,
-            seller_product=clean['seller_product'],
-            source=clean.get('source', ''),
-            type=constants.TYPE_PAYMENT,
-            uid_pay=data['pay_key'],
-            uid_support=data['correlation_id'],
-            uuid=data['uuid'])
+        amount=clean['amount'],
+        currency=clean['currency'],
+        provider=constants.SOURCE_PAYPAL,
+        seller_product=clean['seller_product'],
+        source=clean.get('source', ''),
+        type=constants.TYPE_PAYMENT,
+        uid_pay=data['pay_key'],
+        uid_support=data['correlation_id'],
+        uuid=data['uuid'])
     log.info('Transaction: %s, paypal status: %s'
              % (transaction.pk, data['status']))
 
@@ -113,10 +112,10 @@ def create_bango_transaction(sender, **kwargs):
     seller_product = form.cleaned_data['seller_product_bango'].seller_product
 
     transaction, c = Transaction.objects.safer_get_or_create(
-            uuid=data['transaction_uuid'],
-            status=constants.STATUS_RECEIVED,
-            provider=constants.SOURCE_BANGO,
-            seller_product=seller_product)
+        uuid=data['transaction_uuid'],
+        status=constants.STATUS_RECEIVED,
+        provider=constants.SOURCE_BANGO,
+        seller_product=seller_product)
     transaction.source = data.get('source', '')
     # uid_support will be set with the transaction id.
     # uid_pay is the uid of the billingConfiguration request.
