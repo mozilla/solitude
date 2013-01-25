@@ -18,13 +18,14 @@ class TestSeller(APITest):
         self.list_url = self.get_list_url('transaction')
         self.seller, self.paypal, self.product = (
             make_seller_paypal('paypal:%s' % self.uuid))
-        self.trans = Transaction.objects.create(
-            amount=5, seller_product=self.product,
-            provider=constants.SOURCE_PAYPAL, uuid=self.uuid)
+        self.trans = Transaction.objects.create(amount=5,
+                                            seller_product=self.product,
+                                            provider=constants.SOURCE_PAYPAL,
+                                            uuid=self.uuid)
         self.detail_url = reverse('api_dispatch_detail',
                                   kwargs={'api_name': self.api_name,
                                           'resource_name': 'transaction',
-                                          'pk': self.trans.pk})
+                                          'uuid': self.uuid})
 
     def test_list_allowed(self):
         self.allowed_verbs(self.list_url, ['get', 'post'])
