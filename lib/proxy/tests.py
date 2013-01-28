@@ -1,5 +1,3 @@
-import json
-
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
@@ -56,7 +54,6 @@ class TestProxy(test_utils.TestCase):
 
 
 @mock.patch.object(settings, 'SOLITUDE_PROXY', True)
-@mock.patch.object(settings, 'BANGO_MOCK', True)
 @mock.patch.object(settings, 'BANGO_AUTH', {'USER': 'me', 'PASSWORD': 'shh'})
 @mock.patch('lib.proxy.views.requests.post')
 class TestBango(test_utils.TestCase):
@@ -86,3 +83,12 @@ class TestBango(test_utils.TestCase):
         body = post.call_args[1]['data']
         assert '<ns1:username>me</ns1:username>' in body
         assert '<ns1:password>shh</ns1:password>' in body
+
+    def test_refund(self, post):
+        self.client.post(self.url,
+                         samples.refund_request,
+                         **{'content_type': 'text/xml',
+                            HEADERS_SERVICE_GET: 'http://url.com/b'})
+        body = post.call_args[1]['data']
+        assert '<ns0:username>me</ns0:username>' in body
+        assert '<ns0:password>shh</ns0:password>' in body

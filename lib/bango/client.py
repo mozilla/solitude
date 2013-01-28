@@ -20,6 +20,7 @@ root = os.path.join(settings.ROOT, 'lib', 'bango', 'wsdl', settings.BANGO_ENV)
 wsdl = {
     'exporter': 'file://' + os.path.join(root, 'mozilla_exporter.wsdl'),
     'billing': 'file://' + os.path.join(root, 'billing_configuration.wsdl'),
+    'direct': 'file://' + os.path.join(root, 'direct_billing.wsdl'),
 }
 
 # Add in the whitelist of supported methods here.
@@ -38,6 +39,10 @@ exporter = [
 
 billing = [
     'CreateBillingConfiguration',
+]
+
+direct = [
+    'DoRefund',
 ]
 
 
@@ -61,10 +66,11 @@ log = commonware.log.getLogger('s.bango')
 class Client(object):
 
     def __getattr__(self, attr):
-        if attr in exporter:
-            return functools.partial(self.call, attr)
-        if attr in billing:
-            return functools.partial(self.call, attr, wsdl='billing')
+        for name, methods in (['exporter', exporter],
+                              ['billing', billing],
+                              ['direct', direct]):
+            if attr in methods:
+                return functools.partial(self.call, attr, wsdl=str(name))
         raise AttributeError('Unknown request: %s' % attr)
 
     def call(self, name, data, wsdl='exporter'):
@@ -145,6 +151,9 @@ mock_data = {
     'GetSBIAgreement': {
         'sbiAgreement': 'Blah...',
         'sbiAgreementValidFrom': '2010-08-31 00:00:00',
+    },
+    'DoRefund': {
+        'refundTransactionId': uuid.uuid4
     }
 }
 

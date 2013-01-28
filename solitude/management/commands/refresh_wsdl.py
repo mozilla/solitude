@@ -12,12 +12,16 @@ sources = {
          'mozilla_exporter.wsdl'),
         ('https://webservices.bango.com/billingconfiguration/?WSDL',
          'billing_configuration.wsdl'),
+        ('https://webservices.bango.com/directbilling_v3_1/?wsdl',
+         'direct_billing.wsdl'),
     ],
     'test': [
         ('https://webservices.test.bango.org/mozillaexporter/?WSDL',
          'mozilla_exporter.wsdl'),
         ('https://webservices.test.bango.org/billingconfiguration/?WSDL',
          'billing_configuration.wsdl'),
+        ('https://webservices.test.bango.org/directbilling_v3_1/?wsdl',
+         'direct_billing.wsdl'),
     ]
 }
 

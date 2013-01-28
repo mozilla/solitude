@@ -9,11 +9,14 @@ from nose.tools import eq_, ok_
 
 from lib.sellers.models import (Seller, SellerBango, SellerProduct,
                                 SellerProductBango)
+from lib.sellers.tests.utils import make_seller_paypal
 from lib.transactions import constants
+from lib.transactions.constants import (SOURCE_PAYPAL, STATUS_CANCELLED,
+                                        STATUS_COMPLETED, TYPE_REFUND)
 from lib.transactions.models import Transaction
 from solitude.base import APITest
 
-from ..constants import CANCEL, BANGO_ALREADY_PREMIUM_ENABLED
+from ..constants import ALREADY_REFUNDED, BANGO_ALREADY_PREMIUM_ENABLED, CANCEL
 from ..client import ClientMock
 from ..errors import BangoError
 from ..resources.cached import SimpleResource
@@ -50,7 +53,6 @@ class TestSimple(APITest):
             Foo().check_meta()
 
 
-@mock.patch.object(settings, 'BANGO_MOCK', True)
 class TestPackageResource(BangoAPI):
 
     def setUp(self):
@@ -131,7 +133,6 @@ class TestPackageResource(BangoAPI):
         eq_(seller_bango.finance_person_id, old_finance)
 
 
-@mock.patch.object(settings, 'BANGO_MOCK', True)
 class TestBangoProduct(BangoAPI):
 
     def setUp(self):
@@ -204,7 +205,6 @@ class SellerProductBangoBase(BangoAPI):
                                          self.seller_product_bango.pk)
 
 
-@mock.patch.object(settings, 'BANGO_MOCK', True)
 class TestBangoMarkPremium(SellerProductBangoBase):
 
     def test_list_allowed(self):
@@ -246,7 +246,6 @@ class TestBangoMarkPremium(SellerProductBangoBase):
         eq_(res.status_code, 204)
 
 
-@mock.patch.object(settings, 'BANGO_MOCK', True)
 class TestBangoUpdateRating(SellerProductBangoBase):
 
     def test_list_allowed(self):
@@ -272,7 +271,6 @@ class TestBangoUpdateRating(SellerProductBangoBase):
         eq_(res.status_code, 400, res.content)
 
 
-@mock.patch.object(settings, 'BANGO_MOCK', True)
 class TestCreateBillingConfiguration(SellerProductBangoBase):
 
     def setUp(self):
@@ -354,7 +352,6 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         assert 'transaction_uuid' in json.loads(res.content)
 
 
-@mock.patch.object(settings, 'BANGO_MOCK', True)
 class TestCreateBankConfiguration(BangoAPI):
 
     def setUp(self):
@@ -369,7 +366,6 @@ class TestCreateBankConfiguration(BangoAPI):
         eq_(res.status_code, 201)
 
 
-@mock.patch.object(settings, 'BANGO_MOCK', True)
 class TestGetSBI(BangoAPI):
 
     def setUp(self):
@@ -482,3 +478,63 @@ class TestNotification(APITest):
         self.trans.save()
         with self.settings(TRANSACTION_EXPIRY=60):
             self.post(self.data(), expected_status=400)
+
+
+class TestRefund(APITest):
+
+    def setUp(self):
+        self.api_name = 'bango'
+        self.uuid = 'sample:uid'
+        self.seller, self.paypal, self.product = (
+            make_seller_paypal('webpay:sample:uid'))
+        self.trans = Transaction.objects.create(
+            amount=5, seller_product=self.product,
+            provider=constants.SOURCE_BANGO, uuid=self.uuid,
+            status=constants.STATUS_COMPLETED)
+        self.url = self.get_list_url('refund')
+
+    def test_get(self):
+        res = self.client.post(self.url, data={'uuid': self.uuid})
+        eq_(res.status_code, 201, res.content)
+        data = json.loads(res.content)
+        eq_(data['status'], STATUS_COMPLETED)
+        eq_(data['type'], TYPE_REFUND)
+
+        eq_(len(Transaction.objects.all()), 2)
+        trans = Transaction.objects.get(pk=data['resource_pk'])
+        eq_(trans.related.pk, self.trans.pk)
+
+    def _fail(self):
+        res = self.client.post(self.url, data={'uuid': self.uuid})
+        eq_(res.status_code, 400)
+        ok_(self.get_errors(res.content, 'uuid'))
+
+    def test_not_bango(self):
+        self.trans.provider = SOURCE_PAYPAL
+        self.trans.save()
+        self._fail()
+
+    def test_not_complete(self):
+        self.trans.status = STATUS_CANCELLED
+        self.trans.save()
+        self._fail()
+
+    def test_not_payment(self):
+        self.trans.type = TYPE_REFUND
+        self.trans.save()
+        self._fail()
+
+    def test_refunded(self):
+        Transaction.objects.create(seller_product=self.product,
+            related=self.trans, provider=constants.SOURCE_BANGO,
+            status=constants.STATUS_COMPLETED, type=constants.TYPE_REFUND,
+            uuid='something', uid_pay='something')
+        self._fail()
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_already(self, mock_results):
+        mock_results.return_value = {'responseCode': ALREADY_REFUNDED}
+        with self.assertRaises(BangoError):
+            self.client.post(self.url, data={'uuid': self.uuid})
+        # Check we didn't create a transaction.
+        eq_(len(Transaction.objects.all()), 1)

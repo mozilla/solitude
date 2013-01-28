@@ -141,3 +141,21 @@ billing_request = """<?xml version="1.0" encoding="UTF-8"?>
         </ns1:CreateBillingConfiguration>
     </ns0:Body>
 </SOAP-ENV:Envelope>"""
+
+refund_request = """<SOAP-ENV:Envelope
+    xmlns:ns0="com.bango.webservices.directbilling"
+    xmlns:ns1="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <SOAP-ENV:Header/>
+    <ns1:Body>
+        <ns0:DoRefund>
+            <ns0:request>
+                <ns0:username>Mozilla</ns0:username>
+                <ns0:password></ns0:password>
+                <ns0:transactionId>1</ns0:transactionId>
+                <ns0:refundType>OPERATOR</ns0:refundType>
+            </ns0:request>
+        </ns0:DoRefund>
+    </ns1:Body>
+</SOAP-ENV:Envelope>"""

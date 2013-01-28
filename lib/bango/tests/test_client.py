@@ -14,8 +14,7 @@ import samples
 class TestClient(test_utils.TestCase):
 
     def setUp(self):
-        with self.settings(BANGO_MOCK=True):
-            self.client = get_client()
+        self.client = get_client()
 
     def test_create_package(self):
         res = self.client.CreatePackage(samples.good_address)

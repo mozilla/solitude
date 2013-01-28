@@ -43,3 +43,6 @@ process.disconnect(dispatch_uid='paranoia.reporter.django_paranoia'
 process.disconnect(dispatch_uid='paranoia.reporter.django_paranoia'
                                 '.reporters.log')
 DJANGO_PARANOIA_REPORTERS = []
+
+# We don't want to hit the live bango in tests.
+BANGO_MOCK = True

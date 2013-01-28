@@ -1,0 +1,789 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="com.bango.webservices.directbilling" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="com.bango.webservices.directbilling" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="com.bango.webservices.directbilling">
+      <s:element name="GetUserId">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetUserIdRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetUserIdRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="mobileNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="networkId" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetUserIdResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetUserIdResult" type="tns:GetUserIdResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetUserIdResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="userId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="IsDirectBillingSupported">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:IsDirectBillingSupportedRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="IsDirectBillingSupportedRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="userId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="typeFilter" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="priceList" type="tns:ArrayOfPrice" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfPrice">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Price" type="tns:Price" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Price">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="amount" type="s:decimal" />
+          <s:element minOccurs="0" maxOccurs="1" name="currency" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="IsDirectBillingSupportedResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="IsDirectBillingSupportedResult" type="tns:IsDirectBillingSupportedResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="IsDirectBillingSupportedResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="supported" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="defaultType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="paymentMethods" type="tns:ArrayOfSimplePaymentMethod" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfSimplePaymentMethod">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="SimplePaymentMethod" type="tns:SimplePaymentMethod" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SimplePaymentMethod">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="description" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="type" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DoPayment">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:DoPaymentRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DoPaymentRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="userId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="typeFilter" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="externalTransactionId" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DoPaymentResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DoPaymentResult" type="tns:DoPaymentResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DoPaymentResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="transactionId" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="transactionMethods" type="tns:ArrayOfTransactionMethod" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfTransactionMethod">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TransactionMethod" type="tns:TransactionMethod" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TransactionMethod">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="networkId" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="networkDescription" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="paymentMethodId" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="paymentMethodDescription" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DoPaymentWithPrice">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:DoPaymentWithPriceRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DoPaymentWithPriceRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="userId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="typeFilter" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="priceList" type="tns:ArrayOfPrice" />
+          <s:element minOccurs="0" maxOccurs="1" name="externalTransactionId" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DoPaymentWithPriceResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DoPaymentWithPriceResult" type="tns:DoPaymentWithPriceResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DoPaymentWithPriceResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="transactionId" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="transactionMethods" type="tns:ArrayOfTransactionMethod" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CreateSubscription">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:CreateSubscriptionRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CreateSubscriptionRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="userId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="typeFilter" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="externalTransactionId" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CreateSubscriptionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CreateSubscriptionResult" type="tns:CreateSubscriptionResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CreateSubscriptionResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="subscriptionId" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="transactionId" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="transactionMethods" type="tns:ArrayOfTransactionMethod" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DoRefund">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:DoRefundRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DoRefundRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="transactionId" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="refundType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="externalTransactionId" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DoRefundResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DoRefundResult" type="tns:DoRefundResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DoRefundResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="refundTransactionId" type="s:long" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetRefundStatus">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetRefundStatusRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetRefundStatusRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="refundTransactionId" type="s:long" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetRefundStatusResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetRefundStatusResult" type="tns:GetRefundStatusResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetRefundStatusResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="ValidateCardForUser">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:ValidateCardForUserRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ValidateCardForUserRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="userId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="cardNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="cardStart" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="cardExpiry" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="cardCVV" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="cardIssue" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="zip" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="clientIP" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="ValidateCardForUserResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ValidateCardForUserResult" type="tns:ValidateCardForUserResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ValidateCardForUserResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetRemainingTime">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetRemainingTimeRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetRemainingTimeRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="userId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetRemainingTimeResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetRemainingTimeResult" type="tns:GetRemainingTimeResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetRemainingTimeResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="expires" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetRemainingAccesses">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:GetRemainingAccessesRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetRemainingAccessesRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="userId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetRemainingAccessesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetRemainingAccessesResult" type="tns:GetRemainingAccessesResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetRemainingAccessesResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="accesses" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="ConsumeOneAccess">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:ConsumeOneAccessRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ConsumeOneAccessRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="userId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="ConsumeOneAccessResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ConsumeOneAccessResult" type="tns:ConsumeOneAccessResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ConsumeOneAccessResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="accesses" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CreateSubscriptionWithPrice">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="request" type="tns:CreateSubscriptionWithPriceRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CreateSubscriptionWithPriceRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="bango" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="userId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="typeFilter" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="initialPriceList" type="tns:ArrayOfPrice" />
+          <s:element minOccurs="0" maxOccurs="1" name="priceList" type="tns:ArrayOfPrice" />
+          <s:element minOccurs="0" maxOccurs="1" name="externalTransactionId" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CreateSubscriptionWithPriceResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CreateSubscriptionWithPriceResult" type="tns:CreateSubscriptionWithPriceResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CreateSubscriptionWithPriceResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="responseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="responseMessage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="subscriptionId" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="transactionId" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="transactionMethods" type="tns:ArrayOfTransactionMethod" />
+        </s:sequence>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetUserIdSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserId" />
+  </wsdl:message>
+  <wsdl:message name="GetUserIdSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="IsDirectBillingSupportedSoapIn">
+    <wsdl:part name="parameters" element="tns:IsDirectBillingSupported" />
+  </wsdl:message>
+  <wsdl:message name="IsDirectBillingSupportedSoapOut">
+    <wsdl:part name="parameters" element="tns:IsDirectBillingSupportedResponse" />
+  </wsdl:message>
+  <wsdl:message name="DoPaymentSoapIn">
+    <wsdl:part name="parameters" element="tns:DoPayment" />
+  </wsdl:message>
+  <wsdl:message name="DoPaymentSoapOut">
+    <wsdl:part name="parameters" element="tns:DoPaymentResponse" />
+  </wsdl:message>
+  <wsdl:message name="DoPaymentWithPriceSoapIn">
+    <wsdl:part name="parameters" element="tns:DoPaymentWithPrice" />
+  </wsdl:message>
+  <wsdl:message name="DoPaymentWithPriceSoapOut">
+    <wsdl:part name="parameters" element="tns:DoPaymentWithPriceResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateSubscriptionSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateSubscription" />
+  </wsdl:message>
+  <wsdl:message name="CreateSubscriptionSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateSubscriptionResponse" />
+  </wsdl:message>
+  <wsdl:message name="DoRefundSoapIn">
+    <wsdl:part name="parameters" element="tns:DoRefund" />
+  </wsdl:message>
+  <wsdl:message name="DoRefundSoapOut">
+    <wsdl:part name="parameters" element="tns:DoRefundResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetRefundStatusSoapIn">
+    <wsdl:part name="parameters" element="tns:GetRefundStatus" />
+  </wsdl:message>
+  <wsdl:message name="GetRefundStatusSoapOut">
+    <wsdl:part name="parameters" element="tns:GetRefundStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="ValidateCardForUserSoapIn">
+    <wsdl:part name="parameters" element="tns:ValidateCardForUser" />
+  </wsdl:message>
+  <wsdl:message name="ValidateCardForUserSoapOut">
+    <wsdl:part name="parameters" element="tns:ValidateCardForUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetRemainingTimeSoapIn">
+    <wsdl:part name="parameters" element="tns:GetRemainingTime" />
+  </wsdl:message>
+  <wsdl:message name="GetRemainingTimeSoapOut">
+    <wsdl:part name="parameters" element="tns:GetRemainingTimeResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetRemainingAccessesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetRemainingAccesses" />
+  </wsdl:message>
+  <wsdl:message name="GetRemainingAccessesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetRemainingAccessesResponse" />
+  </wsdl:message>
+  <wsdl:message name="ConsumeOneAccessSoapIn">
+    <wsdl:part name="parameters" element="tns:ConsumeOneAccess" />
+  </wsdl:message>
+  <wsdl:message name="ConsumeOneAccessSoapOut">
+    <wsdl:part name="parameters" element="tns:ConsumeOneAccessResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateSubscriptionWithPriceSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateSubscriptionWithPrice" />
+  </wsdl:message>
+  <wsdl:message name="CreateSubscriptionWithPriceSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateSubscriptionWithPriceResponse" />
+  </wsdl:message>
+  <wsdl:portType name="DirectBillingSoap">
+    <wsdl:operation name="GetUserId">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Returns the User Id for a mobile phone number on a specific operator.</wsdl:documentation>
+      <wsdl:input message="tns:GetUserIdSoapIn" />
+      <wsdl:output message="tns:GetUserIdSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsDirectBillingSupported">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Checks whether Direct Billing is supported for a specific user ID, indicating how the user will pay if a Direct Billing payment is requested.</wsdl:documentation>
+      <wsdl:input message="tns:IsDirectBillingSupportedSoapIn" />
+      <wsdl:output message="tns:IsDirectBillingSupportedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DoPayment">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Makes a payment request for the specified user ID and Bango Number.</wsdl:documentation>
+      <wsdl:input message="tns:DoPaymentSoapIn" />
+      <wsdl:output message="tns:DoPaymentSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DoPaymentWithPrice">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Makes a payment request for the specified user ID and Bango Number using specific price overrides.</wsdl:documentation>
+      <wsdl:input message="tns:DoPaymentWithPriceSoapIn" />
+      <wsdl:output message="tns:DoPaymentWithPriceSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateSubscription">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Creates a new time-based subscription for the specified user ID and Bango Number.</wsdl:documentation>
+      <wsdl:input message="tns:CreateSubscriptionSoapIn" />
+      <wsdl:output message="tns:CreateSubscriptionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DoRefund">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Refunds (reverses) a previous payment.</wsdl:documentation>
+      <wsdl:input message="tns:DoRefundSoapIn" />
+      <wsdl:output message="tns:DoRefundSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRefundStatus">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Returns the status of a requested refund.</wsdl:documentation>
+      <wsdl:input message="tns:GetRefundStatusSoapIn" />
+      <wsdl:output message="tns:GetRefundStatusSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ValidateCardForUser">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Validates card details ahead of processing payments via DoPayment.</wsdl:documentation>
+      <wsdl:input message="tns:ValidateCardForUserSoapIn" />
+      <wsdl:output message="tns:ValidateCardForUserSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRemainingTime">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets the amount of time remaining from a previous payment.</wsdl:documentation>
+      <wsdl:input message="tns:GetRemainingTimeSoapIn" />
+      <wsdl:output message="tns:GetRemainingTimeSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRemainingAccesses">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets the number of remaining accesses remaining from a previous payment.</wsdl:documentation>
+      <wsdl:input message="tns:GetRemainingAccessesSoapIn" />
+      <wsdl:output message="tns:GetRemainingAccessesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ConsumeOneAccess">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Consumes one of the remaining accesses, if any remain.</wsdl:documentation>
+      <wsdl:input message="tns:ConsumeOneAccessSoapIn" />
+      <wsdl:output message="tns:ConsumeOneAccessSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateSubscriptionWithPrice">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Creates a new time-based subscription for the specified user ID and Bango Number using specific price overrides.</wsdl:documentation>
+      <wsdl:input message="tns:CreateSubscriptionWithPriceSoapIn" />
+      <wsdl:output message="tns:CreateSubscriptionWithPriceSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="DirectBillingSoap" type="tns:DirectBillingSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetUserId">
+      <soap:operation soapAction="com.bango.webservices.directbilling/GetUserId" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsDirectBillingSupported">
+      <soap:operation soapAction="com.bango.webservices.directbilling/IsDirectBillingSupported" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoPayment">
+      <soap:operation soapAction="com.bango.webservices.directbilling/DoPayment" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoPaymentWithPrice">
+      <soap:operation soapAction="com.bango.webservices.directbilling/DoPaymentWithPrice" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateSubscription">
+      <soap:operation soapAction="com.bango.webservices.directbilling/CreateSubscription" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoRefund">
+      <soap:operation soapAction="com.bango.webservices.directbilling/DoRefund" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRefundStatus">
+      <soap:operation soapAction="com.bango.webservices.directbilling/GetRefundStatus" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidateCardForUser">
+      <soap:operation soapAction="com.bango.webservices.directbilling/ValidateCardForUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRemainingTime">
+      <soap:operation soapAction="com.bango.webservices.directbilling/GetRemainingTime" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRemainingAccesses">
+      <soap:operation soapAction="com.bango.webservices.directbilling/GetRemainingAccesses" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ConsumeOneAccess">
+      <soap:operation soapAction="com.bango.webservices.directbilling/ConsumeOneAccess" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateSubscriptionWithPrice">
+      <soap:operation soapAction="com.bango.webservices.directbilling/CreateSubscriptionWithPrice" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="DirectBillingSoap12" type="tns:DirectBillingSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetUserId">
+      <soap12:operation soapAction="com.bango.webservices.directbilling/GetUserId" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsDirectBillingSupported">
+      <soap12:operation soapAction="com.bango.webservices.directbilling/IsDirectBillingSupported" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoPayment">
+      <soap12:operation soapAction="com.bango.webservices.directbilling/DoPayment" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoPaymentWithPrice">
+      <soap12:operation soapAction="com.bango.webservices.directbilling/DoPaymentWithPrice" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateSubscription">
+      <soap12:operation soapAction="com.bango.webservices.directbilling/CreateSubscription" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoRefund">
+      <soap12:operation soapAction="com.bango.webservices.directbilling/DoRefund" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRefundStatus">
+      <soap12:operation soapAction="com.bango.webservices.directbilling/GetRefundStatus" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidateCardForUser">
+      <soap12:operation soapAction="com.bango.webservices.directbilling/ValidateCardForUser" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRemainingTime">
+      <soap12:operation soapAction="com.bango.webservices.directbilling/GetRemainingTime" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRemainingAccesses">
+      <soap12:operation soapAction="com.bango.webservices.directbilling/GetRemainingAccesses" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ConsumeOneAccess">
+      <soap12:operation soapAction="com.bango.webservices.directbilling/ConsumeOneAccess" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateSubscriptionWithPrice">
+      <soap12:operation soapAction="com.bango.webservices.directbilling/CreateSubscriptionWithPrice" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="DirectBilling">
+    <wsdl:port name="DirectBillingSoap" binding="tns:DirectBillingSoap">
+      <soap:address location="https://webservices.bango.com/directbilling_v3_1/service.asmx" />
+    </wsdl:port>
+    <wsdl:port name="DirectBillingSoap12" binding="tns:DirectBillingSoap12">
+      <soap12:address location="https://webservices.bango.com/directbilling_v3_1/service.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

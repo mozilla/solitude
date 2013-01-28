@@ -61,6 +61,11 @@ class Transaction(Model):
         transaction.save()
         return transaction
 
+    def is_refunded(self):
+        return Transaction.objects.filter(related=self,
+            type__in=(constants.TYPE_REFUND, constants.TYPE_REVERSAL),
+            status=constants.STATUS_COMPLETED).exists()
+
 
 @receiver(paypal_create, dispatch_uid='transaction-create-paypal')
 def create_paypal_transaction(sender, **kwargs):

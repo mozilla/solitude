@@ -22,11 +22,13 @@ class TestModel(APITest):
             'amount': 1,
             'provider': constants.SOURCE_BANGO,
             'seller_product': self.product,
-            'uuid': uid or self.uuid
+            'uuid': uid or self.uuid,
+            'uid_pay': uid or self.uuid,
         }
 
     def test_uid_pay(self):
         data = self.get_data()
+        del data['uid_pay']
         with self.assertRaises(ValidationError):
             Transaction.create(**data)  # No uid_pay.
 
@@ -51,6 +53,30 @@ class TestModel(APITest):
         data['uuid'] = data['uuid'] + ':foo'
         data['uid_pay'] = data['uid_pay'] + 'some:uid'
         Transaction.objects.create(**data)
+
+    def add_related(self):
+        original = Transaction.create(**self.get_data())
+        related = Transaction.create(related=original,
+                                     **self.get_data(uid='foo'))
+        return original, related
+
+    def test_refunded(self):
+        original, related = self.add_related()
+        related.status = constants.STATUS_COMPLETED
+        related.type = constants.TYPE_REFUND
+        related.save()
+        assert not related.reget().is_refunded()
+        assert original.reget().is_refunded()
+
+    def test_not_completed(self):
+        original, related = self.add_related()
+        related.type = constants.TYPE_REFUND
+        related.save()
+        assert not original.reget().is_refunded()
+
+    def test_not_reversal(self):
+        original, related = self.add_related()
+        assert not original.reget().is_refunded()
 
 
 class TestTransaction(APITest):

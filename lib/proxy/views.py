@@ -101,7 +101,9 @@ class PaypalProxy(Proxy):
 
 class BangoProxy(Proxy):
     name = 'bango'
+    service = 'bango'
     namespaces = ['com.bango.webservices.billingconfiguration',
+                  'com.bango.webservices.directbilling',
                   'com.bango.webservices.mozillaexporter']
 
     def __init__(self):

@@ -8,7 +8,8 @@ from django.conf import settings
 from lib.bango.constants import COUNTRIES, CURRENCIES, RATINGS, RATINGS_SCHEME
 from lib.bango.utils import verify_sig
 from lib.sellers.models import SellerProductBango
-from lib.transactions.constants import STATUS_COMPLETED
+from lib.transactions.constants import (SOURCE_BANGO, STATUS_COMPLETED,
+                                        TYPE_PAYMENT)
 from lib.transactions.models import Transaction
 from solitude.fields import ListField, URLField
 
@@ -224,3 +225,25 @@ class SBIForm(forms.Form):
         result['packageId'] = result['seller_bango'].package_id
         del result['seller_bango']
         return result
+
+
+class RefundForm(forms.Form):
+    uuid = forms.CharField()
+
+    def clean_uuid(self):
+        # Rather than just returning a 404, let's help the caller of this API
+        # tell them why their transaction is denied.
+        transaction = Transaction.objects.get(uuid=self.cleaned_data['uuid'])
+        if transaction.provider != SOURCE_BANGO:
+            raise forms.ValidationError('Not a Bango transaction')
+
+        elif transaction.status != STATUS_COMPLETED:
+            raise forms.ValidationError('Not completed')
+
+        elif transaction.type != TYPE_PAYMENT:
+            raise forms.ValidationError('Not a payment')
+
+        elif transaction.is_refunded():
+            raise forms.ValidationError('Already refunded')
+
+        return transaction
