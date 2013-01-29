@@ -57,7 +57,7 @@ class TestRightClient(test_utils.TestCase):
             assert isinstance(get_client(), Client)
 
     def test_using_proxy(self):
-        with self.settings(BANGO_PROXY='http://foo.com'):
+        with self.settings(BANGO_MOCK=False, BANGO_PROXY='http://foo.com'):
             assert isinstance(get_client(), ClientProxy)
 
     def test_am_proxy(self):

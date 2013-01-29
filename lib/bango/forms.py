@@ -9,7 +9,7 @@ from lib.bango.constants import COUNTRIES, CURRENCIES, RATINGS, RATINGS_SCHEME
 from lib.bango.utils import verify_sig
 from lib.sellers.models import SellerProductBango
 from lib.transactions.constants import (SOURCE_BANGO, STATUS_COMPLETED,
-                                        TYPE_PAYMENT)
+                                        TYPE_PAYMENT, TYPE_REFUND)
 from lib.transactions.models import Transaction
 from solitude.fields import ListField, URLField
 
@@ -245,5 +245,18 @@ class RefundForm(forms.Form):
 
         elif transaction.is_refunded():
             raise forms.ValidationError('Already refunded')
+
+        return transaction
+
+
+class RefundStatusForm(forms.Form):
+    uuid = forms.CharField()
+
+    def clean_uuid(self):
+        # Rather than just returning a 404, let's help the caller of this API
+        # tell them why their transaction is denied.
+        transaction = Transaction.objects.get(uuid=self.cleaned_data['uuid'])
+        if transaction.type != TYPE_REFUND:
+            raise forms.ValidationError('Not a refund')
 
         return transaction

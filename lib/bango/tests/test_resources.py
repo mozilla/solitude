@@ -12,11 +12,12 @@ from lib.sellers.models import (Seller, SellerBango, SellerProduct,
 from lib.sellers.tests.utils import make_seller_paypal
 from lib.transactions import constants
 from lib.transactions.constants import (SOURCE_PAYPAL, STATUS_CANCELLED,
-                                        STATUS_COMPLETED, TYPE_REFUND)
+                                        TYPE_REFUND)
 from lib.transactions.models import Transaction
 from solitude.base import APITest
 
-from ..constants import ALREADY_REFUNDED, BANGO_ALREADY_PREMIUM_ENABLED, CANCEL
+from ..constants import (ALREADY_REFUNDED, BANGO_ALREADY_PREMIUM_ENABLED,
+                         CANCEL, CANT_REFUND, OK, PENDING)
 from ..client import ClientMock
 from ..errors import BangoError
 from ..resources.cached import SimpleResource
@@ -497,12 +498,12 @@ class TestRefund(APITest):
         res = self.client.post(self.url, data={'uuid': self.uuid})
         eq_(res.status_code, 201, res.content)
         data = json.loads(res.content)
-        eq_(data['status'], STATUS_COMPLETED)
-        eq_(data['type'], TYPE_REFUND)
+        eq_(data['status'], OK)
 
         eq_(len(Transaction.objects.all()), 2)
         trans = Transaction.objects.get(pk=data['resource_pk'])
         eq_(trans.related.pk, self.trans.pk)
+        eq_(trans.type, TYPE_REFUND)
 
     def _fail(self):
         res = self.client.post(self.url, data={'uuid': self.uuid})
@@ -538,3 +539,63 @@ class TestRefund(APITest):
             self.client.post(self.url, data={'uuid': self.uuid})
         # Check we didn't create a transaction.
         eq_(len(Transaction.objects.all()), 1)
+
+
+class TestRefundStatus(APITest):
+
+    def setUp(self):
+        self.api_name = 'bango'
+        self.refund_uuid = 'sample:refund'
+        self.seller, self.paypal, self.product = (
+            make_seller_paypal('webpay:sample:uid'))
+        self.refund = Transaction.objects.create(
+            amount=5, seller_product=self.product,
+            type=constants.TYPE_REFUND,
+            provider=constants.SOURCE_BANGO,
+            uuid=self.refund_uuid, uid_pay='asd',
+            status=constants.STATUS_COMPLETED)
+        self.url = '/bango/refund/status/'
+
+    def test_get(self):
+        res = self.client.get_with_body(self.url,
+                                        data={'uuid': self.refund_uuid})
+        data = json.loads(res.content)
+        eq_(data['status'], OK)
+
+    def test_not_refund(self):
+        self.refund.type = constants.TYPE_PAYMENT
+        self.refund.save()
+
+        res = self.client.get_with_body(self.url,
+                                        data={'uuid': self.refund_uuid})
+        eq_(res.status_code, 400)
+        ok_(self.get_errors(res.content, 'uuid'))
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_pending(self, mock_results):
+        mock_results.return_value = {'responseCode': PENDING}
+        res = self.client.get_with_body(self.url,
+                                        data={'uuid': self.refund.uuid})
+        data = json.loads(res.content)
+        eq_(data['status'], PENDING)
+        eq_(self.refund.reget().status, constants.STATUS_PENDING)
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_failed(self, mock_results):
+        mock_results.return_value = {'responseCode': CANT_REFUND}
+        res = self.client.get_with_body(self.url,
+                                        data={'uuid': self.refund.uuid})
+        data = json.loads(res.content)
+        eq_(data['status'], CANT_REFUND)
+        eq_(self.refund.reget().status, constants.STATUS_FAILED)
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_ok(self, mock_results):
+        self.refund.status = constants.STATUS_PENDING
+        self.refund.save()
+        mock_results.return_value = {'responseCode': OK}
+        res = self.client.get_with_body(self.url,
+                                        data={'uuid': self.refund.uuid})
+        data = json.loads(res.content)
+        eq_(data['status'], OK)
+        eq_(self.refund.reget().status, constants.STATUS_COMPLETED)

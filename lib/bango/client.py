@@ -43,6 +43,7 @@ billing = [
 
 direct = [
     'DoRefund',
+    'GetRefundStatus',
 ]
 
 

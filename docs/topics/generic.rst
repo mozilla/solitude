@@ -55,4 +55,3 @@ Returns::
          u'resource_key': 16,
          u'bluevia': null,
          u'paypal': null}
-

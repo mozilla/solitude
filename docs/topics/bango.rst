@@ -39,3 +39,21 @@ expiry date is also stored on the seller, so you can access that as well::
         {"sbi_expires": "2014-01-23"}
 
 If *sbi_expires* is empty, the agreement has not been approved.
+
+Refunds
+=======
+
+The refund API gives access to 2 calls: DoRefund and GetRundStatus. You will
+need a valid transaction to start a refund::
+
+        POST /bango/refund/
+        {"uuid": "uuid-of-the-transaction"}
+
+This will return the bango response and a pointer to the new transaction.
+A refund generates a new transaction::
+
+        GET /bango/refund/status/
+        {"uuid": "uuid-of-the-refund-transaction"}
+
+If the response from Bango is different from the transaction state, then the
+transaction will be altered to reflect this.
