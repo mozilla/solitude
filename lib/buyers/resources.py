@@ -1,8 +1,5 @@
-from django.http import HttpResponseForbidden
-
 from solitude.base import get_object_or_404, log_cef, ModelResource, Resource
 from tastypie import fields
-from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.validation import FormValidation
 
 from .forms import BuyerForm, BuyerFormValidation, PinForm
