@@ -151,19 +151,21 @@ class TestSellerProduct(APITest):
         self.list_url = self.get_list_url('product')
 
     def create(self, **kw):
-        params = {'seller': self.seller, 'external_id': 'xyz'}
+        params = {'seller': self.seller, 'external_id': 'xyz',
+                  'public_id': uuid}
         params.update(kw)
         return SellerProduct.objects.create(**params)
 
     def create_url(self):
-        obj = self.create()
+        obj = self.create(public_id='%s-url' % uuid)
         url = self.get_detail_url('product', obj)
         return obj, url
 
     def data(self, **kw):
         params = {'seller': self.seller_uri(),
                   'external_id': 'pre-generated-product-id',
-                  'secret': 'hush'}
+                  'secret': 'hush',
+                  'public_id': 'public-id'}
         params.update(**kw)
         return params
 
@@ -230,7 +232,7 @@ class TestSellerProduct(APITest):
         new_seller = Seller.objects.create(uuid='some-other-seller')
 
         data = self.data(seller=self.get_detail_url('seller', new_seller.pk),
-                         external_id='unique-id')
+                         external_id='unique-id', public_id='blah')
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 201)
 
@@ -262,7 +264,8 @@ class TestSellerProduct(APITest):
         obj, url = self.create_url()
         res = self.client.put(url, json.dumps({'seller': self.seller_url,
                                                'secret': 'hush',
-                                               'external_id': 'abc'}))
+                                               'external_id': 'abc',
+                                               'public_id': 'blah'}))
         eq_(res.status_code, 202)
         data = obj.reget()
         eq_(data.secret, 'hush')
@@ -281,7 +284,8 @@ class TestSellerProduct(APITest):
         obj, url = self.create_url()
         res = self.client.put(url, json.dumps({'seller': self.seller_url,
                                                'secret': 'hush',
-                                               'external_id': 'some-id'}))
+                                               'external_id': 'some-id',
+                                               'public_id': 'blah'}))
         eq_(res.status_code, 400)
         eq_(self.get_errors(res.content, '__all__'),
             [EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE], res.content)

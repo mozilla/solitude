@@ -173,7 +173,8 @@ class TestBangoProduct(BangoAPI):
 
         # This is a decoy product that should be ignored by the filter.
         pr = SellerProduct.objects.create(seller=self.seller,
-                                          external_id='decoy-product')
+                                          external_id='decoy-product',
+                                          public_id='uuid')
         SellerProductBango.objects.create(seller_product=pr,
                                           seller_bango=self.seller_bango,
                                           bango_id='999999')
