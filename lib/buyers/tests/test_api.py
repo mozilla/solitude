@@ -401,6 +401,26 @@ class TestBuyerResetPin(APITest):
         assert buyer.needs_pin_reset
         eq_(data['uuid'], self.uuid)
 
+    def test_locked_out_reset(self):
+        self.buyer.pin_failures = 5
+        self.buyer.pin_locked_out = datetime.today()
+        self.buyer.save()
+        res = self.client.post(self.list_url, data={'uuid': self.uuid,
+                                                    'pin': self.new_pin})
+        eq_(res.status_code, 201)
+        buyer = self.buyer.reget()
+        eq_(buyer.pin_failures, 0)
+        eq_(buyer.pin_locked_out, None)
+
+    def test_locked_out_not_reset(self):
+        self.buyer.pin_failures = 5
+        self.buyer.save()
+        res = self.client.post(self.list_url, data={'uuid': self.uuid,
+                                                    'pin': self.pin})
+        eq_(res.status_code, 201)
+        buyer = self.buyer.reget()
+        eq_(buyer.pin_failures, 5)
+
     def test_bad_uuid(self):
         res = self.client.post(self.list_url, data={'uuid': 'bad:uuid',
                                                     'pin': '4321'})

@@ -130,6 +130,8 @@ class BuyerResetPinResource(BuyerEndpointBase):
             buyer.new_pin = None
             buyer.needs_pin_reset = False
             buyer.pin_confirmed = True
+            buyer.pin_failures = 0
+            buyer.pin_locked_out = None
             buyer.save()
             bundle.obj.confirmed = True
         else:
