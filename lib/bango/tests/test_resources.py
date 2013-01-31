@@ -232,6 +232,16 @@ class TestBangoMarkPremium(SellerProductBangoBase):
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 400)
 
+    def test_no_bango(self):
+        data = self.create()
+        self.seller_product_bango.bango_id = ''
+        self.seller_product_bango.save()
+
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 400)
+        eq_(self.get_errors(res.content, 'seller_product_bango'),
+            [u'Empty bango_id for: %s' % self.seller_product_bango.pk])
+
     @mock.patch.object(ClientMock, 'mock_results')
     def test_other_error(self, mock_results):
         data = self.create()
@@ -271,6 +281,19 @@ class TestBangoUpdateRating(SellerProductBangoBase):
         data['seller_product_bango'] = self.seller_product_bango_uri
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 400, res.content)
+
+    def test_no_bango(self):
+        self.create()
+        data = samples.good_update_rating.copy()
+        data['seller_product_bango'] = self.seller_product_bango_uri
+
+        self.seller_product_bango.bango_id = ''
+        self.seller_product_bango.save()
+
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 400)
+        eq_(self.get_errors(res.content, 'seller_product_bango'),
+            [u'Empty bango_id for: %s' % self.seller_product_bango.pk])
 
 
 class TestCreateBillingConfiguration(SellerProductBangoBase):

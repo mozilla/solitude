@@ -90,6 +90,12 @@ class SellerProductForm(forms.Form):
         del result['seller_product_bango']
         return result
 
+    def clean_seller_product_bango(self):
+        res = self.cleaned_data['seller_product_bango']
+        if not res.bango_id:
+            raise forms.ValidationError('Empty bango_id for: %s' % res.pk)
+        return res
+
 
 class MakePremiumForm(SellerProductForm):
     currencyIso = forms.ChoiceField(choices=([r, r] for r
