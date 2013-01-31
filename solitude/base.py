@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.urlresolvers import reverse, resolve
 from django.db import models, transaction
+from django.db.models.sql.constants import QUERY_TERMS, LOOKUP_SEP
 from django.test.client import Client
 from django.views import debug
 
@@ -24,10 +25,11 @@ import jwt
 from tastypie import http
 from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
-from tastypie.exceptions import ImmediateHttpResponse
+from tastypie.exceptions import ImmediateHttpResponse, InvalidFilterError
 from tastypie.resources import (ModelResource as TastyPieModelResource,
                                 Resource as TastyPieResource)
 from tastypie.serializers import Serializer
+from tastypie.utils import dict_strip_unicode_keys
 from tastypie.validation import FormValidation
 import test_utils
 
@@ -269,6 +271,51 @@ class BaseResource(object):
         log_cef(msg, request)
 
         return super(BaseResource, self).dispatch(request_type, request, **kw)
+
+    def build_filters(self, filters=None):
+        # Override the filters so we can stop Tastypie silently ignoring
+        # invalid filters. That will cause an invalid filtering just to return
+        # lots of results.
+        if filters is None:
+            filters = {}
+        qs_filters = {}
+
+        for filter_expr, value in filters.items():
+            filter_bits = filter_expr.split(LOOKUP_SEP)
+            field_name = filter_bits.pop(0)
+            filter_type = 'exact'
+
+            if not field_name in self.fields:
+                # Don't just ignore this. Tell the world. Shame I have to
+                # override all this, just to do this.
+                raise InvalidFilterError('Not a valid filtering field: %s'
+                                         % field_name)
+
+            if len(filter_bits) and filter_bits[-1] in QUERY_TERMS.keys():
+                filter_type = filter_bits.pop()
+
+            lookup_bits = self.check_filtering(field_name, filter_type,
+                                               filter_bits)
+
+            if value in ['true', 'True', True]:
+                value = True
+            elif value in ['false', 'False', False]:
+                value = False
+            elif value in ('nil', 'none', 'None', None):
+                value = None
+
+            # Split on ',' if not empty string and either an in or range filter.
+            if filter_type in ('in', 'range') and len(value):
+                if hasattr(filters, 'getlist'):
+                    value = filters.getlist(filter_expr)
+                else:
+                    value = value.split(',')
+
+            db_field_name = LOOKUP_SEP.join(lookup_bits)
+            qs_filter = "%s%s%s" % (db_field_name, LOOKUP_SEP, filter_type)
+            qs_filters[qs_filter] = value
+
+        return dict_strip_unicode_keys(qs_filters)
 
     def is_valid(self, bundle, request):
         # Tastypie will check is_valid on the object by validating the form,

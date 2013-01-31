@@ -7,7 +7,7 @@ import jwt
 import mock
 from nose.tools import eq_, raises
 import simplejson
-from tastypie.exceptions import ImmediateHttpResponse
+from tastypie.exceptions import ImmediateHttpResponse, InvalidFilterError
 import test_utils
 
 from lib.paypal.errors import PaypalError
@@ -69,6 +69,18 @@ class TestBase(test_utils.TestCase):
             self.resource.dispatch('POST', self.request)
 
         eq_(log_cef.call_args[0][0], 'unknown:unknown')
+
+    def test_build_filters_fails(self):
+        with self.assertRaises(InvalidFilterError):
+            self.resource.build_filters({'foo': 'bar'})
+
+    def test_build_filters_passes(self):
+        check = mock.Mock()
+        check.return_value = ['foo']
+        self.resource.check_filtering = check
+        self.resource.fields = ['foo']
+        eq_(self.resource.build_filters({'foo': 'bar'}),
+            {'foo__exact': 'bar'})
 
 
 class TestSerialize(test_utils.TestCase):
