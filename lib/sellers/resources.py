@@ -61,5 +61,6 @@ class SellerProductResource(ModelResource):
         validation = ModelFormValidation(form_class=SellerProductValidation)
         filtering = {
             'external_id': 'exact',
+            'public_id': 'exact',
             'seller': ALL_WITH_RELATIONS,
         }

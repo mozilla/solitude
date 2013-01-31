@@ -213,6 +213,16 @@ class TestSellerProduct(APITest):
         eq_(data['meta']['total_count'], 1)
         eq_(data['objects'][0]['resource_pk'], prod.pk)
 
+    def test_get_by_public_id(self):
+        self.create(public_id='one', external_id='one')
+        self.create(public_id='two', external_id='two')
+        res = self.client.get(self.list_url, data={'seller': self.seller.pk,
+                                                   'public_id': 'one'})
+        eq_(res.status_code, 200, res)
+        data = json.loads(res.content)
+        eq_(data['meta']['total_count'], 1)
+        eq_(data['objects'][0]['public_id'], 'one')
+
     def test_id_unique_for_seller_error(self):
         res = self.client.post(self.list_url,
                                data=self.data(external_id='unique-id'))
