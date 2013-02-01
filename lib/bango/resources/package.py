@@ -4,13 +4,14 @@ from tastypie.constants import ALL_WITH_RELATIONS
 from lib.sellers.models import SellerBango, SellerProductBango
 from solitude.base import ModelFormValidation, ModelResource
 
-from ..client import get_client
+from ..client import get_client, response_to_dict
 from ..forms import CreateBangoNumberForm, PackageForm, ProductForm, UpdateForm
 
 
 class PackageResource(ModelResource):
     seller = fields.ForeignKey('lib.sellers.resources.SellerResource',
                                'seller')
+    full = fields.DictField('full', null=True)
 
     class Meta(ModelResource.Meta):
         queryset = SellerBango.objects.filter()
@@ -18,9 +19,24 @@ class PackageResource(ModelResource):
         allowed_methods = ['get', 'patch']
         resource_name = 'package'
         filtering = {
-            'uuid': 'exact',
             'seller': ALL_WITH_RELATIONS
         }
+
+    def build_bundle(self, obj=None, data=None, request=None):
+        bundle = (super(PackageResource, self)
+                  .build_bundle(obj=obj, data=data, request=request))
+        if request.method == 'GET':
+            data = self.deserialize_body(request)
+            if data.get('full'):
+                bundle.full = True
+
+        return bundle
+
+    def dehydrate_full(self, bundle):
+        if getattr(bundle, 'full', False):
+            return response_to_dict(get_client().GetPackage(
+                {'packageId': bundle.obj.package_id}))
+        return {}
 
     def obj_create(self, bundle, request, **kw):
         """

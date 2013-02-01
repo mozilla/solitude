@@ -336,6 +336,17 @@ class BaseResource(object):
                 pass
         return super(BaseResource, self).is_valid(bundle, request)
 
+    def deserialize_body(self, request):
+        # Trying to standardize on JSON in the body for most things if we
+        # can. Similar to elastic search. Retaining query string for tastypie
+        # record filtering.
+        data = request.raw_post_data
+        if not data:
+            # Don't raise an error if the body is empty.
+            return {}
+
+        return self.deserialize(request, data, format='application/json')
+
 
 class ModelFormValidation(FormValidation):
 

@@ -111,6 +111,7 @@ class TestPackageResource(BangoAPI):
         seller_bango = SellerBango.objects.get()
         data = json.loads(self.client.get(url).content)
         eq_(data['resource_pk'], seller_bango.pk)
+        eq_(data['full'], {})
 
     def test_get_generic(self):
         self.create()
@@ -132,6 +133,13 @@ class TestPackageResource(BangoAPI):
         # Check that support changed, but finance didn't.
         assert seller_bango.support_person_id != old_support
         eq_(seller_bango.finance_person_id, old_finance)
+
+    def test_get_full(self):
+        self.create()
+        url = self.get_detail_url('package', self.seller_bango.pk)
+        res = self.client.get_with_body(url, data={'full': True})
+        data = json.loads(res.content)
+        eq_(data['full']['countryIso'], 'BMU')
 
 
 class TestBangoProduct(BangoAPI):
