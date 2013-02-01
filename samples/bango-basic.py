@@ -45,7 +45,8 @@ print 'Creating seller product.'
 external_id = str(uuid.uuid4())
 res = call('/generic/product/', 'post', {'seller': seller_uri,
                                          'external_id': external_id,
-                                         'secret': 'n'})
+                                         'secret': 'n',
+                                         'public_id': uid})
 seller_product_uri = res['resource_uri']
 
 print 'Create bango package.'
@@ -118,6 +119,16 @@ res = call('/bango/rating/', 'post', {
     'ratingScheme': 'GLOBAL',
     'seller_product_bango': bango_product_uri
 })
+
+print 'Updating rating.'
+res = call('/bango/rating/', 'post', {
+    'bango': '123',
+    'rating': 'GENERAL',
+    'ratingScheme': 'USA',
+    'seller_product_bango': bango_product_uri
+})
+
+
 
 res = call(seller_bango_uri, 'get', {})
 old_support_id = res['support_person_id']
