@@ -14,6 +14,39 @@ need to create a Bango package by a POST::
         {"seller": "/generic/seller/9",
          ...}
 
+Package
+=======
+
+TODO: insert more notes about packages.
+
+A GET on a package will query the local solitude database about that package::
+
+        GET /bango/package/9/
+
+Returns::
+
+        {"full": {},
+         "created": "2013-01-30T09:41:34",
+         "support_person_id": 232941,
+         ...}
+
+The *full* field represents data polled from Bango. To get that information,
+send through *full* in the GET body. For example::
+
+        GET /bango/package/9/
+        {"full": true}
+
+Returns::
+
+
+        {"full": {
+          "vatNumber": null,
+          "supportEmailAddress": "support@example.com",
+          ...}
+         "created": "2013-01-30T09:41:34",
+         "support_person_id": 232941,
+         ...}
+
 SBI Agreement
 =============
 

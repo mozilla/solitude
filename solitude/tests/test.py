@@ -47,8 +47,10 @@ class TestError(test_utils.TestCase):
 class TestBase(test_utils.TestCase):
 
     def setUp(self):
-        self.request = test_utils.RequestFactory().get('/')
+        self.request = test_utils.RequestFactory().get('/',
+            CONTENT_TYPE='application/json')
         self.resource = Resource()
+        self.resource._meta.serializer = JWTSerializer()
 
     @mock.patch('solitude.base._log_cef')
     def test_cef(self, log_cef):
@@ -81,6 +83,12 @@ class TestBase(test_utils.TestCase):
         self.resource.fields = ['foo']
         eq_(self.resource.build_filters({'foo': 'bar'}),
             {'foo__exact': 'bar'})
+
+    def test_deserialize(self):
+        self.request._body = ''
+        eq_(self.resource.deserialize_body(self.request), {})
+        self.request._body = json.dumps({'foo': 'bar'})
+        eq_(self.resource.deserialize_body(self.request)['foo'], 'bar')
 
 
 class TestSerialize(test_utils.TestCase):

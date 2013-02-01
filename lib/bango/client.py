@@ -1,3 +1,4 @@
+from datetime import datetime
 import functools
 import os
 import uuid
@@ -30,6 +31,7 @@ exporter = [
     'CreateBankDetails',
     'CreatePackage',
     'GetAcceptedSBIAgreement',
+    'GetPackage',
     'GetSBIAgreement',
     'MakePremiumPerAccess',
     'UpdateFinanceEmailAddress',
@@ -155,6 +157,31 @@ mock_data = {
     },
     'DoRefund': {
         'refundTransactionId': uuid.uuid4
+    },
+    'GetPackage': {
+        'adminEmailAddress': 'admin@email.com',
+        'supportEmailAddress': 'support@email.com',
+        'financeEmailAddress': 'finance@email.com',
+        'paypalEmailAddress': 'paypal@email.com',
+        'vendorName': 'Some Vendor',
+        'companyName': 'Some Company',
+        'address1': 'Address 1',
+        'address2': 'Address 2',
+        'addressCity': 'City',
+        'addressState': 'State',
+        'addressZipCode': '90210',
+        'addressPhone': '1234567890',
+        'addressFax': '1234567890',
+        'vatNumber': '1234567890',
+        'countryIso': 'BMU',
+        'currencyIso': 'EUR',
+        'homePageURL': 'http://mozilla.org',
+        'eventNotificationEnabled': False,
+        'eventNotificationURL': '',
+        'status': 'LIC',
+        'sbiAgreementAccepted': True,
+        'acceptedSBIAgreement': datetime.today,
+        'sbiAgreementExpires': datetime.today,
     }
 }
 
