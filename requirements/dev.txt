@@ -5,5 +5,4 @@
 -r prod.txt
 -r compiled.txt
 
-django-extensions==1.0.0
 nose-blockage==0.1.2
