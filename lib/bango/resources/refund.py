@@ -26,6 +26,14 @@ class RefundResponse(object):
         self.transaction = transaction
 
 
+class BangoResponse(object):
+
+    def __init__(self, code, message, id):
+        self.responseCode = code
+        self.responseMessage = message
+        self.refundTransactionId = id
+
+
 class RefundResource(SimpleResource):
     """
     A specific resource for creating refunds and then checking the state of
@@ -63,8 +71,9 @@ class RefundResource(SimpleResource):
         except BangoError, exc:
             if exc.id not in (PENDING, CANT_REFUND, NOT_SUPPORTED):
                 raise
-            code = exc.id
+            res = BangoResponse(exc.id, exc.message, '')
 
+        code = res.responseCode
         response = RefundResponse(code, obj)
 
         log.info('Transaction %s: %s' % (code, obj.pk))
@@ -95,11 +104,22 @@ class RefundResource(SimpleResource):
         obj = form.cleaned_data['uuid']
 
         external_uuid = str(uuid.uuid4())
-        res = get_client().DoRefund({
-            'transactionId': obj.uid_support,
-            'refundType': 'OPERATOR',
-            'externalTransactionId': external_uuid
-        })
+
+        try:
+            res = get_client().DoRefund({
+                'transactionId': obj.uid_support,
+                'refundType': 'OPERATOR',
+                'externalTransactionId': external_uuid
+            })
+        except BangoError, exc:
+            if exc.id != PENDING:
+                raise
+            # We haven't been able to get a response back that is pending
+            # so I'm not sure if the refundTransactionId is there. Check this.
+            res = BangoResponse(exc.id, exc.message, 'todo')
+
+        status = {OK: STATUS_COMPLETED,
+                  PENDING: STATUS_PENDING}
 
         # If that succeeded, create a new transaction for the refund.
         obj = Transaction.objects.create(
@@ -111,7 +131,7 @@ class RefundResource(SimpleResource):
             seller_product=obj.seller_product,
             # Note: check on this when we can actually do refunds, but for
             # the moment we'll assume they go straight through.
-            status=STATUS_COMPLETED,
+            status=status.get(res.responseCode),
             source='',
             type=TYPE_REFUND,
             uid_pay=res.refundTransactionId)

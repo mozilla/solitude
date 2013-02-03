@@ -12,6 +12,7 @@ from lib.sellers.models import (Seller, SellerBango, SellerProduct,
 from lib.sellers.tests.utils import make_seller_paypal
 from lib.transactions import constants
 from lib.transactions.constants import (SOURCE_PAYPAL, STATUS_CANCELLED,
+                                        STATUS_COMPLETED, STATUS_PENDING,
                                         TYPE_REFUND)
 from lib.transactions.models import Transaction
 from solitude.base import APITest
@@ -526,16 +527,25 @@ class TestRefund(APITest):
             status=constants.STATUS_COMPLETED)
         self.url = self.get_list_url('refund')
 
-    def test_get(self):
+    def _status(self, their_status, our_status):
         res = self.client.post(self.url, data={'uuid': self.uuid})
         eq_(res.status_code, 201, res.content)
         data = json.loads(res.content)
-        eq_(data['status'], OK)
+        eq_(data['status'], their_status)
 
         eq_(len(Transaction.objects.all()), 2)
         trans = Transaction.objects.get(pk=data['resource_pk'])
         eq_(trans.related.pk, self.trans.pk)
         eq_(trans.type, TYPE_REFUND)
+        eq_(trans.status, our_status)
+
+    def test_ok(self):
+        self._status(OK, STATUS_COMPLETED)
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_pending(self, mock_results):
+        mock_results.return_value = {'responseCode': PENDING}
+        self._status(PENDING, STATUS_PENDING)
 
     def _fail(self):
         res = self.client.post(self.url, data={'uuid': self.uuid})
