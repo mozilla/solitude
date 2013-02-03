@@ -186,11 +186,13 @@ Optional settings
   cleansed settings in the `django.conf.settings` through the API. Should be
   `False` on production.
 
-* **TASTYPIE_FULL_DEBUG**: `True` or `False`. Set this to `True` in development
-  along with `DEBUG` to get lots of tracebacks.
 
-* Chances are you'll want tracebacks in solitude to go somewhere useful, like
-  a console. So for that you'll want to change logging::
+Getting a traceback in development
+----------------------------------
+
+There are too many options for this, but it's a commonly asked question.
+
+First off ensure your logs are going somewhere::
 
         LOGGING = {
                 'loggers': {
@@ -200,6 +202,64 @@ Optional settings
                         },
                 },
         }
+
+
+Option 1 (recommended)
+~~~~~~~~~~~~~~~~~~~~~~
+
+Get a nice response in the client and something in the server console. Set::
+
+        DEBUG = True
+        DEBUG_PROPAGATE_EXCEPTIONS = False
+        TASTYPIE_FULL_DEBUG = False
+
+Example from client::
+
+        [master] solitude $ curling -d '{"uuid":"1"}' http://localhost:8001/bango/refund/status/
+        {
+          "error_data": {},
+          "error_code": "ZeroDivisionError",
+          "error_message": "integer division or modulo by zero"
+        }
+
+And on the server::
+
+        ...
+        File "/Users/andy/sandboxes/solitude/lib/bango/resources/refund.py", line 47, in obj_get
+            1/0
+         :/Users/andy/sandboxes/solitude/solitude/base.py:220
+        [03/Feb/2013 08:48:02] "GET /bango/refund/status/ HTTP/1.1" 500 108
+
+Option 2
+~~~~~~~~
+
+Get the full traceback in the client and nothing in the console. Set::
+
+        DEBUG = True
+        DEBUG_PROPAGATE_EXCEPTIONS = False
+        TASTYPIE_FULL_DEBUG = True
+
+On the client::
+
+        [master] solitude $ curling -d '{"uuid":"1"}' http://localhost:8001/bango/refund/status/
+        {
+                "traceback": [
+                ...
+                "  File \"/Users/andy/sandboxes/solitude/lib/bango/resources/refund.py\", line 47, in obj_get\n    1/0\n"
+                ],
+                "type": "<type 'exceptions.ZeroDivisionError'>",
+                "value": "integer division or modulo by zero"
+        }
+
+Option 3
+~~~~~~~~
+
+Get the full response in the server console and just a "error occurred" message
+on the client::
+
+        DEBUG = True
+        DEBUG_PROPAGATE_EXCEPTIONS = True
+        TASTYPIE_FULL_DEBUG = True
 
 .. _curlish: http://pypi.python.org/pypi/curlish/
 .. _homebrew: http://mxcl.github.com/homebrew/
