@@ -110,7 +110,7 @@ Which again returns nothing if it worked and 404 if the buyer does not exist.
 
 After these two steps you will use the ``reset_confirm_pin`` endpoint. It works
 the same way as the ``confirm_pin`` endpoint but instead checks against the
-buyer's ``new_pin`` rather than their ``pin``.
+buyer's ``new_pin`` rather than their ``pin``::
 
         POST /generic/reset_confirm_pin/
         {"uuid": "93e33277-87f7-417b-8ed2-371672b5297e",
