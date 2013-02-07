@@ -109,6 +109,7 @@ class RefundResource(SimpleResource):
             res = get_client().DoRefund({
                 'transactionId': obj.uid_support,
                 'refundType': 'OPERATOR',
+                'bango': obj.seller_product.product.bango_id,
                 'externalTransactionId': external_uuid
             })
         except BangoError, exc:

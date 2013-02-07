@@ -526,6 +526,12 @@ class TestRefund(APITest):
             provider=constants.SOURCE_BANGO, uuid=self.uuid,
             status=constants.STATUS_COMPLETED)
         self.url = self.get_list_url('refund')
+        self.seller_bango = SellerBango.objects.create(seller=self.seller,
+                                package_id=1, admin_person_id=3,
+                                support_person_id=3, finance_person_id=4)
+        SellerProductBango.objects.create(seller_product=self.product,
+                                          seller_bango=self.seller_bango,
+                                          bango_id='1234')
 
     def _status(self, their_status, our_status):
         res = self.client.post(self.url, data={'uuid': self.uuid})
