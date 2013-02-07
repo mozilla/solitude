@@ -206,7 +206,7 @@ class BaseResource(object):
         # 500 errors.
         if isinstance(exception, JWTDecodeError):
             # Let's log these with a higher severity.
-            log_cef(str(exception), request, severity=1)
+            log_cef(str(exception), request, severity=10)
             return http.HttpUnauthorized(
                     content=json.dumps({'reason': str(exception)}),
                     content_type='application/json; charset=utf-8')
