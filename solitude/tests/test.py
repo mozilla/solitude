@@ -160,7 +160,7 @@ class TestJWT(APITest):
             eq_(res.status_code, 401, res.status_code)
         args = log_cef.call_args[0]
         eq_(args[0], 'JWT is required')
-        eq_(args[1], 1)
+        eq_(args[1], 10)
 
 
 class TestURLField(test_utils.TestCase):
