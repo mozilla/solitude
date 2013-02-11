@@ -34,6 +34,10 @@ If you used a virtualenv_ activate it and compile some playdoh dependencies::
         cd solitude
         pip install --no-deps -r requirements/dev.txt
 
+
+Configure
+---------
+
 Setup settings::
 
         cd solitude/settings
@@ -43,32 +47,28 @@ Now edit the `local.py` settings. In your favourite text editor. Example
 settings::
 
         SECRET_KEY ='enter.some.string.here'
-
-        DATABASES = {
-               'default': {
-                        'ENGINE': 'django.db.backends.mysql',
-                        'NAME': 'solitude',
-                        'USER': 'root',
-                        'PASSWORD': '',
-                        'HOST': '',
-                        'PORT': '',
-                        'OPTIONS': {
-                                'init_command': 'SET storage_engine=InnoDB',
-                                'charset' : 'utf8',
-                                'use_unicode' : True,
-                        },
-                        'TEST_CHARSET': 'utf8',
-                        'TEST_COLLATION': 'utf8_general_ci',
-                },
-        }
+        if not base.DATABASES:
+            DATABASES = {
+                   'default': {
+                            'ENGINE': 'django.db.backends.mysql',
+                            'NAME': 'solitude',
+                            'USER': 'root',
+                            'PASSWORD': '',
+                            'HOST': '',
+                            'PORT': '',
+                            'OPTIONS': {
+                                    'init_command': 'SET storage_engine=InnoDB',
+                                    'charset' : 'utf8',
+                                    'use_unicode' : True,
+                            },
+                            'TEST_CHARSET': 'utf8',
+                            'TEST_COLLATION': 'utf8_general_ci',
+                    },
+            }
 
         STATSD_CLIENT = 'django_statsd.clients.null'
         CLEANSED_SETTINGS_ACCESS = True
         PAYPAL_USE_SANDBOX = True
-
-Create the database using the same name from settings::
-
-    mysql -u root -e 'create database solitude'
 
 Solitude requires some keys on the file system. For each key in `base.py`,
 copy into `local.py` and point to a file that makes sense for your install. For
@@ -89,14 +89,8 @@ Then run::
 
         python manage.py generate_aes_keys
 
-Then run::
-
-        schematic migrations
-
-This should set up your database.
-
 PayPal settings
----------------
+~~~~~~~~~~~~~~~
 
 Having solitude communicate with PayPal can be a slow and cumbersome. To speed
 it up you can just mock out all of PayPal::
@@ -142,7 +136,7 @@ front end site is using Solitude::
         PAYPAL_URL_WHITELIST = ('https://marketplace-dev.allizom.org',)
 
 Bango settings
---------------
+~~~~~~~~~~~~~~
 
 Having solitude communicate with Bango can be a slow and cumbersome. To speed
 it up you can just mock out all of Bango::
@@ -155,8 +149,18 @@ you'll have need to setup the following::
         BANGO_AUTH = {'USER': 'the.bango.username',
                       'PASSWORD': 'the.bango.password'}
 
-Running
--------
+Running Locally
+~~~~~~~~~~~~~~~
+
+Create the database using the same name from settings::
+
+    mysql -u root -e 'create database solitude'
+
+Then run::
+
+        schematic migrations
+
+This should set up your database.
 
 If you can run the server by doing the following::
 
@@ -173,6 +177,35 @@ You should get a response like this::
          "settings": {"list_endpoint": "/services/settings/",
                       "schema": "/services/settings/schema/"}
         }
+
+Running on Stackato
+~~~~~~~~~~~~~~~~~~~
+
+Note: If you have an old ``solitude/settings/local.py`` that defines
+DATABASES unconditionally, you will need to modify it, since Stackato
+supplies its own database config.
+
+To deploy your Solitude config on Stackato, first install the `Stackato
+client <http://www.activestate.com/stackato/download_client>`_.
+
+then run:
+
+``stackato target https://api.paas.allizom.org/``
+
+``stackato login`` (use your LDAP credentials)
+
+After a successful login, ``stackato push --path . my-solitude`` will
+upload your app and start it. (``my-solitude`` is an example name, use
+a name that makes sense for your deployment.) Leave the prompt for
+domain name blank, accepting the default. The command should result in
+a log of the install/deploy process and end with the url your service
+is now available at. You can use ``stackato ssh my-solitude`` to
+connect to the VM running your app. Logs are stored in ``/app/logs``.
+
+When done, you can run ``stackato delete my-solitude`` to remove your VM.
+
+For more docs on the Stackato tools, see the
+`Stackato docs site <https://api.paas.allizom.org/docs/client/index.html>`_.
 
 Optional settings
 -----------------

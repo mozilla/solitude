@@ -1,0 +1,35 @@
+name: solitude
+min-version:
+  client: 1.4.3
+ignores:
+  - ".git"
+  - "*.pyc"
+  - "*.pyo"
+  - "*.swp"
+  - "*~"
+  - "*.sublime*"
+  - ".coverage*"
+  - "_coverage/*"
+  - ".noseids"
+env:
+  DJANGO_SETTINGS_MODULE: solitude.settings
+  PIP_OPTS: --no-deps --exists-action=w
+  PIP_REQUIREMENTS_FILE: requirements/python27_prod.txt
+
+requirements:
+  pypm:
+    - M2Crypto==0.21.1
+    - MySQL-python==1.2.3
+    - py-bcrypt==0.2
+    - lxml==2.2.6
+services:
+  ${name}-db: mysql
+
+mem: 128M
+hooks:
+  post-staging:
+    - schematic migrations
+
+framework:
+  type: python
+  start-file: wsgi/playdoh.py

@@ -1,5 +1,7 @@
+import dj_database_url
 import logging.handlers
 import os
+import urlparse
 
 from funfactory.settings_base import *
 
@@ -17,6 +19,21 @@ INSTALLED_APPS = (
     'djcelery',
     'solitude',
 )
+if os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.config()
+    }
+    if 'mysql' in DATABASES['default']['ENGINE']:
+        opt = DATABASES['default'].get('OPTIONS', {})
+        opt['init_command'] = 'SET storage_engine=InnoDB'
+        opt['charset'] = 'utf8'
+        opt['use_unicode'] = True
+        DATABASES['default']['OPTIONS'] = opt
+    DATABASES['default']['TEST_CHARSET'] = 'utf8'
+    DATABASES['default']['TEST_COLLATION'] = 'utf8_general_ci'
+else:
+    DATABASES = {}
+
 
 LOCALE_PATHS = ()
 USE_I18N = False

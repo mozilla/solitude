@@ -6,26 +6,29 @@ from . import base
 INSTALLED_APPS = base.INSTALLED_APPS + ('django_extensions',)
 #INSTALLED_APPS = base.INSTALLED_APPS + ('debug_toolbar')
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'solitude',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-        'OPTIONS': {
-            'init_command': 'SET storage_engine=InnoDB',
-            'charset': 'utf8',
-            'use_unicode': True,
+# If this is deployed in Stackato, the database config will be
+# supplied automatically. Otherwise, we provide db info here:
+if not base.DATABASES:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'solitude',
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': '',
+            'PORT': '',
+            'OPTIONS': {
+                'init_command': 'SET storage_engine=InnoDB',
+                'charset': 'utf8',
+                'use_unicode': True,
+            },
+            'TEST_CHARSET': 'utf8',
+            'TEST_COLLATION': 'utf8_general_ci',
         },
-        'TEST_CHARSET': 'utf8',
-        'TEST_COLLATION': 'utf8_general_ci',
-    },
-    # 'slave': {
-    #     ...
-    # },
-}
+        # 'slave': {
+        #     ...
+        # },
+    }
 
 # Uncomment this and set to all slave DBs in use on the site.
 # SLAVE_DATABASES = ['slave']
