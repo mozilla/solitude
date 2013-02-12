@@ -76,13 +76,13 @@ If *sbi_expires* is empty, the agreement has not been approved.
 Refunds
 =======
 
-The refund API gives access to 2 calls: DoRefund and GetRundStatus. You will
+The refund API gives access to 2 calls: DoRefund and GetRefundStatus. You will
 need a valid transaction to start a refund::
 
         POST /bango/refund/
         {"uuid": "uuid-of-the-transaction"}
 
-This will return the bango response and a pointer to the new transaction.
+This will return the bango response and a pointer to the **new transaction**.
 A refund generates a new transaction::
 
         GET /bango/refund/status/
