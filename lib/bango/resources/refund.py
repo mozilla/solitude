@@ -5,9 +5,8 @@ from tastypie import fields
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.http import HttpNotFound
 
-from lib.bango.client import get_client
 from lib.bango.constants import CANT_REFUND, NOT_SUPPORTED, OK, PENDING
-from lib.bango.errors import BangoError
+from lib.bango.errors import BangoFormError
 from lib.bango.forms import RefundForm, RefundStatusForm
 from lib.transactions.constants import (STATUS_COMPLETED, STATUS_FAILED,
                                         STATUS_PENDING, TYPE_REFUND)
@@ -64,13 +63,11 @@ class RefundResource(SimpleResource):
         obj = form.cleaned_data['uuid']
 
         try:
-            res = get_client().GetRefundStatus({
+            res = self.client('GetRefundStatus', {
                 'refundTransactionId': obj.uid_pay
-            })
+            }, raise_on=(PENDING, CANT_REFUND, NOT_SUPPORTED))
             code = res.responseCode
-        except BangoError, exc:
-            if exc.id not in (PENDING, CANT_REFUND, NOT_SUPPORTED):
-                raise
+        except BangoFormError, exc:
             res = BangoResponse(exc.id, exc.message, '')
 
         code = res.responseCode
@@ -106,15 +103,13 @@ class RefundResource(SimpleResource):
         external_uuid = str(uuid.uuid4())
 
         try:
-            res = get_client().DoRefund({
+            res = self.client('DoRefund', {
                 'transactionId': obj.uid_support,
                 'refundType': 'OPERATOR',
                 'bango': obj.seller_product.product.bango_id,
                 'externalTransactionId': external_uuid
-            })
-        except BangoError, exc:
-            if exc.id != PENDING:
-                raise
+            }, raise_on=(PENDING,))
+        except BangoFormError, exc:
             # We haven't been able to get a response back that is pending
             # so I'm not sure if the refundTransactionId is there. Check this.
             res = BangoResponse(exc.id, exc.message, 'todo')

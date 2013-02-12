@@ -14,8 +14,9 @@ from suds import client as sudsclient
 from suds.transport import Reply
 from suds.transport.http import HttpTransport
 
-from .constants import OK, ACCESS_DENIED, HEADERS_SERVICE
-from .errors import AuthError, BangoError
+from .constants import (ACCESS_DENIED, HEADERS_SERVICE, INTERNAL_ERROR,
+                        SERVICE_UNAVAILABLE)
+from .errors import AuthError, BangoError, BangoFormError
 
 root = os.path.join(settings.ROOT, 'lib', 'bango', 'wsdl', settings.BANGO_ENV)
 wsdl = {
@@ -99,17 +100,24 @@ class Client(object):
         # If there was an error raise it.
         if code == ACCESS_DENIED:
             raise AuthError(ACCESS_DENIED, message)
-        elif code != OK:
+
+        # These are fatal Bango errors that the data can't really do much
+        # about.
+        elif code in (INTERNAL_ERROR, SERVICE_UNAVAILABLE):
             raise BangoError(code, message)
+
+        # Assume that all other errors are errors from the data.
+        elif code != 'OK':
+            raise BangoFormError(code, message)
 
 
 class Proxy(HttpTransport):
 
     def send(self, request):
         response = post(settings.BANGO_PROXY,
-                data=request.message,
-                headers={HEADERS_SERVICE: request.url},
-            verify=False)
+                        data=request.message,
+                        headers={HEADERS_SERVICE: request.url},
+                        verify=False)
         return Reply(response.status_code, {}, response.content)
 
 
@@ -144,7 +152,7 @@ mock_data = {
         'personPassword': 'xxxxx',
     },
     'CreateBillingConfiguration': {
-        'billingConfigurationId': uuid.uuid4
+        'billingConfigurationId': uuid.uuid4,
     },
     'GetAcceptedSBIAgreement': {
         'sbiAgreementAccepted': True,
@@ -190,8 +198,9 @@ class ClientMock(Client):
 
     def mock_results(self, key):
         result = mock_data.get(key, {}).copy()
-        result.update({'responseCode': 'OK',
-                       'responseMessage': ''})
+        for key, value in (['responseCode', 'OK'], ['responseMessage', '']):
+            if key not in result:
+                result[key] = value
         return result
 
     def call(self, name, data, wsdl=''):

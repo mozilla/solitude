@@ -4,9 +4,8 @@ from tastypie.http import HttpNotFound
 
 from cached import SimpleResource
 
-from lib.bango.client import get_client
 from lib.bango.constants import SBI_ALREADY_ACCEPTED
-from lib.bango.errors import BangoError
+from lib.bango.errors import BangoFormError
 from lib.bango.forms import SBIForm
 
 
@@ -38,12 +37,12 @@ class SBIResource(SimpleResource):
             raise self.form_errors(form)
 
         try:
-            res = get_client().AcceptSBIAgreement(form.bango_data)
-        except BangoError, exc:
-            if exc.id != SBI_ALREADY_ACCEPTED:
-                raise
+            res = self.client('AcceptSBIAgreement', form.bango_data,
+                              raise_on=(SBI_ALREADY_ACCEPTED))
+        except BangoFormError:
+            pass
 
-        res = get_client().GetAcceptedSBIAgreement(form.bango_data)
+        res = self.client('GetAcceptedSBIAgreement', form.bango_data)
         seller_bango = form.cleaned_data['seller_bango']
         seller_bango.sbi_expires = res.sbiAgreementExpires
         seller_bango.save()
@@ -64,6 +63,6 @@ class SBIResource(SimpleResource):
         if not form.is_valid():
             raise self.form_errors(form)
 
-        res = get_client().GetSBIAgreement(form.bango_data)
+        res = self.client('GetSBIAgreement', form.bango_data)
         return SBIAgreement(res.sbiAgreement, res.sbiAgreementValidFrom,
                             None, None)

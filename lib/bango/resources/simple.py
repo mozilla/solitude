@@ -4,12 +4,16 @@ from tastypie.http import HttpNoContent
 from cached import SimpleResource
 
 from lib.bango.constants import BANGO_ALREADY_PREMIUM_ENABLED
-from lib.bango.errors import BangoError
+from lib.bango.errors import BangoFormError
 from lib.bango.forms import (CreateBankDetailsForm, MakePremiumForm,
                              UpdateRatingForm)
 
 
 class CreateBankDetailsResource(SimpleResource):
+
+    error_lookup = {
+        'INVALID_COUNTRYISO': 'bankAddressIso',
+    }
 
     class Meta(SimpleResource.Meta):
         resource_name = 'bank'
@@ -19,6 +23,11 @@ class CreateBankDetailsResource(SimpleResource):
 
 class UpdateRatingResource(SimpleResource):
 
+    error_lookup = {
+        'INVALID_RATING': 'rating',
+        'INVALID_RATING_SCHEME': 'ratingScheme',
+    }
+
     class Meta(SimpleResource.Meta):
         resource_name = 'rating'
         simple_form = UpdateRatingForm
@@ -27,6 +36,10 @@ class UpdateRatingResource(SimpleResource):
 
 class MakePremiumResource(SimpleResource):
 
+    error_lookup = {
+        'INVALID_COUNTRYISO': 'currencyIso',
+    }
+
     class Meta(SimpleResource.Meta):
         resource_name = 'premium'
         simple_form = MakePremiumForm
@@ -34,8 +47,9 @@ class MakePremiumResource(SimpleResource):
 
     def obj_create(self, *args, **kwargs):
         try:
-            res = super(MakePremiumResource, self).obj_create(*args, **kwargs)
-        except BangoError, exc:
+            res = super(MakePremiumResource, self).obj_create(*args,
+                        raise_on=(BANGO_ALREADY_PREMIUM_ENABLED,), **kwargs)
+        except BangoFormError, exc:
             # No need to fail if this is called twice, just catch and continue.
             if exc.id == BANGO_ALREADY_PREMIUM_ENABLED:
                 # Normally this method will return a 201 created. I'm not sure

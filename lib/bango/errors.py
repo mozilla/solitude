@@ -1,4 +1,5 @@
 class BangoError(Exception):
+
     def __init__(self, id, message):
         self.id = id
         self.message = message
@@ -8,5 +9,8 @@ class BangoError(Exception):
 
 
 class AuthError(BangoError):
-    # We've got the settings wrong on our end.
-    pass
+    """We've got the settings wrong on our end."""
+
+
+class BangoFormError(BangoError):
+    """Something in the data we passed caused an error in the bango end."""

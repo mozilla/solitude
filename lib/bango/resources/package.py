@@ -4,14 +4,23 @@ from tastypie.constants import ALL_WITH_RELATIONS
 from lib.sellers.models import SellerBango, SellerProductBango
 from solitude.base import ModelFormValidation, ModelResource
 
-from ..client import get_client, response_to_dict
+from cached import BangoResource
+from ..client import response_to_dict
 from ..forms import CreateBangoNumberForm, PackageForm, ProductForm, UpdateForm
 
 
-class PackageResource(ModelResource):
+class PackageResource(ModelResource, BangoResource):
     seller = fields.ForeignKey('lib.sellers.resources.SellerResource',
                                'seller')
     full = fields.DictField('full', null=True)
+
+    # TODO: INVALID_EMAIL varies depending upon the call and there's multiple
+    # on this resource
+    error_lookup = {
+        'INVALID_COUNTRYISO': 'countryIso',
+        'INVALID_CURRENCYISO': 'currencyIso',
+        'INVALID_URL': 'homePageURL',
+    }
 
     class Meta(ModelResource.Meta):
         queryset = SellerBango.objects.filter()
@@ -34,8 +43,9 @@ class PackageResource(ModelResource):
 
     def dehydrate_full(self, bundle):
         if getattr(bundle, 'full', False):
-            return response_to_dict(get_client().GetPackage(
-                {'packageId': bundle.obj.package_id}))
+            return response_to_dict(
+                self.client('GetPackage',
+                    {'packageId': bundle.obj.package_id}))
         return {}
 
     def obj_create(self, bundle, request, **kw):
@@ -47,7 +57,7 @@ class PackageResource(ModelResource):
         if not form.is_valid():
             raise self.form_errors(form)
 
-        resp = get_client().CreatePackage(form.bango_data)
+        resp = self.client('CreatePackage', form.bango_data)
         seller_bango = SellerBango.objects.create(
             seller=form.cleaned_data['seller'],
             package_id=resp.packageId,
@@ -71,7 +81,6 @@ class PackageResource(ModelResource):
 
         fields = [(k, v) for k, v in form.cleaned_data.items() if v]
         if fields:
-            client = get_client()
             # Perhaps this should move to the form. But not sure how many of
             # these we are going to have, so make a loop that's easy to add
             # to.
@@ -84,14 +93,14 @@ class PackageResource(ModelResource):
             for key, value in fields:
                 data = {'packageId': bundle.obj.package_id,
                         'emailAddress': value}
-                result = getattr(client, methods[key][0])(data)
+                result = self.client(methods[key][0], data)
                 setattr(bundle.obj, methods[key][1], result.personId)
             bundle.obj.save()
 
         return bundle
 
 
-class BangoProductResource(ModelResource):
+class BangoProductResource(ModelResource, BangoResource):
     seller_product = fields.ForeignKey(
         'lib.sellers.resources.SellerProductResource', 'seller_product')
 
@@ -114,7 +123,7 @@ class BangoProductResource(ModelResource):
         if not form.is_valid():
             return self.form_errors(form)
 
-        resp = get_client().CreateBangoNumber(form.bango_data)
+        resp = self.client('CreateBangoNumber', form.bango_data)
 
         product = SellerProductBango.objects.create(
             seller_bango=form.cleaned_data['seller_bango'],

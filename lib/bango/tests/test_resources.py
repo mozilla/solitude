@@ -15,13 +15,13 @@ from lib.transactions.constants import (SOURCE_PAYPAL, STATUS_CANCELLED,
                                         STATUS_COMPLETED, STATUS_PENDING,
                                         TYPE_REFUND)
 from lib.transactions.models import Transaction
-from solitude.base import APITest
+from solitude.base import APITest, Resource as BaseResource
 
 from ..constants import (ALREADY_REFUNDED, BANGO_ALREADY_PREMIUM_ENABLED,
                          CANCEL, CANT_REFUND, OK, PENDING)
 from ..client import ClientMock
 from ..errors import BangoError
-from ..resources.cached import SimpleResource
+from ..resources.cached import BangoResource, SimpleResource
 from ..utils import sign
 
 import samples
@@ -55,6 +55,28 @@ class TestSimple(APITest):
             Foo().check_meta()
 
 
+class TestError(APITest):
+
+    def test_form_error(self):
+        class Foo(BaseResource, BangoResource):
+            error_lookup = {'INVALID': 'name'}
+
+        class Error(object):
+
+            def __init__(self, id, message):
+                self.id = id
+                self.message = message
+
+        foo = Foo()
+        # Got the lookup right.
+        eq_(foo.handle_form_error(Error('foo', 'bar')).errors,
+            {'__all__': ['bar'], '__type__': 'bango', '__bango__': 'foo'})
+
+        # Got the lookup wrong.
+        eq_(foo.handle_form_error(Error('INVALID', 'thing!')).errors,
+            {'name': ['thing!'], '__type__': 'bango', '__bango__': 'INVALID'})
+
+
 class TestPackageResource(BangoAPI):
 
     def setUp(self):
@@ -65,13 +87,32 @@ class TestPackageResource(BangoAPI):
         self.allowed_verbs(self.list_url, ['get', 'post'])
 
     def test_create(self):
-        post = samples.good_address.copy()
-        post['seller'] = ('/generic/seller/%s/' %
-                          Seller.objects.create(uuid=self.uuid).pk)
-        res = self.client.post(self.list_url, data=post)
+        res = self.client.post(self.list_url, data=self.good_data())
         eq_(res.status_code, 201, res.content)
         seller_bango = SellerBango.objects.get()
         eq_(json.loads(res.content)['resource_pk'], seller_bango.pk)
+
+    def good_data(self):
+        post = samples.good_address.copy()
+        post['seller'] = ('/generic/seller/%s/' %
+                          Seller.objects.create(uuid=self.uuid).pk)
+        return post
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_invalid_country(self, mock_results):
+        mock_results.return_value = {'responseCode': 'INVALID_COUNTRYISO',
+                                     'responseMessage': 'wat'}
+        res = self.client.post(self.list_url, data=self.good_data())
+        eq_(res.status_code, 400, res.content)
+        eq_(self.get_errors(res.content, 'countryIso'), ['wat'])
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_invalid_parameter(self, mock_results):
+        mock_results.return_value = {'responseCode': 'INVALID_PARAMETER',
+                                     'responseMessage': 'wat'}
+        res = self.client.post(self.list_url, data=self.good_data())
+        eq_(res.status_code, 400, res.content)
+        eq_(self.get_errors(res.content, '__all__'), ['wat'])
 
     def test_unicode(self):
         post = samples.good_address.copy()
@@ -254,15 +295,17 @@ class TestBangoMarkPremium(SellerProductBangoBase):
     @mock.patch.object(ClientMock, 'mock_results')
     def test_other_error(self, mock_results):
         data = self.create()
-        mock_results.return_value = {'responseCode': 'wat?'}
-        with self.assertRaises(BangoError):
-            self.client.post(self.list_url, data=data)
+        mock_results.return_value = {'responseCode': 'wat?',
+                                     'responseMessage': ''}
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 400)
 
     @mock.patch.object(ClientMock, 'mock_results')
     def test_done_twice(self, mock_results):
         data = self.create()
         mock_results.return_value = {'responseCode':
-                                     BANGO_ALREADY_PREMIUM_ENABLED}
+                                     BANGO_ALREADY_PREMIUM_ENABLED,
+                                     'responseMessage': ''}
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 204)
 
@@ -550,7 +593,8 @@ class TestRefund(APITest):
 
     @mock.patch.object(ClientMock, 'mock_results')
     def test_pending(self, mock_results):
-        mock_results.return_value = {'responseCode': PENDING}
+        mock_results.return_value = {'responseCode': PENDING,
+                                     'responseMessage': 'patience padawan'}
         self._status(PENDING, STATUS_PENDING)
 
     def _fail(self):
@@ -582,9 +626,10 @@ class TestRefund(APITest):
 
     @mock.patch.object(ClientMock, 'mock_results')
     def test_already(self, mock_results):
-        mock_results.return_value = {'responseCode': ALREADY_REFUNDED}
-        with self.assertRaises(BangoError):
-            self.client.post(self.url, data={'uuid': self.uuid})
+        mock_results.return_value = {'responseCode': ALREADY_REFUNDED,
+                                     'responseMessage': 'nice try'}
+        res = self.client.post(self.url, data={'uuid': self.uuid})
+        eq_(res.status_code, 400)
         # Check we didn't create a transaction.
         eq_(len(Transaction.objects.all()), 1)
 
@@ -621,7 +666,8 @@ class TestRefundStatus(APITest):
 
     @mock.patch.object(ClientMock, 'mock_results')
     def test_pending(self, mock_results):
-        mock_results.return_value = {'responseCode': PENDING}
+        mock_results.return_value = {'responseCode': PENDING,
+                                     'responseMessage': 'patience padawan'}
         res = self.client.get_with_body(self.url,
                                         data={'uuid': self.refund.uuid})
         data = json.loads(res.content)
@@ -630,7 +676,8 @@ class TestRefundStatus(APITest):
 
     @mock.patch.object(ClientMock, 'mock_results')
     def test_failed(self, mock_results):
-        mock_results.return_value = {'responseCode': CANT_REFUND}
+        mock_results.return_value = {'responseCode': CANT_REFUND,
+                                     'responseMessage': 'denied padawan'}
         res = self.client.get_with_body(self.url,
                                         data={'uuid': self.refund.uuid})
         data = json.loads(res.content)
@@ -641,7 +688,8 @@ class TestRefundStatus(APITest):
     def test_ok(self, mock_results):
         self.refund.status = constants.STATUS_PENDING
         self.refund.save()
-        mock_results.return_value = {'responseCode': OK}
+        mock_results.return_value = {'responseCode': OK,
+                                     'responseMessage': ''}
         res = self.client.get_with_body(self.url,
                                         data={'uuid': self.refund.uuid})
         data = json.loads(res.content)
