@@ -91,7 +91,7 @@ Then run::
 
 Then run::
 
-        python manage.py syncdb
+        schematic migrations
 
 This should set up your database.
 
