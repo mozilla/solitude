@@ -17,7 +17,12 @@ class TransactionResource(ModelResource):
         'seller_product', blank=True, full=False, null=True)
     related = fields.ToOneField(
         'lib.transactions.resources.TransactionResource',
-        'related', blank=True, full=False, null=True)
+        'related', blank=True, full=False, null=True, readonly=True)
+    relations = fields.ToManyField(
+        'lib.transactions.resources.TransactionResource',
+        lambda bundle: Transaction.objects.filter(related=bundle.obj),
+        blank=True, full=True, null=True, readonly=True)
+
 
     class Meta(ModelResource.Meta):
         queryset = Transaction.objects.filter()
