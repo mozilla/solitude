@@ -10,7 +10,7 @@ from lib.transactions.models import Transaction
 from solitude.base import APITest
 
 
-class TestSeller(APITest):
+class TestTransaction(APITest):
 
     def setUp(self):
         self.api_name = 'generic'
@@ -69,3 +69,25 @@ class TestSeller(APITest):
         res = self.client.patch(self.detail_url, data={'uid_pay': 'xyz'})
         eq_(res.status_code, 202)
         eq_(self.trans.reget().uid_pay, 'xyz')
+
+    def test_relations(self):
+        new_uuid = self.uuid + ':refund'
+        new = Transaction.objects.create(amount=5, seller_product=self.product,
+                                         provider=constants.SOURCE_PAYPAL,
+                                         related=self.trans, uuid=new_uuid,
+                                         uid_pay='1')
+
+        # The original transaction has nothing related to it and some
+        # relations that are fully populated.
+        res = self.client.get(self.list_url, data={'uuid': self.uuid})
+        data = json.loads(res.content)
+        eq_(data['objects'][0]['related'], None)
+        eq_(data['objects'][0]['relations'][0]['resource_pk'], new.pk)
+
+        # The related transaction has no relations, but a pointer to the
+        # related transaction.
+        res = self.client.get(self.list_url, data={'uuid': new_uuid})
+        data = json.loads(res.content)
+        eq_(data['objects'][0]['relations'], [])
+        eq_(data['objects'][0]['related'],
+            '/generic/transaction/%s/' % self.trans.pk)
