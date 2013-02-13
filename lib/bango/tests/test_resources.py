@@ -18,7 +18,8 @@ from lib.transactions.models import Transaction
 from solitude.base import APITest, Resource as BaseResource
 
 from ..constants import (ALREADY_REFUNDED, BANGO_ALREADY_PREMIUM_ENABLED,
-                         CANCEL, CANT_REFUND, OK, PENDING)
+                         CANCEL, CANT_REFUND, INTERNAL_ERROR, OK, PENDING,
+                         SBI_ALREADY_ACCEPTED)
 from ..client import ClientMock
 from ..errors import BangoError
 from ..resources.cached import BangoResource, SimpleResource
@@ -476,6 +477,25 @@ class TestGetSBI(BangoAPI):
         eq_(data['accepted'], '2014-01-23')
         eq_(data['expires'], '2013-01-23')
         eq_(str(self.seller_bango.reget().sbi_expires), '2014-01-23 00:00:00')
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_post_already(self, mock_results):
+        mock_results.return_value = {'responseCode': SBI_ALREADY_ACCEPTED,
+                                     'responseMessage': ''}
+        self.create()
+        self.client.post(self.list_url,
+                         data={'seller_bango': self.seller_bango_uri})
+        eq_([c[0][0] for c in mock_results.call_args_list],
+            ['AcceptSBIAgreement', 'GetAcceptedSBIAgreement'])
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_post_fails(self, mock_results):
+        mock_results.return_value = {'responseCode': INTERNAL_ERROR,
+                                     'responseMessage': ''}
+        self.create()
+        with self.assertRaises(BangoError):
+            self.client.post(self.list_url,
+                             data={'seller_bango': self.seller_bango_uri})
 
 
 class TestNotification(APITest):

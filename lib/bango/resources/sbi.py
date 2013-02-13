@@ -39,8 +39,9 @@ class SBIResource(SimpleResource):
         try:
             res = self.client('AcceptSBIAgreement', form.bango_data,
                               raise_on=(SBI_ALREADY_ACCEPTED))
-        except BangoFormError:
-            pass
+        except BangoFormError, exc:
+            if exc.id != SBI_ALREADY_ACCEPTED:
+                raise
 
         res = self.client('GetAcceptedSBIAgreement', form.bango_data)
         seller_bango = form.cleaned_data['seller_bango']
