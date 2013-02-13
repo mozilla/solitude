@@ -6,6 +6,8 @@ from solitude.base import ModelFormValidation, ModelResource
 
 from cached import BangoResource
 from ..client import response_to_dict
+from ..constants import INVALID_PERSON
+from ..errors import BangoFormError
 from ..forms import CreateBangoNumberForm, PackageForm, ProductForm, UpdateForm
 
 
@@ -93,8 +95,18 @@ class PackageResource(ModelResource, BangoResource):
             for key, value in fields:
                 data = {'packageId': bundle.obj.package_id,
                         'emailAddress': value}
-                result = self.client(methods[key][0], data)
-                setattr(bundle.obj, methods[key][1], result.personId)
+                try:
+                    result = self.client(methods[key][0], data,
+                                         raise_on=(INVALID_PERSON,))
+                except BangoFormError, exc:
+                    # We don't know the persons email account, we only
+                    # know that Bango will not like it.
+                    if exc.id == INVALID_PERSON:
+                        pass
+                else:
+                    # Only change the model, if the personId changed.
+                    setattr(bundle.obj, methods[key][1], result.personId)
+
             bundle.obj.save()
 
         return bundle

@@ -177,6 +177,20 @@ class TestPackageResource(BangoAPI):
         assert seller_bango.support_person_id != old_support
         eq_(seller_bango.finance_person_id, old_finance)
 
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_patch_invalid(self, mock_results):
+        mock_results.return_value = {'responseCode': 'INVALID_PERSON',
+                                     'responseMessage': 'blah'}
+        self.create()
+        url = self.get_detail_url('package', self.seller_bango.pk)
+        seller_bango = SellerBango.objects.get()
+        old_support = seller_bango.support_person_id
+
+        # Ensure that if INVALID_PERSON is raised, we don't blow up.
+        res = self.client.patch(url, data={'supportEmailAddress': 'a@a.com'})
+        eq_(res.status_code, 202)
+        eq_(seller_bango.reget().support_person_id, old_support)
+
     def test_get_full(self):
         self.create()
         url = self.get_detail_url('package', self.seller_bango.pk)
