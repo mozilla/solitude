@@ -14,6 +14,7 @@ ROOT_URLCONF = '%s.urls' % PROJECT_MODULE
 INSTALLED_APPS = (
     'aesfield',
     'funfactory',
+    'django_extensions',
     'django_nose',
     'django_statsd',
     'djcelery',
