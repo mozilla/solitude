@@ -5,7 +5,9 @@ import commonware.log
 from django import forms
 from django.conf import settings
 
-from lib.bango.constants import COUNTRIES, CURRENCIES, RATINGS, RATINGS_SCHEME
+from lib.bango.constants import (COUNTRIES, CURRENCIES, INVALID_PERSON,
+                                 RATINGS, RATINGS_SCHEME,
+                                 VAT_NUMBER_DOES_NOT_EXIST)
 from lib.bango.utils import verify_sig
 from lib.sellers.models import SellerProductBango
 from lib.transactions.constants import (SOURCE_BANGO, STATUS_COMPLETED,
@@ -55,9 +57,78 @@ class PackageForm(forms.Form):
         return result
 
 
-class UpdateForm(forms.Form):
-    supportEmailAddress = forms.CharField(required=False)
-    financeEmailAddress = forms.CharField(required=False)
+class SupportEmailForm(forms.Form):
+    supportEmailAddress = forms.CharField()
+
+    @property
+    def bango_meta(self):
+        return {'raise_on': (INVALID_PERSON,),
+                'to_field': 'support_person_id',
+                'from_field': 'personId',
+                'method': 'UpdateSupportEmailAddress'}
+
+    @property
+    def bango_data(self):
+        return {'emailAddress': self.cleaned_data.get('supportEmailAddress')}
+
+
+class FinanceEmailForm(forms.Form):
+    financeEmailAddress = forms.CharField()
+
+    @property
+    def bango_data(self):
+        return {'emailAddress': self.cleaned_data.get('financeEmailAddress')}
+
+    @property
+    def bango_meta(self):
+        return {'raise_on': (INVALID_PERSON,),
+                'to_field': 'finance_person_id',
+                'from_field': 'personId',
+                'method': 'UpdateFinanceEmailAddress'}
+
+
+class VatNumberForm(forms.Form):
+    vatNumber = forms.CharField(required=False)
+    _is_delete = False
+
+    def clean_vatNumber(self):
+        data = self.cleaned_data.get('vatNumber', '')
+        if not data:
+            self._is_delete = True
+        return data
+
+    @property
+    def bango_data(self):
+        return {} if self._is_delete else self.cleaned_data.copy()
+
+    @property
+    def bango_meta(self):
+        if self._is_delete:
+            return {'raise_on': (VAT_NUMBER_DOES_NOT_EXIST,),
+                    'method': 'DeleteVATNumber'}
+        return {'method': 'SetVATNumber'}
+
+
+class UpdateAddressForm(forms.Form):
+    vendorName = forms.CharField()
+    address1 = forms.CharField()
+    address2 = forms.CharField(required=False)
+    addressCity = forms.CharField()
+    addressState = forms.CharField()
+    addressZipCode = forms.CharField()
+    addressPhone = forms.CharField()
+    addressFax = forms.CharField(required=False)
+    # Note the docs are wrong, its not AddressCountryIso.
+    countryIso = forms.CharField()
+    homePageURL = forms.CharField(required=False)
+
+    @property
+    def bango_data(self):
+        return self.cleaned_data.copy()
+
+    @property
+    def bango_meta(self):
+        return {'method': 'UpdateAddressDetails'}
 
 
 class CreateBangoNumberForm(forms.Form):

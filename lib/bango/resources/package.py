@@ -6,9 +6,11 @@ from solitude.base import ModelFormValidation, ModelResource
 
 from cached import BangoResource
 from ..client import response_to_dict
-from ..constants import INVALID_PERSON
+from ..constants import INVALID_PERSON, VAT_NUMBER_DOES_NOT_EXIST
 from ..errors import BangoFormError
-from ..forms import CreateBangoNumberForm, PackageForm, ProductForm, UpdateForm
+from ..forms import (CreateBangoNumberForm, FinanceEmailForm, PackageForm,
+                     ProductForm, SupportEmailForm, UpdateAddressForm,
+                     VatNumberForm)
 
 
 class PackageResource(ModelResource, BangoResource):
@@ -27,7 +29,7 @@ class PackageResource(ModelResource, BangoResource):
     class Meta(ModelResource.Meta):
         queryset = SellerBango.objects.filter()
         list_allowed_methods = ['get', 'post']
-        allowed_methods = ['get', 'patch']
+        detail_allowed_methods = ['get', 'patch']
         resource_name = 'package'
         filtering = {
             'seller': ALL_WITH_RELATIONS
@@ -77,38 +79,32 @@ class PackageResource(ModelResource, BangoResource):
         update. We also don't know what the old value is, we just assume if
         its there its an update.
         """
-        form = UpdateForm(bundle.data)
-        if not form.is_valid():
-            raise self.form_errors(form)
+        forms = [FinanceEmailForm(bundle.data), SupportEmailForm(bundle.data),
+                 UpdateAddressForm(bundle.data), VatNumberForm(bundle.data)]
+        for form in forms:
+            if not form.is_valid():
+                raise self.form_errors(form)
 
-        fields = [(k, v) for k, v in form.cleaned_data.items() if v]
-        if fields:
-            # Perhaps this should move to the form. But not sure how many of
-            # these we are going to have, so make a loop that's easy to add
-            # to.
-            methods = {'supportEmailAddress':
-                       # The client method to call. Then the model field to
-                       # change on the SellerBango object.
-                       ['UpdateSupportEmailAddress', 'support_person_id'],
-                       'financeEmailAddress':
-                       ['UpdateFinanceEmailAddress', 'finance_person_id']}
-            for key, value in fields:
-                data = {'packageId': bundle.obj.package_id,
-                        'emailAddress': value}
-                try:
-                    result = self.client(methods[key][0], data,
-                                         raise_on=(INVALID_PERSON,))
-                except BangoFormError, exc:
-                    # We don't know the persons email account, we only
-                    # know that Bango will not like it.
-                    if exc.id == INVALID_PERSON:
-                        pass
-                else:
-                    # Only change the model, if the personId changed.
-                    setattr(bundle.obj, methods[key][1], result.personId)
+        for form in forms:
+            data = form.bango_data
+            keys = form.bango_meta
+            data['packageId'] = bundle.obj.package_id
+            try:
+                result = self.client(keys['method'], data,
+                                     raise_on=keys.get('raise_on', None))
+            except BangoFormError, exc:
+                # We don't know the persons email account, we only
+                # know that Bango might not like it if its unchanged.
+                if exc.id not in (INVALID_PERSON, VAT_NUMBER_DOES_NOT_EXIST):
+                    raise
+            else:
+                if keys.get('to_field'):
+                    # Only change the model in some cases.
+                    setattr(bundle.obj, keys.get('to_field'),
+                            getattr(result, keys.get('from_field')))
 
-            bundle.obj.save()
-
+        # Finally save the bundle.
+        bundle.obj.save()
         return bundle
 
 
@@ -125,7 +121,6 @@ class BangoProductResource(ModelResource, BangoResource):
             'seller_product': ALL_WITH_RELATIONS,
         }
         validation = ModelFormValidation(form_class=ProductForm)
-
 
     def obj_create(self, bundle, request, **kw):
         """

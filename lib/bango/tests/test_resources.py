@@ -44,6 +44,7 @@ class BangoAPI(APITest):
         self.seller_product_uri = self.get_detail_url('product',
                                                       self.seller_product.pk,
                                                       api_name='generic')
+        self.package_uri = self.get_detail_url('package', self.seller_bango.pk)
 
 
 class TestSimple(APITest):
@@ -150,9 +151,8 @@ class TestPackageResource(BangoAPI):
 
     def test_get(self):
         self.create()
-        url = self.get_detail_url('package', self.seller_bango.pk)
         seller_bango = SellerBango.objects.get()
-        data = json.loads(self.client.get(url).content)
+        data = json.loads(self.client.get(self.package_uri).content)
         eq_(data['resource_pk'], seller_bango.pk)
         eq_(data['full'], {})
 
@@ -162,34 +162,96 @@ class TestPackageResource(BangoAPI):
         data = json.loads(self.client.get(url).content)
         eq_(data['bango']['resource_pk'], self.seller_bango.pk)
 
-    def test_patch(self):
+    def patch_data(self):
+        return {'supportEmailAddress': 'a@a.com',
+                'financeEmailAddress': 'a@a.com',
+                'address1': '123 Main St.',
+                'addressCity': 'Vancouver',
+                'addressPhone': '1234567890',
+                'addressState': 'BC',
+                'addressZipCode': '123456',
+                'countryIso': 'AFG',
+                'vendorName': 'Vendor',
+                'vatNumber': '123'}
+
+    def ok(self):
+        return {'responseCode': 'OK',
+                'responseMessage': '',
+                'personId': '1'}
+
+    def test_patch_emails(self):
         self.create()
-        url = self.get_detail_url('package', self.seller_bango.pk)
+
         seller_bango = SellerBango.objects.get()
         old_support = seller_bango.support_person_id
         old_finance = seller_bango.finance_person_id
 
-        res = self.client.patch(url, data={'supportEmailAddress': 'a@a.com'})
+        res = self.client.patch(self.package_uri, data=self.patch_data())
         eq_(res.status_code, 202, res.content)
-        seller_bango = SellerBango.objects.get()
 
-        # Check that support changed, but finance didn't.
-        assert seller_bango.support_person_id != old_support
-        eq_(seller_bango.finance_person_id, old_finance)
+        seller_bango = seller_bango.reget()
+        ok_(seller_bango.support_person_id != old_support)
+        ok_(seller_bango.finance_person_id != old_finance)
 
     @mock.patch.object(ClientMock, 'mock_results')
     def test_patch_invalid(self, mock_results):
-        mock_results.return_value = {'responseCode': 'INVALID_PERSON',
-                                     'responseMessage': 'blah'}
+        def error(*args, **kwargs):
+            if args[0] in ('UpdateFinanceEmailAddress',
+                           'UpdateSupportEmailAddress'):
+                return {'responseCode': 'INVALID_PERSON',
+                        'responseMessage': 'blah'}
+            return self.ok()
+
+        mock_results.side_effect = error
         self.create()
-        url = self.get_detail_url('package', self.seller_bango.pk)
+
         seller_bango = SellerBango.objects.get()
         old_support = seller_bango.support_person_id
+        old_finance = seller_bango.finance_person_id
 
-        # Ensure that if INVALID_PERSON is raised, we don't blow up.
-        res = self.client.patch(url, data={'supportEmailAddress': 'a@a.com'})
-        eq_(res.status_code, 202)
-        eq_(seller_bango.reget().support_person_id, old_support)
+        res = self.client.patch(self.package_uri, data=self.patch_data())
+        eq_(res.status_code, 202, res.content)
+
+        seller_bango = seller_bango.reget()
+        eq_(seller_bango.support_person_id, old_support)
+        eq_(seller_bango.finance_person_id, old_finance)
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_no_vat(self, mock_results):
+        def error(*args, **kwargs):
+            if args[0] in 'DeleteVATNumber':
+                return {'responseCode': 'VAT_NUMBER_DOES_NOT_EXIST',
+                        'responseMessage': 'blah'}
+            return self.ok()
+        mock_results.side_effect = error
+        self.create()
+
+        res = self.client.patch(self.package_uri, data=self.patch_data())
+        eq_(res.status_code, 202, res.content)
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_delete_vat(self, mock_results):
+        mock_results.return_value = {'responseCode': 'OK',
+                                     'responseMessage': '',
+                                     'personId': '1'}
+        data = self.patch_data()
+        data['vatNumber'] = ''
+        self.create()
+        res = self.client.patch(self.package_uri, data=data)
+        eq_(res.status_code, 202, res.content)
+        eq_([c[0][0] for c in mock_results.call_args_list],
+            ['UpdateFinanceEmailAddress', 'UpdateSupportEmailAddress',
+             'UpdateAddressDetails', 'DeleteVATNumber'])
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_methods_called(self, mock_results):
+        mock_results.return_value = self.ok()
+        self.create()
+        res = self.client.patch(self.package_uri, data=self.patch_data())
+        eq_(res.status_code, 202, res.content)
+        eq_([c[0][0] for c in mock_results.call_args_list],
+            ['UpdateFinanceEmailAddress', 'UpdateSupportEmailAddress',
+             'UpdateAddressDetails', 'SetVATNumber'])
 
     def test_get_full(self):
         self.create()

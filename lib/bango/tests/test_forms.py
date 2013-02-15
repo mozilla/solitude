@@ -6,7 +6,7 @@ from nose.tools import eq_, ok_
 
 from ..forms import (CreateBankDetailsForm,
                      CreateBillingConfigurationForm as BillingForm,
-                     PriceForm)
+                     PriceForm, VatNumberForm)
 from .samples import good_bank_details, good_billing_request
 
 
@@ -72,3 +72,18 @@ class TestBilling(TestCase):
         form.is_valid()
         for price in form.cleaned_data['prices']:
             ok_(price.is_valid())
+
+
+class TestVat(TestCase):
+
+    def test_delete(self):
+        form = VatNumberForm({})
+        ok_(form.is_valid())
+        eq_(form.bango_data, {})
+        eq_(form.bango_meta['method'], 'DeleteVATNumber')
+
+    def test_change(self):
+        form = VatNumberForm({'vatNumber': '123'})
+        ok_(form.is_valid())
+        eq_(form.bango_data, {'vatNumber': '123'})
+        eq_(form.bango_meta['method'], 'SetVATNumber')
