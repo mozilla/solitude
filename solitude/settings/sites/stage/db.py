@@ -45,5 +45,5 @@ CLIENT_JWT_KEYS = private.CLIENT_JWT_KEYS
 PAYPAL_PROXY = private.PAYPAL_PROXY
 PAYPAL_URL_WHITELIST = ('https://marketplace.allizom.org',)
 
-BANGO_ENV = 'test'
-BANGO_AUTH = private.BANGO_AUTH
+BANGO_ENV = 'prod'
+BANGO_PROXY = private.BANGO_PROXY
