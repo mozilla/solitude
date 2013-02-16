@@ -88,6 +88,7 @@ class Client(object):
         # Actually call Bango.
         with statsd.timer('solitude.bango.request.%s' % name.lower()):
             response = getattr(client.service, name)(package)
+
         self.is_error(response.responseCode, response.responseMessage)
         return response
 
@@ -161,7 +162,8 @@ mock_data = {
     },
     'GetSBIAgreement': {
         'sbiAgreement': 'Blah...',
-        'sbiAgreementValidFrom': '2010-08-31 00:00:00',
+        # Although its a date, the WSDL has this as a date time.
+        'sbiAgreementValidFrom': '2010-08-31T00:00:00',
     },
     'DoRefund': {
         'refundTransactionId': uuid.uuid4

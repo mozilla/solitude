@@ -21,7 +21,7 @@ class SBIAgreement(object):
 
 class SBIResource(SimpleResource):
     text = fields.CharField(readonly=True, attribute='text')
-    valid = fields.DateField(readonly=True, attribute='valid', null=True)
+    valid = fields.DateTimeField(readonly=True, attribute='valid', null=True)
     expires = fields.DateField(readonly=True, attribute='expires', null=True)
     accepted = fields.DateField(readonly=True, attribute='accepted',
                                 null=True)
