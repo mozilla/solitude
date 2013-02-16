@@ -480,7 +480,7 @@ class TestGetSBI(BangoAPI):
         eq_(res.status_code, 200)
         data = json.loads(res.content)
         eq_(data['text'], 'Blah...')
-        eq_(data['valid'], '2010-08-31')
+        eq_(data['valid'], '2010-08-31T00:00:00')
 
     def test_post(self):
         self.create()
