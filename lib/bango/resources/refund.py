@@ -130,6 +130,7 @@ class RefundResource(SimpleResource):
             status=status.get(res.responseCode),
             source='',
             type=TYPE_REFUND,
+            uuid=external_uuid,
             uid_pay=res.refundTransactionId)
 
         # Turn the object back into a bundle so that we get the new transaction
