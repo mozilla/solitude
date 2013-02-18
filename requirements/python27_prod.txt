@@ -1,5 +1,5 @@
 Django==1.4.3
-PyJWT==0.1.4
+PyJWT-mozilla==0.1.4.2
 amqplib==1.0.2
 anyjson==0.3.3
 billiard==2.7.3.17

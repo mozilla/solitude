@@ -304,7 +304,8 @@ class BaseResource(object):
             elif value in ('nil', 'none', 'None', None):
                 value = None
 
-            # Split on ',' if not empty string and either an in or range filter.
+            # Split on ',' if not empty string and either an in or range
+            # filter.
             if filter_type in ('in', 'range') and len(value):
                 if hasattr(filters, 'getlist'):
                     value = filters.getlist(filter_expr)
@@ -369,6 +370,7 @@ class JWTDecodeError(Exception):
 
 
 class JWTSerializer(Serializer):
+    jwt_key = None
     formats = ['json', 'jwt']
     content_types = {
         'jwt': 'application/jwt',
@@ -403,7 +405,19 @@ class JWTSerializer(Serializer):
         except jwt.DecodeError as err:
             raise self._error('Error decoding JWT', err)
 
+        # We don't need this key anymore, delete it so that solitude
+        # doesn't trigger a warning on it.
+        del content['jwt-encode-key']
+        # Store the key and secret on the serializer, so that we can
+        # return the same data. Assuming it's always going to be the
+        # same object.
+        self.jwt_key = {'key': key, 'secret': secret}
         return content
+
+    def to_jwt(self, content, options=None):
+        assert self.jwt_key
+        content['jwt-encode-key'] = self.jwt_key['key']
+        return jwt.encode(content, self.jwt_key['secret'])
 
 
 class Resource(BaseResource, TastyPieResource):
