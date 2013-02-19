@@ -683,6 +683,7 @@ class TestRefund(APITest):
         eq_(trans.related.pk, self.trans.pk)
         eq_(trans.type, TYPE_REFUND)
         eq_(trans.status, our_status)
+        assert trans.uuid
 
     def test_ok(self):
         self._status(OK, STATUS_COMPLETED)

@@ -77,16 +77,17 @@ Refunds
 =======
 
 The refund API gives access to 2 calls: DoRefund and GetRefundStatus. You will
-need a valid transaction to start a refund::
+need a valid payment transaction to start a refund::
 
         POST /bango/refund/
-        {"uuid": "uuid-of-the-transaction"}
+        {"uuid": "uuid-of-the-payment-transaction"}
 
-This will return the bango response and a pointer to the **new transaction**.
-A refund generates a new transaction::
+This will return the bango response and a pointer to the **new refund
+transaction**, which will hold its own separate UUID. This UUID can be used to
+get the refund's status from Bango::
 
         GET /bango/refund/status/
         {"uuid": "uuid-of-the-refund-transaction"}
 
 If the response from Bango is different from the transaction state, then the
-transaction will be altered to reflect this.
+transaction is updated to reflect the refund's new status.
