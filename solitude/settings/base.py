@@ -5,6 +5,7 @@ import urlparse
 
 from funfactory.settings_base import *
 
+ALLOWED_HOSTS = []
 PROJECT_MODULE = 'solitude'
 MINIFY_BUNDLES = {}
 
