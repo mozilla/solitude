@@ -20,7 +20,7 @@ django-sha2==0.4
 django-statsd-mozilla==0.3.8.3
 django-tastypie==0.9.11
 funfactory==2.1.1
-gunicorn==0.15.0
+gunicorn==0.17.2
 kombu==2.1.2
 lxml==2.2.6
 m2secret==0.1.1
