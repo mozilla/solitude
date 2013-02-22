@@ -13,15 +13,10 @@ log = commonware.log.getLogger('s.bango')
 
 class NotificationResource(Resource):
     """
-    Process a Bango notification. Here is an example of a successful Bango
-    redirect URL query string:
+    Process a Bango notification.
 
-    ?ResponseCode=OK&ResponseMessage=Success&BangoUserId=412448521
-    &MerchantTransactionId=86c8a8fa-d45a-43ff-8291-012ca1e26a51
-    &BangoTransactionId=668694391
-    &TransactionMethods=USA_TMOBILE%2cT-Mobile+USA%2cTESTPAY%2cTest+Pay
-    &BillingConfigurationId=2830&MozSignature
-    =0dfa157725e7f20f5928951154de919c347b1dbcf41b8f406b7a44d193a81bbb&P=
+    See the success URL endpoint in WebPay for an example of the Bango
+    query string.
     """
 
     class Meta(Resource.Meta):
@@ -54,5 +49,8 @@ class NotificationResource(Resource):
         trans.status = state
         # This is the id for the actual transaction, useful for refunds.
         trans.uid_support = form.data.get('bango_trans_id')
+        # The price/currency may be empty for error notifications.
+        trans.amount = form.data['amount'] or None
+        trans.currency = form.data['currency'] or ''
         trans.save()
         return bundle

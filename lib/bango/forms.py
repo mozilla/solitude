@@ -257,6 +257,9 @@ class NotificationForm(forms.Form):
     bango_response_code = forms.CharField()
     bango_response_message = forms.CharField()
     bango_trans_id = forms.CharField()
+    # Store the actual price paid.
+    amount = forms.DecimalField(required=False)
+    currency = forms.CharField(required=False)
 
     def clean(self):
         cleaned_data = super(NotificationForm, self).clean()
