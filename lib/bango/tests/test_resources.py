@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
+from decimal import Decimal
 import json
 
 from django.conf import settings
@@ -596,6 +597,8 @@ class TestNotification(APITest):
                 'billing_config_id': '1234',
                 'bango_trans_id': '56789',
                 'bango_response_code': 'OK',
+                'amount': '0.99',
+                'currency': 'EUR',
                 'bango_response_message': 'Success'}
         if overrides:
             data.update(overrides)
@@ -607,10 +610,22 @@ class TestNotification(APITest):
         return json.loads(res.content)
 
     def test_success(self):
-        self.post(self.data())
+        data = self.data()
+        self.post(data)
         tr = self.trans.reget()
         eq_(tr.status, constants.STATUS_COMPLETED)
+        eq_(tr.amount, Decimal(data['amount']))
+        eq_(tr.currency, data['currency'])
         ok_(tr.uid_support)
+
+    def test_empty_price(self):
+        data = self.data()
+        data['amount'] = ''
+        data['currency'] = ''
+        self.post(data)
+        tr = self.trans.reget()
+        eq_(tr.amount, None)
+        eq_(tr.currency, '')
 
     def test_failed(self):
         self.post(self.data(overrides={'bango_response_code': 'NOT OK'}))
