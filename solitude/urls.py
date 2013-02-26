@@ -42,4 +42,6 @@ urlpatterns = patterns('',
     url(r'^$', 'solitude.views.home', name='home'),
 )
 
-handler500 = handler404 = handler403 = 'solitude.views.error'
+handler500 = 'solitude.views.error'
+handler404 = 'solitude.views.error_404'
+handler403 = 'solitude.views.error_403'
