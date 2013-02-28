@@ -48,9 +48,9 @@ class NotificationResource(Resource):
         statsd.incr('bango.notification.%s' % message)
         trans.status = state
         # This is the id for the actual transaction, useful for refunds.
-        trans.uid_support = form.data.get('bango_trans_id')
+        trans.uid_support = form.cleaned_data['bango_trans_id']
         # The price/currency may be empty for error notifications.
-        trans.amount = form.data['amount'] or None
-        trans.currency = form.data['currency'] or ''
+        trans.amount = form.cleaned_data['amount']
+        trans.currency = form.cleaned_data['currency']
         trans.save()
         return bundle

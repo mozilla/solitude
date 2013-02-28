@@ -618,6 +618,15 @@ class TestNotification(APITest):
         eq_(tr.currency, data['currency'])
         ok_(tr.uid_support)
 
+    def test_no_price(self):
+        data = self.data()
+        del data['amount']
+        del data['currency']
+        self.post(data)
+        tr = self.trans.reget()
+        eq_(tr.amount, None)
+        eq_(tr.currency, '')
+
     def test_empty_price(self):
         data = self.data()
         data['amount'] = ''
