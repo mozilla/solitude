@@ -2,7 +2,8 @@ import json
 
 from nose.tools import eq_
 
-from lib.sellers.constants import EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE
+from lib.sellers.constants import (ACCESS_PURCHASE, ACCESS_SIMULATE,
+                                   EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE)
 from lib.sellers.models import Seller, SellerProduct, SellerPaypal
 from solitude.base import APITest
 
@@ -165,6 +166,7 @@ class TestSellerProduct(APITest):
         params = {'seller': self.seller_uri(),
                   'external_id': 'pre-generated-product-id',
                   'secret': 'hush',
+                  'access': ACCESS_PURCHASE,
                   'public_id': 'public-id'}
         params.update(**kw)
         return params
@@ -262,6 +264,14 @@ class TestSellerProduct(APITest):
         data = json.loads(res.content)
         eq_(data['secret'], 'hush')
 
+    def test_patch_get_access(self):
+        obj, url = self.create_url()
+        res = self.client.patch(url, json.dumps({'access': ACCESS_SIMULATE}))
+        eq_(res.status_code, 202, res.content)
+        res = self.client.get(url)
+        data = json.loads(res.content)
+        eq_(data['access'], ACCESS_SIMULATE)
+
     def test_patch_get_ext_id(self):
         obj, url = self.create_url()
         res = self.client.patch(url, json.dumps({'seller': self.seller_url,
@@ -274,6 +284,7 @@ class TestSellerProduct(APITest):
         obj, url = self.create_url()
         res = self.client.put(url, json.dumps({'seller': self.seller_url,
                                                'secret': 'hush',
+                                               'access': ACCESS_PURCHASE,
                                                'external_id': 'abc',
                                                'public_id': 'blah'}))
         eq_(res.status_code, 202)

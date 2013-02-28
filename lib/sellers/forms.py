@@ -1,6 +1,8 @@
 from django import forms
-from .models import Seller, SellerPaypal, SellerProduct
+
 from solitude.fields import URLField
+
+from .models import Seller, SellerPaypal, SellerProduct
 
 
 class SellerValidation(forms.ModelForm):

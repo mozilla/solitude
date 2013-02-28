@@ -1,0 +1,2 @@
+ALTER TABLE seller_product ADD COLUMN access int(11) UNSIGNED NOT NULL DEFAULT 1;
+ALTER TABLE seller_product ALTER COLUMN access DROP DEFAULT;

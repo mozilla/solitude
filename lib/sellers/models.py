@@ -3,7 +3,8 @@ from django.db import models
 from aesfield.field import AESField
 
 from solitude.base import Model
-from .constants import EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE
+from .constants import (ACCESS_CHOICES, ACCESS_PURCHASE,
+                        EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE)
 
 
 class Seller(Model):
@@ -47,6 +48,9 @@ class SellerPaypal(Model):
 
 
 class SellerProduct(Model):
+    """
+    The key to a seller's generic product.
+    """
     # An identifier for this product that corresponds to the
     # seller's catalog.
     external_id = models.CharField(max_length=255, db_index=True)
@@ -58,6 +62,9 @@ class SellerProduct(Model):
     # of backend.
     secret = AESField(blank=True, null=True,
                       aes_key='sellerproduct:secret')
+    # The type of access this product key has.
+    access = models.PositiveIntegerField(choices=ACCESS_CHOICES,
+                                         default=ACCESS_PURCHASE)
 
     unique_error_message = lambda *args: EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE
 

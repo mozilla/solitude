@@ -1,3 +1,5 @@
+from solitude.base import invert
+
 STATUS_PENDING = 0  # When the payment has been started.
 STATUS_COMPLETED = 1  # When the IPN says its ok.
 STATUS_CHECKED = 2  # When someone calls pay-check on the transaction.
@@ -40,10 +42,6 @@ SOURCES = {
     'bango': SOURCE_BANGO
 }
 
-
-def invert(data):
-    return [(v, k) for k, v in data.items()]
-
 STATUSES_CHOICES = invert(STATUSES)
-TYPES_CHOICES= invert(TYPES)
+TYPES_CHOICES = invert(TYPES)
 SOURCES_CHOICES = invert(SOURCES)

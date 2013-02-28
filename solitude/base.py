@@ -489,3 +489,10 @@ class Model(models.Model):
 
     def reget(self):
         return self.__class__.objects.get(pk=self.pk)
+
+
+def invert(data):
+    """
+    Helper to turn a dict of constants into a choices tuple.
+    """
+    return [(v, k) for k, v in data.items()]
