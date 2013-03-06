@@ -195,5 +195,9 @@ PIN_FAILURES = 5
 # The amount of time before you can try it again in seconds.
 PIN_FAILURE_LENGTH = 600
 
+# Ensure that sensitive data in the JSON is filtered out.
+RAVEN_CONFIG = {
+    'processors': ('solitude.processor.JSONProcessor',),
+}
 # Sensitive keys.
 SENSITIVE_DATA_KEYS = ['bankAccountNumber', 'pin', 'secret']
