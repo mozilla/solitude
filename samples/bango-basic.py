@@ -46,7 +46,8 @@ external_id = str(uuid.uuid4())
 res = call('/generic/product/', 'post', {'seller': seller_uri,
                                          'external_id': external_id,
                                          'secret': 'n',
-                                         'public_id': uid})
+                                         'public_id': uid,
+                                         'access': 1})
 seller_product_uri = res['resource_uri']
 
 print 'Create bango package.'
