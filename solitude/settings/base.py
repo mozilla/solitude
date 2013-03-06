@@ -194,3 +194,6 @@ DJANGO_PARANOIA_REPORTERS = [
 PIN_FAILURES = 5
 # The amount of time before you can try it again in seconds.
 PIN_FAILURE_LENGTH = 600
+
+# Sensitive keys.
+SENSITIVE_DATA_KEYS = ['bankAccountNumber', 'pin', 'secret']
