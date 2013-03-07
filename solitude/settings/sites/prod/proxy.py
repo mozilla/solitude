@@ -9,7 +9,7 @@ from django_sha2 import get_password_hashers
 
 
 ADMINS = ()
-ALLOWED_HOSTS = ('proxyelb.prod.solitude.allizomaws.com',)
+ALLOWED_HOSTS = ('*',)
 
 DATABASES = {'default': {}}
 
