@@ -1,11 +1,10 @@
 .. _security:
 
-========================
 Security
-========================
+########
 
 Encryption
-========================
+==========
 
 Currently we use `django-aesfield <https://github.com/andymckay/django-aesfield>`_
 to provide encryption on key fields. We'd recommend more levels of database
@@ -15,21 +14,17 @@ The encryption uses AES to do this.
 
 Encrypted fields:
 
-* buyer
+For the buyer:
 
-  * paypal pre-approval key
+* paypal pre-approval key
 
-* seller
+For a seller:
 
-  * generic secret
-
-  * paypal paypal_id
-
-  * paypal permissions token
-
-  * paypal permissions secret
-
-  * bluevia bluevia_id
+* generic secret
+* paypal paypal_id
+* paypal permissions token
+* paypal permissions secret
+* bluevia bluevia_id
 
 The keys per field are mapped in settings. See :ref:`setup.rst` for more.
 
