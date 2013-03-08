@@ -21,19 +21,18 @@ except ImportError:
     pass
 
 from cef import log_cef as _log_cef
-import jwt
 from tastypie import http
-from tastypie.authentication import Authentication
 from tastypie.authorization import Authorization
 from tastypie.exceptions import ImmediateHttpResponse, InvalidFilterError
 from tastypie.resources import (ModelResource as TastyPieModelResource,
                                 Resource as TastyPieResource)
-from tastypie.serializers import Serializer
 from tastypie.utils import dict_strip_unicode_keys
 from tastypie.validation import FormValidation
 import test_utils
 
 from lib.delayable.tasks import delayable
+
+from authentication import OAuthAuthentication
 
 
 log = logging.getLogger('s')
@@ -143,11 +142,6 @@ class APITest(test_utils.TestCase):
         return json.loads(content)[field]
 
 
-class Authentication(Authentication):
-    # TODO(andym): add in authentication here.
-    pass
-
-
 class Authorization(Authorization):
     pass
 
@@ -202,15 +196,6 @@ class BaseResource(object):
         return super(BaseResource, self).dehydrate(bundle)
 
     def _handle_500(self, request, exception):
-        # I'd prefer it if JWT errors went back as unauth errors, not
-        # 500 errors.
-        if isinstance(exception, JWTDecodeError):
-            # Let's log these with a higher severity.
-            log_cef(str(exception), request, severity=10)
-            return http.HttpUnauthorized(
-                    content=json.dumps({'reason': str(exception)}),
-                    content_type='application/json; charset=utf-8')
-
         # Print some nice 500 errors back to the clients if not in debug mode.
         tb = traceback.format_tb(sys.exc_traceback)
         tasty_log.error('%s: %s %s\n%s' % (request.path,
@@ -365,77 +350,20 @@ class ModelFormValidation(FormValidation):
         return form.errors
 
 
-class JWTDecodeError(Exception):
-    pass
-
-
-class JWTSerializer(Serializer):
-    jwt_key = None
-    formats = ['json', 'jwt']
-    content_types = {
-        'jwt': 'application/jwt',
-        'json': 'application/json',
-    }
-
-    def _error(self, msg, error='none'):
-        log.error('%s (%s)' % (msg, error), exc_info=True)
-        return JWTDecodeError(msg)
-
-    def from_json(self, content):
-        if settings.REQUIRE_JWT:
-            raise self._error('JWT is required', None)
-
-        return super(JWTSerializer, self).from_json(content)
-
-    def from_jwt(self, content):
-        try:
-            key = jwt.decode(content, verify=False).get('jwt-encode-key', '')
-        except jwt.DecodeError as err:
-            raise self._error('Error decoding JWT', error=err)
-
-        if not key:
-            raise self._error('No JWT key')
-
-        secret = settings.CLIENT_JWT_KEYS.get(key, '')
-        if not secret:
-            raise self._error('No JWT secret for that key')
-
-        try:
-            content = jwt.decode(content, secret, verify=True)
-        except jwt.DecodeError as err:
-            raise self._error('Error decoding JWT', err)
-
-        # We don't need this key anymore, delete it so that solitude
-        # doesn't trigger a warning on it.
-        del content['jwt-encode-key']
-        # Store the key and secret on the serializer, so that we can
-        # return the same data. Assuming it's always going to be the
-        # same object.
-        self.jwt_key = {'key': key, 'secret': secret}
-        return content
-
-    def to_jwt(self, content, options=None):
-        assert self.jwt_key
-        content['jwt-encode-key'] = self.jwt_key['key']
-        return jwt.encode(content, self.jwt_key['secret'])
-
-
 class Resource(BaseResource, TastyPieResource):
 
     class Meta:
         always_return_data = True
-        authentication = Authentication()
+        authentication = OAuthAuthentication()
         authorization = Authorization()
-        serializer = JWTSerializer()
 
 
 class ModelResource(BaseResource, TastyPieModelResource):
 
     class Meta:
         always_return_data = True
-        authentication = Authentication()
+        authentication = OAuthAuthentication()
         authorization = Authorization()
-        serializer = JWTSerializer()
 
 
 class Cached(object):

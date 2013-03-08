@@ -1,19 +1,16 @@
 import json
 
 from django import forms
-from django.conf import settings
 
-import jwt
 import mock
 from nose.tools import eq_, raises
-import simplejson
 from tastypie.exceptions import ImmediateHttpResponse, InvalidFilterError
 import test_utils
 
 from lib.paypal.errors import PaypalError
 from lib.sellers.models import Seller
 from lib.sellers.resources import SellerResource
-from solitude.base import APITest, JWTDecodeError, JWTSerializer, Resource
+from solitude.base import Resource
 from solitude.fields import URLField
 
 
@@ -24,8 +21,9 @@ class TestError(test_utils.TestCase):
         self.resource = Resource()
 
     def test_error(self):
+        res = None
         try:
-            1/0
+            1 / 0
         except Exception as error:
             res = self.resource._handle_500(self.request, error)
 
@@ -34,6 +32,7 @@ class TestError(test_utils.TestCase):
         eq_(data['error_message'], 'integer division or modulo by zero')
 
     def test_paypal_error(self):
+        res = None
         try:
             raise PaypalError(id=520003, message='wat?')
         except Exception as error:
@@ -50,7 +49,6 @@ class TestBase(test_utils.TestCase):
         self.request = test_utils.RequestFactory().get('/',
             CONTENT_TYPE='application/json')
         self.resource = Resource()
-        self.resource._meta.serializer = JWTSerializer()
 
     @mock.patch('solitude.base._log_cef')
     def test_cef(self, log_cef):
@@ -89,78 +87,6 @@ class TestBase(test_utils.TestCase):
         eq_(self.resource.deserialize_body(self.request), {})
         self.request._body = json.dumps({'foo': 'bar'})
         eq_(self.resource.deserialize_body(self.request)['foo'], 'bar')
-
-
-class TestSerialize(test_utils.TestCase):
-
-    def setUp(self):
-        self.serializer = JWTSerializer()
-        self.resource = Resource()
-
-    def test_good(self):
-        data = jwt.encode({'jwt-encode-key': 'key', 'foo': 'bar'}, 'secret')
-        with self.settings(CLIENT_JWT_KEYS={'key': 'secret'}):
-            assert self.serializer.deserialize(data, 'application/jwt')
-
-    def test_no_secret(self):
-        data = jwt.encode({'jwt-encode-key': 'key', 'foo': 'bar'}, 'secret')
-        with self.assertRaises(JWTDecodeError):
-            self.serializer.deserialize(data, 'application/jwt')
-
-    def test_no_key(self):
-        data = jwt.encode({'foo': 'bar'}, 'secret')
-        with self.assertRaises(JWTDecodeError):
-            self.serializer.deserialize(data, 'application/jwt')
-
-    def test_wrong_encoding(self):
-        data = jwt.encode({'foo': 'bar'}, 'secret')
-        with self.assertRaises(simplejson.decoder.JSONDecodeError):
-            self.serializer.deserialize(data, 'application/json')
-
-    def test_jwt_required(self):
-        data = json.dumps({'foo': 'bar'})
-        with self.settings(REQUIRE_JWT=True):
-            with self.assertRaises(JWTDecodeError):
-                self.serializer.deserialize(data, 'application/json')
-
-
-@mock.patch.object(settings, 'DEBUG', False)
-class TestJWT(APITest):
-    urls = 'solitude.tests.urls'
-    url = '/test/fake/'
-
-    def test_just_json(self):
-        res = self.client.post(self.url, json.dumps({'foo': 'bar'}))
-        eq_(res.status_code, 201, res.content)
-
-    def test_requires_jwt(self):
-        with self.settings(REQUIRE_JWT=True):
-            res = self.client.post(self.url, json.dumps({'foo': 'bar'}))
-            eq_(res.status_code, 401, res.status_code)
-
-    def test_bogus_jwt(self):
-        with self.settings(REQUIRE_JWT=True,
-                           CLIENT_JWT_KEYS={'f': 'b'}):
-            res = self.client.post(self.url, data='1.2',
-                                   content_type='application/jwt')
-            eq_(res.status_code, 401, res.status_code)
-
-    def test_some_jwt(self):
-        with self.settings(REQUIRE_JWT=True,
-                           CLIENT_JWT_KEYS={'f': 'b'}):
-            enc = jwt.encode({'jwt-encode-key': 'f', 'name': 'x'}, 'b')
-            res = self.client.post(self.url, data=enc,
-                                   content_type='application/jwt')
-            eq_(res.status_code, 201, res.status_code)
-
-    @mock.patch('solitude.base._log_cef')
-    def test_logged_cef(self, log_cef):
-        with self.settings(REQUIRE_JWT=True):
-            res = self.client.post(self.url, json.dumps({'foo': 'bar'}))
-            eq_(res.status_code, 401, res.status_code)
-        args = log_cef.call_args[0]
-        eq_(args[0], 'JWT is required')
-        eq_(args[1], 10)
 
 
 class TestURLField(test_utils.TestCase):

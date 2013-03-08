@@ -1,7 +1,6 @@
 import dj_database_url
 import logging.handlers
 import os
-import urlparse
 
 from funfactory.settings_base import *
 
@@ -156,14 +155,13 @@ BASE_PASSWORD_HASHERS = (
 
 DUMP_REQUESTS = False
 
-# If this flag is set, any communication will require JWT encoding of the
-# data using a key set in CLIENT_JWT_KEYS. Note: this does not require JWT for
-# all things, eg: nagios checks.
-REQUIRE_JWT = False
+# If this flag is set, any communication will require OAuth signing of the
+# request. Without this, OAuth is optional. This should be True for production.
+REQUIRE_OAUTH = False
 
-# A mapping of the keys and secrets that will be used to encode the JWT
+# A mapping of the keys and secrets that will be used to sign OAuth
 # for any server talking to this server.
-CLIENT_JWT_KEYS = {}
+CLIENT_OAUTH_KEYS = {}
 
 # Bango API settings.
 BANGO_AUTH = {'USER': 'Mozilla', 'PASSWORD': ''}
@@ -201,3 +199,6 @@ RAVEN_CONFIG = {
 }
 # Sensitive keys.
 SENSITIVE_DATA_KEYS = ['bankAccountNumber', 'pin', 'secret']
+
+# Set this for OAuth.
+SITE_URL = ''
