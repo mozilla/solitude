@@ -16,7 +16,7 @@ class JSONProcessor(Processor):
             return data
         try:
             http['data'] = json.dumps(sanitise(json.loads(http['data'])))
-        except ValueError:
+        except (TypeError, ValueError):
             # At this point we've got invalid JSON so things likely went
             # horribly wrong.
             pass
@@ -35,5 +35,9 @@ def sanitise(data, keys=None):
             if k in keys:
                 leaf[k] = '*' * 8
 
-    recurse(data)
+    try:
+        recurse(data)
+    except AttributeError:
+        return data
+
     return data
