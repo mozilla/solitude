@@ -65,8 +65,11 @@ settings::
                 },
         }
 
-    STATSD_CLIENT = 'django_statsd.clients.null'
     CLEANSED_SETTINGS_ACCESS = True
+
+    SITE_URL = 'http://your.solitude.instance/'
+    STATSD_CLIENT = 'django_statsd.clients.null'
+
     PAYPAL_USE_SANDBOX = True
 
 Solitude requires some keys on the file system. For each key in `base.py`,

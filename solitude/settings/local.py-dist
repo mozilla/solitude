@@ -78,3 +78,6 @@ SECRET_KEY = ''
 # The Bango API environment. This value must be an existing subdirectory
 # under lib/bango/wsdl.
 #BANGO_ENV = 'prod'
+
+# Used by OAuth, it cannot be blank.
+SITE_URL = ''

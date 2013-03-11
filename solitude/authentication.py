@@ -68,6 +68,9 @@ def initialize_oauth_server_request(request):
     if 'HTTP_AUTHORIZATION' in request.META:
         auth_header = {'Authorization': request.META.get('HTTP_AUTHORIZATION')}
 
+    if not settings.SITE_URL:
+        raise ValueError('SITE_URL cannot be blank')
+
     url = urljoin(settings.SITE_URL, request.path)
 
     # Note: we are only signing using the QUERY STRING. We are not signing the
