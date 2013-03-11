@@ -200,7 +200,7 @@ class BaseResource(object):
         tb = traceback.format_tb(sys.exc_traceback)
         tasty_log.error('%s: %s %s\n%s' % (request.path,
                             exception.__class__.__name__, exception,
-                            '\n'.join(tb[-3:])),
+                            '\n'.join(tb)),
                         extra={'status_code': 500, 'request': request})
         data = {
             'error_message': str(exception),
