@@ -48,3 +48,4 @@ PAYPAL_URL_WHITELIST = ('https://marketplace.allizom.org',)
 
 BANGO_ENV = 'prod'
 BANGO_PROXY = private.BANGO_PROXY
+SITE_URL = 'https://payments.allizom.org'

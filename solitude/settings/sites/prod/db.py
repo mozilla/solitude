@@ -45,4 +45,6 @@ CLIENT_JWT_KEYS = private.CLIENT_JWT_KEYS
 PAYPAL_PROXY = private.PAYPAL_PROXY
 PAYPAL_URL_WHITELIST = ('https://marketplace.firefox.com',)
 
+BANGO_ENV = 'prod'
 BANGO_PROXY = private.BANGO_PROXY
+SITE_URL = 'https://payments.firefox.com'
