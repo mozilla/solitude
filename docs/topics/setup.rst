@@ -244,7 +244,7 @@ Option 1 (recommended)
 Get a nice response in the client and something in the server console. Set::
 
     DEBUG = True
-    DEBUG_PROPAGATE_EXCEPTIONS = False
+    DEBUG_PROPAGATE_EXCEPTIONS = True
     TASTYPIE_FULL_DEBUG = False
 
 Example from client::
