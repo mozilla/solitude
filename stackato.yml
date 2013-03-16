@@ -14,7 +14,7 @@ ignores:
 env:
   DJANGO_SETTINGS_MODULE: solitude.settings
   PIP_OPTS: --no-deps --exists-action=w
-  PIP_REQUIREMENTS_FILE: requirements/python27_prod.txt
+  PIP_REQUIREMENTS_FILE: requirements/prod.txt
 
 requirements:
   pypm:
