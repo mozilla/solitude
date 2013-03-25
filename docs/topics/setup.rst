@@ -185,9 +185,7 @@ You should get a response like this:
 Running on Stackato
 ~~~~~~~~~~~~~~~~~~~
 
-Note: If you have an old ``solitude/settings/local.py`` that defines
-DATABASES unconditionally, you will need to modify it, since Stackato
-supplies its own database config.
+.. note:: If you have an old ``solitude/settings/local.py`` that defines DATABASES unconditionally, you will need to modify it, since Stackato supplies its own database config.
 
 To deploy your Solitude config on Stackato, first install the `Stackato
 client <http://www.activestate.com/stackato/download_client>`_.
