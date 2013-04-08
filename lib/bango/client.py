@@ -201,8 +201,11 @@ mock_data = {
 
 class ClientMock(Client):
 
-    def mock_results(self, key):
-        result = mock_data.get(key, {}).copy()
+    def mock_results(self, key, data=None):
+        """
+        Returns result for a key. Data can be passed in to override mock_data.
+        """
+        result = data or mock_data.get(key, {}).copy()
         for key, value in (['responseCode', 'OK'], ['responseMessage', '']):
             if key not in result:
                 result[key] = value

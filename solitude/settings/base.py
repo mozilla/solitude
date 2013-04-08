@@ -202,3 +202,6 @@ SENSITIVE_DATA_KEYS = ['bankAccountNumber', 'pin', 'secret']
 
 # Set this for OAuth.
 SITE_URL = ''
+
+# Fake out refunds, set this to True for test until bug 845332 is resolved.
+BANGO_FAKE_REFUNDS = False

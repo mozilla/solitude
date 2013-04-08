@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 import json
 
+from django import test
 from django.conf import settings
 
 import mock
@@ -23,6 +24,7 @@ from ..constants import (ALREADY_REFUNDED, BANGO_ALREADY_PREMIUM_ENABLED,
                          SBI_ALREADY_ACCEPTED)
 from ..client import ClientMock
 from ..errors import BangoError
+from ..resources.refund import RefundResource
 from ..resources.cached import BangoResource, SimpleResource
 from ..utils import sign
 
@@ -754,6 +756,24 @@ class TestRefund(APITest):
         # Check we didn't create a transaction.
         eq_(len(Transaction.objects.all()), 1)
 
+    @mock.patch.object(settings, 'BANGO_FAKE_REFUNDS', True)
+    def test_fake_ok(self):
+        res = self.client.post(self.url, data={'uuid': self.uuid,
+            'fake_response': {'responseCode': OK}})
+        eq_(res.status_code, 201)
+
+    @mock.patch.object(settings, 'BANGO_FAKE_REFUNDS', True)
+    def test_fake_already(self):
+        res = self.client.post(self.url, data={'uuid': self.uuid,
+            'fake_response': {'responseCode': ALREADY_REFUNDED}})
+        eq_(res.status_code, 400)
+
+    @mock.patch.object(settings, 'BANGO_FAKE_REFUNDS', True)
+    def test_fake_not_given(self):
+        # No fake given, returning the default OK response
+        res = self.client.post(self.url, data={'uuid': self.uuid})
+        eq_(res.status_code, 201)
+
 
 class TestRefundStatus(APITest):
 
@@ -816,3 +836,43 @@ class TestRefundStatus(APITest):
         data = json.loads(res.content)
         eq_(data['status'], OK)
         eq_(self.refund.reget().status, constants.STATUS_COMPLETED)
+
+    @mock.patch.object(settings, 'BANGO_FAKE_REFUNDS', True)
+    def fake(self, status):
+        self.refund.status = constants.STATUS_PENDING
+        self.refund.save()
+        res = self.client.get_with_body(self.url, data={
+            'uuid': self.refund.uuid,
+            'fake_response': {'responseCode': status}
+        })
+        return res
+
+    def test_fake_ok(self):
+        res = self.fake(OK)
+        eq_(json.loads(res.content)['status'], OK)
+        eq_(self.refund.reget().status, constants.STATUS_COMPLETED)
+
+    def test_fake_pending(self):
+        res = self.fake(PENDING)
+        eq_(json.loads(res.content)['status'], PENDING)
+        eq_(self.refund.reget().status, constants.STATUS_PENDING)
+
+
+class TestResource(test.TestCase):
+
+    def setUp(self):
+        self.res = RefundResource()
+
+    @mock.patch.object(settings, 'BANGO_FAKE_REFUNDS', False)
+    def test_not_faked(self):
+        ok_(not self.res.get_client({}))
+
+    @mock.patch.object(settings, 'BANGO_FAKE_REFUNDS', True)
+    def test_partially_faked(self):
+        res = self.res.get_client({})
+        eq_(res.mock_results('foo')['responseCode'], 'OK')
+
+    @mock.patch.object(settings, 'BANGO_FAKE_REFUNDS', True)
+    def test_faked(self):
+        res = self.res.get_client({'fake_response': {'responseCode': 'foo'}})
+        eq_(res.mock_results('foo')['responseCode'], 'foo')

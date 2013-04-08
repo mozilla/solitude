@@ -16,17 +16,19 @@ class Form:
 class BangoResource(object):
     """A mixin that requires BaseResource to handle Bango form errors."""
 
-    def client(self, method, data, raise_on=None):
+    def client(self, method, data, raise_on=None, client=None):
         """
         Client to call the bango client and process errors in a way that
         is relevant to the form. If you pass in a list of errors, these will
         be treated as errors the callee is going to deal with and will not
         be returning ImmediateHttpResponses. Instead the callee will have to
         cope with these BangoFormErrors as appropriate.
+
+        You can optionally pass in a client to override the default.
         """
         raise_on = raise_on or []
         try:
-            return getattr(get_client(), method)(data)
+            return getattr(client or get_client(), method)(data)
         except BangoFormError, exc:
             if exc.id in raise_on:
                 raise

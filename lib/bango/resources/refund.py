@@ -1,10 +1,14 @@
+from functools import partial
 import logging
 import uuid
+
+from django.conf import settings
 
 from tastypie import fields
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.http import HttpNotFound
 
+from lib.bango.client import ClientMock
 from lib.bango.constants import CANT_REFUND, NOT_SUPPORTED, OK, PENDING
 from lib.bango.errors import BangoFormError
 from lib.bango.forms import RefundForm, RefundStatusForm
@@ -42,11 +46,30 @@ class RefundResource(SimpleResource):
     """
     status = fields.CharField(attribute='status')
     transaction = fields.ToOneField(TransactionResource, 'transaction')
+    fake_response = fields.CharField(readonly=True)
 
     class Meta(SimpleResource.Meta):
         allowed_methods = ['get']
         list_allowed_methods = ['post']
         resource_name = 'refund'
+
+    def get_client(self, extra):
+        """
+        A wrapper around the original client call to allow us to return a Mock
+        object for refunds. See bug 845332 for more information.
+        """
+        fake = getattr(settings, 'BANGO_FAKE_REFUNDS', None)
+        if fake:
+            log.warning('Faking out refunds')
+            res = extra.get('fake_response', {})
+            client = ClientMock()
+            if not res:
+                # We'll be just using the default mock defined on the object.
+                log.warning('"fake_response" not defined, using default')
+            else:
+                log.info('"fake_response" being used')
+                client.mock_results = partial(client.mock_results, data=res)
+            return client
 
     def obj_get(self, request, **kw):
         # Work around tastypie by not getting a list, but just
@@ -63,9 +86,11 @@ class RefundResource(SimpleResource):
         obj = form.cleaned_data['uuid']
 
         try:
-            res = self.client('GetRefundStatus', {
-                'refundTransactionId': obj.uid_pay
-            }, raise_on=(PENDING, CANT_REFUND, NOT_SUPPORTED))
+            res = self.client('GetRefundStatus',
+                {'refundTransactionId': obj.uid_pay},
+                raise_on=(PENDING, CANT_REFUND, NOT_SUPPORTED),
+                client=self.get_client(data)
+            )
             code = res.responseCode
         except BangoFormError, exc:
             res = BangoResponse(exc.id, exc.message, '')
@@ -104,11 +129,14 @@ class RefundResource(SimpleResource):
 
         try:
             res = self.client('DoRefund', {
-                'transactionId': obj.uid_support,
-                'refundType': 'OPERATOR',
-                'bango': obj.seller_product.product.bango_id,
-                'externalTransactionId': external_uuid
-            }, raise_on=(PENDING,))
+                    'bango': obj.seller_product.product.bango_id,
+                    'externalTransactionId': external_uuid,
+                    'refundType': 'OPERATOR',
+                    'transactionId': obj.uid_support
+                },
+                raise_on=(PENDING,),
+                client=self.get_client(bundle.data)
+            )
         except BangoFormError, exc:
             # We haven't been able to get a response back that is pending
             # so I'm not sure if the refundTransactionId is there. Check this.
