@@ -46,7 +46,7 @@ six==1.2.0
 slumber==0.5.3
 statsd==1.0.0
 suds==0.4
-tastypie-services==0.1.1
+tastypie-services==0.2.1
 tower==0.3.4
 
 # not on pypi

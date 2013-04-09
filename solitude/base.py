@@ -174,6 +174,26 @@ def log_cef(msg, request, **kw):
     _log_cef(msg, severity, request.META.copy(), **cef_kw)
 
 
+def handle_500(resource, request, exception):
+    # Print some nice 500 errors back to the clients if not in debug mode.
+    tb = traceback.format_tb(sys.exc_traceback)
+    tasty_log.error('%s: %s %s\n%s' % (request.path,
+                        exception.__class__.__name__, exception,
+                        '\n'.join(tb)),
+                    extra={'status_code': 500, 'request': request})
+    data = {
+        'error_message': str(exception),
+        'error_code': getattr(exception, 'id',
+                              exception.__class__.__name__),
+        'error_data': getattr(exception, 'data', {})
+    }
+    # We'll also cef log any errors.
+    log_cef(str(exception), request, severity=3)
+    serialized = resource.serialize(request, data, 'application/json')
+    return http.HttpApplicationError(content=serialized,
+                content_type='application/json; charset=utf-8')
+
+
 class BaseResource(object):
 
     def form_errors(self, forms):
@@ -196,23 +216,7 @@ class BaseResource(object):
         return super(BaseResource, self).dehydrate(bundle)
 
     def _handle_500(self, request, exception):
-        # Print some nice 500 errors back to the clients if not in debug mode.
-        tb = traceback.format_tb(sys.exc_traceback)
-        tasty_log.error('%s: %s %s\n%s' % (request.path,
-                            exception.__class__.__name__, exception,
-                            '\n'.join(tb)),
-                        extra={'status_code': 500, 'request': request})
-        data = {
-            'error_message': str(exception),
-            'error_code': getattr(exception, 'id',
-                                  exception.__class__.__name__),
-            'error_data': getattr(exception, 'data', {})
-        }
-        # We'll also cef log any errors.
-        log_cef(str(exception), request, severity=3)
-        serialized = self.serialize(request, data, 'application/json')
-        return http.HttpApplicationError(content=serialized,
-                    content_type='application/json; charset=utf-8')
+        return handle_500(self, request, exception)
 
     def deserialize(self, request, data, format='application/json'):
         result = (super(BaseResource, self)
