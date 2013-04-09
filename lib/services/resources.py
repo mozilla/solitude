@@ -4,11 +4,12 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db import DatabaseError
 
-from services.services import StatusError, StatusObject as Base
+from tastypie_services.services import StatusError, StatusObject as Base
 
 import logging
 
 log = logging.getLogger('s.services')
+
 
 class StatusObject(Base):
 

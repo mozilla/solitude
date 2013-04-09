@@ -40,7 +40,7 @@ services = Api(api_name='services')
 services.register(ErrorResource(set_handler=handle_500))
 if getattr(settings, 'CLEANSED_SETTINGS_ACCESS', False):
     services.register(SettingsResource())
-services.register(StatusResource())
+services.register(StatusResource(set_handler=handle_500))
 
 urlpatterns = patterns('',
     url(r'^proxy/', include('lib.proxy.urls')),
