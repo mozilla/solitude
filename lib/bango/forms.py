@@ -4,6 +4,7 @@ import commonware.log
 
 from django import forms
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 from lib.bango.constants import (COUNTRIES, CURRENCIES, INVALID_PERSON,
                                  RATINGS, RATINGS_SCHEME,
@@ -313,7 +314,9 @@ class RefundForm(forms.Form):
     def clean_uuid(self):
         # Rather than just returning a 404, let's help the caller of this API
         # tell them why their transaction is denied.
-        transaction = Transaction.objects.get(uuid=self.cleaned_data['uuid'])
+        transaction = get_object_or_404(Transaction,
+            uuid=self.cleaned_data['uuid'])
+
         if transaction.provider != SOURCE_BANGO:
             raise forms.ValidationError('Not a Bango transaction')
 

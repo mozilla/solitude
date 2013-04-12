@@ -725,6 +725,10 @@ class TestRefund(APITest):
         eq_(res.status_code, 400)
         ok_(self.get_errors(res.content, 'uuid'))
 
+    def test_not_there(self):
+        res = self.client.post(self.url, data={'uuid': 0})
+        eq_(res.status_code, 404)
+
     def test_not_bango(self):
         self.trans.provider = SOURCE_PAYPAL
         self.trans.save()
