@@ -31,7 +31,7 @@ class TestAuthentication(test_utils.TestCase):
             ok_(not self.authentication.is_authenticated(req))
 
     def test_signed(self):
-        res = sign_request('GET', keys_dict, settings.SITE_URL)
+        res = sign_request('GET', keys_dict, settings.SITE_URL, None)
         req = self.factory.get('/', HTTP_AUTHORIZATION=res)
         with self.settings(REQUIRE_OAUTH=True):
             ok_(self.authentication.is_authenticated(req))
@@ -39,7 +39,7 @@ class TestAuthentication(test_utils.TestCase):
     def test_signed_incorrectly(self):
         keys_ = keys_dict.copy()
         keys_['secret'] = 'baz'
-        res = sign_request('GET', keys_, settings.SITE_URL)
+        res = sign_request('GET', keys_, settings.SITE_URL, None)
         req = self.factory.get('/foo/', HTTP_AUTHORIZATION=res)
         with self.settings(REQUIRE_OAUTH=True):
             ok_(not self.authentication.is_authenticated(req))
