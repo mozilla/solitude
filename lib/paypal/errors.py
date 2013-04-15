@@ -9,9 +9,10 @@ class PaypalError(Exception):
         self.data = data or {}
         self.default = ('There was an error communicating with PayPal. '
                         'Please try again later.')
+        self._message = message  # To get around deprecation warning.
 
     def __str__(self):
-        msg = self.message
+        msg = self._message
         return msg.encode('utf8') if isinstance(msg, unicode) else msg
 
 
