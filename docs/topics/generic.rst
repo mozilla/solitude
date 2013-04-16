@@ -156,3 +156,52 @@ Returns:
      "resource_key": 16,
      "bluevia": null,
      "paypal": null}
+
+
+Transaction
+===========
+
+A transaction is created at the start of a payment through solitude. Its
+status is altered as the transaction is completed or cancelled as appropriate.
+
+To iterate over the list of transactions::
+
+    GET /generic/transaction/
+
+To get an individual transaction::
+
+    GET /generic/transaction/9/
+
+Example response:
+
+.. code-block:: json
+
+        {
+            "amount": "0.62",
+            "buyer": null,
+            "created": "2013-04-15T05:39:22",
+            "currency": "GBP",
+            "notes": "",
+            "provider": 1,
+            "related": null,
+            "relations": [],
+            "resource_pk": 2977,
+            "resource_uri": "/generic/transaction/2977/",
+            "seller_product": "/generic/product/449/",
+            "status": 5,
+            "type": 0,
+            "uid_pay": "230450",
+            "uid_support": "0",
+            "uuid": "webpay:d8d143f3-d484-4903-bd29-bae3d280c5b3"
+        }
+
+Statuses:
+
+* 0: Pending - when the payment flow has been started.
+* 1: Completed - the payment has been fully completed and processed.
+* 2: Checked - the payment is in process and has been checked. More relevant to
+  Paypal than Bango.
+* 3: Received - we are part way through the payment flow. More relevant to
+  Paypal than Bango.
+* 4: Failed - an error occurred and the transaction failed.
+* 5: Cancelled - the transaction was cancelled explicitly by the user.
