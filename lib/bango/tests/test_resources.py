@@ -454,6 +454,14 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         eq_(res.status_code, 201, res.content)
         assert 'billingConfigurationId' in json.loads(res.content)
 
+    def test_with_product_icon(self):
+        data = self.good()
+        data['icon_url'] = 'http://marketplace-cdn.com/icons/1.png'
+        with self.settings(BANGO_ICON_URLS=True):
+            res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 201, res.content)
+        assert 'billingConfigurationId' in json.loads(res.content)
+
     def test_create_trans_if_not_existing(self):
         data = self.good()
         data['transaction_uuid'] = '<some-new-trans-uuid>'

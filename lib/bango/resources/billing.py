@@ -1,3 +1,5 @@
+from django.conf import settings
+
 import commonware.log
 
 from cached import Resource
@@ -65,6 +67,11 @@ class CreateBillingConfigurationResource(Resource):
             'REDIRECT_URL_ONERROR': data.pop('redirect_url_onerror'),
             'REQUEST_SIGNATURE': sign(data['externalTransactionId']),
         }
+        if settings.BANGO_ICON_URLS:
+            icon_url = data.pop('icon_url', None)
+            if icon_url:
+                configs['APP_LOGO_IMG_URL'] = icon_url
+
         for k, v in configs.items():
             opt = billing.factory.create('BillingConfigurationOption')
             opt.configurationOptionName = k

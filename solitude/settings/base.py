@@ -205,3 +205,7 @@ SITE_URL = ''
 
 # Fake out refunds, set this to True for test until bug 845332 is resolved.
 BANGO_FAKE_REFUNDS = False
+
+# When True, send product icon URLs to Bango in the billing config task.
+# This is temporarily disabled. See bug 848675.
+BANGO_ICON_URLS = False
