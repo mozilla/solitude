@@ -70,7 +70,7 @@ class CreateBillingConfigurationResource(Resource):
         if settings.BANGO_ICON_URLS:
             icon_url = data.pop('icon_url', None)
             if icon_url:
-                configs['APP_LOGO_IMG_URL'] = icon_url
+                configs['APPLICATION_LOGO_URL'] = icon_url
 
         for k, v in configs.items():
             opt = billing.factory.create('BillingConfigurationOption')
