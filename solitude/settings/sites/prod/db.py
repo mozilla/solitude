@@ -40,7 +40,7 @@ TEMPLATE_DEBUG = DEBUG
 # Solitude specific settings.
 AES_KEYS = private.AES_KEYS
 
-CLIENT_JWT_KEYS = private.CLIENT_JWT_KEYS
+CLIENT_OAUTH_KEYS = private.CLIENT_OAUTH_KEYS
 
 PAYPAL_PROXY = private.PAYPAL_PROXY
 PAYPAL_URL_WHITELIST = ('https://marketplace.firefox.com',)
