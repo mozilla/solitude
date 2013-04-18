@@ -313,8 +313,6 @@ class RefundForm(forms.Form):
     uuid = forms.CharField()
 
     def clean_uuid(self):
-        # Rather than just returning a 404, let's help the caller of this API
-        # tell them why their transaction is denied.
         transaction = get_object_or_404(Transaction,
             uuid=self.cleaned_data['uuid'])
 
