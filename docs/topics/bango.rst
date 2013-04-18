@@ -70,18 +70,79 @@ If *sbi_expires* is empty, the agreement has not been approved.
 Refunds
 =======
 
-The refund API gives access to 2 calls: "DoRefund" and "GetRefundStatus". You will
-need a valid payment transaction to start a refund::
+The refund API gives access to two Bango calls: "DoRefund" and
+"GetRefundStatus". You will need a valid payment transaction to start a refund.
 
-    POST /bango/refund/
-    {"uuid": "uuid-of-the-payment-transaction"}
+.. http:post:: /bango/refund/
 
-This will return the bango response and a pointer to the **new refund
-transaction**, which will hold its own separate UUID. This UUID can be used to
-get the refund's status from Bango::
+    Refund a payment.
 
-    GET /bango/refund/status/
-    {"uuid": "uuid-of-the-refund-transaction"}
+    **Request**
 
-If the response from Bango is different from the transaction state, then the
-transaction is updated to reflect the refund's new status.
+    :param uuid: id of the payment transaction.
+
+    Example:
+
+    .. code-block:: json
+
+        {"uuid": "uuid-of-the-payment-transaction"}
+
+    **Response**
+
+    :status 201: refund processed. Examine the response contents to see the
+        status of the refund and a pointer to the new refund.
+    :status 400: there was a problem with the transaction chosen. Examine the
+        response contents for more information.
+    :status 404: transaction not found at all.
+
+    :param uuid: the uuid of the transaction.
+    :param status: the Bango response.
+    :param transaction: the URL of the newly created transaction.
+
+    Example successful refund:
+
+    .. code-block:: json
+
+        {
+            "fake_response": null,
+            "resource_pk": 2,
+            "resource_uri": "/bango/refund/2/",
+            "status": "OK",
+            "transaction": "/generic/transaction/2/",
+            "uuid": "sample:uid"
+        }
+
+.. http:get:: /bango/refund/status/
+
+    Look up the status of refund.
+
+    .. note:: If the response from Bango is different from the transaction
+        state, then the transaction is updated to reflect the refund's new
+        status. This might happen for PENDING refunds.
+
+    **Request**
+
+    :param uuid: uuid of the refund transaction.
+
+    Example:
+
+    .. code-block:: json
+
+        {"uuid": "sample:uid"}
+
+    **Response**
+
+    :status 200: successfully completed.
+
+    :param status: the Bango response.
+    :param transaction: the URL of the refund transaction.
+
+    .. code-block:: json
+
+        {
+            "fake_response": null,
+            "resource_pk": 1,
+            "resource_uri": "/bango/refund/1/",
+            "status": "OK",
+            "transaction": "/generic/transaction/1/"
+        }
