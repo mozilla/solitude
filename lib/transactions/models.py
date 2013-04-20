@@ -1,4 +1,8 @@
+import csv
+from StringIO import StringIO
+
 from django.db import models
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 import commonware.log
@@ -10,6 +14,7 @@ from lib.transactions import constants
 from solitude.base import get_object_or_404, Model
 
 log = commonware.log.getLogger('s.transaction')
+stats_log = commonware.log.getLogger('s.transaction.stats')
 
 
 class Transaction(Model):
@@ -130,3 +135,26 @@ def create_bango_transaction(sender, **kwargs):
     transaction.save()
 
     log.info('Bango transaction: %s pending' % (transaction.pk,))
+
+
+@receiver(post_save, sender=Transaction, dispatch_uid='transaction-log')
+def transaction_log(sender, **kwargs):
+    if kwargs.get('raw'):
+        return
+
+    transaction = kwargs['instance']
+    # This data is parsed in this order on the other end, so don't change
+    # the order. If you do, change the version.
+    data = ('v1',  # Version.
+            transaction.uuid,
+            transaction.modified.isoformat(),
+            transaction.amount,
+            transaction.currency,
+            transaction.status,
+            transaction.buyer.uuid if transaction.buyer else None,
+            transaction.seller_product.seller.uuid)
+
+    out = StringIO()
+    writer = csv.writer(out)
+    writer.writerow(data)
+    stats_log.info(out.getvalue().strip())
