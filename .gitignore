@@ -18,3 +18,4 @@ tmp/*
 *~
 *.mo
 foo.key
+docs/_build
