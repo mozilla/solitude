@@ -48,16 +48,21 @@ class Proxy(object):
         try:
             with statsd.timer('solitude.proxy.%s.%s' %
                               (self.service, self.name)):
-                log.info('Calling service: %s' % self.service)
-            # We aren't calling client._call because that tries to parse the
-            # output. Once the headers are prepared, this will do the rest.
-            result = requests.post(self.url, data=self.body,
-                                   headers=self.headers,
-                                   timeout=self.timeout, verify=True)
+                log.info('Calling service: %s at %s' %
+                         (self.service, self.url))
+                # We aren't calling client._call because that tries to parse
+                # the output. Once the headers are prepared, this will do the
+                # rest.
+                result = requests.post(self.url, data=self.body,
+                                       headers=self.headers,
+                                       timeout=self.timeout, verify=True)
         except requests.exceptions.RequestException as err:
             log.error('%s: %s' % (err.__class__.__name__, err))
             response.status_code = 500
             return response
+
+        if result.status_code < 200 or result.status_code > 299:
+            log.error('Warning response status: %s' % result.status_code)
 
         response.status_code = result.status_code
         response.content = result.text

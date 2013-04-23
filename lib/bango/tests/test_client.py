@@ -6,7 +6,7 @@ import test_utils
 from ..client import (Client, ClientMock, ClientProxy, dict_to_mock,
                       get_client, response_to_dict)
 from ..constants import OK, ACCESS_DENIED
-from ..errors import AuthError, BangoError
+from ..errors import AuthError, BangoError, ProxyError
 
 import samples
 
@@ -94,11 +94,10 @@ class TestProxy(test_utils.TestCase):
     def test_failure(self, post):
         resp = mock.Mock()
         resp.status_code = 500
-        resp.content = samples.premium_response_failure
         post.return_value = resp
 
         with self.settings(BANGO_PROXY=self.url):
-            with self.assertRaises(BangoError):
+            with self.assertRaises(ProxyError):
                 self.bango.MakePremiumPerAccess(samples.good_make_premium)
 
     @mock.patch('lib.bango.client.post')

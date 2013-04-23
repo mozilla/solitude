@@ -16,7 +16,7 @@ from suds.transport.http import HttpTransport
 
 from .constants import (ACCESS_DENIED, HEADERS_SERVICE, INTERNAL_ERROR,
                         SERVICE_UNAVAILABLE)
-from .errors import AuthError, BangoError, BangoFormError
+from .errors import AuthError, BangoError, BangoFormError, ProxyError
 
 root = os.path.join(settings.ROOT, 'lib', 'bango', 'wsdl', settings.BANGO_ENV)
 wsdl = {
@@ -51,6 +51,10 @@ direct = [
     'DoRefund',
     'GetRefundStatus',
 ]
+
+
+# Status codes from the proxy that raise an error and stop processing.
+FATAL_PROXY_STATUS_CODES = (404, 500,)
 
 
 # Turn the method into the approiate name. If the Bango WSDL diverges this will
@@ -122,6 +126,12 @@ class Proxy(HttpTransport):
                         data=request.message,
                         headers={HEADERS_SERVICE: request.url},
                         verify=False)
+        if response.status_code in FATAL_PROXY_STATUS_CODES:
+            msg = ('Proxy returned: %s from: %s' %
+                   (response.status_code, request.url))
+            log.error(msg)
+            raise ProxyError(msg)
+
         return Reply(response.status_code, {}, response.content)
 
 

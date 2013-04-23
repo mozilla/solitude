@@ -14,3 +14,7 @@ class AuthError(BangoError):
 
 class BangoFormError(BangoError):
     """Something in the data we passed caused an error in the bango end."""
+
+
+class ProxyError(Exception):
+    """The proxy returned something we didn't like."""
