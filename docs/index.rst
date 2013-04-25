@@ -22,7 +22,7 @@ Currently we support:
 This project is based on **playdoh**. Mozilla's Playdoh is an open source
 web application template based on `Django <http://www.djangoproject.com/>`_.
 
-Solitude is also an awesome sounding beer from `Brewery Vivant <http://breweryvivant.com/>`_. The logo is
+Solitude is also a nice tasting beer from `Brewery Vivant <http://breweryvivant.com/>`_. The logo is
 theirs.
 
 Contents
