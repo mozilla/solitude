@@ -49,3 +49,5 @@ PAYPAL_URL_WHITELIST = ('https://marketplace-dev.allizom.org',)
 
 BANGO_PROXY = private.BANGO_PROXY
 SITE_URL = 'https://payments-dev.allizom.org'
+
+BANGO_FAKE_REFUNDS = True
