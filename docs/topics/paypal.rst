@@ -213,55 +213,6 @@ parse the IPN data:
 * `uuid`: the uuid for this transaction.
 * `amount`: the amount of the transaction.
 
-Proxy
-=====
-
-To add a further layer of defense, Solitude can be run in two modes:
-
-* *standalone*: in this case Solitude is only run with **one instance** and
-  communicates to PayPal. That one instance knows everything about how to
-  interact with the database and has the appropriate settings for communicating
-  with PayPal. Requests go **client** > **solitude**
-  > **paypal**.
-
-* *proxy*: in this case Solitude is run with **two instances**, a database
-  server and proxy server. Requests go **client** > **solitude database server**
-  > **solitude proxy server** > **paypal**.
-
-  * *database server* this **can** read and write to the database, the cache and
-    so on. It **cannot** talk to PayPal. It has no PayPal username, password or
-    any other keys.
-
-  * *proxy server* this **cannot** read and write to the database, the cache
-    and so on. It **can** talk to PayPal. It has the PayPal username, password
-    and other keys.
-
-By default solitude runs in standalone mode. Running using `runserver` or the
-`wsgi/playdoh.py` script will run in this mode.
-
-Running both the database and proxy server on the same instance might not give
-you much of an advantage. The intention is to run them in seperate servers and
-have appropriate security between them.
-
-To run in proxy mode, make the following changes:
-
-* *database server* ensure you have not specified any sensitive PayPal
-  settings. Set `PAYPAL_PROXY` to point to the *proxy server* referencing the
-  path `/proxy/paypal` for example::
-
-    PAYPAL_PROXY = 'https://addons.mozilla.local/proxy/paypal'
-
-* *proxy server* ensure you have not specified any database or cache settings,
-  but have specified the PayPal settings, such as username, password, sandbox
-  and so on.
-
-To run the proxy server, run with the environment variable::
-
-    SOLITUDE_PROXY='enabled'
-
-To run as a wsgi file, just use `wsgi/proxy.py` and it will set this variable
-for you.
-
 Mock
 ====
 
