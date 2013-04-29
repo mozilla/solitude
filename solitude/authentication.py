@@ -45,7 +45,7 @@ class OAuthAuthentication(Authentication):
                     return False
                 return True
             oauth_server.verify_request(oauth_request, Consumer(key), None)
-            log.error(u'Access granted: %s' % key)
+            log.info(u'Access granted: %s' % key)
             return True
 
         except KeyError:
