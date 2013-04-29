@@ -2,9 +2,6 @@
 import os
 from optparse import OptionParser
 
-from jinja2 import Template
-
-
 HEADER = '!!AUTO-GENERATED!! Edit bin/crontab/crontab.tpl instead.'
 TEMPLATE = open(os.path.join(os.path.dirname(__file__), 'crontab.tpl')).read()
 
@@ -35,7 +32,7 @@ def main():
     ctx['python'] = opts.python
     ctx['header'] = HEADER
 
-    print Template(TEMPLATE).render(**ctx)
+    print TEMPLATE % ctx
 
 
 if __name__ == '__main__':

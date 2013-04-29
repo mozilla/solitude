@@ -71,6 +71,17 @@ class Transaction(Model):
             type__in=(constants.TYPE_REFUND, constants.TYPE_REVERSAL),
             status=constants.STATUS_COMPLETED).exists()
 
+    def for_log(self):
+        return ('v1',  # Version.
+            self.uuid,
+            self.created.isoformat(),
+            self.modified.isoformat(),
+            self.amount,
+            self.currency,
+            self.status,
+            self.buyer.uuid if self.buyer else None,
+            self.seller_product.seller.uuid)
+
 
 @receiver(paypal_create, dispatch_uid='transaction-create-paypal')
 def create_paypal_transaction(sender, **kwargs):
@@ -135,26 +146,3 @@ def create_bango_transaction(sender, **kwargs):
     transaction.save()
 
     log.info('Bango transaction: %s pending' % (transaction.pk,))
-
-
-@receiver(post_save, sender=Transaction, dispatch_uid='transaction-log')
-def transaction_log(sender, **kwargs):
-    if kwargs.get('raw'):
-        return
-
-    transaction = kwargs['instance']
-    # This data is parsed in this order on the other end, so don't change
-    # the order. If you do, change the version.
-    data = ('v1',  # Version.
-            transaction.uuid,
-            transaction.modified.isoformat(),
-            transaction.amount,
-            transaction.currency,
-            transaction.status,
-            transaction.buyer.uuid if transaction.buyer else None,
-            transaction.seller_product.seller.uuid)
-
-    out = StringIO()
-    writer = csv.writer(out)
-    writer.writerow(data)
-    stats_log.info(out.getvalue().strip())

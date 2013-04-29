@@ -3,7 +3,6 @@ from nose.tools import eq_
 
 from django.core.exceptions import ValidationError
 
-from lib.buyers.models import Buyer
 from lib.sellers.models import Seller, SellerPaypal, SellerProduct
 from lib.transactions import constants
 from lib.transactions.models import Transaction
@@ -78,30 +77,6 @@ class TestModel(APITest):
     def test_not_reversal(self):
         original, related = self.add_related()
         assert not original.reget().is_refunded()
-
-    @patch('lib.transactions.models.stats_log')
-    def test_log_updates(self, stats_log):
-        trans = Transaction(**self.get_data())
-        trans.save()
-        record = stats_log.info.call_args[0][0].split(',')
-        eq_(record[5], str(constants.STATUS_PENDING))
-
-        trans.currency = 'CAD'
-        trans.status = constants.STATUS_COMPLETED
-        trans.save()
-
-        record = stats_log.info.call_args[0][0].split(',')
-        eq_(record[4], 'CAD')
-        eq_(record[5], str(constants.STATUS_COMPLETED))
-
-    @patch('lib.transactions.models.stats_log')
-    def test_log_buyer(self, stats_log):
-        data = self.get_data()
-        data['buyer'] = Buyer.objects.create(uuid='yeah')
-        Transaction(**data).save()
-
-        record = stats_log.info.call_args[0][0].split(',')
-        eq_(record[6], 'yeah')
 
 
 class TestTransaction(APITest):

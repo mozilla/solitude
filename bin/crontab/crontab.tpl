@@ -2,19 +2,11 @@
 # {{ header }}
 #
 
-# MAILTO=some-email-list
+MAILTO=amo-developers@mozilla.org
 
 HOME=/tmp
 
-# Every minute!
-* * * * * {{ cron }}
-
-# Every hour.
-42 * * * * {{ django }} cleanup
-
-# Every 2 hours.
-1 */2 * * * {{ cron }} something
-
-# Etc...
+# once per day
+05 0 * * * %(django)s stats_log
 
 MAILTO=root

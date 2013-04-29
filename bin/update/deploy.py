@@ -115,21 +115,39 @@ def update_info(ctx):
 
 
 @task
+def disable_cron(ctx):
+    ctx.local("rm -f /etc/cron.d/%s" % settings.CRON_NAME)
+
+
+@task
+def install_cron(ctx):
+    with ctx.lcd(settings.SRC_DIR):
+        ctx.local('%s ./bin/update/gen-crons.py '
+                  '-p %s -u apache -w %s > /etc/cron.d/.%s' %
+                  (settings.PYTHON, settings.PYTHON, settings.SRC_DIR,
+                   settings.CRON_NAME))
+
+        ctx.local('mv /etc/cron.d/.%s /etc/cron.d/%s' % (settings.CRON_NAME,
+                                                         settings.CRON_NAME))
+
+
+@task
 def pre_update(ctx, ref=settings.UPDATE_REF):
     """Update code to pick up changes to this file."""
+    disable_cron()
     update_code(ref)
     update_info()
 
 
 @task
 def post_update(ctx):
+    install_cron()
     with ctx.lcd(settings.SRC_DIR):
         ctx.local('%s manage.py statsd_ping --key=update' % settings.PYTHON)
 
 
 @task
 def update(ctx):
-#    update_assets()
     update_db()
 
 
