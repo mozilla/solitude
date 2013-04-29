@@ -1,16 +1,16 @@
 import csv
 from datetime import datetime
 from tempfile import NamedTemporaryFile
-from unittest import TestCase
 
 from nose.tools import eq_
+import test_utils
 
 from lib.transactions.models import Transaction
 from lib.transactions.management.commands.stats_log import generate_log
 from lib.sellers.tests.utils import make_seller_paypal
 
 
-class TestLog(TestCase):
+class TestLog(test_utils.TestCase):
 
     def test_filter(self):
         seller, paypal, product = make_seller_paypal('some:other:uuid')
