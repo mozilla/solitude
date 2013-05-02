@@ -1,10 +1,12 @@
+from decimal import Decimal
+
 from django.conf import settings
 
 import commonware.log
 
 from cached import Resource
 from lib.bango.client import get_client
-from lib.bango.constants import PAYMENT_TYPES
+from lib.bango.constants import MICRO_PAYMENT_TYPES, PAYMENT_TYPES
 from lib.bango.forms import CreateBillingConfigurationForm
 from lib.bango.signals import create
 from lib.bango.utils import sign
@@ -44,19 +46,31 @@ class CreateBillingConfigurationResource(Resource):
         billing = client.client('billing')
         data = form.bango_data
 
-        types = billing.factory.create('ArrayOfString')
-        for f in PAYMENT_TYPES:
-            types.string.append(f)
-        data['typeFilter'] = types
-
+        usd_price = None
         price_list = billing.factory.create('ArrayOfPrice')
         for item in form.cleaned_data['prices']:
             price = billing.factory.create('Price')
             price.amount = item.cleaned_data['amount']
             price.currency = item.cleaned_data['currency']
+            if price.currency == 'USD':
+                usd_price = Decimal(price.amount)
             price_list.Price.append(price)
 
         data['priceList'] = price_list
+
+        if not usd_price:
+            # This should never happen because USD is always part of the list.
+            raise ValueError('Purchase for %r did not contain a USD price'
+                             % data.get('externalTransactionId'))
+        if usd_price < settings.BANGO_MAX_MICRO_AMOUNT:
+            type_filters = MICRO_PAYMENT_TYPES
+        else:
+            type_filters = PAYMENT_TYPES
+
+        types = billing.factory.create('ArrayOfString')
+        for f in type_filters:
+            types.string.append(f)
+        data['typeFilter'] = types
 
         config = billing.factory.create('ArrayOfBillingConfigurationOption')
         configs = {

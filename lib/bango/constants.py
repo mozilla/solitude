@@ -83,7 +83,10 @@ COUNTRIES = [
 RATINGS = ['GLOBAL', 'UNIVERSAL', 'RESTRICTED', 'GENERAL']
 RATINGS_SCHEME = ['GLOBAL', 'USA']
 
-PAYMENT_TYPES = ('OPERATOR', 'PSMS', 'CARD', 'INTERNET')
+# The Bango payment types available for micro payments.
+MICRO_PAYMENT_TYPES = ('OPERATOR', 'PSMS', 'INTERNET')
+# The Bango payment types available for all payments.
+PAYMENT_TYPES = MICRO_PAYMENT_TYPES + ('CARD',)
 
 
 def match(status, constant):

@@ -40,6 +40,7 @@ good_update_rating = {
 good_billing_request = {
     'pageTitle': 'wat!',
     'prices': [
+        {'amount': 3, 'currency': 'USD'},
         {'amount': 2, 'currency': 'CAD'},
         {'amount': 1, 'currency': 'EUR'},
     ],

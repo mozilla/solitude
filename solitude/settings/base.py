@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import dj_database_url
 import logging.handlers
 import os
@@ -170,6 +172,10 @@ BANGO_AUTH = {'USER': 'Mozilla', 'PASSWORD': ''}
 BANGO_ENV = 'test'
 BANGO_MOCK = False
 BANGO_PROXY = ''
+
+# Anything less than this USD price will be considerd a micro
+# payment. Purchases at these prices cannot be made with credit cards.
+BANGO_MAX_MICRO_AMOUNT = Decimal('0.99')
 
 # Time in seconds that a transaction expires. If you try to complete a
 # transaction after this time, it will fail.
