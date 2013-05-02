@@ -127,6 +127,13 @@ class TestBuyer(APITest):
         eq_(res.status_code, 202)
         assert obj.reget().pin.check(new_pin)
 
+    def test_patch_pin_to_none(self):
+        obj = self.create()
+        res = self.client.patch(self.get_detail_url('buyer', obj),
+                                data={'pin': None})
+        eq_(res.status_code, 202)
+        assert not obj.reget().pin
+
     def test_patch_uuid(self):
         obj = self.create()
         res = self.client.patch(self.get_detail_url('buyer', obj),
