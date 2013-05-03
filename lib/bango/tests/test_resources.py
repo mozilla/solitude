@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import contextlib
 from datetime import datetime, timedelta
 from decimal import Decimal
 import json
@@ -7,8 +8,9 @@ from django import test
 from django.conf import settings
 
 import mock
-from nose.tools import eq_, ok_
+from nose.tools import eq_, ok_, raises
 
+from lib.bango.constants import MICRO_PAYMENT_TYPES, PAYMENT_TYPES
 from lib.sellers.models import (Seller, SellerBango, SellerProduct,
                                 SellerProductBango)
 from lib.sellers.tests.utils import make_seller_paypal
@@ -449,10 +451,58 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         data['transaction_uuid'] = self.transaction.uuid
         return data
 
+    @contextlib.contextmanager
+    def fake_client_response(self, client):
+        client.return_value = mock.Mock(responseCode=200,
+                                        responseMessage='OK',
+                                        billingConfigurationId=1234)
+        yield
+
     def test_good(self):
         res = self.client.post(self.list_url, data=self.good())
         eq_(res.status_code, 201, res.content)
         assert 'billingConfigurationId' in json.loads(res.content)
+
+    @mock.patch.object(settings, 'BANGO_MAX_MICRO_AMOUNT', Decimal('0.99'))
+    @mock.patch('lib.bango.resources.billing'
+                '.CreateBillingConfigurationResource.client')
+    def test_micro_payment_cannot_use_card(self, cli):
+        data = self.good()
+        # Set a price just slightly under the micro payment max.
+        data['prices'] = [
+            {'amount': 0.88, 'currency': 'CAD'},
+            {'amount': 0.98, 'currency': 'USD'},
+        ]
+        with self.fake_client_response(cli):
+            res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 201, res.content)
+        eq_(sorted(list(cli.call_args[0][1]['typeFilter'].string)),
+            sorted(list(MICRO_PAYMENT_TYPES)))
+
+    @mock.patch.object(settings, 'BANGO_MAX_MICRO_AMOUNT', Decimal('0.99'))
+    @mock.patch('lib.bango.resources.billing'
+                '.CreateBillingConfigurationResource.client')
+    def test_normal_payment_can_use_card(self, cli):
+        data = self.good()
+        # Set a price exactly at the micro payment max.
+        data['prices'] = [
+            {'amount': 0.89, 'currency': 'CAD'},
+            {'amount': 0.99, 'currency': 'USD'},
+        ]
+        with self.fake_client_response(cli):
+            res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 201, res.content)
+        eq_(sorted(list(cli.call_args[0][1]['typeFilter'].string)),
+            sorted(list(PAYMENT_TYPES)))
+
+    @raises(ValueError)
+    def test_usd_price_required(self):
+        data = self.good()
+        # Set prices without USD.
+        data['prices'] = [
+            {'amount': 0.88, 'currency': 'CAD'}
+        ]
+        self.client.post(self.list_url, data=data)
 
     def test_with_product_icon(self):
         data = self.good()
