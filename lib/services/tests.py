@@ -59,3 +59,10 @@ class TestError(APITest):
         eq_(res.status_code, 500)
         data = json.loads(res.content)
         eq_(data['error_message'], 'This is a test.')
+
+
+class TestNoop(APITest):
+
+    def test_noop(self):
+        self.api_name = 'services'
+        eq_(self.client.get(self.get_list_url('request')).status_code, 200)

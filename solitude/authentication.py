@@ -37,6 +37,7 @@ class OAuthAuthentication(Authentication):
 
     def is_authenticated(self, request, **kwargs):
         auth_header_value = self._header(request)
+        request.OAUTH_KEY = None
         oauth_server, oauth_request = initialize_oauth_server_request(request)
         try:
             key = get_oauth_consumer_key_from_header(auth_header_value)
@@ -45,6 +46,7 @@ class OAuthAuthentication(Authentication):
                     return False
                 return True
             oauth_server.verify_request(oauth_request, Consumer(key), None)
+            request.OAUTH_KEY = key
             log.info(u'Access granted: %s' % key)
             return True
 

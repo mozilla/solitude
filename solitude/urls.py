@@ -7,12 +7,13 @@ from tastypie_services.services import (ErrorResource, SettingsResource,
 
 from lib.bango.urls import bango
 from lib.delayable.resources import DelayableResource, ReplayResource
-from lib.buyers.resources import (BuyerConfirmPinResource,
-                                  BuyerResetPinResource, BuyerPaypalResource,
-                                  BuyerResource, BuyerVerifyPinResource)
+from lib.buyers.resources import (BuyerConfirmPinResource, BuyerPaypalResource,
+                                  BuyerResetPinResource, BuyerResource,
+                                  BuyerVerifyPinResource)
 from lib.paypal.urls import paypal
-from lib.sellers.resources import (SellerResource, SellerPaypalResource,
-                                   SellerProductResource)
+from lib.sellers.resources import (SellerPaypalResource, SellerProductResource,
+                                   SellerResource)
+from lib.services.resources import RequestResource
 from lib.transactions.resources import TransactionResource
 
 from solitude.base import handle_500
@@ -41,6 +42,7 @@ services.register(ErrorResource(set_handler=handle_500))
 if getattr(settings, 'CLEANSED_SETTINGS_ACCESS', False):
     services.register(SettingsResource())
 services.register(StatusResource(set_handler=handle_500))
+services.register(RequestResource())
 
 urlpatterns = patterns('',
     url(r'^proxy/', include('lib.proxy.urls')),

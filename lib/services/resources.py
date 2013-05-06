@@ -1,12 +1,16 @@
-from lib.sellers.models import Seller
+import json
+import logging
 
 from django.conf import settings
 from django.core.cache import cache
 from django.db import DatabaseError
 
+from tastypie import http
+from tastypie.exceptions import ImmediateHttpResponse
 from tastypie_services.services import StatusError, StatusObject as Base
 
-import logging
+from lib.sellers.models import Seller
+from solitude.base import Resource
 
 log = logging.getLogger('s.services')
 
@@ -71,3 +75,19 @@ class StatusObject(Base):
         if self.db and self.cache:
             return self
         raise StatusError(str(self))
+
+
+class RequestResource(Resource):
+    """
+    This is a resource that does nothing, just returns some information
+    about the request. Useful for testing that solitude is working for you.
+    """
+
+    class Meta(Resource.Meta):
+        list_allowed_methods = ['get']
+        resource_name = 'request'
+
+    def obj_get_list(self, request, **kwargs):
+        content = {'authenticated': request.OAUTH_KEY}
+        response = http.HttpResponse(content=json.dumps(content))
+        raise ImmediateHttpResponse(response=response)

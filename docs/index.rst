@@ -39,6 +39,7 @@ Contents
    topics/paypal.rst
    topics/async.rst
    topics/proxy.rst
+   topics/services.rst
 
 Indices and tables
 ------------------

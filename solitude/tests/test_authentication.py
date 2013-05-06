@@ -1,10 +1,10 @@
 from django.conf import settings
 from django.test import RequestFactory
 
+import test_utils
 from curling.lib import sign_request
 from mock import patch
-from nose.tools import ok_
-import test_utils
+from nose.tools import eq_, ok_
 
 from solitude.authentication import Consumer, OAuthAuthentication
 
@@ -35,6 +35,7 @@ class TestAuthentication(test_utils.TestCase):
         req = self.factory.get('/', HTTP_AUTHORIZATION=res)
         with self.settings(REQUIRE_OAUTH=True):
             ok_(self.authentication.is_authenticated(req))
+            eq_(req.OAUTH_KEY, 'foo')
 
     def test_signed_incorrectly(self):
         keys_ = keys_dict.copy()
@@ -43,3 +44,4 @@ class TestAuthentication(test_utils.TestCase):
         req = self.factory.get('/foo/', HTTP_AUTHORIZATION=res)
         with self.settings(REQUIRE_OAUTH=True):
             ok_(not self.authentication.is_authenticated(req))
+            eq_(req.OAUTH_KEY, None)
