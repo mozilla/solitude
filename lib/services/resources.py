@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db import DatabaseError
 
+from aesfield.field import AESField
 from tastypie import http
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie_services.services import StatusError, StatusObject as Base
@@ -61,6 +62,10 @@ class StatusObject(Base):
                         'django.core.cache.backends.locmem.LocMemCache']):
                     log.error('Proxy cache set to: %s' % backend)
                     self.settings = False
+
+        # Tuck the encrypt test into settings.
+        test = AESField(aes_key='bango:signature')
+        self.settings = 'foo' == test._decrypt(test._encrypt('foo'))
 
     def test(self):
         self.test_cache()
