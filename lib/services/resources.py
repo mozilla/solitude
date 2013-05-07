@@ -89,5 +89,6 @@ class RequestResource(Resource):
 
     def obj_get_list(self, request, **kwargs):
         content = {'authenticated': request.OAUTH_KEY}
-        response = http.HttpResponse(content=json.dumps(content))
+        response = http.HttpResponse(content=json.dumps(content),
+                                     content_type='application/json')
         raise ImmediateHttpResponse(response=response)
