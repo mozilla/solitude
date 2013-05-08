@@ -65,7 +65,8 @@ class StatusObject(Base):
 
         # Tuck the encrypt test into settings.
         test = AESField(aes_key='bango:signature')
-        self.settings = 'foo' == test._decrypt(test._encrypt('foo'))
+        if test._decrypt(test._encrypt('foo')) != 'foo':
+            self.settings = False
 
     def test(self):
         self.test_cache()
