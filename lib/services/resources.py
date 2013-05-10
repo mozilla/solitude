@@ -34,8 +34,8 @@ class StatusObject(Base):
             # exists is one of the fastest queries one can run.
             Seller.objects.exists()
             self.db = True
-        except DatabaseError:
-            pass
+        except Exception:
+            log.error('Error connection to the db', exc_info=True)
 
     def test_settings(self):
         # Warn if the settings are confused and the proxy settings are
