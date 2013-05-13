@@ -1,10 +1,11 @@
 import json
 import logging
+import urlparse
 
 from django.conf import settings
 from django.core.cache import cache
-from django.db import DatabaseError
 
+import requests
 from aesfield.field import AESField
 from tastypie import http
 from tastypie.exceptions import ImmediateHttpResponse
@@ -67,6 +68,25 @@ class StatusObject(Base):
         test = AESField(aes_key='bango:signature')
         if test._decrypt(test._encrypt('foo')) != 'foo':
             self.settings = False
+
+        if not self.is_proxy and settings.BANGO_PROXY:
+            # Ensure that we can speak to the proxy.
+            home = urlparse.urlparse(settings.BANGO_PROXY)
+            proxy = '%s://%s' % (home.scheme, home.netloc)
+            try:
+                requests.get(proxy, verify=True, timeout=5)
+            except:
+                log.error('Proxy error: %s' % proxy, exc_info=True)
+                self.settings = False
+
+        if self.is_proxy:
+            # Ensure that we can speak to Bango.
+            url = 'https://webservices.bango.com/billingconfiguration/?wsdl'
+            try:
+                requests.get(url, verify=True, timeout=30)
+            except:
+                log.error('Bango error: %s' % proxy, exc_info=True)
+                self.settings = False
 
     def test(self):
         self.test_cache()
