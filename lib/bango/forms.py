@@ -1,18 +1,20 @@
 from datetime import datetime, timedelta
 
-import commonware.log
-
 from django import forms
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
-from lib.bango.constants import (COUNTRIES, CURRENCIES, INVALID_PERSON,
+import commonware.log
+from lxml import etree
+
+from lib.bango.constants import (COUNTRIES, CURRENCIES, INVALID_PERSON, OK,
                                  RATINGS, RATINGS_SCHEME,
                                  VAT_NUMBER_DOES_NOT_EXIST)
 from lib.bango.utils import verify_sig
 from lib.sellers.models import SellerProductBango
 from lib.transactions.constants import (SOURCE_BANGO, STATUS_COMPLETED,
                                         TYPE_PAYMENT, TYPE_REFUND)
+from lib.transactions.forms import check_status
 from lib.transactions.models import Transaction
 from solitude.fields import ListField, URLField
 
@@ -296,6 +298,56 @@ class NotificationForm(forms.Form):
             raise forms.ValidationError('Transaction expired: %s' % uuid)
 
         return trans
+
+
+class EventForm(forms.Form):
+    notification = forms.CharField(required=True)
+
+    def clean_notification(self):
+        try:
+            data = etree.fromstring(self.cleaned_data['notification'])
+        except etree.XMLSyntaxError:
+            log.error('XML parse error')
+            raise forms.ValidationError('XML parse error')
+
+        action = data.find('action')
+        if action is None:  # bool(action) is False, so check against None.
+            raise forms.ValidationError('Action is required')
+
+        if action.text != 'PAYMENT':
+            raise forms.ValidationError('Action invalid: {0}'
+                                        .format(action.text))
+
+        if not data.find('data'):
+            raise forms.ValidationError('Data is required')
+
+        # Easier to work with a dictionary than etree.
+        data = dict([c.values() for c in data.find('data').getchildren()])
+
+        if data.get('status') != OK:
+            # Cannot find any other definitions of what state might be.
+            raise forms.ValidationError('Unspecified state: {0}'
+                                        .format(data.get('status')))
+
+        try:
+            trans = Transaction.objects.get(uid_pay=data['transId'])
+        except Transaction.DoesNotExist:
+            raise forms.ValidationError('Transaction not found: {0}'
+                                        .format(data['transId']))
+
+        data['new_status'] = {OK: STATUS_COMPLETED}[data['status']]
+        old = {'status': trans.status, 'created': trans.created}
+        new = {'status': data['new_status']}
+        try:
+            check_status(old, new)
+        except forms.ValidationError:
+            log.warning('Invalid status change to: {0} for transaction: {1}'
+                        .format(data['new_status'], trans.pk))
+            raise
+
+        # Instead of having to get the Transaction again save it.
+        self.cleaned_data['transaction'] = trans
+        return data
 
 
 class SBIForm(forms.Form):

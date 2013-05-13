@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 good_address = {
     'adminEmailAddress': 'admin@place.com',
     'supportEmailAddress': 'support@place.com',
@@ -160,3 +161,20 @@ refund_request = """<SOAP-ENV:Envelope
         </ns0:DoRefund>
     </ns1:Body>
 </SOAP-ENV:Envelope>"""
+
+event_notification = """<event>
+    <id>2</id>
+    <time>2008-05-28T14:16:01+00:00</time>
+    <action>PAYMENT</action>
+    <data>
+        <item name="userId" value="9568" />
+        <item name="status" value="OK" />
+        <item name="bango" value="7424" />
+        <item name="paymentAmount" value="50" />
+        <item name="paymentCurrency" value="50" />
+        <item name="paymentEarnings" value="45" />
+        <item name="paymentSourceType" value="OPERATOR" />
+        <item name="transId" value="external-trans-uid" />
+    </data>
+</event>
+"""

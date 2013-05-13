@@ -4,9 +4,10 @@ from django_statsd.clients import statsd
 
 from cached import Resource
 from lib.bango.constants import CANCEL, OK
-from lib.bango.forms import NotificationForm
+from lib.bango.forms import EventForm, NotificationForm
 from lib.transactions.constants import (STATUS_CANCELLED, STATUS_COMPLETED,
                                         STATUS_FAILED)
+
 
 log = commonware.log.getLogger('s.bango')
 
@@ -53,4 +54,27 @@ class NotificationResource(Resource):
         trans.amount = form.cleaned_data['amount']
         trans.currency = form.cleaned_data['currency']
         trans.save()
+        return bundle
+
+
+class EventResource(Resource):
+
+    class Meta(Resource.Meta):
+        resource_name = 'event'
+        list_allowed_methods = ['post']
+
+    def obj_create(self, bundle, request, **kwargs):
+        form = EventForm(bundle.data)
+        if not form.is_valid():
+            log.info('Event invalid.')
+            raise self.form_errors(form)
+
+        notification = form.cleaned_data['notification']
+        transaction = form.cleaned_data['transaction']
+        if notification['new_status'] != transaction.status:
+            transaction.status = notification['new_status']
+            transaction.save()
+            log.info('Transaction {0} changed to {1}'
+                     .format(transaction.status, transaction.pk))
+
         return bundle

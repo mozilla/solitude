@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import contextlib
-from datetime import datetime, timedelta
-from decimal import Decimal
 import json
+from decimal import Decimal
 
 from django import test
 from django.conf import settings
@@ -22,13 +21,12 @@ from lib.transactions.models import Transaction
 from solitude.base import APITest, Resource as BaseResource
 
 from ..constants import (ALREADY_REFUNDED, BANGO_ALREADY_PREMIUM_ENABLED,
-                         CANCEL, CANT_REFUND, INTERNAL_ERROR, OK, PENDING,
+                         CANT_REFUND, INTERNAL_ERROR, OK, PENDING,
                          SBI_ALREADY_ACCEPTED)
 from ..client import ClientMock
 from ..errors import BangoError
 from ..resources.refund import RefundResource
 from ..resources.cached import BangoResource, SimpleResource
-from ..utils import sign
 
 import samples
 
@@ -286,7 +284,8 @@ class TestBangoProduct(BangoAPI):
 
         obj = SellerProductBango.objects.get()
         eq_(obj.bango_id, 'some-bango-number')
-        eq_(obj.seller_product_id, self.seller_bango.pk)
+        eq_(obj.seller_product_id, self.seller_product.pk)
+        eq_(obj.seller_bango_id, self.seller_bango.pk)
 
     def test_create_multiple(self):
         # Just a generic test to ensure that multiple posts are 400.
@@ -633,108 +632,6 @@ class TestGetSBI(BangoAPI):
         with self.assertRaises(BangoError):
             self.client.post(self.list_url,
                              data={'seller_bango': self.seller_bango_uri})
-
-
-class TestNotification(APITest):
-    api_name = 'bango'
-
-    def setUp(self):
-        self.trans_uuid = 'some-transaction-uid'
-        self.seller = Seller.objects.create(uuid='seller-uuid')
-        self.product = SellerProduct.objects.create(seller=self.seller,
-                                                    external_id='xyz')
-        self.trans = Transaction.objects.create(
-            amount=1, provider=constants.SOURCE_BANGO,
-            seller_product=self.product,
-            uuid=self.trans_uuid,
-            uid_pay='external-trans-uid'
-        )
-        self.url = self.get_list_url('notification')
-
-    def data(self, overrides=None):
-        data = {'moz_transaction': self.trans_uuid,
-                'moz_signature': sign(self.trans_uuid),
-                'billing_config_id': '1234',
-                'bango_trans_id': '56789',
-                'bango_response_code': 'OK',
-                'amount': '0.99',
-                'currency': 'EUR',
-                'bango_response_message': 'Success'}
-        if overrides:
-            data.update(overrides)
-        return data
-
-    def post(self, data, expected_status=201):
-        res = self.client.post(self.url, data=data)
-        eq_(res.status_code, expected_status, res.content)
-        return json.loads(res.content)
-
-    def test_success(self):
-        data = self.data()
-        self.post(data)
-        tr = self.trans.reget()
-        eq_(tr.status, constants.STATUS_COMPLETED)
-        eq_(tr.amount, Decimal(data['amount']))
-        eq_(tr.currency, data['currency'])
-        ok_(tr.uid_support)
-
-    def test_no_price(self):
-        data = self.data()
-        del data['amount']
-        del data['currency']
-        self.post(data)
-        tr = self.trans.reget()
-        eq_(tr.amount, None)
-        eq_(tr.currency, '')
-
-    def test_empty_price(self):
-        data = self.data()
-        data['amount'] = ''
-        data['currency'] = ''
-        self.post(data)
-        tr = self.trans.reget()
-        eq_(tr.amount, None)
-        eq_(tr.currency, '')
-
-    def test_failed(self):
-        self.post(self.data(overrides={'bango_response_code': 'NOT OK'}))
-        tr = self.trans.reget()
-        eq_(tr.status, constants.STATUS_FAILED)
-
-    def test_cancelled(self):
-        self.post(self.data(overrides={'bango_response_code':
-                                       CANCEL}))
-        tr = self.trans.reget()
-        eq_(tr.status, constants.STATUS_CANCELLED)
-
-    def test_incorrect_sig(self):
-        data = self.data({'moz_signature': sign(self.trans_uuid) + 'garbage'})
-        self.post(data, expected_status=400)
-
-    def test_missing_sig(self):
-        data = self.data()
-        del data['moz_signature']
-        self.post(data, expected_status=400)
-
-    def test_missing_transaction(self):
-        data = self.data()
-        del data['moz_transaction']
-        self.post(data, expected_status=400)
-
-    def test_unknown_transaction(self):
-        self.post(self.data({'moz_transaction': 'does-not-exist'}),
-                  expected_status=400)
-
-    def test_already_completed(self):
-        self.trans.status = constants.STATUS_COMPLETED
-        self.trans.save()
-        self.post(self.data(), expected_status=400)
-
-    def test_expired_transaction(self):
-        self.trans.created = datetime.now() - timedelta(seconds=62)
-        self.trans.save()
-        with self.settings(TRANSACTION_EXPIRY=60):
-            self.post(self.data(), expected_status=400)
 
 
 class TestRefund(APITest):

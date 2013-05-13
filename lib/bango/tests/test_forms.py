@@ -1,17 +1,21 @@
 import json
-from unittest import TestCase
 
 import mock
 from nose.tools import eq_, ok_
 
 from ..forms import (CreateBankDetailsForm,
-                     CreateBillingConfigurationForm as BillingForm,
+                     CreateBillingConfigurationForm as BillingForm, EventForm,
                      PriceForm, VatNumberForm)
-from .samples import good_bank_details, good_billing_request
+from .samples import (event_notification, good_bank_details,
+                      good_billing_request)
+from lib.sellers.models import Seller, SellerProduct
+from lib.transactions import constants
+from lib.transactions.models import Transaction
+from solitude.base import APITest
 
 
 @mock.patch('lib.bango.forms.URLField.clean')
-class TestBankDetails(TestCase):
+class TestBankDetails(APITest):
 
     def setUp(self):
         self.bank = good_bank_details.copy()
@@ -31,7 +35,7 @@ class TestBankDetails(TestCase):
 
 
 @mock.patch('lib.bango.forms.URLField.clean')
-class TestBilling(TestCase):
+class TestBilling(APITest):
 
     def setUp(self):
         self.billing = good_billing_request.copy()
@@ -74,7 +78,7 @@ class TestBilling(TestCase):
             ok_(price.is_valid())
 
 
-class TestVat(TestCase):
+class TestVat(APITest):
 
     def test_delete(self):
         form = VatNumberForm({})
@@ -87,3 +91,53 @@ class TestVat(TestCase):
         ok_(form.is_valid())
         eq_(form.bango_data, {'vatNumber': '123'})
         eq_(form.bango_meta['method'], 'SetVATNumber')
+
+
+class TestEvent(APITest):
+
+    def test_empty(self):
+        form = EventForm()
+        ok_(not form.is_valid())
+
+    def test_gunk(self):
+        form = EventForm({'notification': 'fooo!'})
+        ok_(not form.is_valid())
+
+    def test_wrong_action(self):
+        sample = event_notification.replace('PAYMENT', 'NOT')
+        form = EventForm({'notification': sample})
+        ok_(not form.is_valid())
+
+    def test_no_action(self):
+        sample = event_notification.replace('OK', 'NOT OK')
+        form = EventForm({'notification': sample})
+        ok_(not form.is_valid())
+
+    def test_no_transaction(self):
+        form = EventForm({'notification': event_notification})
+        ok_(not form.is_valid())
+
+    def create(self):
+        # TODO this isn't great.
+        self.trans_uuid = 'some-transaction-uid'
+        self.seller = Seller.objects.create(uuid='seller-uuid')
+        self.product = SellerProduct.objects.create(seller=self.seller,
+                                                    external_id='xyz')
+        self.trans = Transaction.objects.create(
+            amount=1, provider=constants.SOURCE_BANGO,
+            seller_product=self.product,
+            uuid=self.trans_uuid,
+            uid_pay='external-trans-uid'
+        )
+
+    def test_check_good(self):
+        self.create()
+        form = EventForm({'notification': event_notification})
+        ok_(form.is_valid(), form.errors)
+
+    def test_wierd(self):
+        self.create()
+        self.trans.status = constants.STATUS_CANCELLED
+        self.trans.save()
+        form = EventForm({'notification': event_notification})
+        ok_(not form.is_valid())
