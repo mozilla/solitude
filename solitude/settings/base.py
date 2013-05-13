@@ -181,6 +181,10 @@ BANGO_MAX_MICRO_AMOUNT = Decimal('0.99')
 # transaction after this time, it will fail.
 TRANSACTION_EXPIRY = 60 * 30
 
+# Time in seconds after a transaction is created that it becomes locked.
+# After that time, no changes can be made to a transaction.
+TRANSACTION_LOCKDOWN = 60 * 60 * 24
+
 # Celery configs.
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERY_IGNORE_RESULT = False

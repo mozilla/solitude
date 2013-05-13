@@ -39,7 +39,7 @@ class TransactionResource(ModelResource):
         }
 
     def update_in_place(self, request, original_data, new_data):
-        form = UpdateForm(new_data)
+        form = UpdateForm(new_data, original_data=original_data.data)
         if form.is_valid():
             return (super(TransactionResource, self)
                     .update_in_place(request, original_data, new_data))

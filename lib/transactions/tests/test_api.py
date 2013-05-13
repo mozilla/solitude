@@ -70,6 +70,13 @@ class TestTransaction(APITest):
         eq_(res.status_code, 202)
         eq_(self.trans.reget().uid_pay, 'xyz')
 
+    def test_patch_status(self):
+        self.trans.status = constants.STATUS_FAILED
+        self.trans.save()
+        res = self.client.patch(self.detail_url,
+                                data={'status': constants.STATUS_COMPLETED})
+        eq_(res.status_code, 400, res.content)
+
     def test_relations(self):
         new_uuid = self.uuid + ':refund'
         new = Transaction.objects.create(amount=5, seller_product=self.product,

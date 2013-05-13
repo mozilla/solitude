@@ -29,18 +29,20 @@ class TestStatus(APITest):
 
     # Note that Django will use the values in the settings, altering
     # CACHES right now will still work if your settings allow it. Urk.
+    @patch('requests.get')
     @patch.object(StatusObject, 'test_cache')
     @patch.object(StatusObject, 'test_db')
-    def test_proxy(self, test_db, test_cache):
+    def test_proxy(self, test_db, test_cache, requests):
         with self.settings(SOLITUDE_PROXY=True,
                            DATABASES={'default': {'ENGINE': ''}},
                            CACHES={}):
             res = self.client.get(self.list_url)
             eq_(res.status_code, 200, res.content)
 
+    @patch('requests.get')
     @patch.object(StatusObject, 'test_cache')
     @patch.object(StatusObject, 'test_db')
-    def test_proxy_db(self, test_db, test_cache):
+    def test_proxy_db(self, test_db, test_cache, requests):
         with self.settings(SOLITUDE_PROXY=True,
                            DATABASES={'default': {'ENGINE': 'foo'}},
                            CACHES={}):
