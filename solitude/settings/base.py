@@ -130,6 +130,9 @@ LOGGING = {
             'handlers': ['unicodesyslog', 'sentry'],
             'level': 'INFO',
         },
+        'requests.packages.urllib3.connectionpool': {
+            'level': 'WARNING',
+        },
     },
 }
 
