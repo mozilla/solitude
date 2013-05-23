@@ -318,7 +318,7 @@ class EventForm(forms.Form):
             raise forms.ValidationError('Action invalid: {0}'
                                         .format(action.text))
 
-        if not data.find('data'):
+        if data.find('data') is None:
             raise forms.ValidationError('Data is required')
 
         # Easier to work with a dictionary than etree.
