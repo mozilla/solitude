@@ -1,10 +1,10 @@
-from datetime import datetime, timedelta
 import json
+from datetime import datetime, timedelta
 
 from django.conf import settings
 
-from django_paranoia.signals import warning
 import mock
+from django_paranoia.signals import warning
 from nose.tools import eq_
 
 from lib.buyers.models import Buyer, BuyerPaypal
@@ -69,7 +69,8 @@ class TestBuyer(APITest):
         eq_(data['uuid'], self.uuid)
         eq_(data['pin'], True)
         eq_(data['pin_failures'], 0)
-        eq_(data['pin_locked_out'], None)
+        eq_(data['pin_is_locked_out'], False)
+        eq_(data['pin_was_locked_out'], False)
 
     @mock.patch.object(settings, 'PIN_FAILURES', 1)
     def test_locked_out(self):
@@ -80,7 +81,7 @@ class TestBuyer(APITest):
         data = json.loads(res.content)
         eq_(data['pin'], True)
         eq_(data['pin_failures'], 1)
-        assert data['pin_locked_out'] is not None
+        assert data['pin_is_locked_out']
 
     def test_not_patch_failures(self):
         obj = self.create()
@@ -296,8 +297,8 @@ class TestBuyerVerifyPin(APITest):
         assert data.get('locked')
 
     def test_locked_out_over_time(self):
-        self.buyer.pin_locked_out = (datetime.now() -
-            timedelta(seconds=settings.PIN_FAILURE_LENGTH + 60))
+        self.buyer.pin_locked_out = (datetime.now() - timedelta(
+            seconds=settings.PIN_FAILURE_LENGTH + 60))
         self.buyer.save()
 
         res = self.client.post(self.list_url, data={'uuid': self.uuid,
@@ -408,16 +409,19 @@ class TestBuyerResetPin(APITest):
         assert buyer.needs_pin_reset
         eq_(data['uuid'], self.uuid)
 
-    def test_locked_out_reset(self):
+    @mock.patch('solitude.base.log_cef')
+    def test_locked_out_reset(self, log_cef):
         self.buyer.pin_failures = 5
-        self.buyer.pin_locked_out = datetime.today()
+        lock_out_time = datetime.today().replace(microsecond=0)
+        self.buyer.pin_locked_out = lock_out_time
         self.buyer.save()
         res = self.client.post(self.list_url, data={'uuid': self.uuid,
                                                     'pin': self.new_pin})
         eq_(res.status_code, 201)
+        assert log_cef.called
         buyer = self.buyer.reget()
-        eq_(buyer.pin_failures, 0)
-        eq_(buyer.pin_locked_out, None)
+        eq_(buyer.pin_failures, 5)
+        eq_(buyer.pin_locked_out, lock_out_time)
 
     def test_locked_out_not_reset(self):
         self.buyer.pin_failures = 5

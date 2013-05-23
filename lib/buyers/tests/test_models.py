@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 
-from aesfield.field import EncryptedField
-from nose.tools import eq_
-
 from django.conf import settings
 from django.test import TestCase
+
+from aesfield.field import EncryptedField
+from nose.tools import eq_
 
 from lib.buyers.models import Buyer, BuyerPaypal
 
@@ -74,6 +74,12 @@ class TestLockout(TestCase):
         self.buyer.clear_lockout()
         eq_(self.buyer.pin_failures, 0)
         eq_(self.buyer.pin_locked_out, None)
+        assert self.buyer.pin_was_locked_out
+
+    def test_was_locked_out(self):
+        self.buyer.pin_was_locked_out = True
+        assert self.buyer.check_was_lock_status_and_reset
+        assert not self.buyer.pin_was_locked_out
 
     def test_under_timeout(self):
         self.buyer.pin_locked_out = (datetime.now() -

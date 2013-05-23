@@ -15,6 +15,7 @@ class Buyer(Model):
     pin_confirmed = models.BooleanField(default=False)
     pin_failures = models.IntegerField(default=0)
     pin_locked_out = models.DateTimeField(blank=True, null=True)
+    pin_was_locked_out = models.BooleanField(default=False)
     active = models.BooleanField(default=True, db_index=True)
     new_pin = HashField(blank=True, null=True)
     needs_pin_reset = models.BooleanField(default=False)
@@ -34,9 +35,18 @@ class Buyer(Model):
 
         return True
 
+    @property
+    def check_was_lock_status_and_reset(self):
+        if self.pin_was_locked_out:
+            self.pin_was_locked_out = False
+            self.save()
+            return True
+        return False
+
     def clear_lockout(self):
         self.pin_failures = 0
         self.pin_locked_out = None
+        self.pin_was_locked_out = True
         self.save()
 
     def incr_lockout(self):

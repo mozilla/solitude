@@ -1,6 +1,7 @@
-from solitude.base import get_object_or_404, log_cef, ModelResource, Resource
 from tastypie import fields
 from tastypie.validation import FormValidation
+
+from solitude.base import get_object_or_404, log_cef, ModelResource, Resource
 
 from .forms import BuyerForm, BuyerFormValidation, PinForm
 from .models import Buyer, BuyerPaypal
@@ -11,8 +12,13 @@ class BuyerResource(ModelResource):
                                'paypal', blank=True, full=True,
                                null=True, readonly=True)
     pin_failures = fields.IntegerField(attribute='pin_failures', readonly=True)
-    pin_locked_out = fields.DateTimeField(attribute='pin_locked_out',
-                                          blank=True, null=True, readonly=True)
+    pin_is_locked_out = fields.BooleanField(attribute='locked_out',
+                                            blank=True, null=True,
+                                            readonly=True)
+    pin_was_locked_out = fields.BooleanField(
+        attribute='check_was_lock_status_and_reset',
+        blank=True, null=True, readonly=True
+    )
 
     class Meta(ModelResource.Meta):
         queryset = Buyer.objects.filter()
@@ -125,13 +131,16 @@ class BuyerResetPinResource(BuyerEndpointBase):
     def obj_create(self, bundle, request=None, **kwargs):
         buyer = self.get_data(bundle)
         pin = bundle.data.pop('pin')
+        if buyer.locked_out:
+            log_cef('Attempted access to locked out account: %s'
+                    % buyer.uuid, request, severity=1)
+            bundle.obj.confirmed = False
+            return bundle
         if buyer.new_pin == pin:
             buyer.pin = pin
             buyer.new_pin = None
             buyer.needs_pin_reset = False
             buyer.pin_confirmed = True
-            buyer.pin_failures = 0
-            buyer.pin_locked_out = None
             buyer.save()
             bundle.obj.confirmed = True
         else:
