@@ -93,6 +93,7 @@ class CreateBillingConfigurationResource(Resource):
             config.BillingConfigurationOption.append(opt)
 
         data['configurationOptions'] = config
+        log.debug('CreateBillingConfiguration: {0}'.format(data))
         resp = self.client('CreateBillingConfiguration', data)
         bundle.data = {'responseCode': resp.responseCode,
                        'responseMessage': resp.responseMessage,
