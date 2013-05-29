@@ -37,6 +37,7 @@ CURRENCIES = {
     'NOK': 'Norwegian Krone',
     'NZD': 'New Zealand Dollars',
     'PHP': 'Philippine Peso',
+    'PLN': 'Polish Złoty',
     'QAR': 'Qatar riyal',
     'SEK': 'Swedish Krone',
     'SGD': 'Singapore Dollar',
