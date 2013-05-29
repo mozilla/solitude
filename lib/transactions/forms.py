@@ -3,13 +3,14 @@ from datetime import datetime, timedelta
 from django import forms
 from django.conf import settings
 
-import commonware.log
 from django_paranoia.forms import ParanoidForm
 
 from lib.transactions import constants
 from lib.transactions.constants import STATUSES
 
-log = commonware.log.getLogger('s.transaction')
+from solitude.logger import getLogger
+
+log = getLogger('s.transaction')
 
 
 def check_status(old, new):

@@ -6,7 +6,6 @@ from time import time
 
 from django.conf import settings
 
-import commonware.log
 from django_statsd.clients import statsd
 from mock import Mock
 from requests import post
@@ -14,6 +13,7 @@ from suds import client as sudsclient
 from suds.transport import Reply
 from suds.transport.http import HttpTransport
 
+from solitude.logger import getLogger
 from .constants import (ACCESS_DENIED, HEADERS_SERVICE, INTERNAL_ERROR,
                         SERVICE_UNAVAILABLE)
 from .errors import AuthError, BangoError, BangoFormError, ProxyError
@@ -71,7 +71,7 @@ def get_result(name):
     return name + 'Result'
 
 
-log = commonware.log.getLogger('s.bango')
+log = getLogger('s.bango')
 
 
 class Client(object):

@@ -2,13 +2,13 @@ from decimal import Decimal
 import re
 from urlparse import parse_qsl
 
-import commonware.log
-
 from lib.paypal import constants
 from lib.paypal.client import get_client
 from lib.transactions import utils
 
-log = commonware.log.getLogger('s.paypal')
+from solitude.logger import getLogger
+
+log = getLogger('s.paypal')
 
 
 number_re = re.compile('transaction\[(?P<number>\d+)\]\.(?P<name>\w+)')

@@ -1,16 +1,15 @@
 from django.db import models
 from django.dispatch import receiver
 
-import commonware.log
-
 from lib.bango.signals import create as bango_create
 from lib.paypal.signals import create as paypal_create
 from lib.transactions import constants
 
 from solitude.base import get_object_or_404, Model
+from solitude.logger import getLogger
 
-log = commonware.log.getLogger('s.transaction')
-stats_log = commonware.log.getLogger('s.transaction.stats')
+log = getLogger('s.transaction')
+stats_log = getLogger('s.transaction.stats')
 
 
 class Transaction(Model):

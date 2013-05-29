@@ -1,9 +1,9 @@
-import commonware.log
-
 from lib.transactions import constants
 from lib.transactions.models import Transaction
 
-log = commonware.log.getLogger('s.transactions')
+from solitude.logger import getLogger
+
+log = getLogger('s.transactions')
 
 
 def completed(detail, item):

@@ -2,8 +2,6 @@ from decimal import Decimal
 
 from django.conf import settings
 
-import commonware.log
-
 from cached import Resource
 from lib.bango.client import get_client
 from lib.bango.constants import MICRO_PAYMENT_TYPES, PAYMENT_TYPES
@@ -11,7 +9,9 @@ from lib.bango.forms import CreateBillingConfigurationForm
 from lib.bango.signals import create
 from lib.bango.utils import sign
 
-log = commonware.log.getLogger('s.bango')
+from solitude.logger import getLogger
+
+log = getLogger('s.bango')
 
 
 class CreateBillingConfigurationResource(Resource):

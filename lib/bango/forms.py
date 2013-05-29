@@ -4,7 +4,6 @@ from django import forms
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
-import commonware.log
 from lxml import etree
 
 from lib.bango.constants import (COUNTRIES, CURRENCIES, INVALID_PERSON, OK,
@@ -16,9 +15,11 @@ from lib.transactions.constants import (SOURCE_BANGO, STATUS_COMPLETED,
                                         TYPE_PAYMENT, TYPE_REFUND)
 from lib.transactions.forms import check_status
 from lib.transactions.models import Transaction
-from solitude.fields import ListField, URLField
 
-log = commonware.log.getLogger('s.bango')
+from solitude.fields import ListField, URLField
+from solitude.logger import getLogger
+
+log = getLogger('s.bango')
 
 
 class ProductForm(forms.ModelForm):

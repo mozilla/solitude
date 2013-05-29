@@ -10,7 +10,6 @@ import threading
 from django.conf import settings
 from django.utils.http import urlquote
 
-import commonware.log
 from django_statsd.clients import statsd
 import requests
 
@@ -21,7 +20,9 @@ from .errors import errors, AuthError, PaypalDataError, PaypalError
 from .map import urls
 from .tests.samples import mock_data
 
-log = commonware.log.getLogger('s.paypal')
+from solitude.logger import getLogger
+
+log = getLogger('s.paypal')
 
 # The length of time we'll wait for PayPal.
 timeout = getattr(settings, 'PAYPAL_TIMEOUT', 10)

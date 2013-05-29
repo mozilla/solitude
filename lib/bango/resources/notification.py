@@ -1,5 +1,3 @@
-import commonware.log
-
 from django_statsd.clients import statsd
 
 from cached import Resource
@@ -8,8 +6,9 @@ from lib.bango.forms import EventForm, NotificationForm
 from lib.transactions.constants import (STATUS_CANCELLED, STATUS_COMPLETED,
                                         STATUS_FAILED)
 
+from solitude.logger import getLogger
 
-log = commonware.log.getLogger('s.bango')
+log = getLogger('s.bango')
 
 
 class NotificationResource(Resource):

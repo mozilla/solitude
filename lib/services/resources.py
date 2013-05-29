@@ -13,8 +13,9 @@ from tastypie_services.services import StatusError, StatusObject as Base
 
 from lib.sellers.models import Seller
 from solitude.base import Resource
+from solitude.logger import getLogger
 
-log = logging.getLogger('s.services')
+log = getLogger('s.services')
 
 
 class StatusObject(Base):

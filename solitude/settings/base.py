@@ -1,10 +1,11 @@
+import logging.handlers
+import os
 from decimal import Decimal
 
 import dj_database_url
-import logging.handlers
-import os
-
 from funfactory.settings_base import *
+
+from solitude.logger import SolitudeFormatter
 
 ALLOWED_HOSTS = []
 PROJECT_MODULE = 'solitude'
@@ -68,6 +69,7 @@ JINJA_CONFIG = lambda: ''
 
 if not SOLITUDE_PROXY:
     MIDDLEWARE_CLASSES = (
+        'solitude.middleware.LoggerMiddleware',
         'django.middleware.transaction.TransactionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django_statsd.middleware.GraphiteMiddleware',
@@ -76,6 +78,7 @@ if not SOLITUDE_PROXY:
     )
 else:
     MIDDLEWARE_CLASSES = (
+        'solitude.middleware.LoggerMiddleware',
         'django_statsd.middleware.GraphiteMiddleware',
     )
 
@@ -99,23 +102,45 @@ CLEANSED_SETTINGS_ACCESS = False
 # The status object for tastypie services.
 SERVICES_STATUS_MODULE = 'lib.services.resources'
 
+
+base_fmt = ('%(name)s:%(levelname)s %(message)s '
+            ':%(pathname)s:%(lineno)s')
+error_fmt = ('%(name)s:%(levelname)s %(request_path)s %(message)s '
+             ':%(pathname)s:%(lineno)s')
+
 LOGGING = {
     'filters': {},
-    'formatters': {},
+    'formatters': {
+        'solitude': {
+            '()': 'solitude.logger.SolitudeFormatter',
+            'format':
+                '%(name)s:%(levelname)s '
+                '%(OAUTH_KEY)s:%(TRANSACTION_ID)s '
+                ':%(pathname)s:%(lineno)s'
+        }
+    },
     'handlers': {
         'unicodesyslog': {
             '()': 'solitude.settings.log.UnicodeHandler',
             'facility': logging.handlers.SysLogHandler.LOG_LOCAL7,
-            'formatter': 'prod',
+            'formatter': 'solitude',
         },
         'sentry': {
             'level': 'ERROR',
             'class': 'raven.contrib.django.handlers.SentryHandler',
         },
+        'console': {
+            '()': logging.StreamHandler,
+            'formatter': 'solitude',
+        },
     },
     'loggers': {
         's': {
             'handlers': ['unicodesyslog', 'console'],
+            'level': 'INFO',
+        },
+        's.services': {
+            'handlers': ['console'],
             'level': 'INFO',
         },
         'suds': {
