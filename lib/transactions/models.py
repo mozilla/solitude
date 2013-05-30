@@ -155,4 +155,4 @@ def time_status_change(sender, **kwargs):
     obj = kwargs['instance']
     status = constants.STATUSES_INVERTED[obj.status]
     statsd.timing('transaction.status.{0}'.format(status),
-                  obj.modified - obj.created)
+                  (obj.modified - obj.created).seconds)
