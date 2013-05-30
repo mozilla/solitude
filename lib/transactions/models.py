@@ -1,6 +1,8 @@
 from django.db import models
 from django.dispatch import receiver
 
+from django_statsd.clients import statsd
+
 from lib.bango.signals import create as bango_create
 from lib.paypal.signals import create as paypal_create
 from lib.transactions import constants
@@ -141,3 +143,16 @@ def create_bango_transaction(sender, **kwargs):
     transaction.save()
 
     log.info('Bango transaction: %s pending' % (transaction.pk,))
+
+
+@receiver(models.signals.post_save, dispatch_uid='time_status_change',
+          sender=Transaction)
+def time_status_change(sender, **kwargs):
+    # There's no status change if the transaction was just created.
+    if kwargs.get('raw', False) or kwargs.get('created', False):
+        return
+
+    obj = kwargs['instance']
+    status = constants.STATUSES_INVERTED[obj.status]
+    statsd.timing('transaction.status.{0}'.format(status),
+                  obj.modified - obj.created)

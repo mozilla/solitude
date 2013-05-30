@@ -5,8 +5,6 @@ from decimal import Decimal
 import dj_database_url
 from funfactory.settings_base import *
 
-from solitude.logger import SolitudeFormatter
-
 ALLOWED_HOSTS = []
 PROJECT_MODULE = 'solitude'
 MINIFY_BUNDLES = {}

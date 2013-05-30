@@ -1,5 +1,5 @@
-from mock import patch
-from nose.tools import eq_
+from mock import ANY, patch
+from nose.tools import eq_, ok_
 
 from django.core.exceptions import ValidationError
 
@@ -77,6 +77,16 @@ class TestModel(APITest):
     def test_not_reversal(self):
         original, related = self.add_related()
         assert not original.reget().is_refunded()
+
+    @patch('lib.transactions.models.statsd')
+    def test_timed(self, statsd):
+        trans = Transaction(**self.get_data())
+        trans.save()
+        ok_(not statsd.timing.called)
+
+        trans.status = constants.STATUS_COMPLETED
+        trans.save()
+        statsd.timing.assert_called_with('transaction.status.completed', ANY)
 
 
 class TestTransaction(APITest):

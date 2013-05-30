@@ -21,6 +21,8 @@ STATUSES = {
     'pending': STATUS_PENDING,
     'received': STATUS_RECEIVED,
 }
+STATUSES_INVERTED = dict((v, k) for k, v in STATUSES.items())
+
 
 TYPE_PAYMENT = 0
 TYPE_REFUND = 1
