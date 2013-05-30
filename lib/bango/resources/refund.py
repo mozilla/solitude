@@ -1,5 +1,4 @@
 from functools import partial
-import logging
 import uuid
 
 from django.conf import settings
@@ -18,7 +17,10 @@ from lib.transactions.models import Transaction
 from lib.transactions.resources import TransactionResource
 from cached import SimpleResource
 
-log = logging.getLogger('s.bango.refund')
+from solitude.logger import getLogger
+
+
+log = getLogger('s.bango.refund')
 
 
 class RefundResponse(object):

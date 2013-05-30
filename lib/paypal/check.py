@@ -1,11 +1,11 @@
-import logging
-
 from django.conf import settings
 
 from .client import get_client
 from .errors import PaypalError
 
-log = logging.getLogger('s.paypal')
+from solitude.logger import getLogger
+
+log = getLogger('s.paypal')
 
 
 class Check(object):

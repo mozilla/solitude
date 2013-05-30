@@ -1,6 +1,5 @@
 import functools
 import json
-import logging
 import sys
 import traceback
 import uuid
@@ -32,11 +31,12 @@ import test_utils
 
 from lib.delayable.tasks import delayable
 
-from authentication import OAuthAuthentication
+from solitude.authentication import OAuthAuthentication
+from solitude.logger import getLogger
 
 
-log = logging.getLogger('s')
-tasty_log = logging.getLogger('django.request.tastypie')
+log = getLogger('s')
+tasty_log = getLogger('django.request.tastypie')
 
 
 def colorize(colorname, text):

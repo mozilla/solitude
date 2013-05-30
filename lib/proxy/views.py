@@ -1,4 +1,3 @@
-import logging
 import urlparse
 
 from django import http
@@ -14,7 +13,9 @@ from lib.paypal.client import get_client as paypal_client
 from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
 from lib.paypal.map import urls
 
-log = logging.getLogger('s.proxy')
+from solitude.logger import getLogger
+
+log = getLogger('s.proxy')
 bango_timeout = getattr(settings, 'BANGO_TIMEOUT', 10)
 
 

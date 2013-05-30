@@ -1,13 +1,13 @@
-import logging
 from urlparse import urljoin
-
 
 from django.conf import settings
 import oauth2
 
 from tastypie.authentication import Authentication
 
-log = logging.getLogger('s.auth')
+from solitude.logger import getLogger
+
+log = getLogger('s.auth')
 
 
 class Consumer(object):
