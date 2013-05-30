@@ -116,7 +116,7 @@ LOGGING = {
             'format':
                 '%(name)s:%(levelname)s '
                 '%(OAUTH_KEY)s:%(TRANSACTION_ID)s '
-                ':%(pathname)s:%(lineno)s'
+                '%(message)s :%(pathname)s:%(lineno)s'
         }
     },
     'handlers': {
