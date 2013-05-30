@@ -72,9 +72,11 @@ class EventResource(Resource):
         notification = form.cleaned_data['notification']
         transaction = form.cleaned_data['transaction']
         if notification['new_status'] != transaction.status:
+            old_status = transaction.status
             transaction.status = notification['new_status']
             transaction.save()
-            log.info('Transaction {0} changed to {1}'
-                     .format(transaction.status, transaction.pk))
+            log.info('Transaction {0} changed to {1} from {2}'
+                     .format(transaction.pk, transaction.status,
+                             old_status))
 
         return bundle
