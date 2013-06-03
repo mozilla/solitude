@@ -1,23 +1,26 @@
-import json
 import urlparse
 
 from django.conf import settings
 from django.core.cache import cache
+from django.core.exceptions import PermissionDenied
+from django.views import debug
 
 import requests
 from aesfield.field import AESField
-from tastypie import http
-from tastypie.exceptions import ImmediateHttpResponse
-from tastypie_services.services import StatusError, StatusObject as Base
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from lib.sellers.models import Seller
-from solitude.base import Resource
 from solitude.logger import getLogger
 
 log = getLogger('s.services')
 
 
-class StatusObject(Base):
+class StatusObject(object):
+
+    def __init__(self):
+        self.status = {}
+        self.error = None
 
     @property
     def is_proxy(self):
@@ -26,22 +29,25 @@ class StatusObject(Base):
     def test_cache(self):
         # caching fails silently so we have to read from it after writing.
         cache.set('status', 'works')
-
         if cache.get('status') == 'works':
-            self.cache = True
+            return True
+
+        return False
 
     def test_db(self):
         try:
             # exists is one of the fastest queries one can run.
             Seller.objects.exists()
-            self.db = True
+            return True
         except Exception:
             log.error('Error connection to the db', exc_info=True)
+            return False
 
     def test_settings(self):
         # Warn if the settings are confused and the proxy settings are
         # mixed with non-proxy settings. At this time we can't tell if you
         # are running just the database server or solitude all in one.
+        self.status['settings'] = True
         caches = getattr(settings, 'CACHES', {})
         dbs = getattr(settings, 'DATABASES', {})
 
@@ -52,7 +58,7 @@ class StatusObject(Base):
                 if (db.get('ENGINE', '') not in ['',
                         'django.db.backends.dummy']):
                     log.error('Proxy db set to: %s' % engine)
-                    self.settings = False
+                    return False
 
             # There could be an issue if you share a proxy with the database
             # server, a local cache should be fine.
@@ -62,13 +68,17 @@ class StatusObject(Base):
                         'django.core.cache.backends.dummy.DummyCache',
                         'django.core.cache.backends.locmem.LocMemCache']):
                     log.error('Proxy cache set to: %s' % backend)
-                    self.settings = False
+                    return False
 
         # Tuck the encrypt test into settings.
         test = AESField(aes_key='bango:signature')
         if test._decrypt(test._encrypt('foo')) != 'foo':
-            self.settings = False
+            return False
 
+        return True
+
+    def test_proxies(self):
+        self.status['proxies'] = True
         if not self.is_proxy and settings.BANGO_PROXY:
             # Ensure that we can speak to the proxy.
             home = urlparse.urlparse(settings.BANGO_PROXY)
@@ -77,7 +87,7 @@ class StatusObject(Base):
                 requests.get(proxy, verify=True, timeout=5)
             except:
                 log.error('Proxy error: %s' % proxy, exc_info=True)
-                self.settings = False
+                return False
 
         if self.is_proxy:
             # Ensure that we can speak to Bango.
@@ -86,35 +96,60 @@ class StatusObject(Base):
                 requests.get(url, verify=True, timeout=30)
             except:
                 log.error('Bango error: %s' % proxy, exc_info=True)
-                self.settings = False
+                return False
 
-    def test(self):
-        self.test_cache()
-        self.test_db()
-        self.test_settings()
-
-        if self.is_proxy:
-            if self.settings and not (self.db and self.cache):
-                return self
-            raise StatusError(str(self))
-
-        if self.db and self.cache:
-            return self
-        raise StatusError(str(self))
+        return True
 
 
-class RequestResource(Resource):
-    """
-    This is a resource that does nothing, just returns some information
-    about the request. Useful for testing that solitude is working for you.
-    """
+class TestError(Exception):
+    pass
 
-    class Meta(Resource.Meta):
-        list_allowed_methods = ['get']
-        resource_name = 'request'
 
-    def obj_get_list(self, request, **kwargs):
-        content = {'authenticated': request.OAUTH_KEY}
-        response = http.HttpResponse(content=json.dumps(content),
-                                     content_type='application/json')
-        raise ImmediateHttpResponse(response=response)
+@api_view(['GET'])
+def error(request):
+    raise TestError('This is a test.')
+
+
+@api_view(['GET'])
+def status(request):
+    obj = StatusObject()
+    for key, method in (('proxies', obj.test_proxies),
+                        ('db', obj.test_db),
+                        ('cache', obj.test_cache),
+                        ('settings', obj.test_settings)):
+        obj.status[key] = method()
+
+    if obj.is_proxy:
+        if (obj.status['settings'] and not
+            (obj.status['db'] and obj.status['cache'])):
+            code = 200
+        else:
+            # The proxy should have good settings but not the db or cache.
+            code = 500
+
+    if obj.status['db'] and obj.status['cache']:
+        code = 200
+    else:
+        # The db instance should have a good db and cache.
+        code = 500
+    return Response(obj.status, status=code)
+
+
+@api_view(['GET'])
+def request_resource(request):
+    return Response({'authenticated': request.OAUTH_KEY})
+
+
+@api_view(['GET'])
+def settings_list(request):
+    if not getattr(settings, 'CLEANSED_SETTINGS_ACCESS', False):
+        raise PermissionDenied
+    return Response(sorted(debug.get_safe_settings().keys()))
+
+
+@api_view(['GET'])
+def settings_view(request, setting):
+    if not getattr(settings, 'CLEANSED_SETTINGS_ACCESS', False):
+        raise PermissionDenied
+    return Response({'key': setting,
+                     'value': debug.get_safe_settings()[setting]})

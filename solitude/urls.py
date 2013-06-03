@@ -1,9 +1,6 @@
-from django.conf import settings
 from django.conf.urls.defaults import include, patterns, url
 
 from tastypie.api import Api
-from tastypie_services.services import (ErrorResource, SettingsResource,
-                                        StatusResource)
 
 from lib.bango.urls import bango
 from lib.delayable.resources import DelayableResource, ReplayResource
@@ -13,10 +10,7 @@ from lib.buyers.resources import (BuyerConfirmPinResource, BuyerPaypalResource,
 from lib.paypal.urls import paypal
 from lib.sellers.resources import (SellerPaypalResource, SellerProductResource,
                                    SellerResource)
-from lib.services.resources import RequestResource
 from lib.transactions.resources import TransactionResource
-
-from solitude.base import handle_500
 
 # Generic APIs
 api = Api(api_name='generic')
@@ -37,12 +31,14 @@ delayable = Api(api_name='delay')
 delayable.register(DelayableResource())
 delayable.register(ReplayResource())
 
-services = Api(api_name='services')
-services.register(ErrorResource(set_handler=handle_500))
-if getattr(settings, 'CLEANSED_SETTINGS_ACCESS', False):
-    services.register(SettingsResource())
-services.register(StatusResource(set_handler=handle_500))
-services.register(RequestResource())
+services_patterns = patterns('lib.services.resources',
+    url(r'^settings/$', 'settings_list', name='services.settings'),
+    url(r'^settings/(?P<setting>[^/<>]+)/$', 'settings_view',
+        name='services.setting'),
+    url(r'^error/', 'error', name='services.error'),
+    url(r'^status/', 'status', name='services.status'),
+    url(r'^request/', 'request_resource', name='services.request'),
+)
 
 urlpatterns = patterns('',
     url(r'^proxy/', include('lib.proxy.urls')),
@@ -51,7 +47,7 @@ urlpatterns = patterns('',
     url(r'^', include(bango.urls)),
     url(r'^', include(delayable.urls)),
     url(r'^$', 'solitude.views.home', name='home'),
-    url(r'^', include(services.urls)),
+    url(r'^services/', include(services_patterns))
 )
 
 handler500 = 'solitude.views.error'

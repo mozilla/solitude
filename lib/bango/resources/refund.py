@@ -1,5 +1,5 @@
-from functools import partial
 import uuid
+from functools import partial
 
 from django.conf import settings
 
@@ -7,6 +7,7 @@ from tastypie import fields
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.http import HttpNotFound
 
+from cached import SimpleResource
 from lib.bango.client import ClientMock
 from lib.bango.constants import CANT_REFUND, NOT_SUPPORTED, OK, PENDING
 from lib.bango.errors import BangoFormError
@@ -15,7 +16,6 @@ from lib.transactions.constants import (STATUS_COMPLETED, STATUS_FAILED,
                                         STATUS_PENDING, TYPE_REFUND)
 from lib.transactions.models import Transaction
 from lib.transactions.resources import TransactionResource
-from cached import SimpleResource
 
 from solitude.logger import getLogger
 

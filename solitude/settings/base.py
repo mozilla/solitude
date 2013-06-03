@@ -20,6 +20,8 @@ INSTALLED_APPS = (
     'django_statsd',
     'djcelery',
     'solitude',
+    'rest_framework',
+    'django_filters'
 )
 if os.environ.get('DATABASE_URL'):
     DATABASES = {
@@ -244,3 +246,27 @@ BANGO_FAKE_REFUNDS = False
 
 # When True, send product icon URLs to Bango in the billing config task.
 BANGO_ICON_URLS = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_MODEL_SERIALIZER_CLASS':
+        'rest_framework.serializers.HyperlinkedModelSerializer',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'solitude.authentication.RestOAuthAuthentication',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+    ),
+    'DEFAULT_PAGINATION_SERIALIZER_CLASS':
+        'solitude.paginator.CustomPaginationSerializer',
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.DjangoFilterBackend',
+    ),
+    'PAGINATE_BY': 20,
+    'PAGINATE_BY_PARAM': 'limit'
+}

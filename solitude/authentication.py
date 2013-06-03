@@ -3,6 +3,8 @@ from urlparse import urljoin
 from django.conf import settings
 import oauth2
 
+from rest_framework.authentication import BaseAuthentication
+from rest_framework.exceptions import AuthenticationFailed
 from tastypie.authentication import Authentication
 
 from solitude.logger import getLogger
@@ -57,6 +59,36 @@ class OAuthAuthentication(Authentication):
         except:
             log.error(u'Access failed: %s' % key, exc_info=True)
             return False
+
+
+class DummyUser(object):
+    pass
+
+
+class RestOAuthAuthentication(BaseAuthentication):
+
+    def authenticate(self, request):
+        auth_header_value = request.META.get('HTTP_AUTHORIZATION', None)
+        request.OAUTH_KEY = None
+        oauth_server, oauth_request = initialize_oauth_server_request(request)
+        try:
+            key = get_oauth_consumer_key_from_header(auth_header_value)
+            if not key:
+                if settings.REQUIRE_OAUTH:
+                    return None
+                return (DummyUser(), None)
+            oauth_server.verify_request(oauth_request, Consumer(key), None)
+            request.OAUTH_KEY = key
+            log.info(u'Access granted: %s' % key)
+            return (DummyUser(), None)
+
+        except KeyError:
+            log.error(u'No key: %s' % key)
+            return AuthenticationFailed
+
+        except:
+            log.error(u'Access failed: %s' % key, exc_info=True)
+            return AuthenticationFailed
 
 
 def initialize_oauth_server_request(request):

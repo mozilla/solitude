@@ -24,7 +24,8 @@ class Transaction(Model):
     currency = models.CharField(max_length=3, blank=True)
     provider = models.PositiveIntegerField(choices=constants.SOURCES_CHOICES)
     related = models.ForeignKey('self', blank=True, null=True,
-                                on_delete=models.PROTECT)
+                                on_delete=models.PROTECT,
+                                related_name='relations')
     seller_product = models.ForeignKey('sellers.SellerProduct', db_index=True)
     status = models.PositiveIntegerField(default=constants.STATUS_DEFAULT,
                                          choices=constants.STATUSES_CHOICES)

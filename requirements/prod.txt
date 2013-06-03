@@ -12,6 +12,7 @@ dj-database-url==0.2.1
 django-aesfield==0.1
 django-celery==2.2.4
 django-extensions==0.9
+django-filter==0.6
 django-multidb-router==0.5
 django-nose==1.1
 django-paranoia==0.1.7
@@ -20,6 +21,7 @@ django-raven-metlog==0.1
 django-sha2==0.4
 django-statsd-mozilla==0.3.8.3
 django-tastypie==0.9.11
+djangorestframework==2.3.5
 funfactory==2.1.1
 gunicorn==0.17.2
 httplib2==0.7.6
@@ -46,7 +48,6 @@ six==1.2.0
 slumber==0.5.3
 statsd==1.0.0
 suds==0.4
-tastypie-services==0.2.2
 tower==0.3.4
 
 # not on pypi

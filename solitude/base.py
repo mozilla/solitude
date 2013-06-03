@@ -6,9 +6,9 @@ import uuid
 
 from django.conf import settings
 from django.core.cache import cache
-from django.core.urlresolvers import reverse, resolve
+from django.core.urlresolvers import resolve, reverse
 from django.db import models, transaction
-from django.db.models.sql.constants import QUERY_TERMS, LOOKUP_SEP
+from django.db.models.sql.constants import LOOKUP_SEP, QUERY_TERMS
 from django.test.client import Client
 from django.views import debug
 
@@ -20,9 +20,18 @@ except ImportError:
     pass
 
 from cef import log_cef as _log_cef
+
+# This has to be here to patch before the next line imports.
+from solitude.patch import patch  # NOQA
+patch()
+
+from rest_framework.relations import HyperlinkedRelatedField
+from rest_framework.response import Response
+
 from tastypie import http
 from tastypie.authorization import Authorization
 from tastypie.exceptions import ImmediateHttpResponse, InvalidFilterError
+from tastypie.fields import ToOneField
 from tastypie.resources import (ModelResource as TastyPieModelResource,
                                 Resource as TastyPieResource)
 from tastypie.utils import dict_strip_unicode_keys
@@ -174,13 +183,14 @@ def log_cef(msg, request, **kw):
     _log_cef(msg, severity, request.META.copy(), **cef_kw)
 
 
-def handle_500(resource, request, exception):
+def handle_500(request, exception):
     # Print some nice 500 errors back to the clients if not in debug mode.
     tb = traceback.format_tb(sys.exc_traceback)
     tasty_log.error('%s: %s %s\n%s' % (request.path,
                         exception.__class__.__name__, exception,
                         '\n'.join(tb)),
-                    extra={'status_code': 500, 'request': request})
+                    extra={'status_code': 500, 'request': request},
+                    exc_info=sys.exc_info())
     data = {
         'error_message': str(exception),
         'error_code': getattr(exception, 'id',
@@ -189,9 +199,22 @@ def handle_500(resource, request, exception):
     }
     # We'll also cef log any errors.
     log_cef(str(exception), request, severity=3)
-    serialized = resource.serialize(request, data, 'application/json')
-    return http.HttpApplicationError(content=serialized,
+    return http.HttpApplicationError(content=json.dumps(data),
                 content_type='application/json; charset=utf-8')
+
+
+def form_errors(forms):
+    errors = {}
+    if not isinstance(forms, list):
+        forms = [forms]
+    for f in forms:
+        if isinstance(f.errors, list):  # Cope with formsets.
+            for e in f.errors:
+                errors.update(e)
+            continue
+        errors.update(dict(f.errors.items()))
+
+    return Response(errors, status=400)
 
 
 class BaseResource(object):
@@ -216,7 +239,7 @@ class BaseResource(object):
         return super(BaseResource, self).dehydrate(bundle)
 
     def _handle_500(self, request, exception):
-        return handle_500(self, request, exception)
+        return handle_500(request, exception)
 
     def deserialize(self, request, data, format='application/json'):
         result = (super(BaseResource, self)
@@ -428,3 +451,32 @@ def invert(data):
     Helper to turn a dict of constants into a choices tuple.
     """
     return [(v, k) for k, v in data.items()]
+
+
+class CompatRelatedField(HyperlinkedRelatedField):
+    """
+    Compatible field for connecting Tastypie resources to
+    django-rest-framework instances.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.tastypie = kwargs.pop('tastypie')
+        return super(CompatRelatedField, self).__init__(*args, **kwargs)
+
+    def to_native(self, obj):
+        # If the object has not yet been saved then we cannot hyperlink to it.
+        if getattr(obj, 'pk', None) is None:
+            return
+
+        self.tastypie['pk'] = obj.pk
+        return reverse('api_dispatch_detail', kwargs=self.tastypie)
+
+
+class CompatToOneField(ToOneField):
+
+    def __init__(self, *args, **kwargs):
+        self.rest = kwargs.pop('rest')
+        return super(CompatToOneField, self).__init__(*args, **kwargs)
+
+    def dehydrate_related(self, bundle, related_resource):
+        return reverse(self.rest + '-detail', kwargs={'pk': bundle.obj.pk})
