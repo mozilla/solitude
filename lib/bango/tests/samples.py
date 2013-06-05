@@ -40,6 +40,7 @@ good_update_rating = {
 
 good_billing_request = {
     'pageTitle': 'wat!',
+    'user_uuid': 'webpay-user-token',
     'prices': [
         {'amount': 3, 'currency': 'USD'},
         {'amount': 2, 'currency': 'CAD'},

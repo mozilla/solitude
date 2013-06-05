@@ -81,6 +81,9 @@ class CreateBillingConfigurationResource(Resource):
             'REDIRECT_URL_ONERROR': data.pop('redirect_url_onerror'),
             'REQUEST_SIGNATURE': sign(data['externalTransactionId']),
         }
+        user_uuid = data.pop('user_uuid')
+        if settings.SEND_USER_ID_TO_BANGO:
+            configs['MOZ_USER_ID'] = user_uuid
         if settings.BANGO_ICON_URLS:
             icon_url = data.pop('icon_url', None)
             if icon_url:

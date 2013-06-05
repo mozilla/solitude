@@ -189,6 +189,7 @@ class CreateBillingConfigurationForm(SellerProductForm):
     redirect_url_onerror = forms.URLField()
     redirect_url_onsuccess = forms.URLField()
     transaction_uuid = forms.CharField()
+    user_uuid = forms.CharField()
     icon_url = forms.URLField(required=False)
 
     @property

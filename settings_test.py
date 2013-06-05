@@ -48,3 +48,5 @@ DJANGO_PARANOIA_REPORTERS = []
 BANGO_MOCK = True
 
 SITE_URL = 'http://localhost/'
+
+SEND_USER_ID_TO_BANGO = True
