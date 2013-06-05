@@ -31,6 +31,8 @@
           <s:element minOccurs="0" maxOccurs="1" name="currencyIso" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="homePageURL" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="eventNotificationURL" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="eventNotificationUsername" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="eventNotificationPassword" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="CreatePackageResponse">
@@ -714,6 +716,8 @@
           <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="packageId" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="eventNotificationURL" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="eventNotificationUsername" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="eventNotificationPassword" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="SetEventNotificationURLResponse">
