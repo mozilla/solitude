@@ -247,6 +247,9 @@ BANGO_FAKE_REFUNDS = False
 # When True, send product icon URLs to Bango in the billing config task.
 BANGO_ICON_URLS = True
 
+# When True, send MOZ_USER_ID to Bango in the billing config task.
+SEND_USER_ID_TO_BANGO = False
+
 REST_FRAMEWORK = {
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
