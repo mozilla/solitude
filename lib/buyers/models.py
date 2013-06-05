@@ -38,15 +38,15 @@ class Buyer(Model):
     @property
     def check_was_lock_status_and_reset(self):
         if self.pin_was_locked_out:
-            self.pin_was_locked_out = False
-            self.save()
+            if not self.locked_out:
+                self.pin_was_locked_out = False
+                self.save()
             return True
         return False
 
     def clear_lockout(self):
         self.pin_failures = 0
         self.pin_locked_out = None
-        self.pin_was_locked_out = True
         self.save()
 
     def incr_lockout(self):
@@ -58,6 +58,7 @@ class Buyer(Model):
         failing = self.reget()
         if failing.pin_failures >= settings.PIN_FAILURES:
             failing.pin_locked_out = datetime.now()
+            failing.pin_was_locked_out = True
             failing.save()
             # Indicate to the caller that we are now locked out.
             return True
