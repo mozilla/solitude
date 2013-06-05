@@ -166,7 +166,7 @@ mock_data = {
         'personPassword': 'xxxxx',
     },
     'CreateBillingConfiguration': {
-        'billingConfigurationId': uuid.uuid4,
+        'billingConfigurationId': ltime,
     },
     'GetAcceptedSBIAgreement': {
         'sbiAgreementAccepted': True,
