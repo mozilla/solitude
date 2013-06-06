@@ -15,7 +15,10 @@ AES_KEYS = {
 
 SOLITUDE_PROXY = False
 
-PAYPAL_MOCK = False
+if os.environ.get('SOLITUDE_PROXY', 'disabled') == 'enabled':
+    raise ValueError('You have the environment variable SOLITUDE_PROXY set to '
+                     '"enabled", this breaks the tests, aborting.')
+
 PAYPAL_PROXY = False
 PAYPAL_URL_WHITELIST = ('https://marketplace-dev.allizom.org',)
 
