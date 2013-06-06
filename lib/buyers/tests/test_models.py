@@ -74,10 +74,13 @@ class TestLockout(TestCase):
         self.buyer.clear_lockout()
         eq_(self.buyer.pin_failures, 0)
         eq_(self.buyer.pin_locked_out, None)
-        assert self.buyer.pin_was_locked_out
 
     def test_was_locked_out(self):
+        self.buyer.pin_locked_out = datetime.now()
         self.buyer.pin_was_locked_out = True
+        assert self.buyer.check_was_lock_status_and_reset
+        assert self.buyer.pin_was_locked_out
+        self.buyer.pin_locked_out = None
         assert self.buyer.check_was_lock_status_and_reset
         assert not self.buyer.pin_was_locked_out
 
