@@ -194,12 +194,18 @@ REQUIRE_OAUTH = False
 CLIENT_OAUTH_KEYS = {}
 
 # Bango API settings.
+# These are the credentials for calling Bango.
 BANGO_AUTH = {'USER': 'Mozilla', 'PASSWORD': ''}
+
 # The Bango API environment. This value must be an existing subdirectory
 # under lib/bango/wsdl.
 BANGO_ENV = 'test'
 BANGO_MOCK = False
 BANGO_PROXY = ''
+
+# Notification end points use basic auth.
+# These are the credentials for Bango calling us.
+BANGO_BASIC_AUTH = {'USER': '', 'PASSWORD': ''}
 
 # Anything less than this USD price will be considerd a micro
 # payment. Purchases at these prices cannot be made with credit cards.

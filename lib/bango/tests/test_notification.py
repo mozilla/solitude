@@ -3,6 +3,9 @@ import json
 from datetime import datetime, timedelta
 from decimal import Decimal
 
+from django.conf import settings
+
+from mock import patch
 from nose.tools import eq_, ok_
 
 from lib.sellers.models import Seller, SellerProduct
@@ -119,6 +122,7 @@ class TestNotification(APITest):
             self.post(self.data(), expected_status=400)
 
 
+@patch.object(settings, 'BANGO_BASIC_AUTH', {'USER': 'f', 'PASSWORD': 'b'})
 class TestEvent(APITest):
     api_name = 'bango'
 
@@ -137,7 +141,11 @@ class TestEvent(APITest):
 
     def post(self, data=None, expected=201):
         if data is None:
-            data = {'notification': samples.event_notification}
+            data = {
+                'notification': samples.event_notification,
+                'password': 'b',
+                'username': 'f'
+            }
         res = self.client.post(self.url, data=data)
         eq_(res.status_code, expected)
         return json.loads(res.content)
@@ -156,3 +164,9 @@ class TestEvent(APITest):
         self.post()
         trans = self.trans.reget()
         eq_(trans.status, STATUS_COMPLETED)
+
+    def test_wrong_auth(self):
+        data = {'notification': samples.event_notification,
+                'password': 'nope',
+                'username': 'yes'}
+        self.post(data, expected=400)

@@ -1,5 +1,7 @@
 import json
 
+from django.conf import settings
+
 import mock
 from nose.tools import eq_, ok_
 
@@ -93,6 +95,8 @@ class TestVat(APITest):
         eq_(form.bango_meta['method'], 'SetVATNumber')
 
 
+@mock.patch.object(settings, 'BANGO_BASIC_AUTH',
+                   {'USER': 'f', 'PASSWORD': 'b'})
 class TestEvent(APITest):
 
     def test_empty(self):
@@ -132,8 +136,16 @@ class TestEvent(APITest):
 
     def test_check_good(self):
         self.create()
-        form = EventForm({'notification': event_notification})
+        form = EventForm({'notification': event_notification,
+                          'username': 'f', 'password': 'b'})
         ok_(form.is_valid(), form.errors)
+
+    def test_check_wrong(self):
+        self.create()
+        form = EventForm({'notification': event_notification,
+                          'username': 'f', 'password': 'x'})
+        ok_(not form.is_valid())
+        ok_('__all__' in form.errors)
 
     def test_wierd(self):
         self.create()

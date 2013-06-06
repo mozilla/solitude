@@ -304,6 +304,16 @@ class NotificationForm(forms.Form):
 
 class EventForm(forms.Form):
     notification = forms.CharField(required=True)
+    username = forms.CharField(required=True)
+    password = forms.CharField(required=True)
+
+    def clean(self):
+        username = self.cleaned_data.get('username', '')
+        password = self.cleaned_data.get('password', '')
+        if (username != settings.BANGO_BASIC_AUTH['USER'] or
+            password != settings.BANGO_BASIC_AUTH['PASSWORD']):
+            raise forms.ValidationError('Auth incorrect')
+        return self.cleaned_data
 
     def clean_notification(self):
         try:
