@@ -7,8 +7,8 @@ from nose.tools import eq_, ok_
 
 from ..forms import (CreateBankDetailsForm,
                      CreateBillingConfigurationForm as BillingForm, EventForm,
-                     PriceForm, VatNumberForm)
-from .samples import (event_notification, good_bank_details,
+                     PackageForm, PriceForm, VatNumberForm)
+from .samples import (event_notification, good_address, good_bank_details,
                       good_billing_request)
 from lib.sellers.models import Seller, SellerProduct
 from lib.transactions import constants
@@ -78,6 +78,22 @@ class TestBilling(APITest):
         form.is_valid()
         for price in form.cleaned_data['prices']:
             ok_(price.is_valid())
+
+
+@mock.patch('lib.bango.forms.URLField.clean')
+class TestPackage(APITest):
+
+    def test_no_auth(self, clean):
+        form = PackageForm(good_address)
+        ok_(form.is_valid())
+        ok_(not 'eventNotificationURL' in form.bango_data)
+
+    def test_auth(self, clean):
+        with self.settings(BANGO_NOTIFICATION_URL='http://f.com',
+                           BANGO_BASIC_AUTH={'USER': 'u', 'PASSWORD': 'p'}):
+            form = PackageForm(good_address)
+            ok_(form.is_valid())
+            eq_(form.bango_data['eventNotificationURL'], 'http://f.com')
 
 
 class TestVat(APITest):

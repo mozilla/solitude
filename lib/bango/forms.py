@@ -51,13 +51,20 @@ class PackageForm(forms.Form):
     countryIso = forms.CharField()
     currencyIso = forms.CharField()
     homePageURL = forms.CharField(required=False)
-    eventNotificationURL = forms.CharField(required=False)
+
     seller = URLField(to='lib.sellers.resources.SellerResource')
 
     @property
     def bango_data(self):
         result = self.cleaned_data.copy()
         del result['seller']
+        if settings.BANGO_NOTIFICATION_URL:
+            result.update({
+                'eventNotificationURL': settings.BANGO_NOTIFICATION_URL,
+                'eventNotificationUsername': settings.BANGO_BASIC_AUTH['USER'],
+                'eventNotificationPassword':
+                    settings.BANGO_BASIC_AUTH['PASSWORD'],
+            })
         return result
 
 

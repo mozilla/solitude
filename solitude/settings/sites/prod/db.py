@@ -47,4 +47,8 @@ PAYPAL_URL_WHITELIST = ('https://marketplace.firefox.com',)
 
 BANGO_ENV = 'prod'
 BANGO_PROXY = private.BANGO_PROXY
+BANGO_NOTIFICATION_URL = (
+    'https://marketplace.firefox.com/mozpay/bango/notification')
+# BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
+
 SITE_URL = 'https://payments.firefox.com'

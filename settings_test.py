@@ -1,5 +1,9 @@
 # test_utils picks this file up for testing.
+import atexit
 import os
+import shutil
+from tempfile import gettempdir
+
 from solitude.settings.base import *
 
 filename = os.path.join(os.path.dirname(__file__), 'sample.key')
@@ -53,3 +57,12 @@ BANGO_MOCK = True
 SITE_URL = 'http://localhost/'
 
 SEND_USER_ID_TO_BANGO = True
+
+# Suds keeps a cache of the WSDL around, so after completing the test run,
+# lets remove that so it doesn't affect the next test run.
+def _cleanup():
+    target = os.path.join(gettempdir(), 'suds')
+    if os.path.exists(target):
+        shutil.rmtree(target)
+
+atexit.register(_cleanup)

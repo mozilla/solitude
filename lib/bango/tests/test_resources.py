@@ -100,7 +100,7 @@ class TestPackageResource(BangoAPI):
     def good_data(self):
         post = samples.good_address.copy()
         post['seller'] = ('/generic/seller/%s/' %
-                          Seller.objects.create(uuid=self.uuid).pk)
+                          Seller.objects.get_or_create(uuid=self.uuid)[0].pk)
         return post
 
     @mock.patch.object(ClientMock, 'mock_results')

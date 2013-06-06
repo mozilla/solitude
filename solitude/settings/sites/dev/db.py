@@ -48,6 +48,10 @@ PAYPAL_PROXY = private.PAYPAL_PROXY
 PAYPAL_URL_WHITELIST = ('https://marketplace-dev.allizom.org',)
 
 BANGO_PROXY = private.BANGO_PROXY
-SITE_URL = 'https://payments-dev.allizom.org'
+BANGO_NOTIFICATION_URL = (
+    'https://marketplace-dev.allizom.org/mozpay/bango/notification')
+# BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
 
 BANGO_FAKE_REFUNDS = True
+
+SITE_URL = 'https://payments-dev.allizom.org'

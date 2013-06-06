@@ -70,8 +70,6 @@ settings::
     SITE_URL = 'http://your.solitude.instance/'
     STATSD_CLIENT = 'django_statsd.clients.null'
 
-    PAYPAL_USE_SANDBOX = True
-
 Solitude requires some keys on the file system. For each key in `base.py`,
 copy into `local.py` and point to a file that makes sense for your install. For
 example::
@@ -106,7 +104,7 @@ To actually talk to PayPal you'll need to setup the following settings. These
 are the settings for the Sandbox, meaning you can test Solitude without using
 real money::
 
-
+    PAYPAL_USE_SANDBOX = True
     PAYPAL_APP_ID = 'the.app.id.from.paypal'
     PAYPAL_AUTH = {'USER': 'the.paypal.user',
                    'PASSWORD': 'the.paypal.password',
@@ -150,6 +148,15 @@ you'll have need to setup the following::
 
     BANGO_AUTH = {'USER': 'the.bango.username',
                   'PASSWORD': 'the.bango.password'}
+
+Solitude receives calls from Bango. Bango needs to know a URL and a
+username and password for them. Example::
+
+    BANGO_BASIC_AUTH = {'USER': 'a.username',
+                        'PASSWORD': 'a.password'}
+    BANGO_NOTIFICATION_URL = 'https://your.site/notification'
+
+These are passed to Bango each time a package is created.
 
 Running Locally
 ~~~~~~~~~~~~~~~

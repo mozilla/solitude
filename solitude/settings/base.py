@@ -207,6 +207,10 @@ BANGO_PROXY = ''
 # These are the credentials for Bango calling us.
 BANGO_BASIC_AUTH = {'USER': '', 'PASSWORD': ''}
 
+# The URL that Bango will send notifications too. If this is not set, the
+# notification URL will not be set.
+BANGO_NOTIFICATION_URL = ''
+
 # Anything less than this USD price will be considerd a micro
 # payment. Purchases at these prices cannot be made with credit cards.
 BANGO_MAX_MICRO_AMOUNT = Decimal('0.99')
