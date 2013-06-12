@@ -225,7 +225,7 @@ class CreateBillingConfigurationForm(SellerProductForm):
 
 
 class PriceForm(forms.Form):
-    amount = forms.DecimalField()
+    price = forms.DecimalField()
     currency = forms.ChoiceField(choices=([r, r] for r in CURRENCIES.keys()))
 
 
