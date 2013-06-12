@@ -54,7 +54,22 @@ class CreateBillingConfigurationResource(Resource):
             price.currency = item.cleaned_data['currency']
             if price.currency == 'USD':
                 usd_price = Decimal(price.amount)
-            price_list.Price.append(price)
+
+            # TODO: remove this.
+            # Very temporary and very fragile hack to fix bug 882183.
+            # Bango cannot accept regions with price info so if there
+            # are two USD values for different regions it triggers a 500 error.
+            append = True
+            for existing in price_list.Price:
+                if existing.currency == price.currency:
+                    log.info('Skipping %s:%s because we already have %s:%s'
+                             % (price.currency, price.amount,
+                                existing.currency, existing.amount))
+                    append = False
+                    break
+
+            if append:
+                price_list.Price.append(price)
 
         data['priceList'] = price_list
 
