@@ -50,7 +50,7 @@ class CreateBillingConfigurationResource(Resource):
         price_list = billing.factory.create('ArrayOfPrice')
         for item in form.cleaned_data['prices']:
             price = billing.factory.create('Price')
-            price.amount = item.cleaned_data['amount']
+            price.amount = item.cleaned_data['price']
             price.currency = item.cleaned_data['currency']
             if price.currency == 'USD':
                 usd_price = Decimal(price.amount)

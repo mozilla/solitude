@@ -469,8 +469,8 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         data = self.good()
         # Set a price just slightly under the micro payment max.
         data['prices'] = [
-            {'amount': 0.88, 'currency': 'CAD'},
-            {'amount': 0.98, 'currency': 'USD'},
+            {'price': 0.88, 'currency': 'CAD'},
+            {'price': 0.98, 'currency': 'USD'},
         ]
         with self.fake_client_response(cli):
             res = self.client.post(self.list_url, data=data)
@@ -485,8 +485,8 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         data = self.good()
         # Set a price exactly at the micro payment max.
         data['prices'] = [
-            {'amount': 0.89, 'currency': 'CAD'},
-            {'amount': 0.99, 'currency': 'USD'},
+            {'price': 0.89, 'currency': 'CAD'},
+            {'price': 0.99, 'currency': 'USD'},
         ]
         with self.fake_client_response(cli):
             res = self.client.post(self.list_url, data=data)
@@ -499,7 +499,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         data = self.good()
         # Set prices without USD.
         data['prices'] = [
-            {'amount': 0.88, 'currency': 'CAD'}
+            {'price': 0.88, 'currency': 'CAD'}
         ]
         self.client.post(self.list_url, data=data)
 
