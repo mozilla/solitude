@@ -47,6 +47,7 @@ CLIENT_OAUTH_KEYS = private.CLIENT_OAUTH_KEYS
 PAYPAL_PROXY = private.PAYPAL_PROXY
 PAYPAL_URL_WHITELIST = ('https://marketplace-dev.allizom.org',)
 
+BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
 BANGO_PROXY = private.BANGO_PROXY
 BANGO_NOTIFICATION_URL = (
     'https://marketplace-dev.allizom.org/mozpay/bango/notification')
