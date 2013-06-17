@@ -260,6 +260,11 @@ BANGO_ICON_URLS = True
 # When True, send MOZ_USER_ID to Bango in the billing config task.
 SEND_USER_ID_TO_BANGO = False
 
+# Time in seconds after which a Bango API request will be aborted.
+# We can deal with slow requests because we mostly use background tasks.
+# The API can indeed be slow, see bug 883389.
+BANGO_TIMEOUT = 30
+
 REST_FRAMEWORK = {
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
