@@ -1,3 +1,6 @@
+import logging
+import sys
+import traceback
 import urlparse
 
 from django.conf import settings
@@ -108,6 +111,26 @@ class TestError(Exception):
 @api_view(['GET'])
 def error(request):
     raise TestError('This is a test.')
+
+
+@api_view(['GET'])
+def logs(request):
+    # Log palooza. Try logging to every log at every level.
+    handlers = {'passed': [], 'failed': [], 'skipped': []}
+    for log_name, log_obj in logging.root.manager.loggerDict.items():
+        if isinstance(log_obj, logging.PlaceHolder):
+            handlers['skipped'].append(log_name)
+        for level_name in ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG']:
+            try:
+                log_obj.log(getattr(logging, level_name),
+                    'Log at level: {0} to log: {1}.'
+                    .format(level_name, log_name))
+                handlers['passed'].append([log_name, level_name])
+            except:
+                handlers['failed'].append([log_name, level_name,
+                                           traceback.format_exc()
+])
+    return Response(handlers)
 
 
 @api_view(['GET'])

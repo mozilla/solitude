@@ -136,16 +136,8 @@ LOGGING = {
     },
     'loggers': {
         's': {
-            'handlers': ['unicodesyslog', 'console'],
+            'handlers': ['unicodesyslog'],
             'level': 'INFO',
-        },
-        's.services': {
-            'handlers': ['console'],
-            'level': 'INFO',
-        },
-        'suds': {
-            'handlers': ['console'],
-            'level': 'ERROR',
         },
         'sentry.errors': {
             'handlers': ['unicodesyslog'],

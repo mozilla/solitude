@@ -36,6 +36,7 @@ services_patterns = patterns('lib.services.resources',
     url(r'^settings/(?P<setting>[^/<>]+)/$', 'settings_view',
         name='services.setting'),
     url(r'^error/', 'error', name='services.error'),
+    url(r'^logs/', 'logs', name='services.log'),
     url(r'^status/', 'status', name='services.status'),
     url(r'^request/', 'request_resource', name='services.request'),
 )
