@@ -120,6 +120,8 @@ def logs(request):
     for log_name, log_obj in logging.root.manager.loggerDict.items():
         if isinstance(log_obj, logging.PlaceHolder):
             handlers['skipped'].append(log_name)
+            continue
+
         for level_name in ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG']:
             try:
                 log_obj.log(getattr(logging, level_name),
@@ -128,8 +130,8 @@ def logs(request):
                 handlers['passed'].append([log_name, level_name])
             except:
                 handlers['failed'].append([log_name, level_name,
-                                           traceback.format_exc()
-])
+                                           traceback.format_exc()])
+
     return Response(handlers)
 
 

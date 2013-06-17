@@ -150,6 +150,9 @@ LOGGING = {
         'requests.packages.urllib3.connectionpool': {
             'level': 'WARNING',
         },
+        'suds': {
+            'level': 'ERROR',
+        }
     },
 }
 
