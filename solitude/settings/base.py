@@ -35,9 +35,17 @@ if os.environ.get('DATABASE_URL'):
         DATABASES['default']['OPTIONS'] = opt
     DATABASES['default']['TEST_CHARSET'] = 'utf8'
     DATABASES['default']['TEST_COLLATION'] = 'utf8_general_ci'
+
 else:
     DATABASES = {}
 
+if os.environ.get('MEMCACHE_URL'):
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': os.getenv('MEMCACHE_URL'),
+        }
+    }
 
 LOCALE_PATHS = ()
 USE_I18N = False

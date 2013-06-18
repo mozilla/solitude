@@ -1,6 +1,8 @@
 name: solitude
+
 min-version:
   client: 1.4.3
+
 ignores:
   - ".git"
   - "*.pyc"
@@ -11,9 +13,10 @@ ignores:
   - ".coverage*"
   - "_coverage/*"
   - ".noseids"
+
 env:
   DJANGO_SETTINGS_MODULE: solitude.settings
-  PIP_OPTS: --no-deps --exists-action=w
+  PIP_OPTS: --no-deps --exists-action=w --no-deps --no-index -f https://pyrepo.addons.mozilla.org/
   PIP_REQUIREMENTS_FILE: requirements/prod.txt
 
 requirements:
@@ -22,10 +25,13 @@ requirements:
     - MySQL-python==1.2.3
     - py-bcrypt==0.2
     - lxml==2.2.6
+
 services:
   ${name}-db: mysql
+  ${name}-memcached: memcached
 
 mem: 128M
+
 hooks:
   post-staging:
     - schematic migrations
@@ -33,3 +39,4 @@ hooks:
 framework:
   type: python
   start-file: wsgi/playdoh.py
+  runtime: python27
