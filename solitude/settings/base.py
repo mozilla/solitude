@@ -146,20 +146,25 @@ LOGGING = {
         's': {
             'handlers': ['unicodesyslog'],
             'level': 'INFO',
+            'propagate': True
         },
         'sentry.errors': {
             'handlers': ['unicodesyslog'],
             'level': 'INFO',
+            'propagate': True
         },
         'django.request': {
             'handlers': ['unicodesyslog', 'sentry'],
             'level': 'INFO',
+            'propagate': True
         },
         'requests.packages.urllib3.connectionpool': {
             'level': 'WARNING',
+            'propagate': True
         },
         'suds': {
             'level': 'ERROR',
+            'propagate': True
         }
     },
 }
