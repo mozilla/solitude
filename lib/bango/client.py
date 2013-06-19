@@ -85,6 +85,7 @@ class Client(object):
         raise AttributeError('Unknown request: %s' % attr)
 
     def call(self, name, data, wsdl='exporter'):
+        log.info('Bango client call: {0} from wsdl: {1}'.format(name, wsdl))
         client = self.client(wsdl)
         package = client.factory.create(get_request(name))
         for k, v in data.iteritems():
