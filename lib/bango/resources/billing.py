@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.conf import settings
 
 from cached import Resource
+from django_statsd.clients import statsd
 from lib.bango.client import get_client
 from lib.bango.constants import MICRO_PAYMENT_TYPES, PAYMENT_TYPES
 from lib.bango.forms import CreateBillingConfigurationForm
@@ -118,5 +119,6 @@ class CreateBillingConfigurationResource(Resource):
 
         create_data = data.copy()
         create_data['transaction_uuid'] = data.pop('externalTransactionId')
+        statsd.incr('solitude.pending_transactions')
         create.send(sender=self, bundle=bundle, data=create_data, form=form)
         return bundle

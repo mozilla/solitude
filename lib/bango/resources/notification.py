@@ -46,6 +46,7 @@ class NotificationResource(Resource):
 
         log.info('Transaction %s: %s' % (message, trans.uuid))
         statsd.incr('bango.notification.%s' % message)
+        statsd.decr('solitude.pending_transactions')
         trans.status = state
         # This is the id for the actual transaction, useful for refunds.
         trans.uid_support = form.cleaned_data['bango_trans_id']
