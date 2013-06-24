@@ -296,3 +296,8 @@ REST_FRAMEWORK = {
     'PAGINATE_BY': 20,
     'PAGINATE_BY_PARAM': 'limit'
 }
+
+# For uploading logs from the server.
+S3_AUTH = {'key': '',
+           'secret': ''}
+S3_BUCKET = ''

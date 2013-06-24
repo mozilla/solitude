@@ -5,6 +5,7 @@ from os.path import join
 
 
 from lib.transactions.models import Transaction
+from solitude.management.commands.push_s3 import push
 
 from django.core.management.base import BaseCommand
 
@@ -39,3 +40,4 @@ class Command(BaseCommand):
         filename = join(options['dir'] if options['dir'] else '.',
                         date.strftime('%Y-%m-%d') + '.log')
         generate_log(date, filename)
+        push(filename)
