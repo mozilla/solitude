@@ -51,8 +51,10 @@ BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
 BANGO_PROXY = private.BANGO_PROXY
 BANGO_NOTIFICATION_URL = (
     'https://marketplace-dev.allizom.org/mozpay/bango/notification')
-# BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
 
 BANGO_FAKE_REFUNDS = True
 
 SITE_URL = 'https://payments-dev.allizom.org'
+
+S3_AUTH = {'key': private.S3_AUTH_KEY, 'secret': S3_AUTH_SECRET}
+S3_BUCKET = private.S3_BUCKET
