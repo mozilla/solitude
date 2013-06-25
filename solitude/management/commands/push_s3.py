@@ -11,7 +11,7 @@ from boto.s3.key import Key
 
 def push(source):
     if not all(settings.S3_AUTH.values() + [settings.S3_BUCKET,]):
-        print 'Settings incomplete.'
+        print 'Settings incomplete, cannot push to S3.'
         sys.exit(1)
 
     dest = os.path.basename(source)

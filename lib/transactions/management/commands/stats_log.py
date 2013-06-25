@@ -1,8 +1,8 @@
 import csv
+import os
+import tempfile
 from datetime import datetime, timedelta
 from optparse import make_option
-from os.path import join
-
 
 from lib.transactions.models import Transaction
 from solitude.management.commands.push_s3 import push
@@ -23,10 +23,13 @@ def generate_log(day, filename):
 
 class Command(BaseCommand):
     """
-    Generate a stats log in CSV format.
+    Generate a stats log in CSV format, then uploads it to S3.
 
     :param date: date to process (defaults to yesterday).
-    :param dir: directory file will be written to (defaults to current).
+    :param dir: directory file will be written to (defaults to temp).
+
+    If there is no directory specified a temporary directory is used and
+    the file removed afterwards.
     """
     option_list = BaseCommand.option_list + (
         make_option('--date', action='store', type='string', dest='date'),
@@ -34,10 +37,18 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
+        dir_ = not options['dir']
+        if dir_:
+            print 'No directory specified, making temp.'
+            dir_ = tempfile.mkdtemp()
+
         yesterday = datetime.today() - timedelta(days=1)
         date = (datetime.strptime(options['date'], '%Y-%m-%d')
                 if options['date'] else yesterday).date()
-        filename = join(options['dir'] if options['dir'] else '.',
-                        date.strftime('%Y-%m-%d') + '.log')
+        filename = os.path.join(dir_, date.strftime('%Y-%m-%d') + '.log')
         generate_log(date, filename)
+        print 'Log generated to:', filename
         push(filename)
+        if not options['dir']:
+            print 'No directory specified, cleaning log after upload.'
+            os.remove(filename)
