@@ -92,7 +92,10 @@ class CreateBillingConfigurationResource(Resource):
         configs = {
             'APPLICATION_CATEGORY_ID': '18',
             'APPLICATION_SIZE_KB': 2,
-            'BILLING_CONFIGURATION_TIME_OUT': 120,
+            # Tell Bango to use our same transaction expiry logic.
+            # However, we pad it by 60 seconds to show a prettier Mozilla user
+            # error in the case of a real timeout.
+            'BILLING_CONFIGURATION_TIME_OUT': settings.TRANSACTION_EXPIRY + 60,
             'REDIRECT_URL_ONSUCCESS': data.pop('redirect_url_onsuccess'),
             'REDIRECT_URL_ONERROR': data.pop('redirect_url_onerror'),
             'REQUEST_SIGNATURE': sign(data['externalTransactionId']),
