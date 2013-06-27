@@ -148,6 +148,11 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True
         },
+        's.transaction': {
+            'handlers': ['unicodesyslog'],
+            'level': 'INFO',
+            'propagate': True
+        },
         'sentry.errors': {
             'handlers': ['unicodesyslog'],
             'level': 'INFO',
