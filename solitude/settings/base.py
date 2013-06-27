@@ -144,12 +144,12 @@ LOGGING = {
     },
     'loggers': {
         's': {
-            'handlers': ['unicodesyslog'],
+            'handlers': ['console', 'unicodesyslog'],
             'level': 'INFO',
             'propagate': True
         },
         's.transaction': {
-            'handlers': ['unicodesyslog'],
+            'handlers': ['console', 'unicodesyslog'],
             'level': 'INFO',
             'propagate': True
         },
