@@ -143,10 +143,11 @@ def create_bango_transaction(sender, **kwargs):
     transaction.type = constants.TYPE_PAYMENT
     transaction.save()
 
+    # This shows up in syslog:
     log.info('Bango transaction: %s pending' % (transaction.pk,))
-    # TODO: replace with this line when logging works again.
-    #log.info('Created trans from Bango %s, uuid %s; pending'
-    #         % (transaction.pk, transaction.uuid))
+    # This does not! FIXME. bug 888075
+    log.info('Created trans from Bango %s, uuid %s; pending'
+             % (transaction.pk, transaction.uuid))
 
 
 @receiver(models.signals.post_save, dispatch_uid='time_status_change',
