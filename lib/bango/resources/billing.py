@@ -123,9 +123,8 @@ class CreateBillingConfigurationResource(Resource):
         create_data = data.copy()
         create_data['transaction_uuid'] = data.pop('externalTransactionId')
         statsd.incr('solitude.pending_transactions')
-        # TODO: put this back when logging works again.
-        #log.info('Sending trans uuid %s from Bango config %s'
-        #         % (create_data['transaction_uuid'],
-        #            bundle.data['billingConfigurationId']))
+        log.info('Sending trans uuid %s from Bango config %s'
+                 % (create_data['transaction_uuid'],
+                    bundle.data['billingConfigurationId']))
         create.send(sender=self, bundle=bundle, data=create_data, form=form)
         return bundle
