@@ -123,7 +123,7 @@ class CreateBillingConfigurationResource(Resource):
         create_data = data.copy()
         create_data['transaction_uuid'] = data.pop('externalTransactionId')
         statsd.incr('solitude.pending_transactions')
-        log.info('Sending transaction uuid %s from Bango billing config ID %s'
+        log.info('Sending trans uuid %s from Bango config %s'
                  % (create_data['transaction_uuid'],
                     bundle.data['billingConfigurationId']))
         create.send(sender=self, bundle=bundle, data=create_data, form=form)
