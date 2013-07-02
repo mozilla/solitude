@@ -252,7 +252,7 @@ DJANGO_PARANOIA_REPORTERS = [
 # The number of PIN failures before we lock them out.
 PIN_FAILURES = 5
 # The amount of time before you can try it again in seconds.
-PIN_FAILURE_LENGTH = 600
+PIN_FAILURE_LENGTH = 300
 
 # Ensure that sensitive data in the JSON is filtered out.
 RAVEN_CONFIG = {
