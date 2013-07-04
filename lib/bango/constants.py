@@ -1,6 +1,19 @@
 # -*- coding: utf8 -*-
 import re
 
+from solitude.base import invert
+
+STATUS_UNKNOWN = 0
+STATUS_GOOD = 1
+STATUS_BAD = 2
+STATUSES = {
+    'unknown': STATUS_UNKNOWN,
+    'good': STATUS_GOOD,
+    'bad': STATUS_BAD,
+}
+
+STATUS_CHOICES = invert(STATUSES)
+
 ACCESS_DENIED = 'ACCESS_DENIED'
 ALREADY_REFUNDED = 'ALREADY_REFUNDED'
 BANGO_ALREADY_PREMIUM_ENABLED = 'BANGO_ALREADY_PREMIUM_ENABLED'

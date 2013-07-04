@@ -43,10 +43,26 @@ class CreateBillingConfigurationResource(Resource):
         if not form.is_valid():
             raise self.form_errors(form)
 
+        data = form.bango_data
+        resp = self.call(form)
+
+        bundle.data = {'responseCode': resp.responseCode,
+                       'responseMessage': resp.responseMessage,
+                       'billingConfigurationId': resp.billingConfigurationId}
+
+        create_data = data.copy()
+        create_data['transaction_uuid'] = data.pop('externalTransactionId')
+        statsd.incr('solitude.pending_transactions')
+        log.info('Sending trans uuid %s from Bango config %s'
+                 % (create_data['transaction_uuid'],
+                    bundle.data['billingConfigurationId']))
+        create.send(sender=self, bundle=bundle, data=create_data, form=form)
+        return bundle
+
+    def call(self, form):
+        data = form.bango_data
         client = get_client()
         billing = client.client('billing')
-        data = form.bango_data
-
         usd_price = None
         price_list = billing.factory.create('ArrayOfPrice')
         for item in form.cleaned_data['prices']:
@@ -115,16 +131,4 @@ class CreateBillingConfigurationResource(Resource):
             config.BillingConfigurationOption.append(opt)
 
         data['configurationOptions'] = config
-        resp = self.client('CreateBillingConfiguration', data)
-        bundle.data = {'responseCode': resp.responseCode,
-                       'responseMessage': resp.responseMessage,
-                       'billingConfigurationId': resp.billingConfigurationId}
-
-        create_data = data.copy()
-        create_data['transaction_uuid'] = data.pop('externalTransactionId')
-        statsd.incr('solitude.pending_transactions')
-        log.info('Sending trans uuid %s from Bango config %s'
-                 % (create_data['transaction_uuid'],
-                    bundle.data['billingConfigurationId']))
-        create.send(sender=self, bundle=bundle, data=create_data, form=form)
-        return bundle
+        return self.client('CreateBillingConfiguration', data)

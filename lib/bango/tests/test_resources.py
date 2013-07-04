@@ -5,11 +5,11 @@ from decimal import Decimal
 
 from django import test
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 import mock
 from nose.tools import eq_, ok_, raises
 
-from lib.bango.constants import MICRO_PAYMENT_TYPES, PAYMENT_TYPES
 from lib.sellers.models import (Seller, SellerBango, SellerProduct,
                                 SellerProductBango)
 from lib.sellers.tests.utils import make_seller_paypal
@@ -21,12 +21,14 @@ from lib.transactions.models import Transaction
 from solitude.base import APITest, Resource as BaseResource
 
 from ..constants import (ALREADY_REFUNDED, BANGO_ALREADY_PREMIUM_ENABLED,
-                         CANT_REFUND, INTERNAL_ERROR, OK, PENDING,
-                         SBI_ALREADY_ACCEPTED)
+                         CANT_REFUND, INTERNAL_ERROR, MICRO_PAYMENT_TYPES, OK,
+                         PAYMENT_TYPES, PENDING, SBI_ALREADY_ACCEPTED,
+                         STATUS_BAD, STATUS_GOOD, STATUS_UNKNOWN)
 from ..client import ClientMock
 from ..errors import BangoError
 from ..resources.refund import RefundResource
 from ..resources.cached import BangoResource, SimpleResource
+from ..resources.status import Status, StatusSerializer
 
 import samples
 
@@ -835,3 +837,46 @@ class TestResource(test.TestCase):
     def test_faked(self):
         res = self.res.get_client({'fake_response': {'responseCode': 'foo'}})
         eq_(res.mock_results('foo')['responseCode'], 'foo')
+
+
+class TestStatus(SellerProductBangoBase):
+
+    def setUp(self):
+        super(TestStatus, self).setUp()
+        self.url = reverse('status-list')
+        self.create()
+
+    def data(self, overrides=None):
+        print self.seller_product_bango_uri
+        default = {'seller_product_bango': self.seller_product_bango_uri}
+        if overrides:
+            default.update(overrides)
+        return default
+
+    def test_serializer(self):
+        serializer = StatusSerializer(data=self.data())
+        ok_(serializer.is_valid())
+
+    @mock.patch('lib.bango.forms.CreateBillingConfigurationForm.is_valid')
+    def test_form_error(self, is_valid):
+        is_valid.return_value = False
+        res = self.client.post(self.url, data=self.data())
+        eq_(res.status_code, 400)
+        status = Status.objects.all()[0]
+        eq_(status.status, STATUS_BAD)
+        eq_(json.loads(status.errors).keys(), ['form.errors'])
+
+    def test_good(self):
+        res = self.client.post(self.url, data=self.data())
+        eq_(res.status_code, 201, res.content)
+        status = Status.objects.all()[0]
+        eq_(status.status, STATUS_GOOD)
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_bad(self, mock_results):
+        mock_results.return_value = {'responseCode': 'NOPE',
+                                     'responseMessage': 'wat?'}
+        res = self.client.post(self.url, data=self.data())
+        eq_(res.status_code, 201, res.content)
+        status = Status.objects.all()[0]
+        eq_(status.status, STATUS_BAD)

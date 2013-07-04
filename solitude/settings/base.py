@@ -63,7 +63,8 @@ else:
         'lib.buyers',
         'lib.sellers',
         'lib.transactions',
-        'lib.delayable'
+        'lib.delayable',
+        'lib.bango',
     )
 
 TEST_RUNNER = 'test_utils.runner.RadicalTestSuiteRunner'
