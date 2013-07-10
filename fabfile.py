@@ -22,11 +22,9 @@ import fabdeploytools.envs
 import deploysettings as settings
 
 env.key_filename = settings.SSH_KEY
-fabdeploytools.envs.loadenv(pjoin('/etc/deploytools/envs',
-                                  settings.CLUSTER))
+fabdeploytools.envs.loadenv(settings.CLUSTER)
 
-SOLITUDE = os.path.abspath(os.path.dirname(__file__))
-ROOT = os.path.dirname(SOLITUDE)
+ROOT, SOLITUDE = helpers.get_app_dirs(__file__)
 VIRTUALENV = pjoin(ROOT, 'venv')
 PYTHON = pjoin(VIRTUALENV, 'bin', 'python')
 
@@ -113,13 +111,6 @@ def update():
 
 
 @task
-@roles('web', 'celery')
-@parallel
-def install_package(rpmbuild):
-    rpmbuild.install_package()
-
-
-@task
 @roles('web')
 @parallel
 def restart_workers():
@@ -128,20 +119,16 @@ def restart_workers():
 
 @task
 def deploy():
-    with lcd(SOLITUDE):
-        ref = local('git rev-parse HEAD', capture=True)
+    helpers.deploy(name='solitude',
+                   env=settings.ENV,
+                   cluster=settings.CLUSTER,
+                   domain=settings.DOMAIN,
+                   root=ROOT,
+                   deploy_roles=['web', 'celery'],
+                   package_dirs=['solitude', 'venv'])
 
-    rpmbuild = RPMBuild(name='zamboni',
-                        env=settings.ENV,
-                        ref=ref,
-                        cluster=settings.CLUSTER,
-                        domain=settings.DOMAIN)
-
-    rpmbuild.build_rpm(ROOT)
-    execute(install_package, rpmbuild)
     execute(restart_workers)
     execute(update_celery)
-    rpmbuild.clean()
 
     execute(install_cron)
     with lcd(SOLITUDE):
