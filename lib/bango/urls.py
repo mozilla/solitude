@@ -7,7 +7,7 @@ from .resources.notification import EventResource, NotificationResource
 from .resources.package import BangoProductResource, PackageResource
 from .resources.refund import RefundResource
 from .resources.sbi import SBIResource
-from .resources.status import StatusViewSet
+from .resources.status import DebugViewSet, StatusViewSet
 
 bango = Api(api_name='bango')
 for lib in (CreateBillingConfigurationResource,
@@ -23,5 +23,8 @@ for lib in (CreateBillingConfigurationResource,
     bango.register(lib())
 
 
+# TODO: would be nice to have these a sub objects of the
+# bango package instead of being on their own.
 bango_drf = SimpleRouter()
 bango_drf.register('status', StatusViewSet)
+bango_drf.register('debug', DebugViewSet, base_name='debug')

@@ -14,21 +14,21 @@ from lib.sellers.models import (Seller, SellerBango, SellerProduct,
                                 SellerProductBango)
 from lib.sellers.tests.utils import make_seller_paypal
 from lib.transactions import constants
-from lib.transactions.constants import (SOURCE_PAYPAL, STATUS_CANCELLED,
-                                        STATUS_COMPLETED, STATUS_PENDING,
-                                        TYPE_REFUND)
+from lib.transactions.constants import (SOURCE_BANGO, SOURCE_PAYPAL,
+                                        STATUS_CANCELLED, STATUS_COMPLETED,
+                                        STATUS_PENDING, TYPE_REFUND)
 from lib.transactions.models import Transaction
 from solitude.base import APITest, Resource as BaseResource
 
 from ..constants import (ALREADY_REFUNDED, BANGO_ALREADY_PREMIUM_ENABLED,
                          CANT_REFUND, INTERNAL_ERROR, MICRO_PAYMENT_TYPES, OK,
                          PAYMENT_TYPES, PENDING, SBI_ALREADY_ACCEPTED,
-                         STATUS_BAD, STATUS_GOOD, STATUS_UNKNOWN)
+                         STATUS_BAD, STATUS_GOOD)
 from ..client import ClientMock
 from ..errors import BangoError
 from ..resources.refund import RefundResource
 from ..resources.cached import BangoResource, SimpleResource
-from ..resources.status import Status, StatusSerializer
+from ..resources.status import DebugSerializer, Status, StatusSerializer
 
 import samples
 
@@ -847,7 +847,6 @@ class TestStatus(SellerProductBangoBase):
         self.create()
 
     def data(self, overrides=None):
-        print self.seller_product_bango_uri
         default = {'seller_product_bango': self.seller_product_bango_uri}
         if overrides:
             default.update(overrides)
@@ -880,3 +879,43 @@ class TestStatus(SellerProductBangoBase):
         eq_(res.status_code, 201, res.content)
         status = Status.objects.all()[0]
         eq_(status.status, STATUS_BAD)
+
+
+class TestDebug(SellerProductBangoBase):
+
+    def setUp(self):
+        super(TestDebug, self).setUp()
+        self.url = reverse('debug-list')
+        self.create()
+
+    def data(self, overrides=None):
+        print self.seller_product_bango_uri
+        default = {'seller_product_bango': self.seller_product_bango_uri}
+        if overrides:
+            default.update(overrides)
+        return default
+
+    def test_serializer(self):
+        serializer = DebugSerializer(data=self.data())
+        ok_(serializer.is_valid())
+
+    def test_good(self):
+        res = self.client.get_with_body(self.url, data=self.data())
+        eq_(res.status_code, 200, res.content)
+        data = json.loads(res.content)
+        eq_(data['bango']['last_status'], {})
+        eq_(data['bango']['last_transaction'], {})
+        eq_(data['bango']['bango_id'], 'some-123')
+        eq_(data['bango']['package_id'], 1)
+
+    def test_full(self):
+        self.seller_product_bango.status.create(status=STATUS_GOOD)
+        self.seller_product.transaction_set.create(status=STATUS_PENDING,
+                                                   provider=SOURCE_BANGO)
+        res = self.client.get_with_body(self.url, data=self.data())
+        eq_(res.status_code, 200, res.content)
+        data = json.loads(res.content)
+        eq_(data['bango']['last_status'],
+            {'status': STATUS_GOOD, 'url': '/bango/status/1/'})
+        eq_(data['bango']['last_transaction'],
+            {'status': STATUS_PENDING, 'url': '/generic/transaction/1/'})

@@ -441,6 +441,7 @@ class Model(models.Model):
     class Meta:
         abstract = True
         ordering = ('-created',)
+        get_latest_by = 'created'
 
     def reget(self):
         return self.__class__.objects.get(pk=self.pk)

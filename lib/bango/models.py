@@ -12,7 +12,7 @@ class Status(Model):
                                  default=STATUS_UNKNOWN)
     errors = models.TextField()
     seller_product_bango = models.ForeignKey(SellerProductBango,
-                                             related_name='product')
+                                             related_name='status')
 
     class Meta(Model.Meta):
         db_table = 'status_bango'
