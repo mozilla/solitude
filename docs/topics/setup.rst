@@ -17,7 +17,12 @@ Requirements
 If you don't have Python or MySQL installed. On OS X, homebrew_ is
 recommended::
 
-        brew install python mysql
+    brew install python mysql
+
+Don't forget to set the default mysql password for your `root` user
+in that case (an empty password is possible)::
+
+    mysql -uroot -p
 
 Optionally install a virtualenv_.
 
@@ -75,19 +80,14 @@ copy into `local.py` and point to a file that makes sense for your install. For
 example::
 
     AES_KEYS = {
-        # For the purposes of testing, let's set these to the same
-        # values.
-        'buyerpaypal:key': 'foo.key',
-        'sellerpaypal:id': 'foo.key',
-        'sellerpaypal:token': 'foo.key',
-        'sellerpaypal:secret': 'foo.key',
-        'sellerproduct:secret': 'foo.key',
-        'bango:signature': 'foo.key',
+        'buyerpaypal:key': 'buyerpaypal_key.key',
+        'sellerpaypal:id': 'sellerpaypal_id.key',
+        'sellerpaypal:token': 'sellerpaypal_token.key',
+        'sellerpaypal:secret': 'sellerpaypal_secret.key',
+        'sellerproduct:secret': 'sellerproduct_secret.key',
+        'bango:signature': 'bango_signature.key',
     }
 
-Then run::
-
-    python manage.py generate_aes_keys
 
 PayPal settings
 ~~~~~~~~~~~~~~~
@@ -171,22 +171,27 @@ Then run::
 
 This should set up your database.
 
+Now you can generate previously configured `.key` files::
+
+    python manage.py generate_aes_keys
+
 If you can run the server by doing the following::
 
     python manage.py runserver localhost:9000
 
 And then::
 
-    curl http://localhost:9000/services/
+    curl http://localhost:9000/services/status/
 
-You should get a response like this:
+You should get a response similar to this:
 
 .. code-block:: javascript
 
-    {"error": {"list_endpoint": "/services/error/",
-               "schema": "/services/error/schema/"},
-     "settings": {"list_endpoint": "/services/settings/",
-                  "schema": "/services/settings/schema/"}
+    {
+        "cache": true,
+        "proxies": true,
+        "db": true,
+        "settings": true
     }
 
 Running on Stackato

@@ -17,5 +17,5 @@ build
 tmp/*
 *~
 *.mo
-foo.key
+*.key
 docs/_build
