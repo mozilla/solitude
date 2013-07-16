@@ -889,7 +889,6 @@ class TestDebug(SellerProductBangoBase):
         self.create()
 
     def data(self, overrides=None):
-        print self.seller_product_bango_uri
         default = {'seller_product_bango': self.seller_product_bango_uri}
         if overrides:
             default.update(overrides)
@@ -909,13 +908,15 @@ class TestDebug(SellerProductBangoBase):
         eq_(data['bango']['package_id'], 1)
 
     def test_full(self):
-        self.seller_product_bango.status.create(status=STATUS_GOOD)
-        self.seller_product.transaction_set.create(status=STATUS_PENDING,
-                                                   provider=SOURCE_BANGO)
+        status = self.seller_product_bango.status.create(status=STATUS_GOOD)
+        trans = self.seller_product.transaction_set.create(
+            status=STATUS_PENDING, provider=SOURCE_BANGO)
         res = self.client.get_with_body(self.url, data=self.data())
         eq_(res.status_code, 200, res.content)
         data = json.loads(res.content)
         eq_(data['bango']['last_status'],
-            {'status': STATUS_GOOD, 'url': '/bango/status/1/'})
+            {'status': STATUS_GOOD, 'url': reverse('status-detail',
+                                                   kwargs={'pk': status.pk})})
         eq_(data['bango']['last_transaction'],
-            {'status': STATUS_PENDING, 'url': '/generic/transaction/1/'})
+            {'status': STATUS_PENDING,
+             'url': '/generic/transaction/%s/' % trans.pk})
