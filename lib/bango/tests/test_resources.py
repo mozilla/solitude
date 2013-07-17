@@ -31,21 +31,26 @@ from ..resources.cached import BangoResource, SimpleResource
 from ..resources.status import DebugSerializer, Status, StatusSerializer
 
 import samples
+import utils
 
 
 class BangoAPI(APITest):
     api_name = 'bango'
     uuid = 'foo:uuid'
 
-    def create(self):
-        self.seller = Seller.objects.create(uuid=self.uuid)
-        self.seller_bango = SellerBango.objects.create(seller=self.seller,
-                                package_id=1, admin_person_id=3,
-                                support_person_id=3, finance_person_id=4)
+    def create(self, without_product_bango=False):
+        """
+        The `without_product_bango` boolean is useful to test
+        `SellerProductBango` objects creation and duplicates.
+        """
+        self.sellers = utils.make_sellers(uuid=self.uuid)
+        self.seller = self.sellers.seller
+        self.seller_bango = self.sellers.bango
+        self.seller_product = self.sellers.product
+        if without_product_bango:
+            self.sellers.product_bango.delete()
         self.seller_bango_uri = self.get_detail_url('package',
                                                     self.seller_bango.pk)
-        self.seller_product = SellerProduct.objects.create(seller=self.seller,
-                                                           external_id='xyz')
         self.seller_product_uri = self.get_detail_url('product',
                                                       self.seller_product.pk,
                                                       api_name='generic')
@@ -276,7 +281,7 @@ class TestBangoProduct(BangoAPI):
         self.allowed_verbs(self.list_url, ['post', 'get'])
 
     def test_create(self):
-        self.create()
+        self.create(without_product_bango=True)
         data = samples.good_bango_number
         data['seller_product'] = ('/generic/product/%s/' %
                                   self.seller_product.pk)
@@ -291,7 +296,7 @@ class TestBangoProduct(BangoAPI):
 
     def test_create_multiple(self):
         # Just a generic test to ensure that multiple posts are 400.
-        self.create()
+        self.create(without_product_bango=True)
         data = samples.good_bango_number
         data['seller_product'] = ('/generic/product/%s/' %
                                   self.seller_product.pk)
@@ -312,11 +317,7 @@ class TestBangoProduct(BangoAPI):
                                           seller_bango=self.seller_bango,
                                           bango_id='999999')
 
-        # This is the product we want to fetch.
-        SellerProductBango.objects.create(seller_product=self.seller_product,
-                                          seller_bango=self.seller_bango,
-                                          bango_id='1234')
-
+        # We should only fetch the product created in dynamic fixtures.
         res = self.client.get(self.list_url, data=dict(
             seller_product__seller=self.seller.pk,
             seller_product__external_id=self.seller_product.external_id
@@ -325,17 +326,14 @@ class TestBangoProduct(BangoAPI):
         eq_(res.status_code, 200, res.content)
         data = json.loads(res.content)
         eq_(data['meta']['total_count'], 1, data)
-        eq_(data['objects'][0]['bango_id'], '1234')
+        eq_(data['objects'][0]['bango_id'], 'sample:bangoid')
 
 
 class SellerProductBangoBase(BangoAPI):
 
     def create(self):
         super(SellerProductBangoBase, self).create()
-        self.seller_product_bango = SellerProductBango.objects.create(
-                                        seller_product=self.seller_product,
-                                        seller_bango=self.seller_bango,
-                                        bango_id='some-123')
+        self.seller_product_bango = self.sellers.product_bango
         self.seller_product_bango_uri = ('/bango/product/%s/' %
                                          self.seller_product_bango.pk)
 
@@ -904,7 +902,7 @@ class TestDebug(SellerProductBangoBase):
         data = json.loads(res.content)
         eq_(data['bango']['last_status'], {})
         eq_(data['bango']['last_transaction'], {})
-        eq_(data['bango']['bango_id'], 'some-123')
+        eq_(data['bango']['bango_id'], 'sample:bangoid')
         eq_(data['bango']['package_id'], 1)
 
     def test_full(self):

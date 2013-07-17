@@ -18,6 +18,7 @@ from ..constants import CANCEL
 from ..utils import sign
 
 import samples
+import utils
 
 
 class TestNotification(APITest):
@@ -25,9 +26,9 @@ class TestNotification(APITest):
 
     def setUp(self):
         self.trans_uuid = 'some-transaction-uid'
-        self.seller = Seller.objects.create(uuid='seller-uuid')
-        self.product = SellerProduct.objects.create(seller=self.seller,
-                                                    external_id='xyz')
+        sellers = utils.make_sellers(uuid='seller-uuid')
+        self.seller = sellers.seller
+        self.product = sellers.product
         self.trans = Transaction.objects.create(
             amount=1, provider=constants.SOURCE_BANGO,
             seller_product=self.product,

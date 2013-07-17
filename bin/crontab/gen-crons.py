@@ -22,7 +22,6 @@ def main():
         parser.error('-w must be defined')
 
     ctx = {'django': 'cd %s; %s manage.py' % (opts.webapp, opts.python)}
-    ctx['cron'] = '%s cron' % ctx['django']
 
     if opts.user:
         for k, v in ctx.iteritems():
