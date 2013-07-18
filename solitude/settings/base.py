@@ -279,6 +279,10 @@ SEND_USER_ID_TO_BANGO = False
 # The API can indeed be slow, see bug 883389.
 BANGO_TIMEOUT = 30
 
+# Time in days after which Bango statuses will be cleaned by the
+# `clean_statuses` command.
+BANGO_STATUSES_LIFETIME = 30
+
 REST_FRAMEWORK = {
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
