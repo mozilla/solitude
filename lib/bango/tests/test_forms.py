@@ -5,7 +5,7 @@ from django.conf import settings
 import mock
 from nose.tools import eq_, ok_
 
-from ..forms import (CreateBankDetailsForm,
+from ..forms import (CreateBankDetailsForm, CreateBillingConfigurationForm,
                      CreateBillingConfigurationForm as BillingForm, EventForm,
                      PackageForm, PriceForm, VatNumberForm)
 from .samples import (event_notification, good_address, good_bank_details,
@@ -14,6 +14,8 @@ from lib.sellers.models import Seller, SellerProduct
 from lib.transactions import constants
 from lib.transactions.models import Transaction
 from solitude.base import APITest
+
+import samples
 
 
 @mock.patch('lib.bango.forms.URLField.clean')
@@ -94,6 +96,19 @@ class TestPackage(APITest):
             form = PackageForm(good_address)
             ok_(form.is_valid())
             eq_(form.bango_data['eventNotificationURL'], 'http://f.com')
+
+    def compute_application_size(self, data, submitted_size, computed_size):
+        data['application_size'] = submitted_size
+        form = CreateBillingConfigurationForm(data)
+        ok_(form.is_valid())
+        eq_(form.bango_data['application_size'], computed_size)
+
+    def test_submit_bango_number_with_application_size(self, clean):
+        data = samples.good_billing_request
+        data['transaction_uuid'] = 'foo'
+        self.compute_application_size(data, None, 1)
+        self.compute_application_size(data, 300, 1)
+        self.compute_application_size(data, 388096, 379)
 
 
 class TestVat(APITest):

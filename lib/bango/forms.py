@@ -152,7 +152,6 @@ class CreateBangoNumberForm(forms.Form):
     @property
     def bango_data(self):
         result = self.cleaned_data.copy()
-        result['applicationSize'] = 1
         result['packageId'] = result['seller_bango'].package_id
         del result['seller_bango']
         del result['seller_product']
@@ -198,11 +197,16 @@ class CreateBillingConfigurationForm(SellerProductForm):
     transaction_uuid = forms.CharField()
     user_uuid = forms.CharField()
     icon_url = forms.URLField(required=False)
+    application_size = forms.IntegerField(required=False)  # In bytes.
 
     @property
     def bango_data(self):
         data = super(CreateBillingConfigurationForm, self).bango_data
         data['externalTransactionId'] = data.pop('transaction_uuid')
+        # Converting the application size in rounded kilobytes (default = 1).
+        application_size = data.get('application_size', 1) or 1
+        application_size = long(application_size) / 1024 or 1
+        data['application_size'] = int(application_size)
         del data['prices']
         return data
 
