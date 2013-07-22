@@ -6,7 +6,7 @@ Solitude
 Solitude is a payments server for processing payments for Mozilla's Marketplace
 and Addons site.
 
-.. image:: http://breweryvivant.com/images/sized/images/uploads/solitude-logo-lg_1-250x349.png
+.. image:: http://breweryvivant.com/images/made/images/uploads/solitude-logo-lg_1_250_349_c1.png
         :align: right
         :target: http://breweryvivant.com/index.php/the-beer/packaged-beer/solitude/
 
