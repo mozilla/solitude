@@ -1,0 +1,10 @@
+ALTER TABLE `buyer` ADD COLUMN `counter` bigint(20) NULL DEFAULT 0;
+ALTER TABLE `buyer_paypal` ADD COLUMN `counter` bigint(20) NULL DEFAULT 0;
+ALTER TABLE `delayable` ADD COLUMN `counter` bigint(20) NULL DEFAULT 0;
+ALTER TABLE `seller` ADD COLUMN `counter` bigint(20) NULL DEFAULT 0;
+ALTER TABLE `seller_bango` ADD COLUMN `counter` bigint(20) NULL DEFAULT 0;
+ALTER TABLE `seller_paypal` ADD COLUMN `counter` bigint(20) NULL DEFAULT 0;
+ALTER TABLE `seller_product` ADD COLUMN `counter` bigint(20) NULL DEFAULT 0;
+ALTER TABLE `seller_product_bango` ADD COLUMN `counter` bigint(20) NULL DEFAULT 0;
+ALTER TABLE `status_bango` ADD COLUMN `counter` bigint(20) NULL DEFAULT 0;
+ALTER TABLE `transaction` ADD COLUMN `counter` bigint(20) NULL DEFAULT 0;

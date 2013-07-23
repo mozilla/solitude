@@ -3,14 +3,22 @@ import json
 import sys
 import traceback
 import uuid
+import warnings
+from hashlib import md5
 
 from django.conf import settings
 from django.core.cache import cache
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.urlresolvers import resolve, reverse
 from django.db import models, transaction
+from django.db.models import F
+from django.db.models.query import QuerySet
 from django.db.models.sql.constants import LOOKUP_SEP, QUERY_TERMS
+from django.http import HttpResponse, Http404
 from django.test.client import Client
+from django.utils.decorators import method_decorator
 from django.views import debug
+from django.views.decorators.http import etag
 
 curlish = False
 try:
@@ -25,6 +33,8 @@ from cef import log_cef as _log_cef
 from solitude.patch import patch  # NOQA
 patch()
 
+from rest_framework import status
+from rest_framework.mixins import UpdateModelMixin as DJRUpdateModelMixin
 from rest_framework.relations import HyperlinkedRelatedField
 from rest_framework.response import Response
 
@@ -33,7 +43,8 @@ from tastypie.authorization import Authorization
 from tastypie.exceptions import ImmediateHttpResponse, InvalidFilterError
 from tastypie.fields import ToOneField
 from tastypie.resources import (ModelResource as TastyPieModelResource,
-                                Resource as TastyPieResource)
+                                Resource as TastyPieResource,
+                                convert_post_to_patch)
 from tastypie.utils import dict_strip_unicode_keys
 from tastypie.validation import FormValidation
 import test_utils
@@ -46,6 +57,38 @@ from solitude.logger import getLogger
 
 log = getLogger('s')
 tasty_log = getLogger('django.request.tastypie')
+
+
+def etag_func(request, data, *args, **kwargs):
+    if hasattr(request, 'initial_etag'):
+        all_etags = [str(request.initial_etag)]
+    else:
+        if data:
+            try:
+                objects = [data.obj]  # Detail case.
+            except AttributeError:
+                try:
+                    objects = data['objects']  # List case.
+                except (TypeError, KeyError):
+                    if isinstance(data, QuerySet):  # DRF case.
+                        objects = data
+                    else:
+                        return None
+        if objects:
+            try:
+                all_etags = [str(obj['etag']) for obj in objects]
+            except (TypeError, KeyError):
+                try:
+                    all_etags = [str(obj.etag) for obj in objects]
+                except AttributeError:
+                    try:
+                        all_etags = [str(bundle.obj.etag)
+                                     for bundle in objects]
+                    except AttributeError:
+                        return None
+        else:
+            return None
+    return md5(''.join(all_etags)).hexdigest()
 
 
 def colorize(colorname, text):
@@ -123,8 +166,8 @@ class APITest(test_utils.TestCase):
 
     def get_list_url(self, name, api_name=None):
         return reverse('api_dispatch_list',
-                        kwargs={'api_name': api_name or self.api_name,
-                                'resource_name': name})
+                       kwargs={'api_name': api_name or self.api_name,
+                               'resource_name': name})
 
     def get_detail_url(self, name, pk, api_name=None):
         pk = getattr(pk, 'pk', pk)
@@ -325,7 +368,7 @@ class BaseResource(object):
                     value = value.split(',')
 
             db_field_name = LOOKUP_SEP.join(lookup_bits)
-            qs_filter = "%s%s%s" % (db_field_name, LOOKUP_SEP, filter_type)
+            qs_filter = '%s%s%s' % (db_field_name, LOOKUP_SEP, filter_type)
             qs_filters[qs_filter] = value
 
         return dict_strip_unicode_keys(qs_filters)
@@ -345,9 +388,51 @@ class BaseResource(object):
         if 'resource_uri' in bundle.data or 'pk' in resolve(request.path)[2]:
             try:
                 bundle.obj = self.get_via_uri(request.path)
-            except BaseResource.DoesNotExist:
+                if request.method == 'PUT':
+                    # In case of a PUT modification, we need to keep
+                    # the initial values for the given object to check
+                    # the Etag header.
+                    request.initial_etag = getattr(bundle.obj, 'etag', '')
+            except ObjectDoesNotExist:
                 pass
         return super(BaseResource, self).is_valid(bundle, request)
+
+    @method_decorator(etag(etag_func))
+    def create_response(self, request, data, response_class=HttpResponse,
+                        **response_kwargs):
+        return super(BaseResource, self).create_response(request, data,
+                                                         response_class,
+                                                         **response_kwargs)
+
+    @method_decorator(etag(etag_func))
+    def create_patch_response(self, request, original_bundle, new_data):
+        self.update_in_place(request, original_bundle, new_data)
+        return http.HttpAccepted()
+
+    def patch_detail(self, request, **kwargs):
+        request = convert_post_to_patch(request)
+        try:
+            obj = self.cached_obj_get(request=request,
+                **self.remove_api_resource_names(kwargs))
+        except ObjectDoesNotExist:
+            return http.HttpNotFound()
+        except MultipleObjectsReturned:
+            return http.HttpMultipleChoices('More than one resource'
+                                            'is found at this URI.')
+
+        bundle = self.build_bundle(obj=obj, request=request)
+        bundle = self.full_dehydrate(bundle)
+        bundle = self.alter_detail_data_to_serialize(request, bundle)
+
+        # Now update the bundle in-place.
+        deserialized = self.deserialize(request, request.raw_post_data,
+            format=request.META.get('CONTENT_TYPE', 'application/json'))
+
+        # In case of a patch modification, we need to store
+        # the initial values for the given object to check
+        # the Etag header.
+        request.initial_etag = bundle.obj.etag
+        return self.create_patch_response(request, bundle, deserialized)
 
     def deserialize_body(self, request):
         # Trying to standardize on JSON in the body for most things if we
@@ -436,6 +521,7 @@ class ManagerBase(models.Manager):
 class Model(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+    counter = models.BigIntegerField(null=True, blank=True, default=0)
     objects = ManagerBase()
 
     class Meta:
@@ -445,6 +531,15 @@ class Model(models.Model):
 
     def reget(self):
         return self.__class__.objects.get(pk=self.pk)
+
+    def save(self, *args, **kw):
+        if self.pk:
+            self.counter = F('counter') + 1
+        super(Model, self).save(*args, **kw)
+
+    @property
+    def etag(self):
+        return md5('%s:%s' % (self.pk, self.counter)).hexdigest()
 
 
 def invert(data):
@@ -481,3 +576,90 @@ class CompatToOneField(ToOneField):
 
     def dehydrate_related(self, bundle, related_resource):
         return reverse(self.rest + '-detail', kwargs={'pk': bundle.obj.pk})
+
+
+class UpdateModelMixin(DJRUpdateModelMixin):
+    """
+    Turns the django-rest-framework mixin into an etag-aware one.
+    """
+    @method_decorator(etag(etag_func))
+    def update_response(self, request, data, serializer, save_kwargs,
+                        created, success_status_code):
+        self.pre_save(serializer.object)
+        self.object = serializer.save(**save_kwargs)
+        self.post_save(self.object, created=created)
+        return Response(serializer.data, status=success_status_code)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        self.object = self.get_object_or_none()
+
+        if self.object is None:
+            created = True
+            save_kwargs = {'force_insert': True}
+            success_status_code = status.HTTP_201_CREATED
+        else:
+            created = False
+            save_kwargs = {'force_update': True}
+            success_status_code = status.HTTP_200_OK
+
+        serializer = self.get_serializer(self.object, data=request.DATA,
+                                         files=request.FILES, partial=partial)
+
+        if serializer.is_valid():
+            request.initial_etag = serializer.object.etag
+            return self.update_response(request, serializer.object,
+                                        serializer, save_kwargs,
+                                        created, success_status_code)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ListModelMixin(object):
+    """
+    Turns the django-rest-framework mixin into an etag-aware one.
+    """
+    empty_error = "Empty list and '%(class_name)s.allow_empty' is False."
+
+    @method_decorator(etag(etag_func))
+    def list_response(self, request, data):
+        # Switch between paginated or standard style responses
+        page = self.paginate_queryset(self.object_list)
+        if page is not None:
+            serializer = self.get_pagination_serializer(page)
+        else:
+            serializer = self.get_serializer(self.object_list, many=True)
+
+        return Response(serializer.data)
+
+    def list(self, request, *args, **kwargs):
+        self.object_list = self.filter_queryset(self.get_queryset())
+
+        # Default is to allow empty querysets.  This can be altered by setting
+        # `.allow_empty = False`, to raise 404 errors on empty querysets.
+        if not self.allow_empty and not self.object_list:
+            warnings.warn(
+                'The `allow_empty` parameter is due to be deprecated. '
+                'To use `allow_empty=False` style behavior, You should override '
+                '`get_queryset()` and explicitly raise a 404 on empty querysets.',
+                PendingDeprecationWarning
+            )
+            class_name = self.__class__.__name__
+            error_msg = self.empty_error % {'class_name': class_name}
+            raise Http404(error_msg)
+
+        return self.list_response(request, self.object_list)
+
+
+class RetrieveModelMixin(object):
+    """
+    Turns the django-rest-framework mixin into an etag-aware one.
+    """
+    @method_decorator(etag(etag_func))
+    def retrieve_response(self, request, data):
+        return Response(data)
+
+    def retrieve(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = self.get_serializer(self.object)
+        return self.retrieve_response(request, serializer.data)

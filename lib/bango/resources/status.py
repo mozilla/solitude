@@ -6,8 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 
 from rest_framework.exceptions import ParseError
-from rest_framework.mixins import (CreateModelMixin, ListModelMixin,
-                                   RetrieveModelMixin)
+from rest_framework.mixins import CreateModelMixin
 from rest_framework.response import Response
 from rest_framework.serializers import HyperlinkedModelSerializer, Serializer
 from rest_framework.viewsets import GenericViewSet, ViewSet
@@ -20,7 +19,8 @@ from lib.bango.resources.billing import CreateBillingConfigurationResource
 from lib.sellers.models import SellerProductBango
 from lib.transactions.constants import SOURCE_BANGO
 
-from solitude.base import CompatRelatedField
+from solitude.base import (CompatRelatedField, ListModelMixin,
+    RetrieveModelMixin)
 from solitude.logger import getLogger
 
 log = getLogger('s.bango')

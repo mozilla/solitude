@@ -2,6 +2,7 @@
 import contextlib
 import json
 from decimal import Decimal
+from hashlib import md5
 
 from django import test
 from django.conf import settings
@@ -865,6 +866,19 @@ class TestStatus(SellerProductBangoBase):
     def test_serializer(self):
         serializer = StatusSerializer(data=self.data())
         ok_(serializer.is_valid())
+
+    def test_etags(self):
+        status = Status.objects.create(
+            seller_product_bango=self.seller_product_bango)
+        res = self.client.get(self.url)
+        eq_(res.status_code, 200)
+        assert 'etag' in res._headers
+        eq_(md5(status.etag).hexdigest(),
+            res._headers['etag'][1][1:-1])
+        etag = res._headers['etag'][1][1:-1]
+        res = self.client.get(self.url,
+                              HTTP_IF_NONE_MATCH=etag)
+        eq_(res.status_code, 304)
 
     @mock.patch('lib.bango.forms.CreateBillingConfigurationForm.is_valid')
     def test_form_error(self, is_valid):

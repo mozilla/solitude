@@ -50,6 +50,7 @@ if os.environ.get('MEMCACHE_URL'):
 LOCALE_PATHS = ()
 USE_I18N = False
 USE_L10N = False
+USE_ETAGS = True
 
 SOLITUDE_PROXY = os.environ.get('SOLITUDE_PROXY', 'disabled') == 'enabled'
 if SOLITUDE_PROXY:
