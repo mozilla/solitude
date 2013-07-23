@@ -462,6 +462,17 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         eq_(res.status_code, 201, res.content)
         assert 'billingConfigurationId' in json.loads(res.content)
 
+    def test_twice(self):
+        data = self.good()
+        eq_(self.client.post(self.list_url, data=data).status_code, 201)
+        eq_(self.client.post(self.list_url, data=data).status_code, 400)
+
+    def test_twice_force_create(self):
+        data = self.good()
+        Transaction.objects.all().delete()
+        eq_(self.client.post(self.list_url, data=data).status_code, 201)
+        eq_(self.client.post(self.list_url, data=data).status_code, 400)
+
     @mock.patch.object(settings, 'BANGO_MAX_MICRO_AMOUNT', Decimal('0.99'))
     @mock.patch('lib.bango.resources.billing'
                 '.CreateBillingConfigurationResource.client')

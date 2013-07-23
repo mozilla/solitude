@@ -135,6 +135,7 @@ def create_bango_transaction(sender, **kwargs):
         status=constants.STATUS_RECEIVED,
         provider=constants.SOURCE_BANGO,
         seller_product=seller_product)
+
     transaction.source = data.get('source', '')
     # uid_support will be set with the transaction id.
     # uid_pay is the uid of the billingConfiguration request.
@@ -148,6 +149,7 @@ def create_bango_transaction(sender, **kwargs):
     # This does not! FIXME. bug 888075
     log.info('Created trans from Bango %s, uuid %s; pending'
              % (transaction.pk, transaction.uuid))
+    statsd.incr('solitude.pending_transactions')
 
 
 @receiver(models.signals.post_save, dispatch_uid='time_status_change',
