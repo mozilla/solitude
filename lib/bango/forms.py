@@ -13,7 +13,7 @@ from lib.bango.constants import (COUNTRIES, CURRENCIES, INVALID_PERSON, OK,
 from lib.bango.utils import verify_sig
 from lib.sellers.models import SellerProductBango
 from lib.transactions.constants import (SOURCE_BANGO, STATUS_COMPLETED,
-                                        STATUS_RECEIVED, TYPE_PAYMENT,
+                                        STATUS_PENDING, TYPE_PAYMENT,
                                         TYPE_REFUND)
 from lib.transactions.forms import check_status
 from lib.transactions.models import Transaction
@@ -231,7 +231,7 @@ class CreateBillingConfigurationForm(SellerProductForm):
 
     def clean_transaction_uuid(self):
         uuid = self.cleaned_data['transaction_uuid']
-        if Transaction.objects.filter(~Q(status=STATUS_RECEIVED)
+        if Transaction.objects.filter(~Q(status=STATUS_PENDING)
                                       & Q(uuid=uuid)).exists():
             # In this case one will not be created.
             raise forms.ValidationError('Transaction already exists '
