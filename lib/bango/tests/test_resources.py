@@ -461,6 +461,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         res = self.client.post(self.list_url, data=self.good())
         eq_(res.status_code, 201, res.content)
         assert 'billingConfigurationId' in json.loads(res.content)
+        assert 'application_size' not in json.loads(res.content)
 
     @mock.patch.object(settings, 'BANGO_MAX_MICRO_AMOUNT', Decimal('0.99'))
     @mock.patch('lib.bango.resources.billing'
