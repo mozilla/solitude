@@ -107,7 +107,7 @@ class CreateBillingConfigurationResource(Resource):
         config = billing.factory.create('ArrayOfBillingConfigurationOption')
         configs = {
             'APPLICATION_CATEGORY_ID': '18',
-            'APPLICATION_SIZE_KB': data['application_size'],
+            'APPLICATION_SIZE_KB': data.pop('application_size'),
             # Tell Bango to use our same transaction expiry logic.
             # However, we pad it by 60 seconds to show a prettier Mozilla user
             # error in the case of a real timeout.
