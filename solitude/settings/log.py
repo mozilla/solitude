@@ -1,5 +1,7 @@
 import logging.handlers
 import socket
+import sys
+import traceback
 
 
 class UnicodeHandler(logging.handlers.SysLogHandler):
@@ -34,4 +36,6 @@ class UnicodeHandler(logging.handlers.SysLogHandler):
         except (KeyboardInterrupt, SystemExit):
             raise
         except:
+            sys.stderr.write('UnicodeHandler traceback:\n')
+            traceback.print_exc()
             self.handleError(record)
