@@ -16,7 +16,8 @@ from lib.sellers.tests.utils import make_seller_paypal
 from lib.transactions import constants
 from lib.transactions.constants import (SOURCE_BANGO, SOURCE_PAYPAL,
                                         STATUS_CANCELLED, STATUS_COMPLETED,
-                                        STATUS_PENDING, TYPE_REFUND)
+                                        STATUS_PENDING, STATUS_RECEIVED,
+                                        TYPE_REFUND)
 from lib.transactions.models import Transaction
 from solitude.base import APITest, Resource as BaseResource
 
@@ -437,17 +438,19 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
 
     def create(self):
         super(TestCreateBillingConfiguration, self).create()
+
+    def create_trans(self):
         self.transaction = Transaction.objects.create(
             provider=constants.SOURCE_BANGO,
             seller_product=self.seller_product,
-            status=constants.STATUS_RECEIVED,
+            status=constants.STATUS_PENDING,
             uuid=self.uuid)
 
     def good(self):
         self.create()
         data = samples.good_billing_request.copy()
         data['seller_product_bango'] = self.seller_product_bango_uri
-        data['transaction_uuid'] = self.transaction.uuid
+        data['transaction_uuid'] = self.uuid
         return data
 
     @contextlib.contextmanager
@@ -462,6 +465,19 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         eq_(res.status_code, 201, res.content)
         assert 'billingConfigurationId' in json.loads(res.content)
         assert 'application_size' not in json.loads(res.content)
+
+    def test_twice(self):
+        data = self.good()
+        eq_(self.client.post(self.list_url, data=data).status_code, 201)
+        eq_(Transaction.objects.get(uuid=self.uuid).status, STATUS_RECEIVED)
+        eq_(self.client.post(self.list_url, data=data).status_code, 400)
+
+    def test_already_created(self):
+        data = self.good()
+        self.create_trans()
+        eq_(Transaction.objects.get(uuid=self.uuid).status, STATUS_PENDING)
+        eq_(self.client.post(self.list_url, data=data).status_code, 201)
+        eq_(Transaction.objects.get(uuid=self.uuid).status, STATUS_RECEIVED)
 
     @mock.patch.object(settings, 'BANGO_MAX_MICRO_AMOUNT', Decimal('0.99'))
     @mock.patch('lib.bango.resources.billing'
@@ -514,6 +530,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
 
     def test_create_trans_if_not_existing(self):
         data = self.good()
+        self.create_trans()
         data['transaction_uuid'] = '<some-new-trans-uuid>'
         self.transaction.provider = constants.SOURCE_PAYPAL
         self.transaction.save()
@@ -528,7 +545,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         transactions = Transaction.objects.all()
         eq_(len(transactions), 1)
         transaction = transactions[0]
-        eq_(transaction.status, constants.STATUS_PENDING)
+        eq_(transaction.status, constants.STATUS_RECEIVED)
         eq_(transaction.type, constants.TYPE_PAYMENT)
         ok_(transaction.uid_pay)
         eq_(transaction.uid_support, None)

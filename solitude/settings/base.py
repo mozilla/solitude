@@ -272,7 +272,7 @@ BANGO_FAKE_REFUNDS = False
 BANGO_ICON_URLS = True
 
 # When True, send MOZ_USER_ID to Bango in the billing config task.
-SEND_USER_ID_TO_BANGO = False
+SEND_USER_ID_TO_BANGO = True
 
 # Time in seconds after which a Bango API request will be aborted.
 # We can deal with slow requests because we mostly use background tasks.

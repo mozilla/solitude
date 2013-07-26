@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from django import forms
 from django.conf import settings
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
 from lxml import etree
@@ -12,7 +13,8 @@ from lib.bango.constants import (COUNTRIES, CURRENCIES, INVALID_PERSON, OK,
 from lib.bango.utils import verify_sig
 from lib.sellers.models import SellerProductBango
 from lib.transactions.constants import (SOURCE_BANGO, STATUS_COMPLETED,
-                                        TYPE_PAYMENT, TYPE_REFUND)
+                                        STATUS_PENDING, TYPE_PAYMENT,
+                                        TYPE_REFUND)
 from lib.transactions.forms import check_status
 from lib.transactions.models import Transaction
 
@@ -226,6 +228,15 @@ class CreateBillingConfigurationForm(SellerProductForm):
             raise forms.ValidationError(self.fields['prices']
                                             .error_messages['required'])
         return results
+
+    def clean_transaction_uuid(self):
+        uuid = self.cleaned_data['transaction_uuid']
+        if Transaction.objects.filter(~Q(status=STATUS_PENDING)
+                                      & Q(uuid=uuid)).exists():
+            # In this case one will not be created.
+            raise forms.ValidationError('Transaction already exists '
+                                        'with that uuid: {0}'.format(uuid))
+        return uuid
 
 
 class PriceForm(forms.Form):
