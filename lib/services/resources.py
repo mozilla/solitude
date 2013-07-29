@@ -4,7 +4,9 @@ import urlparse
 
 from django.conf import settings
 from django.core.cache import cache
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.views import debug
 
 import requests
@@ -12,7 +14,9 @@ from aesfield.field import AESField
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from lib.sellers.models import Seller
+from lib.bango.constants import STATUS_BAD
+from lib.sellers.models import Seller, SellerProduct
+from lib.transactions.constants import STATUS_FAILED
 from solitude.logger import getLogger
 
 log = getLogger('s.services')
@@ -177,3 +181,39 @@ def settings_view(request, setting):
         raise PermissionDenied
     return Response({'key': setting,
                      'value': debug.get_safe_settings()[setting]})
+
+
+@api_view(['GET'])
+def transactions_failures(request):
+    transactions = []
+    for seller_product in SellerProduct.objects.filter(
+            transaction__status=STATUS_FAILED):
+        transaction = seller_product.transaction_set.latest('modified')
+        reverse_kwargs = {
+            'api_name': 'generic',
+            'resource_name': 'transaction',
+            'pk': transaction.pk,
+        }
+        transactions.append({
+            'id': transaction.id,
+            'uid_support': transaction.uid_support,
+            'uid_pay': transaction.uid_pay,
+            'uuid': transaction.uuid,
+            'uri': reverse('api_dispatch_detail', kwargs=reverse_kwargs),
+            'product_id': seller_product.external_id,
+        })
+    return Response({'transactions': transactions})
+
+
+@api_view(['GET'])
+def statuses_failures(request):
+    statuses = []
+    for seller_product in SellerProduct.objects.filter(
+            product__status__status=STATUS_BAD):
+        status = seller_product.product.status.latest('modified')
+        statuses.append({
+            'id': status.id,
+            'errors': status.errors,
+            'product_id': seller_product.external_id,
+        })
+    return Response({'statuses': statuses})

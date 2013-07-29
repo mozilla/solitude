@@ -809,6 +809,30 @@ class TestRefundStatus(APITest):
         eq_(data['status'], OK)
         eq_(self.refund.reget().status, constants.STATUS_COMPLETED)
 
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_transactions_failures(self, mock_results):
+        mock_results.return_value = {'responseCode': CANT_REFUND,
+                                     'responseMessage': 'denied padawan'}
+        self.client.get_with_body(self.url,
+                                  data={'uuid': self.refund.uuid})
+        res = self.client.get(reverse('services.failures.transactions'))
+        data = json.loads(res.content)
+        transaction = data['transactions'][0]
+        eq_(transaction['product_id'], self.product.external_id)
+        eq_(transaction['id'], self.refund.id)
+        eq_(transaction['uid_pay'], self.refund.uid_pay)
+        eq_(transaction['uri'],
+            u'/generic/transaction/%s/' % self.refund.id)
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_no_transactions_failures(self, mock_results):
+        res = self.client.get(reverse('services.failures.transactions'))
+        data = json.loads(res.content)
+        eq_(data['transactions'], [])
+        res = self.client.get(reverse('services.failures.statuses'))
+        data = json.loads(res.content)
+        eq_(data['statuses'], [])
+
     @mock.patch.object(settings, 'BANGO_FAKE_REFUNDS', True)
     def fake(self, status):
         self.refund.status = constants.STATUS_PENDING
@@ -894,6 +918,25 @@ class TestStatus(SellerProductBangoBase):
         eq_(res.status_code, 201, res.content)
         status = Status.objects.all()[0]
         eq_(status.status, STATUS_GOOD)
+
+    @mock.patch('lib.bango.forms.CreateBillingConfigurationForm.is_valid')
+    def test_statuses_failures(self, is_valid):
+        is_valid.return_value = False
+        self.client.post(self.url, data=self.data())
+        status_instance = Status.objects.all()[0]
+        res = self.client.get(reverse('services.failures.statuses'))
+        data = json.loads(res.content)
+        status = data['statuses'][0]
+        eq_(status['product_id'],
+            status_instance.seller_product_bango.seller_product.external_id)
+        eq_(status['id'], status_instance.id)
+        eq_(status['errors'], status_instance.errors)
+
+    def test_no_statuses_failures(self):
+        self.client.post(self.url, data=self.data())
+        res = self.client.get(reverse('services.failures.statuses'))
+        data = json.loads(res.content)
+        eq_(data['statuses'], [])
 
     @mock.patch.object(ClientMock, 'mock_results')
     def test_bad(self, mock_results):
