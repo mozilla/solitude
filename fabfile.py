@@ -98,11 +98,13 @@ def update():
 
 @task
 def deploy():
+    deploy_roles = settings.WEB_ROLE
     helpers.deploy(name='solitude',
                    env=settings.ENV,
                    cluster=settings.CLUSTER,
                    domain=settings.DOMAIN,
                    root=ROOT,
+                   deploy_roles=deploy_roles,
                    package_dirs=['solitude', 'venv'])
 
     helpers.restart_uwsgi(getattr(settings, 'UWSGI', []),
