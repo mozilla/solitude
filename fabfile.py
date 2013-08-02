@@ -112,11 +112,11 @@ def deploy():
                    cluster=settings.CLUSTER,
                    domain=settings.DOMAIN,
                    root=ROOT,
-                   deploy_roles=['web', 'celery'],
                    package_dirs=['solitude', 'venv'])
 
     execute(update_celery)
-    helpers.restart_uwsgi(getattr(settings, 'UWSGI', []))
+    helpers.restart_uwsgi(getattr(settings, 'UWSGI', []),
+                          settings.WEB_ROLE)
 
     execute(install_cron)
     with lcd(SOLITUDE):
