@@ -340,8 +340,11 @@ class EventForm(forms.Form):
     def clean_notification(self):
         try:
             data = etree.fromstring(self.cleaned_data['notification'])
-        except etree.XMLSyntaxError:
-            log.error('XML parse error')
+        except etree.XMLSyntaxError, exc:
+            log.error('XML parse error: {0}: {1}'
+                      .format(exc.__class__.__name__, exc))
+            log.debug('XML parse error from content: {0}'
+                      .format(self.cleaned_data['notification']))
             raise forms.ValidationError('XML parse error')
 
         action = data.find('action')
