@@ -6,16 +6,11 @@ Requires commander_ which is installed on the systems that need it.
 .. _commander: https://github.com/oremj/commander
 """
 
-import os
 from os.path import join as pjoin
-import sys
-
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from fabric.api import (env, execute, lcd, local, parallel,
                         run, roles, task)
 
-from fabdeploytools.rpm import RPMBuild
 from fabdeploytools import helpers
 import fabdeploytools.envs
 
@@ -88,8 +83,8 @@ def disable_cron():
 def install_cron():
     with lcd(SOLITUDE):
         local('%s ./bin/update/gen-crons.py '
-              '-p %s -u apache -w %s > /etc/cron.d/.%s' %
-              (PYTHON, PYTHON, SOLITUDE,
+              '-p %s -u %s -w %s > /etc/cron.d/.%s' %
+              (PYTHON, PYTHON, settings.CRON_USER, SOLITUDE,
                settings.CRON_NAME))
 
         local('mv /etc/cron.d/.%s /etc/cron.d/%s' % (settings.CRON_NAME,
@@ -111,13 +106,6 @@ def update():
 
 
 @task
-@roles('web')
-@parallel
-def restart_workers():
-    run("/sbin/service %s restart" % settings.GUNICORN)
-
-
-@task
 def deploy():
     helpers.deploy(name='solitude',
                    env=settings.ENV,
@@ -127,8 +115,8 @@ def deploy():
                    deploy_roles=['web', 'celery'],
                    package_dirs=['solitude', 'venv'])
 
-    execute(restart_workers)
     execute(update_celery)
+    helpers.restart_uwsgi(getattr(settings, 'UWSGI', []))
 
     execute(install_cron)
     with lcd(SOLITUDE):
