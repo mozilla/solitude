@@ -58,3 +58,10 @@ SITE_URL = 'https://payments-dev.allizom.org'
 
 S3_AUTH = {'key': private.S3_AUTH_KEY, 'secret': private.S3_AUTH_SECRET}
 S3_BUCKET = private.S3_BUCKET
+
+LOGGING = base.LOGGING.copy()
+LOGGING['loggers']['s.bango'] = {
+    'handlers': ['console', 'unicodesyslog'],
+    'level': 'DEBUG',
+    'propagate': True
+}
