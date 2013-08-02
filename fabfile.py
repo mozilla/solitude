@@ -8,8 +8,7 @@ Requires commander_ which is installed on the systems that need it.
 
 from os.path import join as pjoin
 
-from fabric.api import (env, execute, lcd, local, parallel,
-                        run, roles, task)
+from fabric.api import env, execute, lcd, local, task
 
 from fabdeploytools import helpers
 import fabdeploytools.envs
@@ -53,14 +52,6 @@ def update_db():
         with lcd(SOLITUDE):
             local("%s %s/bin/schematic migrations" %
                   (PYTHON, VIRTUALENV))
-
-
-@task
-@roles('celery')
-@parallel
-def update_celery(ctx):
-    if getattr(settings, 'CELERY_SERVICE', False):
-        run("/sbin/service %s restart" % settings.CELERY_SERVICE)
 
 
 @task
@@ -114,7 +105,6 @@ def deploy():
                    root=ROOT,
                    package_dirs=['solitude', 'venv'])
 
-    execute(update_celery)
     helpers.restart_uwsgi(getattr(settings, 'UWSGI', []),
                           settings.WEB_ROLE)
 
