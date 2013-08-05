@@ -71,11 +71,13 @@ def disable_cron():
 
 
 @task
-def install_cron():
+def install_cron(installed_dir):
+    sol = pjoin(installed_dir, 'solitude')
+    python = pjoin(installed_dir, 'venv', 'bin', 'python')
     with lcd(SOLITUDE):
-        local('%s ./bin/update/gen-crons.py '
+        local('%s ./bin/crontab/gen-crons.py '
               '-p %s -u %s -w %s > /etc/cron.d/.%s' %
-              (PYTHON, PYTHON, settings.CRON_USER, SOLITUDE,
+              (PYTHON, python, settings.CRON_USER, sol,
                settings.CRON_NAME))
 
         local('mv /etc/cron.d/.%s /etc/cron.d/%s' % (settings.CRON_NAME,
@@ -98,15 +100,15 @@ def update():
 
 @task
 def deploy():
-    helpers.deploy(name='solitude',
-                   env=settings.ENV,
-                   cluster=settings.CLUSTER,
-                   domain=settings.DOMAIN,
-                   root=ROOT,
-                   package_dirs=['solitude', 'venv'])
+    r = helpers.deploy(name='solitude',
+                       env=settings.ENV,
+                       cluster=settings.CLUSTER,
+                       domain=settings.DOMAIN,
+                       root=ROOT,
+                       package_dirs=['solitude', 'venv'])
 
     helpers.restart_uwsgi(getattr(settings, 'UWSGI', []))
 
-    execute(install_cron)
+    execute(install_cron, r.install_to)
     with lcd(SOLITUDE):
         local('%s manage.py statsd_ping --key=update' % PYTHON)
