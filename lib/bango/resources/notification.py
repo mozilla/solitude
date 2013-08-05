@@ -65,7 +65,7 @@ class EventResource(Resource):
         list_allowed_methods = ['post']
 
     def obj_create(self, bundle, request, **kwargs):
-        form = EventForm(bundle.data)
+        form = EventForm(bundle.data, request_encoding=request.encoding)
         if not form.is_valid():
             log.info('Event invalid.')
             raise self.form_errors(form)

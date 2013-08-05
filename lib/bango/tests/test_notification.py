@@ -140,15 +140,16 @@ class TestEvent(APITest):
         )
         self.url = self.get_list_url('event')
 
-    def post(self, data=None, expected=201):
+    def post(self, data=None, notice=samples.event_notification,
+             expected=201):
         if data is None:
             data = {
-                'notification': samples.event_notification,
+                'notification': notice,
                 'password': 'b',
                 'username': 'f'
             }
         res = self.client.post(self.url, data=data)
-        eq_(res.status_code, expected)
+        eq_(res.status_code, expected, res.content)
         return json.loads(res.content)
 
     def test_missing(self):
@@ -158,6 +159,14 @@ class TestEvent(APITest):
         self.post()
         trans = self.trans.reget()
         eq_(trans.status, STATUS_COMPLETED)
+
+    def test_no_action(self):
+        self.post(notice=samples.event_notification_no_action,
+                  expected=400)
+
+    def test_no_data(self):
+        self.post(notice=samples.event_notification_no_data,
+                  expected=400)
 
     def test_not_changed(self):
         self.trans.status = STATUS_COMPLETED
