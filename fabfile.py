@@ -111,7 +111,7 @@ def update():
 @task
 def deploy():
     package_dirs = ['solitude', 'venv']
-    if os.path.isdir(os.path.join(ROOT), 'aeskeys'):
+    if os.path.isdir(os.path.join(ROOT, 'aeskeys')):
         package_dirs.append('aeskeys')
 
     r = helpers.deploy(name='solitude',
