@@ -373,7 +373,7 @@ class EventForm(forms.Form):
         except Exception, exc:
             log.error('Error with event XML: '
                       '{0.__class__.__name__}: {0} XML={1}'
-                      .format(exc, notice))
+                      .format(exc, repr(notice)))
             raise
 
         if data.get('status') != OK:
