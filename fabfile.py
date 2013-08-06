@@ -6,6 +6,7 @@ Requires commander_ which is installed on the systems that need it.
 .. _commander: https://github.com/oremj/commander
 """
 
+import os.path
 from os.path import join as pjoin
 
 from fabric.api import env, execute, lcd, local, task
@@ -109,12 +110,16 @@ def update():
 
 @task
 def deploy():
+    package_dirs = ['solitude', 'venv']
+    if os.path.isdir(os.path.join(ROOT), 'aeskeys'):
+        package_dirs.append('aeskeys')
+
     r = helpers.deploy(name='solitude',
                        env=settings.ENV,
                        cluster=settings.CLUSTER,
                        domain=settings.DOMAIN,
                        root=ROOT,
-                       package_dirs=['solitude', 'venv'])
+                       package_dirs=package_dirs)
 
     helpers.restart_uwsgi(getattr(settings, 'UWSGI', []))
 
