@@ -1,3 +1,4 @@
+import codecs
 from datetime import datetime, timedelta
 
 from django import forms
@@ -329,6 +330,11 @@ class EventForm(forms.Form):
     username = forms.CharField(required=True)
     password = forms.CharField(required=True)
 
+    def __init__(self, *args, **kw):
+        self.request_encoding = (kw.pop('request_encoding') or
+                                 settings.DEFAULT_CHARSET)
+        super(EventForm, self).__init__(*args, **kw)
+
     def clean(self):
         username = self.cleaned_data.get('username', '')
         password = self.cleaned_data.get('password', '')
@@ -338,28 +344,37 @@ class EventForm(forms.Form):
         return self.cleaned_data
 
     def clean_notification(self):
+        # Forms are always in Unicode but lxml works better with bytes.
+        n = self.cleaned_data['notification'].encode(self.request_encoding)
+        notice = strip_bom(n)
         try:
-            data = etree.fromstring(self.cleaned_data['notification'])
-        except etree.XMLSyntaxError, exc:
-            log.error('XML parse error: {0}: {1}'
-                      .format(exc.__class__.__name__, exc))
-            log.debug('XML parse error from content: {0}'
-                      .format(self.cleaned_data['notification']))
-            raise forms.ValidationError('XML parse error')
+            try:
+                data = etree.fromstring(notice)
+            except etree.XMLSyntaxError, exc:
+                log.error('XML parse error: {0.__class__.__name__}: {0}'
+                          .format(exc))
+                raise forms.ValidationError('XML parse error')
 
-        action = data.find('action')
-        if action is None:  # bool(action) is False, so check against None.
-            raise forms.ValidationError('Action is required')
+            action = data.find('eventList/event/action')
+            if action is None:  # bool(action) is False, so check against None.
+                raise forms.ValidationError('Action is required')
 
-        if action.text != 'PAYMENT':
-            raise forms.ValidationError('Action invalid: {0}'
-                                        .format(action.text))
+            if action.text != 'PAYMENT':
+                raise forms.ValidationError('Action invalid: {0}'
+                                            .format(action.text))
 
-        if data.find('data') is None:
-            raise forms.ValidationError('Data is required')
+            elem = data.find('eventList/event/data')
+            if elem is None:
+                raise forms.ValidationError('Data is required')
 
-        # Easier to work with a dictionary than etree.
-        data = dict([c.values() for c in data.find('data').getchildren()])
+            # Easier to work with a dictionary than etree.
+            data = dict([c.values() for c in elem.getchildren()])
+
+        except Exception, exc:
+            log.error('Error with event XML: '
+                      '{0.__class__.__name__}: {0} XML={1}'
+                      .format(exc, notice))
+            raise
 
         if data.get('status') != OK:
             # Cannot find any other definitions of what state might be.
@@ -431,3 +446,20 @@ class RefundStatusForm(forms.Form):
             raise forms.ValidationError('Not a refund')
 
         return transaction
+
+
+def strip_bom(data):
+    """
+    Strip the BOM (byte order mark) from byte string `data`.
+
+    Returns a new byte string.
+    """
+    for bom in (codecs.BOM_UTF32_BE,
+                codecs.BOM_UTF32_LE,
+                codecs.BOM_UTF16_BE,
+                codecs.BOM_UTF16_LE,
+                codecs.BOM_UTF8):
+        if data.startswith(bom):
+            data = data[len(bom):]
+            break
+    return data

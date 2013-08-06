@@ -130,26 +130,30 @@ class TestVat(APITest):
                    {'USER': 'f', 'PASSWORD': 'b'})
 class TestEvent(APITest):
 
+    def form(self, *args, **kw):
+        kw['request_encoding'] = 'utf8'
+        return EventForm(*args, **kw)
+
     def test_empty(self):
-        form = EventForm()
+        form = self.form()
         ok_(not form.is_valid())
 
     def test_gunk(self):
-        form = EventForm({'notification': 'fooo!'})
+        form = self.form({'notification': 'fooo!'})
         ok_(not form.is_valid())
 
     def test_wrong_action(self):
         sample = event_notification.replace('PAYMENT', 'NOT')
-        form = EventForm({'notification': sample})
+        form = self.form({'notification': sample})
         ok_(not form.is_valid())
 
     def test_no_action(self):
         sample = event_notification.replace('OK', 'NOT OK')
-        form = EventForm({'notification': sample})
+        form = self.form({'notification': sample})
         ok_(not form.is_valid())
 
     def test_no_transaction(self):
-        form = EventForm({'notification': event_notification})
+        form = self.form({'notification': event_notification})
         ok_(not form.is_valid())
 
     def create(self):
@@ -167,20 +171,20 @@ class TestEvent(APITest):
 
     def test_check_good(self):
         self.create()
-        form = EventForm({'notification': event_notification,
+        form = self.form({'notification': event_notification,
                           'username': 'f', 'password': 'b'})
         ok_(form.is_valid(), form.errors)
 
     def test_check_wrong(self):
         self.create()
-        form = EventForm({'notification': event_notification,
+        form = self.form({'notification': event_notification,
                           'username': 'f', 'password': 'x'})
         ok_(not form.is_valid())
         ok_('__all__' in form.errors)
 
-    def test_wierd(self):
+    def test_weird(self):
         self.create()
         self.trans.status = constants.STATUS_CANCELLED
         self.trans.save()
-        form = EventForm({'notification': event_notification})
+        form = self.form({'notification': event_notification})
         ok_(not form.is_valid())

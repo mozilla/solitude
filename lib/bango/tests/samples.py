@@ -163,19 +163,69 @@ refund_request = """<SOAP-ENV:Envelope
     </ns1:Body>
 </SOAP-ENV:Envelope>"""
 
-event_notification = """<event>
-    <id>2</id>
-    <time>2008-05-28T14:16:01+00:00</time>
-    <action>PAYMENT</action>
-    <data>
-        <item name="userId" value="9568" />
-        <item name="status" value="OK" />
-        <item name="bango" value="7424" />
-        <item name="paymentAmount" value="50" />
-        <item name="paymentCurrency" value="50" />
-        <item name="paymentEarnings" value="45" />
-        <item name="paymentSourceType" value="OPERATOR" />
-        <item name="transId" value="external-trans-uid" />
-    </data>
-</event>
-"""
+event_notification = """\xef\xbb\xbf<?xml version="1.0" encoding="utf-8"?>
+    <bangoEvents xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:noNamespaceSchemaLocation="http://xml.bango.net/schemas/payment.xsd" version="1.0">
+        <packageId>1013625</packageId>
+        <time>2013-08-02T22:55:52+00:00</time>
+        <source>PAYMENT</source>
+        <eventList>
+            <event>
+                <id>147091405</id>
+                <time>2013-08-02T22:55:46+00:00</time>
+                <source>PAYMENT</source>
+                <action>PAYMENT</action>
+                <data>
+                    <item name="userId" value="54321" />
+                    <item name="status" value="OK" />
+                    <item name="bango" value="123456" />
+                    <item name="paymentAmount" value="50" />
+                    <item name="paymentCurrency" value="USD" />
+                    <item name="paymentEarnings" value="45" />
+                    <item name="paymentSourceType" value="OPERATOR" />
+                    <item name="transId" value="external-trans-uid" />
+                </data>
+            </event>
+        </eventList>
+    </bangoEvents>"""
+
+event_notification_no_action = """\xef\xbb\xbf<?xml version="1.0" encoding="utf-8"?>
+    <bangoEvents xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:noNamespaceSchemaLocation="http://xml.bango.net/schemas/payment.xsd" version="1.0">
+        <packageId>1013625</packageId>
+        <time>2013-08-02T22:55:52+00:00</time>
+        <source>PAYMENT</source>
+        <eventList>
+            <event>
+                <id>147091405</id>
+                <time>2013-08-02T22:55:46+00:00</time>
+                <source>PAYMENT</source>
+                <data>
+                    <item name="userId" value="54321" />
+                    <item name="status" value="OK" />
+                    <item name="bango" value="123456" />
+                    <item name="paymentAmount" value="50" />
+                    <item name="paymentCurrency" value="USD" />
+                    <item name="paymentEarnings" value="45" />
+                    <item name="paymentSourceType" value="OPERATOR" />
+                    <item name="transId" value="external-trans-uid" />
+                </data>
+            </event>
+        </eventList>
+    </bangoEvents>"""
+
+event_notification_no_data = """\xef\xbb\xbf<?xml version="1.0" encoding="utf-8"?>
+    <bangoEvents xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:noNamespaceSchemaLocation="http://xml.bango.net/schemas/payment.xsd" version="1.0">
+        <packageId>1013625</packageId>
+        <time>2013-08-02T22:55:52+00:00</time>
+        <source>PAYMENT</source>
+        <eventList>
+            <event>
+                <id>147091405</id>
+                <time>2013-08-02T22:55:46+00:00</time>
+                <source>PAYMENT</source>
+                <action>PAYMENT</action>
+            </event>
+        </eventList>
+    </bangoEvents>"""
