@@ -18,6 +18,8 @@ import deploysettings as settings
 env.key_filename = settings.SSH_KEY
 fabdeploytools.envs.loadenv(settings.CLUSTER)
 
+IS_PROXY = getattr(settings, 'IS_PROXY', False)
+
 ROOT, SOLITUDE = helpers.get_app_dirs(__file__)
 VIRTUALENV = pjoin(ROOT, 'venv')
 PYTHON = pjoin(VIRTUALENV, 'bin', 'python')
@@ -48,10 +50,11 @@ def update_db():
     Uses schematic by default. Change to south if you need to.
 
     """
-    if not getattr(settings, 'IS_PROXY', False):
-        with lcd(SOLITUDE):
-            local("%s %s/bin/schematic migrations" %
-                  (PYTHON, VIRTUALENV))
+    if IS_PROXY:
+        return
+    with lcd(SOLITUDE):
+        local("%s %s/bin/schematic migrations" %
+              (PYTHON, VIRTUALENV))
 
 
 @task
@@ -67,11 +70,17 @@ def update_info():
 
 @task
 def disable_cron():
+    if IS_PROXY:
+        return
+
     local("rm -f /etc/cron.d/%s" % settings.CRON_NAME)
 
 
 @task
 def install_cron(installed_dir):
+    if IS_PROXY:
+        return
+
     sol = pjoin(installed_dir, 'solitude')
     python = pjoin(installed_dir, 'venv', 'bin', 'python')
     with lcd(SOLITUDE):
