@@ -35,6 +35,7 @@ class TestStatus(APITest):
     @patch('lib.services.resources.StatusObject.test_cache')
     @patch('lib.services.resources.StatusObject.test_db')
     def test_proxy(self, test_db, test_cache, requests):
+        test_db.return_value = False
         with self.settings(SOLITUDE_PROXY=True,
                            DATABASES={'default': {'ENGINE': ''}},
                            CACHES={}):

@@ -150,8 +150,7 @@ def status(request):
         else:
             # The proxy should have good settings but not the db or cache.
             code = 500
-
-    if obj.status['db'] and obj.status['cache']:
+    elif obj.status['db'] and obj.status['cache']:
         code = 200
     else:
         # The db instance should have a good db and cache.
