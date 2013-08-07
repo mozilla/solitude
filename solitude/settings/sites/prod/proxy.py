@@ -47,3 +47,5 @@ PAYPAL_USE_SANDBOX = True
 
 BANGO_ENV = 'test'
 BANGO_AUTH = private.BANGO_AUTH
+
+SITE_URL = 'https://payments-proxy.firefox.com'
