@@ -72,10 +72,11 @@ class StatusObject(object):
                     log.error('Proxy cache set to: %s' % backend)
                     return False
 
-        # Tuck the encrypt test into settings.
-        test = AESField(aes_key='bango:signature')
-        if test._decrypt(test._encrypt('foo')) != 'foo':
-            return False
+        else:
+            # Tuck the encrypt test into settings.
+            test = AESField(aes_key='bango:signature')
+            if test._decrypt(test._encrypt('foo')) != 'foo':
+                return False
 
         return True
 
