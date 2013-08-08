@@ -5,7 +5,6 @@ from django.core.cache import cache
 from django.core.urlresolvers import reverse
 
 from mock import patch
-from nose import SkipTest
 from nose.tools import eq_
 
 

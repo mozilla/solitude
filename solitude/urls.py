@@ -39,6 +39,10 @@ services_patterns = patterns('lib.services.resources',
     url(r'^logs/', 'logs', name='services.log'),
     url(r'^status/', 'status', name='services.status'),
     url(r'^request/', 'request_resource', name='services.request'),
+    url(r'^failures/transactions/', 'transactions_failures',
+        name='services.failures.transactions'),
+    url(r'^failures/statuses/', 'statuses_failures',
+        name='services.failures.statuses'),
 )
 
 urlpatterns = patterns('',
