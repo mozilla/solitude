@@ -1,4 +1,5 @@
 import csv
+import logging
 import os
 import tempfile
 from datetime import datetime, timedelta
@@ -8,6 +9,9 @@ from lib.transactions.models import Transaction
 from solitude.management.commands.push_s3 import push
 
 from django.core.management.base import BaseCommand
+
+
+log = logging.getLogger('s.transactions')
 
 
 def generate_log(day, filename):
@@ -39,7 +43,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         dir_ = not options['dir']
         if dir_:
-            print 'No directory specified, making temp.'
+            log.debug('No directory specified, making temp.')
             dir_ = tempfile.mkdtemp()
 
         yesterday = datetime.today() - timedelta(days=1)
@@ -47,8 +51,8 @@ class Command(BaseCommand):
                 if options['date'] else yesterday).date()
         filename = os.path.join(dir_, date.strftime('%Y-%m-%d') + '.log')
         generate_log(date, filename)
-        print 'Log generated to:', filename
+        log.info('Log generated to:', filename)
         push(filename)
         if not options['dir']:
-            print 'No directory specified, cleaning log after upload.'
+            log.info('No directory specified, cleaning log after upload.')
             os.remove(filename)

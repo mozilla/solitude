@@ -15,11 +15,16 @@ def main():
                             'Only define for cron.d style crontabs.'))
     parser.add_option('-p', '--python', default='/usr/bin/python2.6',
                       help='Python interpreter to use.')
+    parser.add_option("-d", "--deprecations", default=False,
+                      help="Show deprecation warnings")
 
     (opts, args) = parser.parse_args()
 
     if not opts.webapp:
         parser.error('-w must be defined')
+
+    if not opts.deprecations:
+        opts.python += ' -W ignore::DeprecationWarning'
 
     ctx = {'django': 'cd %s; %s manage.py' % (opts.webapp, opts.python)}
 
