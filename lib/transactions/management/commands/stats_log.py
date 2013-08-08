@@ -51,8 +51,8 @@ class Command(BaseCommand):
                 if options['date'] else yesterday).date()
         filename = os.path.join(dir_, date.strftime('%Y-%m-%d') + '.log')
         generate_log(date, filename)
-        log.info('Log generated to:', filename)
+        log.debug('Log generated to: %s', filename)
         push(filename)
         if not options['dir']:
-            log.info('No directory specified, cleaning log after upload.')
+            log.debug('No directory specified, cleaning log after upload.')
             os.remove(filename)
