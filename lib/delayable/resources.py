@@ -39,7 +39,7 @@ class ReplayResource(BaseMixin, ModelResource):
         resource_name = 'replay'
 
     def obj_get(self, request, **kwargs):
-        # This is kinda wierd and we don't really need to go through the entire
+        # This is kinda weird and we don't really need to go through the entire
         # object dehydrate cycle, but just fake out our response.
         try:
             obj = Delayable.objects.get(**kwargs)

@@ -33,6 +33,8 @@ exporter = [
     'CreatePackage',
     'DeleteVATNumber',
     'GetAcceptedSBIAgreement',
+    'GetAutoAuthenticationLoginToken',
+    'GetEmailAddresses',
     'GetPackage',
     'GetSBIAgreement',
     'MakePremiumPerAccess',

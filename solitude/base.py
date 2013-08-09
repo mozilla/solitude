@@ -178,8 +178,8 @@ class APITest(test_utils.TestCase):
     def allowed_verbs(self, url, allowed):
         """
         Will run through all the verbs except the ones specified in allowed
-        and ensure that hitting those produces a 405. Otherwise the test will
-        fail.
+        and ensure that hitting those produces a 401 or a 405.
+        Otherwise the test will fail.
         """
         verbs = ['get', 'post', 'put', 'delete', 'patch']
         # TODO(andym): get patch in here.
@@ -244,20 +244,6 @@ def handle_500(request, exception):
     log_cef(str(exception), request, severity=3)
     return http.HttpApplicationError(content=json.dumps(data),
                 content_type='application/json; charset=utf-8')
-
-
-def form_errors(forms):
-    errors = {}
-    if not isinstance(forms, list):
-        forms = [forms]
-    for f in forms:
-        if isinstance(f.errors, list):  # Cope with formsets.
-            for e in f.errors:
-                errors.update(e)
-            continue
-        errors.update(dict(f.errors.items()))
-
-    return Response(errors, status=400)
 
 
 class BaseResource(object):

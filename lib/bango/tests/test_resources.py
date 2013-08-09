@@ -90,6 +90,61 @@ class TestError(APITest):
             {'name': ['thing!'], '__type__': 'bango', '__bango__': 'INVALID'})
 
 
+class TestLoginResource(BangoAPI):
+
+    def setUp(self):
+        super(TestLoginResource, self).setUp()
+        self.login_url = reverse('bango.login')
+
+    def test_nodata(self):
+        res = self.client.post(self.login_url, data={})
+        eq_(res.status_code, 400, res.status_code)
+        eq_(json.loads(res.content),
+            {u'packageId': [u'This field is required.']})
+
+    @mock.patch('lib.bango.resources.login.EmailAddressesResource.client')
+    def test_invalid_package(self, email_client):
+        errors = {'__all__': ['The specified Package ID is invalid']}
+        email_client.return_value = {'errors': errors}
+        res = self.client.post(self.login_url, data={'packageId': 1})
+        eq_(res.status_code, 400, res.content)
+        eq_(json.loads(res.content), errors)
+        eq_(self.get_errors(res.content, '__all__'),
+            ['The specified Package ID is invalid'])
+
+    @mock.patch('lib.bango.resources.login.TokenResource.client')
+    @mock.patch('lib.bango.resources.login.EmailAddressesResource.client')
+    def test_invalid_person(self, email_client, token_client):
+        errors = {'__all__': ['The specified Person ID is invalid']}
+        email_client.return_value = {
+            'adminEmailAddress': 'admin@example.org',
+            'adminPersonId': 1234,
+        }
+        token_client.return_value = {'errors': errors}
+        res = self.client.post(self.login_url, data={'packageId': 1})
+        eq_(res.status_code, 400, res.content)
+        eq_(json.loads(res.content), errors)
+        eq_(self.get_errors(res.content, '__all__'),
+            ['The specified Person ID is invalid'])
+
+    @mock.patch('lib.bango.resources.login.TokenResource.client')
+    @mock.patch('lib.bango.resources.login.EmailAddressesResource.client')
+    def test_good(self, email_client, token_client):
+        email_client.return_value = {
+            'adminEmailAddress': 'admin@example.org',
+            'adminPersonId': 1234,
+        }
+        token_client.return_value = {
+            'authenticationToken': 'foo',
+        }
+        res = self.client.post(self.login_url, data={'packageId': 1})
+        eq_(res.status_code, 200, res.content)
+        data = json.loads(res.content)
+        eq_(data[u'email_address'], u'admin@example.org')
+        eq_(data[u'authentication_token'], u'foo')
+        eq_(data[u'person_id'], 1234)
+
+
 class TestPackageResource(BangoAPI):
 
     def setUp(self):

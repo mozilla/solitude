@@ -2,7 +2,7 @@ from django.conf.urls.defaults import include, patterns, url
 
 from tastypie.api import Api
 
-from lib.bango.urls import bango, bango_drf
+from lib.bango.urls import bango
 from lib.delayable.resources import DelayableResource, ReplayResource
 from lib.buyers.resources import (BuyerConfirmPinResource, BuyerPaypalResource,
                                   BuyerResetPinResource, BuyerResource,
@@ -50,7 +50,7 @@ urlpatterns = patterns('',
     url(r'^', include(api.urls)),
     url(r'^', include(paypal.urls)),
     url(r'^', include(bango.urls)),
-    url(r'^bango/', include(bango_drf.urls)),
+    url(r'^bango/', include('lib.bango.urls')),
     url(r'^', include(delayable.urls)),
     url(r'^$', 'solitude.views.home', name='home'),
     url(r'^services/', include(services_patterns))
