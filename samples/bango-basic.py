@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import json
+import os
 import pprint
 import sys
+import urllib
 import uuid
 
 import requests
@@ -68,6 +70,22 @@ res = call('/bango/package/', 'post', {
     'currencyIso': 'USD'
 })
 seller_bango_uri = res['resource_uri']
+package_id = res['package_id']
+
+print 'Retrieving login infos.'
+res = call('/bango/login/', 'post', {
+    'packageId': str(package_id),
+})
+
+bango_url = ('http://mozilla.com.test.bango.org/login/al.aspx?%s' %
+    urllib.urlencode({
+        'packageId': package_id,
+        'personId': res['person_id'],
+        'emailAddress': res['email_address'],
+        'authenticationToken': res['authentication_token'],
+    }))
+print 'You should be logged in against: ' + bango_url
+# os.popen('open "%s"' % bango_url)
 
 print 'Getting SBI agreement'
 res = call('/bango/sbi/agreement/', 'get', {
@@ -135,11 +153,11 @@ res = call(seller_bango_uri, 'get', {})
 old_support_id = res['support_person_id']
 old_financial_id = res['finance_person_id']
 
-print 'Update addresses.'
-res = call(seller_bango_uri, 'patch', {
-    'supportEmailAddress': 'foo@foo.com',
-    'financeEmailAddress': 'foo@foo.com',
-})
+# print 'Update addresses.'
+# res = call(seller_bango_uri, 'patch', {
+#     'supportEmailAddress': 'foo@foo.com',
+#     'financeEmailAddress': 'foo@foo.com',
+# })
 
 res = call(seller_bango_uri, 'get', {})
 print res
@@ -149,8 +167,9 @@ print ('Finance id %s to %s' % (old_financial_id, res['finance_person_id']))
 print 'Request billing configuration.'
 call('/bango/billing/', 'post', {
     'pageTitle': 'yep',
-    'prices': [{'amount': 1, 'currency': 'EUR'}],
+    'prices': [{'price': 1, 'currency': 'USD'}],
     'transaction_uuid': str(uuid.uuid4()),
+    'user_uuid': str(uuid.uuid4()),
     'seller_product_bango': bango_product_uri,
     'redirect_url_onerror': 'https://marketplace-dev.allizom.org/mozpay/err',
     'redirect_url_onsuccess': 'https://marketplace-dev.allizom.org/mozpay/ok',

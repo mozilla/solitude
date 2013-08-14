@@ -413,6 +413,16 @@ class SBIForm(forms.Form):
         return result
 
 
+class GetLoginTokenForm(forms.Form):
+    emailAddress = forms.EmailField(required=True)
+    packageId = forms.IntegerField(required=True)
+    personId = forms.IntegerField(required=True)
+
+
+class GetEmailAddressesForm(forms.Form):
+    packageId = forms.IntegerField(required=True)
+
+
 class RefundForm(forms.Form):
     uuid = forms.CharField()
 

@@ -1,8 +1,11 @@
+from django.conf.urls.defaults import include, patterns, url
+
 from rest_framework.routers import SimpleRouter
 from tastypie.api import Api
 
 from .resources import simple
 from .resources.billing import CreateBillingConfigurationResource
+from .resources.login import login
 from .resources.notification import EventResource, NotificationResource
 from .resources.package import BangoProductResource, PackageResource
 from .resources.refund import RefundResource
@@ -28,3 +31,8 @@ for lib in (CreateBillingConfigurationResource,
 bango_drf = SimpleRouter()
 bango_drf.register('status', StatusViewSet)
 bango_drf.register('debug', DebugViewSet, base_name='debug')
+
+urlpatterns = patterns('',
+    url(r'^login/', login, name='bango.login'),
+    url(r'^', include(bango_drf.urls)),
+)

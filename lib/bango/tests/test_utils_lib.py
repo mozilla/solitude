@@ -1,8 +1,5 @@
 import os
 import tempfile
-import unittest
-
-from django.conf import settings
 
 from nose.tools import raises
 import test_utils
