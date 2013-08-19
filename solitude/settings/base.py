@@ -131,7 +131,7 @@ LOGGING = {
     },
     'handlers': {
         'unicodesyslog': {
-            '()': 'solitude.settings.log.UnicodeHandler',
+            '()': 'mozilla_logger.log.UnicodeHandler',
             'facility': logging.handlers.SysLogHandler.LOG_LOCAL7,
             'formatter': 'solitude',
         },
