@@ -28,15 +28,18 @@ class NotificationResource(Resource):
         bill_conf_id = form.data.get('billing_config_id')
         log.info('Received notification for billing_config_id %r: '
                  'bango_response_code: %r; bango_response_message: %r; '
-                 'bango_trans_id: %r; moz_transaction: %r'
+                 'bango_trans_id: %r; moz_transaction: %r; '
+                 'amount: %r; currency: %r'
                  % (bill_conf_id,
                     form.data.get('bango_response_code'),
                     form.data.get('bango_response_message'),
                     form.data.get('bango_trans_id'),
-                    form.data.get('moz_transaction')))
+                    form.data.get('moz_transaction'),
+                    form.data.get('amount'),
+                    form.data.get('currency')))
 
         if not form.is_valid():
-            log.info('Notification invalid: %s' % bill_conf_id)
+            log.info(u'Notification invalid: %s' % bill_conf_id)
             raise self.form_errors(form)
 
         trans = form.cleaned_data['moz_transaction']
@@ -45,7 +48,7 @@ class NotificationResource(Resource):
         message, state = states.get(form.cleaned_data['bango_response_code'],
                                     ['failed', STATUS_FAILED])
 
-        log.info('Transaction %s: %s' % (message, trans.uuid))
+        log.info(u'Transaction %s: %s' % (message, trans.uuid))
         statsd.incr('bango.notification.%s' % message)
         statsd.decr('solitude.pending_transactions')
         trans.status = state
