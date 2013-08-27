@@ -64,6 +64,7 @@ class TestLockout(TestCase):
             if x == settings.PIN_FAILURES:
                 assert res
                 assert buyer.pin_locked_out
+                assert buyer.pin_was_locked_out
             else:
                 assert not res
                 assert not buyer.pin_locked_out
@@ -76,13 +77,14 @@ class TestLockout(TestCase):
         eq_(self.buyer.pin_locked_out, None)
 
     def test_was_locked_out(self):
-        self.buyer.pin_locked_out = datetime.now()
-        self.buyer.pin_was_locked_out = True
-        assert self.buyer.check_was_lock_status_and_reset
+        self.buyer.pin_failures = settings.PIN_FAILURES
+        self.buyer.save()
+        self.buyer.incr_lockout()
+        self.buyer = self.buyer.reget()
         assert self.buyer.pin_was_locked_out
-        self.buyer.pin_locked_out = None
-        assert self.buyer.check_was_lock_status_and_reset
-        assert not self.buyer.pin_was_locked_out
+        self.buyer.clear_lockout()
+        self.buyer = self.buyer.reget()
+        assert self.buyer.pin_was_locked_out
 
     def test_under_timeout(self):
         self.buyer.pin_locked_out = (datetime.now() -

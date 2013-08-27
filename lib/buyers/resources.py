@@ -15,15 +15,11 @@ class BuyerResource(ModelResource):
     pin_is_locked_out = fields.BooleanField(attribute='locked_out',
                                             blank=True, null=True,
                                             readonly=True)
-    pin_was_locked_out = fields.BooleanField(
-        attribute='check_was_lock_status_and_reset',
-        blank=True, null=True, readonly=True
-    )
 
     class Meta(ModelResource.Meta):
         queryset = Buyer.objects.filter()
         fields = ['uuid', 'pin', 'active', 'new_pin', 'needs_pin_reset',
-                  'pin_confirmed']
+                  'pin_confirmed', 'pin_was_locked_out']
         list_allowed_methods = ['get', 'post', 'put']
         allowed_methods = ['get', 'patch', 'put']
         resource_name = 'buyer'
