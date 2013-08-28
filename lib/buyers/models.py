@@ -35,15 +35,6 @@ class Buyer(Model):
 
         return True
 
-    @property
-    def check_was_lock_status_and_reset(self):
-        if self.pin_was_locked_out:
-            if not self.locked_out:
-                self.pin_was_locked_out = False
-                self.save()
-            return True
-        return False
-
     def clear_lockout(self):
         self.pin_failures = 0
         self.pin_locked_out = None
