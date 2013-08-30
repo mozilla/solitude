@@ -4,11 +4,13 @@ from django.conf import settings
 
 from cached import Resource
 
-from lib.bango.client import get_client
+from lib.bango.client import BangoError, get_client
 from lib.bango.constants import MICRO_PAYMENT_TYPES, PAYMENT_TYPES
 from lib.bango.forms import CreateBillingConfigurationForm
 from lib.bango.signals import create
 from lib.bango.utils import sign
+
+from lib.transactions.constants import STATUS_FAILED
 
 from solitude.logger import getLogger
 
@@ -44,14 +46,23 @@ class CreateBillingConfigurationResource(Resource):
             raise self.form_errors(form)
 
         data = form.bango_data
-        resp = self.call(form)
+
+        create_data = data.copy()
+        create_data['transaction_uuid'] = data.pop('externalTransactionId')
+
+        try:
+            resp = self.call(form)
+        except BangoError:
+            log.error('Error on createBillingConfiguration, uuid: %s'
+                      % (create_data['transaction_uuid']))
+            create.send(sender=self, bundle=bundle, data=create_data,
+                        form=form, status=STATUS_FAILED)
+            raise
 
         bundle.data = {'responseCode': resp.responseCode,
                        'responseMessage': resp.responseMessage,
                        'billingConfigurationId': resp.billingConfigurationId}
 
-        create_data = data.copy()
-        create_data['transaction_uuid'] = data.pop('externalTransactionId')
         log.info('Sending trans uuid %s from Bango config %s'
                  % (create_data['transaction_uuid'],
                     bundle.data['billingConfigurationId']))

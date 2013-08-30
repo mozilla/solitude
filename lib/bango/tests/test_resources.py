@@ -17,7 +17,8 @@ from lib.sellers.tests.utils import make_seller_paypal
 from lib.transactions import constants
 from lib.transactions.constants import (SOURCE_BANGO, SOURCE_PAYPAL,
                                         STATUS_CANCELLED, STATUS_COMPLETED,
-                                        STATUS_PENDING, TYPE_REFUND)
+                                        STATUS_FAILED, STATUS_PENDING,
+                                        TYPE_REFUND)
 from lib.transactions.models import Transaction
 from solitude.base import APITest, Resource as BaseResource
 
@@ -632,6 +633,16 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 400, res)
         assert 'transaction_uuid' in json.loads(res.content)
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_bango_error(self, mock_results):
+        mock_results.return_value = {'responseCode': INTERNAL_ERROR,
+                                     'responseMessage': 'nope'}
+        data = self.good()
+        with self.assertRaises(BangoError):
+            self.client.post(self.list_url, data=data)
+        tran = Transaction.objects.get()
+        eq_(tran.status, STATUS_FAILED)
 
 
 class TestCreateBankConfiguration(BangoAPI):

@@ -39,7 +39,8 @@ class Transaction(Model):
     uid_support = models.CharField(max_length=255, db_index=True, blank=True,
                                    null=True)
     # An ID from the provider that relates to this transaction.
-    uid_pay = models.CharField(max_length=255, db_index=True)
+    uid_pay = models.CharField(max_length=255, db_index=True, blank=True,
+                               null=True)
     # An ID we generate for this transaction, we'll generate one for you if
     # you don't specify one.
     uuid = models.CharField(max_length=255, db_index=True, unique=True)
@@ -139,8 +140,10 @@ def create_bango_transaction(sender, **kwargs):
     transaction.source = data.get('source', '')
     # uid_support will be set with the transaction id.
     # uid_pay is the uid of the billingConfiguration request.
-    transaction.uid_pay = bundle['billingConfigurationId']
-    transaction.status = constants.STATUS_PENDING
+    if 'billingConfigurationId' in bundle:
+        # Transactions that fail to create this will not have this.
+        transaction.uid_pay = bundle['billingConfigurationId']
+    transaction.status = kwargs.get('status', constants.STATUS_PENDING)
     transaction.type = constants.TYPE_PAYMENT
     transaction.save()
 

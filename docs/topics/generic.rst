@@ -197,11 +197,23 @@ Example response:
 
 Statuses:
 
-* 0: Pending - when the payment flow has been started.
-* 1: Completed - the payment has been fully completed and processed.
-* 2: Checked - the payment is in process and has been checked. More relevant to
-  Paypal than Bango.
-* 3: Received - we are part way through the payment flow. More relevant to
-  Paypal than Bango.
-* 4: Failed - an error occurred and the transaction failed.
-* 5: Cancelled - the transaction was cancelled explicitly by the user.
+* 0: ``Pending`` - when the transaction has started, the payment flow has been
+  started and has been redirected on to the payment provider. For Bango, this
+  is pretty much right away. This is the default.
+
+* 1: ``Completed`` - the payment has been fully completed and processed.
+
+* 2: ``Checked`` - the payment is in process and has been checked. This can be
+  checked by a server to server notice (IPN for Paypal, Event Notification
+  for Bango) or a manual transaction check. When checking to see if
+  a transaction is successful, check to see if its ``Completed`` or
+  ``Checked``.
+
+* 3: ``Received`` - we have received the transaction, but have not acted on it
+  yet. This is an intermediate step between starting the
+  transaction and passing it on to the payment provider. Bango does not use
+  this.
+
+* 4: ``Failed`` - an error occurred and the transaction failed.
+
+* 5: ``Cancelled`` - the transaction was cancelled explicitly by the user.
