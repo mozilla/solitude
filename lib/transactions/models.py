@@ -132,7 +132,7 @@ def create_bango_transaction(sender, **kwargs):
 
     transaction, c = Transaction.objects.safer_get_or_create(
         uuid=data['transaction_uuid'],
-        status=constants.STATUS_PENDING,
+        status=constants.STATUS_RECEIVED,
         provider=constants.SOURCE_BANGO,
         seller_product=seller_product)
 
@@ -140,9 +140,7 @@ def create_bango_transaction(sender, **kwargs):
     # uid_support will be set with the transaction id.
     # uid_pay is the uid of the billingConfiguration request.
     transaction.uid_pay = bundle['billingConfigurationId']
-    # Changed to received because we've got the go ahead from
-    # Bango to start the payment process with the billingConfigurationId.
-    transaction.status = constants.STATUS_RECEIVED
+    transaction.status = constants.STATUS_PENDING
     transaction.type = constants.TYPE_PAYMENT
     transaction.save()
 
