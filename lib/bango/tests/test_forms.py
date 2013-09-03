@@ -158,7 +158,7 @@ class TestEvent(APITest):
 
     def create(self):
         # TODO this isn't great.
-        self.trans_uuid = 'some-transaction-uid'
+        self.trans_uuid = 'external-trans-uid'
         self.seller = Seller.objects.create(uuid='seller-uuid')
         self.product = SellerProduct.objects.create(seller=self.seller,
                                                     external_id='xyz')
@@ -166,7 +166,7 @@ class TestEvent(APITest):
             amount=1, provider=constants.SOURCE_BANGO,
             seller_product=self.product,
             uuid=self.trans_uuid,
-            uid_pay='external-trans-uid'
+            uid_pay='bango-trans-uid'
         )
 
     def test_check_good(self):

@@ -183,7 +183,8 @@ event_notification = """\xef\xbb\xbf<?xml version="1.0" encoding="utf-8"?>
                     <item name="paymentCurrency" value="USD" />
                     <item name="paymentEarnings" value="45" />
                     <item name="paymentSourceType" value="OPERATOR" />
-                    <item name="transId" value="external-trans-uid" />
+                    <item name="transId" value="bango-trans-uid" />
+                    <item name="externalCPTransId" value="external-trans-uid" />
                 </data>
             </event>
         </eventList>
@@ -208,7 +209,8 @@ event_notification_no_action = """\xef\xbb\xbf<?xml version="1.0" encoding="utf-
                     <item name="paymentCurrency" value="USD" />
                     <item name="paymentEarnings" value="45" />
                     <item name="paymentSourceType" value="OPERATOR" />
-                    <item name="transId" value="external-trans-uid" />
+                    <item name="transId" value="bango-trans-uid" />
+                    <item name="externalCPTransId" value="external-trans-uid" />
                 </data>
             </event>
         </eventList>

@@ -382,10 +382,14 @@ class EventForm(forms.Form):
                                         .format(data.get('status')))
 
         try:
-            trans = Transaction.objects.get(uid_pay=data['transId'])
+            # The UUID field is the external transaction id that we pass to
+            # bango. We use this because we might not know the transaction id.
+            # The transaction id is sent in the redirect back from Bango,
+            # see https://bugzilla.mozilla.org/show_bug.cgi?id=903567.
+            trans = Transaction.objects.get(uuid=data['externalCPTransId'])
         except Transaction.DoesNotExist:
             raise forms.ValidationError('Transaction not found: {0}'
-                                        .format(data['transId']))
+                                        .format(data['externalCPTransId']))
 
         data['new_status'] = {OK: STATUS_COMPLETED}[data['status']]
         old = {'status': trans.status, 'created': trans.created}
