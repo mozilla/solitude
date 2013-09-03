@@ -28,10 +28,6 @@ class TestModel(APITest):
 
     def test_uid_pay(self):
         data = self.get_data()
-        del data['uid_pay']
-        with self.assertRaises(ValidationError):
-            Transaction.create(**data)  # No uid_pay.
-
         data['uid_pay'] = 'abc'
         Transaction.create(**data)
         eq_(Transaction.objects.count(), 1)
