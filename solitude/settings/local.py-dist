@@ -81,3 +81,19 @@ SECRET_KEY = ''
 
 # Used by OAuth, it cannot be blank.
 SITE_URL = ''
+
+
+# Turning on debug logging for suds looks something like this:
+
+#LOGGING['loggers']['suds.transport'] = {
+#    'handlers': ['console'],
+#    'level': 'DEBUG',
+#}
+#LOGGING['loggers']['suds.xsd.schema'] = {
+#    'handlers': ['console'],
+#    'level': 'DEBUG',
+#}
+#LOGGING['loggers']['suds.wsdl'] = {
+#    'handlers': ['console'],
+#    'level': 'DEBUG',
+#}
