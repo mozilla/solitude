@@ -34,17 +34,17 @@ class TestDelay(APITest):
         with self.assertRaises(ImmediateHttpResponse):
             TestResource().dispatch('list', self.get_request('get'))
 
-    @mock.patch('solitude.base.delayable.delay')
+    @mock.patch('lib.delayable.tasks.delayable.delay')
     def test_not_delayable(self, delay):
         TestResource().dispatch('list', self.get_request('post', async=False))
         assert not delay.called
 
-    @mock.patch('solitude.base.delayable.delay')
+    @mock.patch('lib.delayable.tasks.delayable.delay')
     def test_delayable(self, delay):
         TestResource().dispatch('list', self.get_request('post'))
         assert delay.called
 
-    @mock.patch('solitude.base.delayable.delay')
+    @mock.patch('lib.delayable.tasks.delayable.delay')
     def test_meta(self, delay):
         TestResource().dispatch('list',
                                 self.get_request('post', url='/foo?pk=bar'))
@@ -53,7 +53,7 @@ class TestDelay(APITest):
         eq_(meta['REQUEST_METHOD'], 'POST')
         eq_(meta['PATH_INFO'], '/foo')
 
-    @mock.patch('solitude.base.delayable.delay')
+    @mock.patch('lib.delayable.tasks.delayable.delay')
     def test_result(self, delay):
         res = TestResource().dispatch('list', self.get_request('post'))
         eq_(res.status_code, 202)
