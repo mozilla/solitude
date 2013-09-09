@@ -6,8 +6,10 @@ from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
+from django_statsd.clients import statsd
 from lxml import etree
 
+from lib.bango.client import get_client
 from lib.bango.constants import (COUNTRIES, CURRENCIES, INVALID_PERSON, OK,
                                  RATINGS, RATINGS_SCHEME,
                                  VAT_NUMBER_DOES_NOT_EXIST)
@@ -19,6 +21,7 @@ from lib.transactions.constants import (SOURCE_BANGO, STATUS_COMPLETED,
 from lib.transactions.forms import check_status
 from lib.transactions.models import Transaction
 
+from solitude.base import log_cef
 from solitude.fields import ListField, URLField
 from solitude.logger import getLogger
 
@@ -289,6 +292,12 @@ class NotificationForm(forms.Form):
     # Store the actual price paid.
     amount = forms.DecimalField(required=False)
     currency = forms.CharField(required=False)
+    # Bango token to use with the token checker service.
+    bango_token = forms.CharField(required=True)
+
+    def __init__(self, request, *attr, **kw):
+        self._request = request
+        super(NotificationForm, self).__init__(*attr, **kw)
 
     def clean(self):
         cleaned_data = super(NotificationForm, self).clean()
@@ -302,7 +311,51 @@ class NotificationForm(forms.Form):
                 raise forms.ValidationError(
                         'Signature did not match: %s for %s'
                         % (sig, trans.uuid))
+
+        tok = cleaned_data.get('bango_token')
+        if settings.CHECK_BANGO_TOKEN and tok:
+            self._check_for_tampering(tok, cleaned_data)
+
         return cleaned_data
+
+    def _check_for_tampering(self, tok, cleaned_data):
+        """
+        Use the token service to see if any data has been tampered with.
+        """
+        cli = get_client().client('token_checker')
+        with statsd.timer('solitude.bango.request.checktoken'):
+            true_data = cli.service.CheckToken(token=tok)
+        if true_data.ResponseCode is None:
+            # Any None field means the token was invalid.
+            # This might happen if someone tampered with Token= itself in the
+            # query string or if Bango's server was messed up.
+            statsd.incr('solitude.bango.response.checktoken_fail')
+            msg = 'Invalid Bango token: {0}'.format(tok)
+            log.error(msg)
+            raise forms.ValidationError(msg)
+
+        for form_fld, true_attr in (
+                ('moz_signature', 'Signature'),
+                ('moz_transaction', 'MerchantTransactionId'),
+                ('bango_response_code', 'ResponseCode'),
+                ('bango_response_message', 'ResponseMessage'),
+                ('bango_trans_id', 'BangoTransactionId'),):
+            true_val = getattr(true_data, true_attr)
+            form_val = cleaned_data.get(form_fld)
+            # Since moz_transaction is an object, get the real value.
+            if form_val and form_fld == 'moz_transaction':
+                form_val = form_val.uuid
+
+            if form_val and form_val != true_val:
+                log_cef('Bango query string tampered with: '
+                        'field: {0}; fake: {1}; true: {2}'.format(
+                                        form_fld, form_val, true_val),
+                        self._request, severity=3)
+                # Completely reject the form since it was tampered with.
+                raise forms.ValidationError(
+                        'Form field {0} has been tampered with. '
+                        'True: {1}; fake: {2}'.format(
+                                        form_fld, true_val, form_val))
 
     def clean_moz_transaction(self):
         uuid = self.cleaned_data['moz_transaction']
