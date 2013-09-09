@@ -49,8 +49,6 @@ from tastypie.utils import dict_strip_unicode_keys
 from tastypie.validation import FormValidation
 import test_utils
 
-from lib.delayable.tasks import delayable
-
 from solitude.authentication import OAuthAuthentication
 from solitude.logger import getLogger
 
@@ -281,6 +279,8 @@ class BaseResource(object):
         method = request.META['REQUEST_METHOD']
         delay = request.META.get('HTTP_SOLITUDE_ASYNC', False)
         if delay:
+            # Move the import here to remove warnings in management commands.
+            from lib.delayable.tasks import delayable
             # Only do async on these requests.
             if method not in ['PATCH', 'POST', 'PUT']:
                 raise ImmediateHttpResponse(response=
