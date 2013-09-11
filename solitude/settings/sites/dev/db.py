@@ -65,5 +65,3 @@ LOGGING['loggers']['s.bango'] = {
     'level': 'DEBUG',
     'propagate': True
 }
-
-CHECK_BANGO_TOKEN = True
