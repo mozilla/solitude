@@ -28,16 +28,16 @@ class NotificationResource(Resource):
         bill_conf_id = form.data.get('billing_config_id')
         log.info('Received notification for billing_config_id %r: '
                  'bango_response_code: %r; bango_response_message: %r; '
-                 'bango_trans_id: %r; moz_transaction: %r; '
-                 'amount: %r; currency: %r; token: %r'
+                 'bango_trans_id: %r; bango_token: %r; moz_transaction: %r; '
+                 'amount: %r; currency: %r'
                  % (bill_conf_id,
                     form.data.get('bango_response_code'),
                     form.data.get('bango_response_message'),
                     form.data.get('bango_trans_id'),
+                    form.data.get('bango_token'),
                     form.data.get('moz_transaction'),
                     form.data.get('amount'),
-                    form.data.get('currency'),
-                    form.data.get('token')))
+                    form.data.get('currency')))
 
         if not form.is_valid():
             log.info(u'Notification invalid: %s' % bill_conf_id)
