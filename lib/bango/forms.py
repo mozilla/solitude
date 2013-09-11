@@ -22,6 +22,7 @@ from lib.transactions.forms import check_status
 from lib.transactions.models import Transaction
 
 from solitude.base import log_cef
+from solitude.constants import PAYMENT_METHOD_CHOICES
 from solitude.fields import ListField, URLField
 from solitude.logger import getLogger
 
@@ -246,6 +247,8 @@ class CreateBillingConfigurationForm(SellerProductForm):
 class PriceForm(forms.Form):
     price = forms.DecimalField()
     currency = forms.ChoiceField(choices=([r, r] for r in CURRENCIES.keys()))
+    method = forms.ChoiceField(choices=([r, r]
+                                        for r in PAYMENT_METHOD_CHOICES))
 
 
 class CreateBankDetailsForm(forms.Form):

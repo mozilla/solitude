@@ -20,7 +20,8 @@ from lib.sellers.models import SellerProductBango
 from lib.transactions.constants import SOURCE_BANGO
 
 from solitude.base import (CompatRelatedField, ListModelMixin,
-    RetrieveModelMixin)
+                           RetrieveModelMixin)
+from solitude.constants import PAYMENT_METHOD_ALL
 from solitude.logger import getLogger
 
 log = getLogger('s.bango')
@@ -56,7 +57,8 @@ class StatusViewSet(CreateModelMixin, ListModelMixin,
                 self.get_serializer().fields['seller_product_bango']
                     .to_native(obj.seller_product_bango)),
             'pageTitle': 'Test of app status',
-            'prices': [{'price': 0.99, 'currency': 'USD'}],
+            'prices': [{'price': 0.99, 'currency': 'USD',
+                        'method': PAYMENT_METHOD_ALL}],
             'redirect_url_onerror': 'http://test.mozilla.com/error',
             'redirect_url_onsuccess': 'http://test.mozilla.com/success',
             'transaction_uuid': 'test:status:{0}'.format(uuid.uuid4()),

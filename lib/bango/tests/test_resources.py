@@ -21,6 +21,8 @@ from lib.transactions.constants import (SOURCE_BANGO, SOURCE_PAYPAL,
                                         TYPE_REFUND)
 from lib.transactions.models import Transaction
 from solitude.base import APITest, Resource as BaseResource
+from solitude.constants import (PAYMENT_METHOD_OPERATOR, PAYMENT_METHOD_CARD,
+                                PAYMENT_METHOD_ALL)
 
 from ..constants import (ALREADY_REFUNDED, BANGO_ALREADY_PREMIUM_ENABLED,
                          CANT_REFUND, INTERNAL_ERROR, MICRO_PAYMENT_TYPES, OK,
@@ -531,15 +533,15 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         eq_(self.client.post(self.list_url, data=data).status_code, 201)
         eq_(self.client.post(self.list_url, data=data).status_code, 400)
 
-    @mock.patch.object(settings, 'BANGO_MAX_MICRO_AMOUNT', Decimal('0.99'))
     @mock.patch('lib.bango.resources.billing'
                 '.CreateBillingConfigurationResource.client')
     def test_micro_payment_cannot_use_card(self, cli):
         data = self.good()
-        # Set a price just slightly under the micro payment max.
         data['prices'] = [
-            {'price': 0.88, 'currency': 'CAD'},
-            {'price': 0.98, 'currency': 'USD'},
+                {'price': 0.88, 'currency': 'CAD',
+                 'method': PAYMENT_METHOD_OPERATOR},
+                {'price': 0.98, 'currency': 'USD',
+                 'method': PAYMENT_METHOD_OPERATOR},
         ]
         with self.fake_client_response(cli):
             res = self.client.post(self.list_url, data=data)
@@ -547,30 +549,21 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         eq_(sorted(list(cli.call_args[0][1]['typeFilter'].string)),
             sorted(list(MICRO_PAYMENT_TYPES)))
 
-    @mock.patch.object(settings, 'BANGO_MAX_MICRO_AMOUNT', Decimal('0.99'))
     @mock.patch('lib.bango.resources.billing'
                 '.CreateBillingConfigurationResource.client')
-    def test_normal_payment_can_use_card(self, cli):
+    def test_normal_payment_mixed(self, cli):
         data = self.good()
-        # Set a price exactly at the micro payment max.
         data['prices'] = [
-            {'price': 0.89, 'currency': 'CAD'},
-            {'price': 0.99, 'currency': 'USD'},
+            {'price': 0.89, 'currency': 'CAD',
+             'method': PAYMENT_METHOD_OPERATOR},
+            {'price': 0.99, 'currency': 'USD',
+             'method': PAYMENT_METHOD_ALL},
         ]
         with self.fake_client_response(cli):
             res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 201, res.content)
         eq_(sorted(list(cli.call_args[0][1]['typeFilter'].string)),
             sorted(list(PAYMENT_TYPES)))
-
-    @raises(ValueError)
-    def test_usd_price_required(self):
-        data = self.good()
-        # Set prices without USD.
-        data['prices'] = [
-            {'price': 0.88, 'currency': 'CAD'}
-        ]
-        self.client.post(self.list_url, data=data)
 
     def test_with_product_icon(self):
         data = self.good()

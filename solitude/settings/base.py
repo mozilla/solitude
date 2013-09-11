@@ -226,10 +226,6 @@ BANGO_BASIC_AUTH = {'USER': '', 'PASSWORD': ''}
 # notification URL will not be set.
 BANGO_NOTIFICATION_URL = ''
 
-# Anything less than this USD price will be considerd a micro
-# payment. Purchases at these prices cannot be made with credit cards.
-BANGO_MAX_MICRO_AMOUNT = Decimal('0.99')
-
 # Time in seconds that a transaction expires. If you try to complete a
 # transaction after this time, it will fail.
 TRANSACTION_EXPIRY = 60 * 30

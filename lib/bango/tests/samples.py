@@ -42,9 +42,9 @@ good_billing_request = {
     'pageTitle': 'wat!',
     'user_uuid': 'webpay-user-token',
     'prices': [
-        {'price': 3, 'currency': 'USD'},
-        {'price': 2, 'currency': 'CAD'},
-        {'price': 1, 'currency': 'EUR'},
+        {'price': 3, 'currency': 'USD', 'method': 2},
+        {'price': 2, 'currency': 'CAD', 'method': 2},
+        {'price': 1, 'currency': 'EUR', 'method': 2},
     ],
     'redirect_url_onsuccess': 'https://nowhere.com/success',
     'redirect_url_onerror': 'https://nowhere.com/error',

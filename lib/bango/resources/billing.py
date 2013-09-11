@@ -12,6 +12,7 @@ from lib.bango.utils import sign
 
 from lib.transactions.constants import STATUS_FAILED
 
+from solitude.constants import PAYMENT_METHOD_OPERATOR
 from solitude.logger import getLogger
 
 log = getLogger('s.bango')
@@ -74,14 +75,13 @@ class CreateBillingConfigurationResource(Resource):
         data = form.bango_data
         client = get_client()
         billing = client.client('billing')
-        usd_price = None
         price_list = billing.factory.create('ArrayOfPrice')
+        price_types = set()
         for item in form.cleaned_data['prices']:
             price = billing.factory.create('Price')
             price.amount = item.cleaned_data['price']
             price.currency = item.cleaned_data['currency']
-            if price.currency == 'USD':
-                usd_price = Decimal(price.amount)
+            price_types.add(item.cleaned_data['method'])
 
             # TODO: remove this.
             # Very temporary and very fragile hack to fix bug 882183.
@@ -101,14 +101,12 @@ class CreateBillingConfigurationResource(Resource):
 
         data['priceList'] = price_list
 
-        if not usd_price:
-            # This should never happen because USD is always part of the list.
-            raise ValueError('Purchase for %r did not contain a USD price'
-                             % data.get('externalTransactionId'))
-        if usd_price < settings.BANGO_MAX_MICRO_AMOUNT:
+        # More workarounds for bug 882321, ideally we'd send one type per
+        # region, price, combination. If all the prices say operator, then
+        # we'll set it to that. Otherwise its all.
+        type_filters = PAYMENT_TYPES
+        if price_types == set([str(PAYMENT_METHOD_OPERATOR)]):
             type_filters = MICRO_PAYMENT_TYPES
-        else:
-            type_filters = PAYMENT_TYPES
 
         types = billing.factory.create('ArrayOfString')
         for f in type_filters:
