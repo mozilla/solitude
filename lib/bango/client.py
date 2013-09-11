@@ -23,6 +23,7 @@ wsdl = {
     'exporter': 'file://' + os.path.join(root, 'mozilla_exporter.wsdl'),
     'billing': 'file://' + os.path.join(root, 'billing_configuration.wsdl'),
     'direct': 'file://' + os.path.join(root, 'direct_billing.wsdl'),
+    'token_checker': 'file://' + os.path.join(root, 'token_checker.wsdl'),
 }
 
 # Add in the whitelist of supported methods here.
@@ -54,6 +55,10 @@ direct = [
     'GetRefundStatus',
 ]
 
+token_checker = [
+    'CheckToken',
+]
+
 
 # Status codes from the proxy that raise an error and stop processing.
 FATAL_PROXY_STATUS_CODES = (404, 500,)
@@ -81,7 +86,8 @@ class Client(object):
     def __getattr__(self, attr):
         for name, methods in (['exporter', exporter],
                               ['billing', billing],
-                              ['direct', direct]):
+                              ['direct', direct],
+                              ['token_checker', token_checker]):
             if attr in methods:
                 return functools.partial(self.call, attr, wsdl=str(name))
         raise AttributeError('Unknown request: %s' % attr)

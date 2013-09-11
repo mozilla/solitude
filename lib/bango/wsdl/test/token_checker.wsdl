@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://mozilla.bango.net/" xmlns:s1="com.bango.webservices.directbilling" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://mozilla.bango.net/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://mozilla.bango.net/">
+      <s:import namespace="com.bango.webservices.directbilling" />
+      <s:element name="CheckToken">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckTokenResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CheckTokenResult" type="tns:TokenCheckerResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="TokenCheckerResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ResponseMessage" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ResponseCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Signature" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="MerchantTransactionId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="BangoUserId" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="BangoTransactionId" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="TransactionMethod" type="s1:TransactionMethod" />
+        </s:sequence>
+      </s:complexType>
+    </s:schema>
+    <s:schema elementFormDefault="qualified" targetNamespace="com.bango.webservices.directbilling">
+      <s:complexType name="TransactionMethod">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="networkId" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="networkDescription" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="paymentMethodId" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="paymentMethodDescription" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="CheckTokenSoapIn">
+    <wsdl:part name="parameters" element="tns:CheckToken" />
+  </wsdl:message>
+  <wsdl:message name="CheckTokenSoapOut">
+    <wsdl:part name="parameters" element="tns:CheckTokenResponse" />
+  </wsdl:message>
+  <wsdl:portType name="TokenCheckerSoap">
+    <wsdl:operation name="CheckToken">
+      <wsdl:input message="tns:CheckTokenSoapIn" />
+      <wsdl:output message="tns:CheckTokenSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="TokenCheckerSoap" type="tns:TokenCheckerSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="CheckToken">
+      <soap:operation soapAction="http://mozilla.bango.net/CheckToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="TokenCheckerSoap12" type="tns:TokenCheckerSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="CheckToken">
+      <soap12:operation soapAction="http://mozilla.bango.net/CheckToken" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="TokenChecker">
+    <wsdl:port name="TokenCheckerSoap" binding="tns:TokenCheckerSoap">
+      <soap:address location="http://mozilla.test.bango.org/_/ws/tokenchecker.asmx" />
+    </wsdl:port>
+    <wsdl:port name="TokenCheckerSoap12" binding="tns:TokenCheckerSoap12">
+      <soap12:address location="http://mozilla.test.bango.org/_/ws/tokenchecker.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

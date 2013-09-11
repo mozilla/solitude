@@ -5,7 +5,7 @@ from decimal import Decimal
 
 from django.conf import settings
 
-from mock import patch
+from mock import Mock, patch
 from nose.tools import eq_, ok_
 
 from lib.sellers.models import Seller, SellerProduct
@@ -14,7 +14,7 @@ from lib.transactions.constants import STATUS_COMPLETED
 from lib.transactions.models import Transaction
 from solitude.base import APITest
 
-from ..constants import CANCEL
+from ..constants import CANCEL, OK
 from ..utils import sign
 
 import samples
@@ -29,6 +29,10 @@ class TestNotification(APITest):
         sellers = utils.make_sellers(uuid='seller-uuid')
         self.seller = sellers.seller
         self.product = sellers.product
+        self.token = '<bango-guid>'
+        self.response_code = OK
+        self.response_msg = 'Success'
+        self.bango_trans_id = '56789'
         self.trans = Transaction.objects.create(
             amount=1, provider=constants.SOURCE_BANGO,
             seller_product=self.product,
@@ -36,16 +40,45 @@ class TestNotification(APITest):
             uid_pay='external-trans-uid'
         )
         self.url = self.get_list_url('notification')
+        self.sig = sign(self.trans_uuid)
+        p = patch('lib.bango.forms.get_client')
+        self.addCleanup(p.stop)
+        self.get_client = p.start()
+
+    def setup_token(self, Signature=None, MerchantTransactionId=None,
+                    ResponseMessage=None, ResponseCode=None,
+                    BangoTransactionId=None, res=None):
+        # This is the mock CheckToken result.
+        if not res:
+            res = Mock()
+            res.Signature = Signature or self.sig
+            res.MerchantTransactionId = (MerchantTransactionId or
+                                         self.trans_uuid)
+            res.ResponseCode = ResponseCode or self.response_code
+            res.ResponseMessage = ResponseMessage or self.response_msg
+            res.BangoTransactionId = BangoTransactionId or self.bango_trans_id
+
+        # Take a deep breath before you read this.
+        # We are mocking: get_client().client().service.CheckToken(token=...)
+
+        get_client = Mock()
+
+        client = Mock()
+        client.service.CheckToken.return_value = res
+
+        get_client.client.return_value = client
+        self.get_client.return_value = get_client
 
     def data(self, overrides=None):
         data = {'moz_transaction': self.trans_uuid,
-                'moz_signature': sign(self.trans_uuid),
+                'moz_signature': self.sig,
                 'billing_config_id': '1234',
-                'bango_trans_id': '56789',
-                'bango_response_code': 'OK',
+                'bango_trans_id': self.bango_trans_id,
+                'bango_response_code': self.response_code,
                 'amount': '0.99',
                 'currency': 'EUR',
-                'bango_response_message': 'Success'}
+                'bango_token': self.token,
+                'bango_response_message': self.response_msg}
         if overrides:
             data.update(overrides)
         return data
@@ -56,6 +89,7 @@ class TestNotification(APITest):
         return json.loads(res.content)
 
     def test_success(self):
+        self.setup_token()
         data = self.data()
         self.post(data)
         tr = self.trans.reget()
@@ -65,6 +99,7 @@ class TestNotification(APITest):
         ok_(tr.uid_support)
 
     def test_no_price(self):
+        self.setup_token()
         data = self.data()
         del data['amount']
         del data['currency']
@@ -74,6 +109,7 @@ class TestNotification(APITest):
         eq_(tr.currency, '')
 
     def test_empty_price(self):
+        self.setup_token()
         data = self.data()
         data['amount'] = ''
         data['currency'] = ''
@@ -83,44 +119,87 @@ class TestNotification(APITest):
         eq_(tr.currency, '')
 
     def test_failed(self):
-        self.post(self.data(overrides={'bango_response_code': 'NOT OK'}))
+        self.response_code = 'NOT OK'
+        self.setup_token()
+        self.post(self.data())
         tr = self.trans.reget()
         eq_(tr.status, constants.STATUS_FAILED)
 
     def test_cancelled(self):
-        self.post(self.data(overrides={'bango_response_code':
-                                       CANCEL}))
+        self.response_code = CANCEL
+        self.setup_token()
+        self.post(self.data())
         tr = self.trans.reget()
         eq_(tr.status, constants.STATUS_CANCELLED)
 
     def test_incorrect_sig(self):
-        data = self.data({'moz_signature': sign(self.trans_uuid) + 'garbage'})
+        self.sig = sign(self.trans_uuid) + 'garbage'
+        self.setup_token()
+        data = self.data()
         self.post(data, expected_status=400)
 
     def test_missing_sig(self):
+        self.setup_token()
         data = self.data()
         del data['moz_signature']
         self.post(data, expected_status=400)
 
     def test_missing_transaction(self):
+        self.setup_token()
         data = self.data()
         del data['moz_transaction']
         self.post(data, expected_status=400)
 
     def test_unknown_transaction(self):
+        self.setup_token()
         self.post(self.data({'moz_transaction': 'does-not-exist'}),
                   expected_status=400)
 
     def test_already_completed(self):
+        self.setup_token()
         self.trans.status = constants.STATUS_COMPLETED
         self.trans.save()
         self.post(self.data(), expected_status=400)
 
     def test_expired_transaction(self):
+        self.setup_token()
         self.trans.created = datetime.now() - timedelta(seconds=62)
         self.trans.save()
         with self.settings(TRANSACTION_EXPIRY=60):
             self.post(self.data(), expected_status=400)
+
+    @patch('lib.bango.forms.log_cef')
+    def test_tampered_response_code(self, log_cef):
+        self.setup_token(ResponseCode='tampered-with')
+        self.post(self.data(), expected_status=400)
+        assert log_cef.called
+
+    def test_tampered_response_msg(self):
+        self.setup_token(ResponseMessage='tampered-with')
+        self.post(self.data(), expected_status=400)
+
+    def test_tampered_bango_trans(self):
+        self.setup_token(BangoTransactionId='tampered-with')
+        self.post(self.data(), expected_status=400)
+
+    def test_tampered_moz_trans(self):
+        self.setup_token(MerchantTransactionId='tampered-with')
+        self.post(self.data(), expected_status=400)
+
+    def test_tampered_sig(self):
+        self.setup_token(Signature='tampered-with')
+        self.post(self.data(), expected_status=400)
+
+    def test_unknown_token(self):
+        # When unknown, all fields are set to None.
+        res = Mock()
+        res.Signature = None
+        res.MerchantTransactionId = None
+        res.ResponseCode = None
+        res.ResponseMessage = None
+        self.setup_token(res=res)
+
+        self.post(self.data(), expected_status=400)
 
 
 @patch.object(settings, 'BANGO_BASIC_AUTH', {'USER': 'f', 'PASSWORD': 'b'})
