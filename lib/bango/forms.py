@@ -425,6 +425,8 @@ class EventForm(forms.Form):
 
             # Easier to work with a dictionary than etree.
             data = dict([c.values() for c in elem.getchildren()])
+            if not data.get('externalCPTransId'):
+                raise forms.ValidationError('External trans id is required')
 
         except Exception, exc:
             log.error('Error with event XML: '

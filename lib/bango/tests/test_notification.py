@@ -247,6 +247,10 @@ class TestEvent(APITest):
         self.post(notice=samples.event_notification_no_data,
                   expected=400)
 
+    def test_no_trans(self):
+        self.post(notice=samples.event_notification_cp_trans_id,
+                  expected=400)
+
     def test_not_changed(self):
         self.trans.status = STATUS_COMPLETED
         self.trans.save()

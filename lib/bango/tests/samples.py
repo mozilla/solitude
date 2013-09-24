@@ -216,6 +216,19 @@ event_notification_no_action = """\xef\xbb\xbf<?xml version="1.0" encoding="utf-
         </eventList>
     </bangoEvents>"""
 
+event_notification_cp_trans_id = """\xef\xbb\xbf<?xml version="1.0" encoding="utf-8"?>
+    <bangoEvents xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:noNamespaceSchemaLocation="http://xml.bango.net/schemas/payment.xsd" version="1.0">
+        <eventList>
+            <event>
+                <action>PAYMENT</action>
+                <data>
+                    <item name="transId" value="bango-trans-uid" />
+                </data>
+            </event>
+        </eventList>
+    </bangoEvents>"""
+
 event_notification_no_data = """\xef\xbb\xbf<?xml version="1.0" encoding="utf-8"?>
     <bangoEvents xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xsi:noNamespaceSchemaLocation="http://xml.bango.net/schemas/payment.xsd" version="1.0">
