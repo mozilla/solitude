@@ -281,7 +281,7 @@ BANGO_TIMEOUT = 30
 BANGO_STATUSES_LIFETIME = 30
 
 # When True, use the token check service to verify query string parameters.
-CHECK_BANGO_TOKEN = False
+CHECK_BANGO_TOKEN = True
 
 REST_FRAMEWORK = {
     'DEFAULT_MODEL_SERIALIZER_CLASS':
