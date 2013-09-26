@@ -1,5 +1,6 @@
 from django.test import TestCase
 
+from lib.buyers.constants import PIN_4_NUMBERS_LONG, PIN_ONLY_NUMBERS
 from lib.buyers.forms import BuyerForm
 
 
@@ -17,22 +18,22 @@ class BuyerFormTest(TestCase):
         self.data['pin'] = '12345'
         form = BuyerForm(self.data)
         assert not form.is_valid()
-        assert 'PIN must be exactly 4 numbers long' in form.errors['pin']
+        assert PIN_4_NUMBERS_LONG in form.errors['pin']
 
     def test_too_short_pin(self):
         self.data['pin'] = '123'
         form = BuyerForm(self.data)
         assert not form.is_valid()
-        assert 'PIN must be exactly 4 numbers long' in form.errors['pin']
+        assert PIN_4_NUMBERS_LONG in form.errors['pin']
 
     def test_partially_numeric_pin(self):
         self.data['pin'] = '123a'
         form = BuyerForm(self.data)
         assert not form.is_valid()
-        assert 'PIN may only consists of numbers' in form.errors['pin']
+        assert PIN_ONLY_NUMBERS in form.errors['pin']
 
     def test_completely_alpha_pin(self):
         self.data['pin'] = 'asfa'
         form = BuyerForm(self.data)
         assert not form.is_valid()
-        assert 'PIN may only consists of numbers' in form.errors['pin']
+        assert PIN_ONLY_NUMBERS in form.errors['pin']

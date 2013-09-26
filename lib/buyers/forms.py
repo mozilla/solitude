@@ -3,6 +3,7 @@ from django import forms
 from django_paranoia.forms import ParanoidForm, ParanoidModelForm
 from tastypie.validation import FormValidation
 
+from .constants import FIELD_REQUIRED, PIN_4_NUMBERS_LONG, PIN_ONLY_NUMBERS
 from .field import FormHashField
 from .models import Buyer
 
@@ -22,10 +23,10 @@ def base_clean_pin(form, field_name='pin'):
         return pin
 
     if not len(pin) == 4:
-        raise forms.ValidationError('PIN must be exactly 4 numbers long')
+        raise forms.ValidationError(PIN_4_NUMBERS_LONG)
 
     if not pin.isdigit():
-        raise forms.ValidationError('PIN may only consists of numbers')
+        raise forms.ValidationError(PIN_ONLY_NUMBERS)
 
     return pin
 
@@ -45,6 +46,12 @@ class BuyerForm(ParanoidModelForm, PinMixin):
     class Meta:
         model = Buyer
         exclude = ['pin_locked_out', 'pin_failures']
+
+    def __init__(self, *args, **kwargs):
+        super(BuyerForm, self).__init__(*args, **kwargs)
+        self.fields['uuid'].error_messages = {
+            'required': FIELD_REQUIRED,
+        }
 
 
 class PinForm(ParanoidForm, PinMixin):
