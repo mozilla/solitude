@@ -7,6 +7,7 @@ import mock
 from django_paranoia.signals import warning
 from nose.tools import eq_
 
+from lib.buyers.constants import BUYER_UUID_ALREADY_EXISTS, FIELD_REQUIRED
 from lib.buyers.models import Buyer, BuyerPaypal
 from solitude.base import APITest
 
@@ -32,18 +33,17 @@ class TestBuyer(APITest):
         res = self.client.post(self.list_url, data={'uuid': self.uuid})
         eq_(res.status_code, 400)
         eq_(self.get_errors(res.content, 'uuid'),
-            # How do we stop uuid being capitalized?
-            ['Buyer with this Uuid already exists.'])
+            [BUYER_UUID_ALREADY_EXISTS])
 
     def test_add_empty(self):
         res = self.client.post(self.list_url, data={'uuid': ''})
         eq_(res.status_code, 400)
-        eq_(self.get_errors(res.content, 'uuid'), ['This field is required.'])
+        eq_(self.get_errors(res.content, 'uuid'), [FIELD_REQUIRED])
 
     def test_add_missing(self):
         res = self.client.post(self.list_url, data={})
         eq_(res.status_code, 400)
-        eq_(self.get_errors(res.content, 'uuid'), ['This field is required.'])
+        eq_(self.get_errors(res.content, 'uuid'), [FIELD_REQUIRED])
 
     def test_list_allowed(self):
         self.allowed_verbs(self.list_url, ['post', 'get', 'put'])

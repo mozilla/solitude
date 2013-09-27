@@ -6,6 +6,7 @@ from django.db import models
 from aesfield.field import AESField
 
 from solitude.base import Model
+from .constants import BUYER_UUID_ALREADY_EXISTS
 from .field import HashField
 
 
@@ -22,6 +23,10 @@ class Buyer(Model):
 
     class Meta(Model.Meta):
         db_table = 'buyer'
+
+    def unique_error_message(self, model_class, unique_check):
+        if 'uuid' in unique_check:
+            return BUYER_UUID_ALREADY_EXISTS
 
     @property
     def locked_out(self):
