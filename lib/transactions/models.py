@@ -166,3 +166,11 @@ def time_status_change(sender, **kwargs):
     status = constants.STATUSES_INVERTED[obj.status]
     statsd.timing('transaction.status.{0}'.format(status),
                   (obj.modified - obj.created).seconds)
+
+
+class TransactionLog(Model):
+    transaction = models.ForeignKey(Transaction, related_name='log')
+    type = models.IntegerField(choices=constants.LOG_CHOICES)
+
+    class Meta(Model.Meta):
+        db_table = 'transaction_log'

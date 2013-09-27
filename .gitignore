@@ -18,4 +18,5 @@ tmp/*
 *~
 *.mo
 *.key
+*.keys
 docs/_build
