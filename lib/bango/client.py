@@ -109,7 +109,9 @@ class Client(object):
         return response
 
     def client(self, name):
-        return sudsclient.Client(wsdl[name])
+        # By default, WSDL files are cached but we use local files so we don't
+        # need that.
+        return sudsclient.Client(wsdl[name], cache=None)
 
     def is_error(self, code, message):
         # Count the numbers of responses we get.
