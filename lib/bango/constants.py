@@ -45,6 +45,7 @@ CURRENCIES = {
     'EGP': 'Egyptian Pound',
     'EUR': 'Euro',
     'GBP': 'Pounds Sterling',
+    'HUF': 'Hungarian Forint',
     'IDR': 'Indonesian Rupiah',
     'MXN': 'Mexican Pesos',
     'MYR': 'Malaysian Ringgit',
