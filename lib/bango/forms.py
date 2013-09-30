@@ -350,10 +350,13 @@ class NotificationForm(forms.Form):
                 form_val = form_val.uuid
 
             if form_val and form_val != true_val:
-                log_cef('Bango query string tampered with: '
-                        'field: {0}; fake: {1}; true: {2}'.format(
-                                        form_fld, form_val, true_val),
-                        self._request, severity=3)
+                msg = ('Bango query string tampered with: field: {field}; '
+                       'fake: {fake}; true: {true}'
+                       .format(field=form_fld, fake=form_val, true=true_val))
+                log_cef(msg, self._request, severity=3)
+                log.info(msg)
+                log.info('token check response: {true_data}'
+                         .format(true_data=true_data))
                 # Completely reject the form since it was tampered with.
                 raise forms.ValidationError(
                         'Form field {0} has been tampered with. '
