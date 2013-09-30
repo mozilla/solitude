@@ -344,6 +344,9 @@ class NotificationForm(forms.Form):
                 ('bango_response_message', 'ResponseMessage'),
                 ('bango_trans_id', 'BangoTransactionId'),):
             true_val = getattr(true_data, true_attr)
+            # Make sure the true value is a str() just like it is on the query
+            # string.
+            true_val = str(true_val)
             form_val = cleaned_data.get(form_fld)
             # Since moz_transaction is an object, get the real value.
             if form_val and form_fld == 'moz_transaction':

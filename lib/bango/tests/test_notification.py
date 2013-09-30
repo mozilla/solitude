@@ -155,6 +155,11 @@ class TestNotification(APITest):
         self.post(self.data({'moz_transaction': 'does-not-exist'}),
                   expected_status=400)
 
+    def test_long_int_transaction(self):
+        # The token check service returns non-string fields, bah!
+        self.setup_token(BangoTransactionId=long(self.bango_trans_id))
+        self.post(self.data())
+
     def test_already_completed(self):
         self.setup_token()
         self.trans.status = constants.STATUS_COMPLETED
