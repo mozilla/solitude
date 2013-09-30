@@ -34,7 +34,7 @@ class TestNotification(APITest):
         self.response_msg = 'Success'
         self.bango_trans_id = '56789'
         self.trans = Transaction.objects.create(
-            amount=1, provider=constants.SOURCE_BANGO,
+            amount=1, provider=constants.PROVIDER_BANGO,
             seller_product=self.product,
             uuid=self.trans_uuid,
             uid_pay='external-trans-uid'
@@ -217,7 +217,7 @@ class TestEvent(APITest):
         self.product = SellerProduct.objects.create(seller=self.seller,
                                                     external_id='xyz')
         self.trans = Transaction.objects.create(
-            amount=1, provider=constants.SOURCE_BANGO,
+            amount=1, provider=constants.PROVIDER_BANGO,
             seller_product=self.product,
             uuid=self.trans_uuid,
             uid_pay='bango-trans-uid'

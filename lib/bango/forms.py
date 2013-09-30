@@ -15,7 +15,7 @@ from lib.bango.constants import (COUNTRIES, CURRENCIES, INVALID_PERSON, OK,
                                  VAT_NUMBER_DOES_NOT_EXIST)
 from lib.bango.utils import verify_sig
 from lib.sellers.models import SellerProductBango
-from lib.transactions.constants import (SOURCE_BANGO, STATUS_COMPLETED,
+from lib.transactions.constants import (PROVIDER_BANGO, STATUS_COMPLETED,
                                         STATUS_RECEIVED, TYPE_PAYMENT,
                                         TYPE_REFUND)
 from lib.transactions.forms import check_status
@@ -205,6 +205,7 @@ class CreateBillingConfigurationForm(SellerProductForm):
     user_uuid = forms.CharField()
     icon_url = forms.URLField(required=False)
     application_size = forms.IntegerField(required=False)  # In bytes.
+    source = forms.CharField(required=False)
 
     @property
     def bango_data(self):
@@ -498,7 +499,7 @@ class RefundForm(forms.Form):
         transaction = get_object_or_404(Transaction,
             uuid=self.cleaned_data['uuid'])
 
-        if transaction.provider != SOURCE_BANGO:
+        if transaction.provider != PROVIDER_BANGO:
             raise forms.ValidationError('Not a Bango transaction')
 
         elif transaction.status != STATUS_COMPLETED:

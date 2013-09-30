@@ -95,7 +95,7 @@ class KeyTest(object):
         seller = Seller.objects.create()
         product = SellerProduct.objects.create(seller=seller)
         Transaction.objects.create(uuid='xyz', uid_pay='foo',
-                                   provider=constants.SOURCE_PAYPAL,
+                                   provider=constants.PROVIDER_PAYPAL,
                                    seller_product=product, amount=5)
 
     def test_check_uuid_404(self, key):

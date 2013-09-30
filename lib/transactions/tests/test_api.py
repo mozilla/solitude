@@ -20,7 +20,7 @@ class TestTransaction(APITest):
             make_seller_paypal('paypal:%s' % self.uuid))
         self.trans = Transaction.objects.create(
             amount=5, seller_product=self.product,
-            provider=constants.SOURCE_PAYPAL, uuid=self.uuid)
+            provider=constants.PROVIDER_PAYPAL, uuid=self.uuid)
         self.detail_url = reverse('api_dispatch_detail',
                                   kwargs={'api_name': self.api_name,
                                           'resource_name': 'transaction',
@@ -41,7 +41,7 @@ class TestTransaction(APITest):
         eq_(json.loads(res.content)['uuid'], self.uuid)
 
     def test_post_uuid(self):
-        data = {'provider': constants.SOURCE_BANGO,
+        data = {'provider': constants.PROVIDER_BANGO,
                 'seller_product': '/generic/product/%s/' % self.product.pk}
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 201)
@@ -49,7 +49,7 @@ class TestTransaction(APITest):
 
     def test_provider(self):
         res = self.client.get(self.list_url, data={'provider':
-                                                   constants.SOURCE_BANGO})
+                                                   constants.PROVIDER_BANGO})
         eq_(res.status_code, 200)
         eq_(json.loads(res.content)['meta']['total_count'], 0, res.content)
 
@@ -80,7 +80,7 @@ class TestTransaction(APITest):
     def test_relations(self):
         new_uuid = self.uuid + ':refund'
         new = Transaction.objects.create(amount=5, seller_product=self.product,
-                                         provider=constants.SOURCE_PAYPAL,
+                                         provider=constants.PROVIDER_PAYPAL,
                                          related=self.trans, uuid=new_uuid,
                                          uid_pay='1')
 

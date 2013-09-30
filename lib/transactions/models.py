@@ -22,7 +22,7 @@ class Transaction(Model):
     buyer = models.ForeignKey('buyers.Buyer', blank=True, null=True,
                               db_index=True)
     currency = models.CharField(max_length=3, blank=True)
-    provider = models.PositiveIntegerField(choices=constants.SOURCES_CHOICES)
+    provider = models.PositiveIntegerField(choices=constants.PROVIDERS_CHOICES)
     related = models.ForeignKey('self', blank=True, null=True,
                                 on_delete=models.PROTECT,
                                 related_name='relations')
@@ -71,7 +71,7 @@ class Transaction(Model):
             status=constants.STATUS_COMPLETED).exists()
 
     def for_log(self):
-        return ('v1',  # Version.
+        return ('v2',  # Version.
             self.uuid,
             self.created.isoformat(),
             self.modified.isoformat(),
@@ -79,7 +79,8 @@ class Transaction(Model):
             self.currency,
             self.status,
             self.buyer.uuid if self.buyer else None,
-            self.seller_product.seller.uuid)
+            self.seller_product.seller.uuid,
+            self.source)
 
 
 @receiver(paypal_create, dispatch_uid='transaction-create-paypal')
@@ -93,7 +94,7 @@ def create_paypal_transaction(sender, **kwargs):
     transaction = Transaction.create(
         amount=clean['amount'],
         currency=clean['currency'],
-        provider=constants.SOURCE_PAYPAL,
+        provider=constants.PROVIDER_PAYPAL,
         seller_product=clean['seller_product'],
         source=clean.get('source', ''),
         type=constants.TYPE_PAYMENT,
@@ -134,7 +135,7 @@ def create_bango_transaction(sender, **kwargs):
     transaction, c = Transaction.objects.safer_get_or_create(
         uuid=data['transaction_uuid'],
         status=constants.STATUS_RECEIVED,
-        provider=constants.SOURCE_BANGO,
+        provider=constants.PROVIDER_BANGO,
         seller_product=seller_product)
 
     transaction.source = data.get('source', '')
