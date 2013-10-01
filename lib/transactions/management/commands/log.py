@@ -1,10 +1,12 @@
 import csv
 import logging
 import os
+import sys
 import tempfile
 from datetime import datetime, timedelta
 from optparse import make_option
 
+from lib.transactions import constants
 from lib.transactions.models import Transaction
 from solitude.management.commands.push_s3 import push
 
@@ -14,15 +16,34 @@ from django.core.management.base import BaseCommand
 log = logging.getLogger('s.transactions')
 
 
-def generate_log(day, filename):
+def generate_log(day, filename, log_type):
     out = open(filename, 'w')
     writer = csv.writer(out)
     next_day = day + timedelta(days=1)
     writer.writerow(('version', 'uuid', 'created', 'modified', 'amount',
                      'currency', 'status', 'buyer', 'seller'))
+
     transactions = Transaction.objects.filter(modified__range=(day, next_day))
-    for transaction in transactions:
-        writer.writerow(transaction.for_log())
+
+    if log_type == 'stats':
+        for row in transactions:
+            row.log.get_or_create(type=constants.LOG_STATS)
+            writer.writerow(row.for_log())
+
+    if log_type == 'revenue':
+        transactions = transactions.filter(
+            status__in=(constants.STATUS_COMPLETED, constants.STATUS_CHECKED),
+            log__type__isnull=True  # Ignore already logged transactions.
+        )
+
+        for row in transactions:
+            obj, created = row.log.get_or_create(type=constants.LOG_REVENUE)
+            if not created:
+                # This should never happen, but just in case.
+                print 'Transaction skipped: {0}'.format(row.uuid)
+                continue
+
+            writer.writerow(row.for_log())
 
 
 class Command(BaseCommand):
@@ -38,9 +59,18 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--date', action='store', type='string', dest='date'),
         make_option('--dir', action='store', type='string', dest='dir'),
+        make_option('--type', action='store', type='string', dest='log_type'),
     )
 
+    types = ['stats', 'revenue']
+
     def handle(self, *args, **options):
+        log_type = options['log_type']
+        if log_type not in self.types:
+            msg = 'Type not valid, must be one of: %s' % self.types
+            log.debug(msg)
+            sys.exit(1)
+
         dir_ = not options['dir']
         if dir_:
             log.debug('No directory specified, making temp.')
@@ -49,8 +79,9 @@ class Command(BaseCommand):
         yesterday = datetime.today() - timedelta(days=1)
         date = (datetime.strptime(options['date'], '%Y-%m-%d')
                 if options['date'] else yesterday).date()
-        filename = os.path.join(dir_, date.strftime('%Y-%m-%d') + '.log')
-        generate_log(date, filename)
+        filename = os.path.join(dir_, '{0}.{1}.log'.format(
+            date.strftime('%Y-%m-%d'), log_type))
+        generate_log(date, filename, log_type)
         log.debug('Log generated to: %s', filename)
         push(filename)
         if not options['dir']:

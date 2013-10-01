@@ -7,7 +7,8 @@ MAILTO=amo-developers@mozilla.org
 HOME=/tmp
 
 # once per day, generate stats log and upload to S3
-05 0 * * * %(django)s stats_log
+05 0 * * * %(django)s log --type=stats
+10 0 * * * %(django)s log --type=revenue
 
 # once per day, clean statuses older than BANGO_STATUSES_LIFETIME setting
 35 0 * * * %(django)s clean_statuses

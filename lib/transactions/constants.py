@@ -44,3 +44,13 @@ SOURCES = {
 STATUSES_CHOICES = invert(STATUSES)
 TYPES_CHOICES = invert(TYPES)
 SOURCES_CHOICES = invert(SOURCES)
+
+LOG_STATS = 0
+LOG_REVENUE = 1
+
+LOGS = {
+    'stats': LOG_STATS,
+    'revenue': LOG_REVENUE
+}
+
+LOG_CHOICES = invert(LOGS)
