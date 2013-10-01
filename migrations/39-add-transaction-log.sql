@@ -3,7 +3,7 @@ CREATE TABLE `transaction_log` (
     `created` datetime NOT NULL,
     `modified` datetime NOT NULL,
     `counter` bigint,
-    `transaction_id` integer NOT NULL,
+    `transaction_id` int(11) unsigned NOT NULL,
     `type` int(11) unsigned NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
