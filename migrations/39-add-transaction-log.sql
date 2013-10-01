@@ -8,4 +8,3 @@ CREATE TABLE `transaction_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 ALTER TABLE `transaction_log` ADD CONSTRAINT `transaction_id_id` FOREIGN KEY (`transaction_id`) REFERENCES `transaction` (`id`);
-CREATE INDEX `transaction_log_id` ON `transaction_log` (`transaction_id`);
