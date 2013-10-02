@@ -1,7 +1,6 @@
 import csv
 import logging
 import os
-import sys
 import tempfile
 from datetime import datetime, timedelta
 from optparse import make_option
@@ -10,7 +9,7 @@ from lib.transactions import constants
 from lib.transactions.models import Transaction
 from solitude.management.commands.push_s3 import push
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 
 log = logging.getLogger('s.transactions')
@@ -60,6 +59,7 @@ class Command(BaseCommand):
         make_option('--date', action='store', type='string', dest='date'),
         make_option('--dir', action='store', type='string', dest='dir'),
         make_option('--type', action='store', type='string', dest='log_type'),
+        make_option('--today', action='store_const', const=True, dest='today')
     )
 
     types = ['stats', 'revenue']
@@ -69,18 +69,22 @@ class Command(BaseCommand):
         if log_type not in self.types:
             msg = 'Type not valid, must be one of: %s' % self.types
             log.debug(msg)
-            sys.exit(1)
+            raise CommandError(msg)
 
         dir_ = not options['dir']
         if dir_:
             log.debug('No directory specified, making temp.')
             dir_ = tempfile.mkdtemp()
 
-        yesterday = datetime.today() - timedelta(days=1)
+        # Default to yesterday for backwards compat.
+        day = (datetime.today() if options['today']
+               else datetime.today() - timedelta(days=1))
+
         date = (datetime.strptime(options['date'], '%Y-%m-%d')
-                if options['date'] else yesterday).date()
+                if options['date'] else day).date()
         filename = os.path.join(dir_, '{0}.{1}.log'.format(
             date.strftime('%Y-%m-%d'), log_type))
+
         generate_log(date, filename, log_type)
         log.debug('Log generated to: %s', filename)
         push(filename)
