@@ -23,7 +23,7 @@ class TestIPN(test_utils.TestCase):
             uid_support='asd',
             uid_pay='asd',
             seller_product=self.product,
-            provider=constants.SOURCE_PAYPAL,
+            provider=constants.PROVIDER_PAYPAL,
             amount=Decimal('10'),
             currency='USD',
             uuid=self.transaction_uuid)
@@ -74,7 +74,7 @@ class TestIPN(test_utils.TestCase):
             seller_product=self.product,
             amount=Decimal('-10'),
             currency='USD',
-            provider=constants.SOURCE_PAYPAL,
+            provider=constants.PROVIDER_PAYPAL,
             uuid=self.transaction_uuid + 'another',
             related=self.transaction)
 
@@ -93,7 +93,7 @@ class TestIPN(test_utils.TestCase):
             seller_product=self.product,
             amount=Decimal('-10'),
             currency='USD',
-            provider=constants.SOURCE_PAYPAL,
+            provider=constants.PROVIDER_PAYPAL,
             uuid=self.transaction_uuid + 'another',
             related=self.transaction)
 

@@ -15,7 +15,7 @@ from lib.sellers.models import (Seller, SellerBango, SellerProduct,
                                 SellerProductBango)
 from lib.sellers.tests.utils import make_seller_paypal
 from lib.transactions import constants
-from lib.transactions.constants import (SOURCE_BANGO, SOURCE_PAYPAL,
+from lib.transactions.constants import (PROVIDER_BANGO, PROVIDER_PAYPAL,
                                         STATUS_CANCELLED, STATUS_COMPLETED,
                                         STATUS_FAILED, STATUS_PENDING,
                                         TYPE_REFUND)
@@ -497,7 +497,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
     def create(self):
         super(TestCreateBillingConfiguration, self).create()
         self.transaction = Transaction.objects.create(
-            provider=constants.SOURCE_BANGO,
+            provider=constants.PROVIDER_BANGO,
             seller_product=self.seller_product,
             status=constants.STATUS_RECEIVED,
             uuid=self.uuid)
@@ -576,7 +576,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
     def test_create_trans_if_not_existing(self):
         data = self.good()
         data['transaction_uuid'] = '<some-new-trans-uuid>'
-        self.transaction.provider = constants.SOURCE_PAYPAL
+        self.transaction.provider = constants.PROVIDER_PAYPAL
         self.transaction.save()
         res = self.client.post(self.list_url, data=data)
         data = json.loads(res.content)
@@ -619,6 +619,14 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         eq_(res.status_code, 201, res.content)
         tran = Transaction.objects.get()
         eq_(tran.provider, 1)
+
+    def test_transaction_source(self):
+        data = self.good()
+        data['source'] = 'marketplace'
+        res = self.client.post(self.list_url, data=data)
+        eq_(res.status_code, 201, res.content)
+        tran = Transaction.objects.get()
+        eq_(tran.source, 'marketplace')
 
     def test_no_transaction(self):
         data = self.good()
@@ -715,7 +723,7 @@ class TestRefund(APITest):
             make_seller_paypal('webpay:sample:uid'))
         self.trans = Transaction.objects.create(
             amount=5, seller_product=self.product,
-            provider=constants.SOURCE_BANGO, uuid=self.uuid,
+            provider=constants.PROVIDER_BANGO, uuid=self.uuid,
             status=constants.STATUS_COMPLETED)
         self.url = self.get_list_url('refund')
         self.seller_bango = SellerBango.objects.create(seller=self.seller,
@@ -757,7 +765,7 @@ class TestRefund(APITest):
         eq_(res.status_code, 404)
 
     def test_not_bango(self):
-        self.trans.provider = SOURCE_PAYPAL
+        self.trans.provider = PROVIDER_PAYPAL
         self.trans.save()
         self._fail()
 
@@ -773,7 +781,7 @@ class TestRefund(APITest):
 
     def test_refunded(self):
         Transaction.objects.create(seller_product=self.product,
-            related=self.trans, provider=constants.SOURCE_BANGO,
+            related=self.trans, provider=constants.PROVIDER_BANGO,
             status=constants.STATUS_COMPLETED, type=constants.TYPE_REFUND,
             uuid='something', uid_pay='something')
         self._fail()
@@ -816,7 +824,7 @@ class TestRefundStatus(APITest):
         self.refund = Transaction.objects.create(
             amount=5, seller_product=self.product,
             type=constants.TYPE_REFUND,
-            provider=constants.SOURCE_BANGO,
+            provider=constants.PROVIDER_BANGO,
             uuid=self.refund_uuid, uid_pay='asd',
             status=constants.STATUS_COMPLETED)
         self.url = '/bango/refund/status/'
@@ -1036,7 +1044,7 @@ class TestDebug(SellerProductBangoBase):
     def test_full(self):
         status = self.seller_product_bango.status.create(status=STATUS_GOOD)
         trans = self.seller_product.transaction_set.create(
-            status=STATUS_PENDING, provider=SOURCE_BANGO)
+            status=STATUS_PENDING, provider=PROVIDER_BANGO)
         res = self.client.get_with_body(self.url, data=self.data())
         eq_(res.status_code, 200, res.content)
         data = json.loads(res.content)

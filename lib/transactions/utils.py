@@ -56,7 +56,7 @@ def refund(detail, item, type_):
             seller_product=record.seller_product,
             amount=-item['amount']['amount'],
             currency=item['amount']['currency'],
-            provider=constants.SOURCE_PAYPAL,
+            provider=constants.PROVIDER_PAYPAL,
             # TODO(andym): hey what?
             uuid=detail['tracking_id'] + ':refund',
             related=record)

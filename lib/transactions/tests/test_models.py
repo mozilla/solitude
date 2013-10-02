@@ -21,7 +21,7 @@ class TestModel(APITest):
     def get_data(self, uid=None):
         return {
             'amount': 1,
-            'provider': constants.SOURCE_BANGO,
+            'provider': constants.PROVIDER_BANGO,
             'seller_product': self.product,
             'uuid': uid or self.uuid,
             'uid_pay': uid or self.uuid,
@@ -37,7 +37,7 @@ class TestModel(APITest):
         with self.assertRaises(ValidationError):
             Transaction.create(**data)  # Uid pay conflicts.
 
-        data['provider'] = constants.SOURCE_PAYPAL
+        data['provider'] = constants.PROVIDER_PAYPAL
         Transaction.create(**data)
         eq_(Transaction.objects.count(), 2)
 
@@ -137,7 +137,7 @@ class TestTransaction(APITest):
     def test_checked(self, check):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
         pp = Transaction.create(uid_pay='foo', amount=5, uuid=self.uuid,
-                                provider=constants.SOURCE_PAYPAL,
+                                provider=constants.PROVIDER_PAYPAL,
                                 seller_product=self.product)
         res = self.client.post(self.check_url, data={'pay_key': 'foo'})
         eq_(res.status_code, 201)
@@ -148,7 +148,7 @@ class TestTransaction(APITest):
     def test_complete(self, check):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
         pp = Transaction.create(uid_pay='foo', amount=5, uuid=self.uuid,
-                                provider=constants.SOURCE_PAYPAL,
+                                provider=constants.PROVIDER_PAYPAL,
                                 seller_product=self.product)
         self.client.post(self.check_url, data={'pay_key': 'foo'})
         eq_(Transaction.objects.get(pk=pp.pk).status,
@@ -164,7 +164,7 @@ class TestTransaction(APITest):
     def test_complete_not_there(self, check):
         check.return_value = {'status': 'COMPLETED', 'pay_key': 'foo'}
         Transaction.create(uid_pay='bar', amount=5, uuid=self.uuid,
-                           provider=constants.SOURCE_PAYPAL,
+                           provider=constants.PROVIDER_PAYPAL,
                            seller_product=self.product)
         res = self.client.post(self.check_url, data={'pay_key': 'foo'})
         eq_(res.status_code, 404)

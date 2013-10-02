@@ -17,7 +17,7 @@ from lib.bango.forms import CreateBillingConfigurationForm
 from lib.bango.constants import STATUS_BAD, STATUS_GOOD
 from lib.bango.resources.billing import CreateBillingConfigurationResource
 from lib.sellers.models import SellerProductBango
-from lib.transactions.constants import SOURCE_BANGO
+from lib.transactions.constants import PROVIDER_BANGO
 
 from solitude.base import (CompatRelatedField, ListModelMixin,
                            RetrieveModelMixin)
@@ -125,7 +125,7 @@ class DebugViewSet(ViewSet):
             # Show the last transaction if present.
             try:
                 latest = obj.seller_product.transaction_set.filter(
-                            provider=SOURCE_BANGO).latest()
+                            provider=PROVIDER_BANGO).latest()
                 result['bango']['last_transaction'] = {
                     'status': latest.status,
                     'url': reverse('api_dispatch_detail',

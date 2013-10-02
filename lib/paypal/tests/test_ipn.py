@@ -153,7 +153,7 @@ class TestIPNResource(APITest):
         self.list_url = self.get_list_url('ipn')
         self.seller, self.paypal, self.product = make_seller_paypal(self.uuid)
         self.transaction = Transaction.objects.create(uuid='5678',
-            provider=transaction_constants.SOURCE_PAYPAL,
+            provider=transaction_constants.PROVIDER_PAYPAL,
             seller_product=self.product, amount='10', uid_support='123')
 
     def test_nope(self, post):
