@@ -215,7 +215,9 @@ class CreateBillingConfigurationForm(SellerProductForm):
         application_size = data.get('application_size', 1) or 1
         application_size = long(application_size) / 1024 or 1
         data['application_size'] = int(application_size)
+        # Things that we should not pass on to Bango.
         del data['prices']
+        del data['source']
         return data
 
     def clean_prices(self):
