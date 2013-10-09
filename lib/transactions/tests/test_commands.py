@@ -54,3 +54,13 @@ class TestLog(test_utils.TestCase):
         output = self.results()
         eq_(next(output)[0], 'version')
         next(output)  # There is no line 1, transaction not written.
+
+    def test_other(self):
+        self.first.status = constants.STATUS_CHECKED
+        self.first.log.create(type=constants.LOG_STATS)
+        self.first.save()
+
+        generate_log(datetime.today(), self.name, 'revenue')
+        output = self.results()
+        eq_(next(output)[0], 'version')
+        eq_(next(output)[1], 'uuid')
