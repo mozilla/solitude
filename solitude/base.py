@@ -212,7 +212,7 @@ def get_object_or_404(cls, **filters):
 
 def log_cef(msg, request, **kw):
     g = functools.partial(getattr, settings)
-    severity = kw.get('severity', g('CEF_DEFAULT_SEVERITY', 5))
+    severity = kw.pop('severity', g('CEF_DEFAULT_SEVERITY', 5))
     cef_kw = {'msg': msg, 'signature': request.get_full_path(),
               'config': {
                   'cef.product': 'Solitude',
@@ -222,11 +222,18 @@ def log_cef(msg, request, **kw):
                   'cef.file': g('CEF_FILE', 'syslog'),
               }
         }
+
     if severity > 2:
         # Only send more severe logging to syslog. Messages lower than that
         # could be every http request, etc.
         sys_cef_log.error('CEF Severity: {sev} Message: {msg}'
                           .format(sev=severity, msg=msg))
+
+    # Allow the passing of additional cs* values.
+    for k, v in kw.items():
+        if k.startswith('cs'):
+            cef_kw[k] = v
+
     _log_cef(msg, severity, request.META.copy(), **cef_kw)
 
 
