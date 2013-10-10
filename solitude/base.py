@@ -54,6 +54,7 @@ from solitude.logger import getLogger
 
 
 log = getLogger('s')
+sys_cef_log = getLogger('s.cef')
 tasty_log = getLogger('django.request.tastypie')
 
 
@@ -221,6 +222,11 @@ def log_cef(msg, request, **kw):
                   'cef.file': g('CEF_FILE', 'syslog'),
               }
         }
+    if severity > 2:
+        # Only send more severe logging to syslog. Messages lower than that
+        # could be every http request, etc.
+        sys_cef_log.error('CEF Severity: {sev} Message: {msg}'
+                          .format(sev=severity, msg=msg))
     _log_cef(msg, severity, request.META.copy(), **cef_kw)
 
 
@@ -309,7 +315,7 @@ class BaseResource(object):
 
         msg = '%s:%s' % (kw.get('api_name', 'unknown'),
                          kw.get('resource_name', 'unknown'))
-        log_cef(msg, request)
+        log_cef(msg, request, severity=2)
 
         return super(BaseResource, self).dispatch(request_type, request, **kw)
 
