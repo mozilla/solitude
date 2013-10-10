@@ -8,6 +8,7 @@ from django_paranoia.forms import ParanoidForm
 from lib.transactions import constants
 from lib.transactions.constants import STATUSES
 
+from solitude.base import log_cef
 from solitude.logger import getLogger
 
 log = getLogger('s.transaction')
@@ -44,6 +45,7 @@ class UpdateForm(ParanoidForm):
     uid_pay = forms.CharField(required=False)
 
     def __init__(self, *args, **kw):
+        self.request = kw.pop('request')  # Storing request for CEF logs.
         self.old = kw.pop('original_data')
         super(UpdateForm, self).__init__(*args, **kw)
 
@@ -53,5 +55,18 @@ class UpdateForm(ParanoidForm):
             raise forms.ValidationError(
                 'Cannot alter fields: {0}'.format(', '.join(keys)))
 
-        check_status(self.old, self.data)
+        old_text = constants.STATUSES_INVERTED.get(self.old['status'])
+        new_text = constants.STATUSES_INVERTED.get(
+            self.data.get('status', self.old['status']))
+
+        try:
+            check_status(self.old, self.data)
+        except forms.ValidationError:
+            log_cef('Transaction change failure', self.request, severity=7,
+                    cs6Label='old', cs6=old_text, cs7Label='new', cs7=new_text)
+            raise
+
+        if new_text != old_text:
+            log_cef('Transaction change success', self.request,
+                    cs6Label='old', cs6=old_text, cs7Label='new', cs7=new_text)
         return self.cleaned_data
