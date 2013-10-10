@@ -54,4 +54,4 @@ tower==0.3.4
 
 # not on pypi
 git+https://github.com/mozilla/nuggets.git@96e80a64aa4bfcfef4f43fc3ab6966450ccd7325#egg=nuggets
-git+https://github.com/andymckay/test-utils.git@263cbb6aaee6ceff75155eb7f3a4b7afc5b47433#egg=test-utils
+git+https://github.com/andymckay/test-utils.git@5dc4e09f65285a9fefd88c6f689018b7dd8089ba#egg=test-utils

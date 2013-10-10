@@ -13,7 +13,8 @@ from django.core.urlresolvers import resolve, reverse
 from django.db import models, transaction
 from django.db.models import F
 from django.db.models.query import QuerySet
-from django.db.models.sql.constants import LOOKUP_SEP, QUERY_TERMS
+from django.db.models.constants import LOOKUP_SEP
+from django.db.models.sql.constants import QUERY_TERMS
 from django.http import HttpResponse, Http404
 from django.test.client import Client
 from django.utils.decorators import method_decorator
