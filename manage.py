@@ -23,5 +23,28 @@ except ImportError:
 
 manage.setup_environ(__file__, more_pythonic=True)
 
+# This constant moved in Django 1.5 but it is used by Tastypie. When that
+# gets updated we can remove this.
+from django.db.models.sql import constants
+try:
+    from django.db.models.constants import LOOKUP_SEP
+    constants.LOOKUP_SEP = LOOKUP_SEP
+except ImportError:
+    pass
+
+# Tastypie pulls in simplejson from Django if it can. But simplejson is now
+# incompatible with the std lib json. So its removed from our requirements.
+# However Jenkins has simplejson installed globally, meaning it gets pulled in
+# and fails.
+import json
+try:
+    from django import utils
+    utils.simplejson = json
+except ImportError:
+    pass
+
+# Get all the funfactory logging goodness.
+from funfactory import log_settings  # NOQA
+
 if __name__ == "__main__":
     manage.main()

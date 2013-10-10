@@ -76,7 +76,7 @@ class TestPreapprovalPaypal(APITest):
         eq_(paypal.key, None)
         uuid = self.create()
         url = self.get_detail_url('preapproval', uuid)
-        res = self.client.put(url)
+        res = self.client.put(url, data={})
         eq_(res.status_code, 202)
         eq_(BuyerPaypal.objects.get(buyer=self.buyer).key, 'foo')
 
@@ -85,7 +85,7 @@ class TestPreapprovalPaypal(APITest):
         uuid = self.create()
         url = self.get_detail_url('preapproval', uuid)
         eq_(BuyerPaypal.objects.count(), 0)
-        res = self.client.put(url)
+        res = self.client.put(url, data={})
         eq_(res.status_code, 202)
         eq_(BuyerPaypal.objects.all()[0].key, 'foo')
 
@@ -95,13 +95,13 @@ class TestPreapprovalPaypal(APITest):
         eq_(paypal.key, None)
         uuid = self.create()
         url = self.get_detail_url('preapproval', uuid)
-        res = self.client.put(url)
+        res = self.client.put(url, data={})
         eq_(res.status_code, 202)
         eq_(BuyerPaypal.objects.get(buyer=self.buyer).currency, 'BRL')
 
     def test_put_fails(self, key):
         url = self.get_detail_url('preapproval', 'asd')
-        res = self.client.put(url)
+        res = self.client.put(url, data={})
         eq_(res.status_code, 404, res.content)
 
     def test_put_no_cache(self, key):
@@ -110,7 +110,7 @@ class TestPreapprovalPaypal(APITest):
         eq_(paypal.key, None)
 
         url = self.get_detail_url('preapproval', '123')
-        res = self.client.put(url)
+        res = self.client.put(url, data={})
         eq_(res.status_code, 404)
 
     def test_delete(self, key):
@@ -119,4 +119,4 @@ class TestPreapprovalPaypal(APITest):
         uuid = self.create()
         url = self.get_detail_url('preapproval', uuid)
         eq_(self.client.delete(url).status_code, 204)
-        eq_(self.client.put(url).status_code, 404)
+        eq_(self.client.put(url, data={}).status_code, 404)

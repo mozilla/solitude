@@ -362,7 +362,7 @@ class TastypieBaseResource(object):
                 raise InvalidFilterError('Not a valid filtering field: %s'
                                          % field_name)
 
-            if len(filter_bits) and filter_bits[-1] in QUERY_TERMS.keys():
+            if len(filter_bits) and filter_bits[-1] in QUERY_TERMS:
                 filter_type = filter_bits.pop()
 
             lookup_bits = self.check_filtering(field_name, filter_type,

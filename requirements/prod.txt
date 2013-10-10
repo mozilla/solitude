@@ -1,4 +1,4 @@
-Django==1.4.8
+Django==1.5.4
 PyJWT-mozilla==0.1.4.2
 amqplib==1.0.2
 anyjson==0.3.3
@@ -10,7 +10,7 @@ celery-tasktree==0.3.2
 commonware==0.4.0
 curling==0.2.4
 dj-database-url==0.2.1
-django-aesfield==0.1
+django-aesfield==0.1.2
 django-celery==2.2.4
 django-extensions==0.9
 django-filter==0.6
@@ -45,7 +45,6 @@ pytz==2010e
 raven==2.0.10
 requests==0.14.1
 schematic==0.2
-simplejson==2.6.2
 six==1.2.0
 slumber==0.5.3
 statsd==1.0.0
@@ -54,4 +53,4 @@ tower==0.3.4
 
 # not on pypi
 git+https://github.com/mozilla/nuggets.git@96e80a64aa4bfcfef4f43fc3ab6966450ccd7325#egg=nuggets
-git+https://github.com/andymckay/test-utils.git@5dc4e09f65285a9fefd88c6f689018b7dd8089ba#egg=test-utils
+git+https://github.com/andymckay/test-utils.git@a5423ac532b6b196ba9f3e256de0218cdca0f504#egg=test-utils

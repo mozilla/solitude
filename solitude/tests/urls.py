@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import include, patterns
+from django.conf.urls import include, patterns
 from solitude.tests.resources import FakeResource
 
 from tastypie.api import Api

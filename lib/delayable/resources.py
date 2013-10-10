@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import url
+from django.conf.urls import url
 
 from tastypie import http
 from tastypie.exceptions import ImmediateHttpResponse
