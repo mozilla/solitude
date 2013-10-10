@@ -8,6 +8,10 @@ from django.core.management.base import BaseCommand
 import boto
 from boto.s3.key import Key
 
+from solitude.logger import getLogger
+
+log = getLogger('s.s3')
+
 
 def push(source):
     if not all(settings.S3_AUTH.values() + [settings.S3_BUCKET,]):
@@ -21,7 +25,7 @@ def push(source):
     k = Key(bucket)
     k.key = dest
     k.set_contents_from_filename(source)
-    print 'Uploaded: {0} to: {1}'.format(source, dest)
+    log.debug('Uploaded: {0} to: {1}'.format(source, dest))
 
 
 class Command(BaseCommand):

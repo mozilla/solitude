@@ -138,7 +138,7 @@ def create_bango_transaction(sender, **kwargs):
         provider=constants.PROVIDER_BANGO,
         seller_product=seller_product)
 
-    transaction.source = data.get('source', '')
+    transaction.source = form.cleaned_data.get('source', '')
     # uid_support will be set with the transaction id.
     # uid_pay is the uid of the billingConfiguration request.
     if 'billingConfigurationId' in bundle:
