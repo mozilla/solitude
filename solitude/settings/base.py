@@ -172,6 +172,10 @@ LOGGING = {
         'suds': {
             'level': 'ERROR',
             'propagate': True
+        },
+        'boto': {
+            'level': 'ERROR',
+            'propagate': True
         }
     },
 }
