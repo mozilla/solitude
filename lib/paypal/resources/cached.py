@@ -3,12 +3,12 @@ from django.core.urlresolvers import reverse
 
 from lib.paypal.client import get_client
 from lib.paypal.signals import create
-from solitude.base import Cached, Resource as BaseResource
+from solitude.base import Cached, Resource as TastypieBaseResource
 
 
-class Resource(BaseResource):
+class Resource(TastypieBaseResource):
 
-    class Meta(BaseResource.Meta):
+    class Meta(TastypieBaseResource.Meta):
         object_class = Cached
 
     def get_resource_uri(self, bundle):

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import json
-import os
 import pprint
 import sys
 import urllib
@@ -8,7 +7,11 @@ import uuid
 
 import requests
 
-root = 'http://localhost:8001'
+try:
+    # Read the root from the command line, rather than hard coding.
+    root = sys.argv[1]
+except:
+    root = 'http://localhost:8001'
 
 
 def call(url, method, data):
@@ -85,7 +88,6 @@ bango_url = ('http://mozilla.com.test.bango.org/login/al.aspx?%s' %
         'authenticationToken': res['authentication_token'],
     }))
 print 'You should be logged in against: ' + bango_url
-# os.popen('open "%s"' % bango_url)
 
 print 'Getting SBI agreement'
 res = call('/bango/sbi/agreement/', 'get', {
@@ -167,7 +169,7 @@ print ('Finance id %s to %s' % (old_financial_id, res['finance_person_id']))
 print 'Request billing configuration.'
 call('/bango/billing/', 'post', {
     'pageTitle': 'yep',
-    'prices': [{'price': 1, 'currency': 'USD'}],
+    'prices': [{'price': 1, 'currency': 'USD', 'method': 1}],
     'transaction_uuid': str(uuid.uuid4()),
     'user_uuid': str(uuid.uuid4()),
     'seller_product_bango': bango_product_uri,

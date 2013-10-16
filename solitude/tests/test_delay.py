@@ -5,13 +5,13 @@ from django.test import RequestFactory
 from nose.tools import eq_
 import mock
 
-from solitude.base import BaseResource, APITest
+from solitude.base import TastypieBaseResource, APITest
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.resources import Resource
 from tastypie.authorization import Authorization
 
 
-class TestResource(BaseResource, Resource):
+class TestResource(TastypieBaseResource, Resource):
     class Meta:
         authorization = Authorization()
 

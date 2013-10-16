@@ -216,6 +216,13 @@ mock_data = {
         'sbiAgreementAccepted': True,
         'acceptedSBIAgreement': datetime.today,
         'sbiAgreementExpires': datetime.today,
+    },
+    'GetEmailAddresses': {
+        'adminPersonId': '123',
+        'adminEmailAddress': 'foo@bar.com'
+    },
+    'GetAutoAuthenticationLoginToken': {
+        'authenticationToken': ltime
     }
 }
 
@@ -270,3 +277,19 @@ def get_client():
     if settings.BANGO_PROXY:
         return ClientProxy()
     return Client()
+
+
+class Form(object):
+    """A fake form to reformat Bango errors into form errors."""
+
+    def __init__(self, errors):
+        self.errors = errors
+
+
+def format_client_error(key, exc):
+    """
+    Define error_lookup as a dictionary on a resource. If the error from
+    Bango maps to a form field we'll put the error on that form field.
+    Otherwise it gets assigned to __all__.
+    """
+    return Form({key: [exc.message], '__bango__': exc.id, '__type__': 'bango'})
