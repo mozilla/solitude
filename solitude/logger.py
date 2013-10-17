@@ -28,8 +28,9 @@ class SolitudeAdapter(logging.LoggerAdapter):
 class SolitudeFormatter(logging.Formatter):
 
     def format(self, record):
-        if not self._fmt.startswith(settings.SYSLOG_TAG):
-            self._fmt = '%s %s' % (settings.SYSLOG_TAG, self._fmt)
+        tag = '%s: ' % settings.SYSLOG_TAG
+        if not self._fmt.startswith(tag):
+            self._fmt = '%s %s' % (tag, self._fmt)
         for name in 'OAUTH_KEY', 'TRANSACTION_ID':
             record.__dict__.setdefault(name, '')
         return logging.Formatter.format(self, record)
