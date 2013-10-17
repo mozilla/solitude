@@ -157,17 +157,7 @@ LOGGING = {
 
     },
     'loggers': {
-        's': {
-            'handlers': ['unicodesyslog'],
-            'level': 'INFO',
-            'propagate': True
-        },
-        's.transaction': {
-            'handlers': ['unicodesyslog'],
-            'level': 'INFO',
-            'propagate': True
-        },
-        'sentry.errors': {
+        '': {
             'handlers': ['unicodesyslog'],
             'level': 'INFO',
             'propagate': True
@@ -190,10 +180,11 @@ LOGGING = {
             'propagate': True
         },
         'cef': {
-            'handlers': 'cef_syslog'
+            'handlers': ['cef_syslog']
         }
-    },
+    }
 }
+LOGGING_CONFIG = 'django.utils.log.dictConfig'
 
 # These are the AES encryption keys for different fields.
 AES_KEYS = {
