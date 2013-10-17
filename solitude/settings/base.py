@@ -1,8 +1,9 @@
 import logging.handlers
 import os
-from decimal import Decimal
 
+import cef
 import dj_database_url
+
 from funfactory.settings_base import *
 
 ALLOWED_HOSTS = []
@@ -119,14 +120,19 @@ error_fmt = ('%(name)s:%(levelname)s %(request_path)s %(message)s '
              ':%(pathname)s:%(lineno)s')
 
 LOGGING = {
+    'version': 1,
     'filters': {},
     'formatters': {
         'solitude': {
             '()': 'solitude.logger.SolitudeFormatter',
             'format':
-                '%(name)s:%(levelname)s '
-                '%(OAUTH_KEY)s:%(TRANSACTION_ID)s '
-                '%(message)s :%(pathname)s:%(lineno)s'
+                '%s: %%(name)s:%%(levelname)s '
+                '%%(OAUTH_KEY)s:%%(TRANSACTION_ID)s '
+                '%%(message)s :%%(pathname)s:%%(lineno)s' % SYSLOG_TAG
+        },
+        'cef': {
+            '()': cef.SysLogFormatter,
+            'datefmt': '%H:%M:%s',
         }
     },
     'handlers': {
@@ -143,15 +149,21 @@ LOGGING = {
             '()': logging.StreamHandler,
             'formatter': 'solitude',
         },
+        'cef_syslog': {
+            '()': logging.handlers.SysLogHandler,
+            'facility': logging.handlers.SysLogHandler.LOG_LOCAL4,
+            'formatter': 'cef',
+        },
+
     },
     'loggers': {
         's': {
-            'handlers': ['console', 'unicodesyslog'],
+            'handlers': ['unicodesyslog'],
             'level': 'INFO',
             'propagate': True
         },
         's.transaction': {
-            'handlers': ['console', 'unicodesyslog'],
+            'handlers': ['unicodesyslog'],
             'level': 'INFO',
             'propagate': True
         },
@@ -176,6 +188,9 @@ LOGGING = {
         'boto': {
             'level': 'ERROR',
             'propagate': True
+        },
+        'cef': {
+            'handlers': 'cef_syslog'
         }
     },
 }

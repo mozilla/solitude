@@ -23,8 +23,5 @@ except ImportError:
 
 manage.setup_environ(__file__, more_pythonic=True)
 
-# Get all the funfactory logging goodness.
-from funfactory import log_settings  # NOQA
-
 if __name__ == "__main__":
     manage.main()
