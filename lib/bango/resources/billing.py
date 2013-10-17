@@ -15,7 +15,7 @@ from lib.transactions.constants import STATUS_FAILED
 from solitude.constants import PAYMENT_METHOD_OPERATOR
 from solitude.logger import getLogger
 
-log = getLogger('s.transaction')
+log = getLogger('s.bango')
 
 
 class CreateBillingConfigurationResource(Resource):
