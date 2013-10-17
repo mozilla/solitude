@@ -126,9 +126,9 @@ LOGGING = {
         'solitude': {
             '()': 'solitude.logger.SolitudeFormatter',
             'format':
-                '%s: %%(name)s:%%(levelname)s '
-                '%%(OAUTH_KEY)s:%%(TRANSACTION_ID)s '
-                '%%(message)s :%%(pathname)s:%%(lineno)s' % SYSLOG_TAG
+                '%(name)s:%(levelname)s '
+                '%(OAUTH_KEY)s:%(TRANSACTION_ID)s '
+                '%(message)s :%(pathname)s:%(lineno)s'
         },
         'cef': {
             '()': cef.SysLogFormatter,

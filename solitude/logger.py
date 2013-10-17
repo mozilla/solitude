@@ -1,5 +1,7 @@
 import logging
 
+from django.conf import settings
+
 from solitude.middleware import get_oauth_key, get_transaction_id
 
 
@@ -26,6 +28,8 @@ class SolitudeAdapter(logging.LoggerAdapter):
 class SolitudeFormatter(logging.Formatter):
 
     def format(self, record):
+        if not self._fmt.startswith(settings.SYSLOG_TAG):
+            self._fmt = '%s %s' % (settings.SYSLOG_TAG, self._fmt)
         for name in 'OAUTH_KEY', 'TRANSACTION_ID':
             record.__dict__.setdefault(name, '')
         return logging.Formatter.format(self, record)
