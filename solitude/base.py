@@ -257,32 +257,49 @@ def handle_500(request, exception):
                 content_type='application/json; charset=utf-8')
 
 
-class BaseResource(object):
+def format_form_errors(forms):
+    errors = {}
+    if not isinstance(forms, list):
+        forms = [forms]
+    for f in forms:
+        if isinstance(f.errors, list):  # Cope with formsets.
+            for e in f.errors:
+                errors.update(e)
+            continue
+        errors.update(dict(f.errors.items()))
+
+    return errors
+
+
+class DRFBaseResource(object):
+    """
+    A TastypieBaseResource for DRF.
+    """
 
     def form_errors(self, forms):
-        errors = {}
-        if not isinstance(forms, list):
-            forms = [forms]
-        for f in forms:
-            if isinstance(f.errors, list):  # Cope with formsets.
-                for e in f.errors:
-                    errors.update(e)
-                continue
-            errors.update(dict(f.errors.items()))
+        return Response(format_form_errors(forms), status=400)
 
+
+class TastypieBaseResource(object):
+    """
+    A TastypieBaseResource for Tastypie.
+    """
+
+    def form_errors(self, forms):
+        errors = format_form_errors(forms)
         response = http.HttpBadRequest(json.dumps(errors),
                                        content_type='application/json')
         raise ImmediateHttpResponse(response=response)
 
     def dehydrate(self, bundle):
         bundle.data['resource_pk'] = bundle.obj.pk
-        return super(BaseResource, self).dehydrate(bundle)
+        return super(TastypieBaseResource, self).dehydrate(bundle)
 
     def _handle_500(self, request, exception):
         return handle_500(request, exception)
 
     def deserialize(self, request, data, format='application/json'):
-        result = (super(BaseResource, self)
+        result = (super(TastypieBaseResource, self)
                                 .deserialize(request, data, format=format))
         if settings.DUMP_REQUESTS:
             formatted_json(result)
@@ -324,7 +341,7 @@ class BaseResource(object):
                          kw.get('resource_name', 'unknown'))
         log_cef(msg, request, severity=2)
 
-        return super(BaseResource, self).dispatch(request_type, request, **kw)
+        return super(TastypieBaseResource, self).dispatch(request_type, request, **kw)
 
     def build_filters(self, filters=None):
         # Override the filters so we can stop Tastypie silently ignoring
@@ -394,12 +411,12 @@ class BaseResource(object):
                     request.initial_etag = getattr(bundle.obj, 'etag', '')
             except ObjectDoesNotExist:
                 pass
-        return super(BaseResource, self).is_valid(bundle, request)
+        return super(TastypieBaseResource, self).is_valid(bundle, request)
 
     @method_decorator(etag(etag_func))
     def create_response(self, request, data, response_class=HttpResponse,
                         **response_kwargs):
-        return super(BaseResource, self).create_response(request, data,
+        return super(TastypieBaseResource, self).create_response(request, data,
                                                          response_class,
                                                          **response_kwargs)
 
@@ -461,7 +478,7 @@ class ModelFormValidation(FormValidation):
         return form.errors
 
 
-class Resource(BaseResource, TastyPieResource):
+class Resource(TastypieBaseResource, TastyPieResource):
 
     class Meta:
         always_return_data = True
@@ -469,7 +486,7 @@ class Resource(BaseResource, TastyPieResource):
         authorization = Authorization()
 
 
-class ModelResource(BaseResource, TastyPieModelResource):
+class ModelResource(TastypieBaseResource, TastyPieModelResource):
 
     class Meta:
         always_return_data = True

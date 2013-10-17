@@ -1,20 +1,13 @@
 from django.core.urlresolvers import reverse
 
-from solitude.base import Cached, Resource as BaseResource
-from ..client import get_client, response_to_dict
+from solitude.base import Cached, Resource as TastypieBaseResource
+from ..client import format_client_error, get_client, response_to_dict
 from ..errors import BangoFormError
 from ..signals import create
 
 
-class Form:
-    """A fake form to pass through to form_errors"""
-
-    def __init__(self, errors):
-        self.errors = errors
-
-
 class BangoResource(object):
-    """A mixin that requires BaseResource to handle Bango form errors."""
+    """A mixin that requires TastypieBaseResource to handle Bango form errors."""
 
     def client(self, method, data, raise_on=None, client=None):
         """
@@ -37,19 +30,13 @@ class BangoResource(object):
             return self.form_errors(res)
 
     def handle_form_error(self, exc):
-        """
-        Define error_lookup as a dictionary on a resource. If the error from
-        Bango maps to a form field we'll put the error on that form field.
-        Otherwise it gets assigned to __all__.
-        """
         key = getattr(self, 'error_lookup', {}).get(exc.id, '__all__')
-        return Form({key: [exc.message], '__bango__': exc.id,
-                     '__type__': 'bango'})
+        return format_client_error(key, exc)
 
 
-class Resource(BaseResource, BangoResource):
+class Resource(TastypieBaseResource, BangoResource):
 
-    class Meta(BaseResource.Meta):
+    class Meta(TastypieBaseResource.Meta):
         object_class = Cached
 
     def get_resource_uri(self, bundle):

@@ -20,7 +20,7 @@ from lib.transactions.constants import (PROVIDER_BANGO, PROVIDER_PAYPAL,
                                         STATUS_FAILED, STATUS_PENDING,
                                         TYPE_REFUND)
 from lib.transactions.models import Transaction
-from solitude.base import APITest, Resource as BaseResource
+from solitude.base import APITest, Resource as TastypieBaseResource
 from solitude.constants import (PAYMENT_METHOD_OPERATOR, PAYMENT_METHOD_CARD,
                                 PAYMENT_METHOD_ALL)
 
@@ -74,7 +74,7 @@ class TestSimple(APITest):
 class TestError(APITest):
 
     def test_form_error(self):
-        class Foo(BaseResource, BangoResource):
+        class Foo(TastypieBaseResource, BangoResource):
             error_lookup = {'INVALID': 'name'}
 
         class Error(object):
@@ -98,6 +98,7 @@ class TestLoginResource(BangoAPI):
     def setUp(self):
         super(TestLoginResource, self).setUp()
         self.login_url = reverse('bango.login')
+        self.overrides = {}
 
     def test_nodata(self):
         res = self.client.post(self.login_url, data={})
@@ -105,41 +106,48 @@ class TestLoginResource(BangoAPI):
         eq_(json.loads(res.content),
             {u'packageId': [u'This field is required.']})
 
-    @mock.patch('lib.bango.resources.login.EmailAddressesResource.client')
-    def test_invalid_package(self, email_client):
-        errors = {'__all__': ['The specified Package ID is invalid']}
-        email_client.return_value = {'errors': errors}
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_invalid_package(self, mock_results):
+        self.overrides['GetEmailAddresses'] = {
+            'responseCode': 'INVALID_PACKAGEID',
+            'responseMessage': 'wat'
+        }
+        mock_results.side_effect = self.variable
         res = self.client.post(self.login_url, data={'packageId': 1})
         eq_(res.status_code, 400, res.content)
-        eq_(json.loads(res.content), errors)
-        eq_(self.get_errors(res.content, '__all__'),
-            ['The specified Package ID is invalid'])
+        eq_(self.get_errors(res.content, '__all__'), ['wat'])
 
-    @mock.patch('lib.bango.resources.login.TokenResource.client')
-    @mock.patch('lib.bango.resources.login.EmailAddressesResource.client')
-    def test_invalid_person(self, email_client, token_client):
-        errors = {'__all__': ['The specified Person ID is invalid']}
-        email_client.return_value = {
-            'adminEmailAddress': 'admin@example.org',
-            'adminPersonId': 1234,
+    def variable(self, mthd):
+        result = {
+            'GetEmailAddresses': {
+                'adminEmailAddress': 'admin@example.org',
+                'adminPersonId': 1234,
+                'responseCode': 'OK'
+            },
+           'GetAutoAuthenticationLoginToken': {
+                'authenticationToken': 'foo',
+                'responseCode': 'OK'
+            }
         }
-        token_client.return_value = {'errors': errors}
+        result.update(self.overrides)
+        return result[mthd]
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_invalid_person(self, mock_results):
+        self.overrides['GetAutoAuthenticationLoginToken'] = {
+            'responseCode': 'INVALID_PERSON',
+            'responseMessage': 'wat'
+        }
+        mock_results.side_effect = self.variable
+
         res = self.client.post(self.login_url, data={'packageId': 1})
         eq_(res.status_code, 400, res.content)
-        eq_(json.loads(res.content), errors)
-        eq_(self.get_errors(res.content, '__all__'),
-            ['The specified Person ID is invalid'])
+        eq_(self.get_errors(res.content, '__all__'), ['wat'])
 
-    @mock.patch('lib.bango.resources.login.TokenResource.client')
-    @mock.patch('lib.bango.resources.login.EmailAddressesResource.client')
-    def test_good(self, email_client, token_client):
-        email_client.return_value = {
-            'adminEmailAddress': 'admin@example.org',
-            'adminPersonId': 1234,
-        }
-        token_client.return_value = {
-            'authenticationToken': 'foo',
-        }
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_good(self, mock_results):
+        mock_results.side_effect = self.variable
+
         res = self.client.post(self.login_url, data={'packageId': 1})
         eq_(res.status_code, 200, res.content)
         data = json.loads(res.content)

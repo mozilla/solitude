@@ -49,7 +49,7 @@ class TestDelay(APITest):
 
 class TestTask(APITest):
 
-    @mock.patch('solitude.base.BaseResource.dispatch')
+    @mock.patch('solitude.base.TastypieBaseResource.dispatch')
     def test_dispatch(self, dispatch):
         obj = mock.Mock()
         obj.status_code = 202

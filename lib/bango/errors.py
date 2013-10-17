@@ -18,7 +18,3 @@ class BangoFormError(BangoError):
 
 class ProxyError(Exception):
     """The proxy returned something we didn't like."""
-
-
-class LoginError(Exception):
-    """The auto-login token for the Bango Vendor Portal can't be retrieved."""
