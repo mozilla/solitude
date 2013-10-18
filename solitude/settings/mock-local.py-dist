@@ -1,0 +1,83 @@
+import os
+
+from django_sha2 import get_password_hashers
+
+from . import base
+
+SECRET_KEY = 'alksjdfhaliuefhalskjdfhlasjdfhlajshdflaskjdfhslajdfhoweiuyfg'
+
+if not base.DATABASES:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'solitude',
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': '',
+            'PORT': '',
+            'OPTIONS': {
+                'init_command': 'SET storage_engine=InnoDB',
+                'charset' : 'utf8',
+                'use_unicode' : True,
+            },
+            'TEST_CHARSET': 'utf8',
+            'TEST_COLLATION': 'utf8_general_ci',
+        },
+    }
+
+ADMINS = ('payment-devs@mozilla.com',)
+
+DATABASE_POOL_ARGS = {
+    'max_overflow': 10,
+    'pool_size': 5,
+    'recycle': 300,
+    'backend': 'pymysql.base',
+}
+
+HAS_SYSLOG = True
+JINJA_CONFIG = lambda: ''
+
+DEBUG = True
+DEBUG_PROPOGATE_EXCEPTIONS = DEBUG
+TASTYPIE_FULL_DEBUG = DEBUG
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': os.getenv('MEMCACHE_URL'),
+    }
+}
+
+HMAC_KEYS = {'foo': 'bar'}
+DEV = True
+
+CLEANSED_SETTINGS_ACCESS = True
+filename = os.path.join(os.path.dirname(__file__) + '/aes-sample.keys')
+
+AES_KEYS = {
+    'buyerpaypal:key': filename,
+    'sellerpaypal:id': filename,
+    'sellerpaypal:token': filename,
+    'sellerpaypal:secret': filename,
+    'sellerbluevia:id': filename,
+    'sellerproduct:secret': filename,
+    'bango:signature': filename,
+}
+
+DUMP_REQUESTS = True
+
+HMAC_KEYS = {'2011-01-01': 'cheesecake'}
+PASSWORD_HASHERS = get_password_hashers(base.BASE_PASSWORD_HASHERS, HMAC_KEYS)
+
+REQUIRE_OAUTH = False
+
+PAYPAL_MOCK = True
+BANGO_MOCK = True
+
+RAVEN_CONFIG = {
+    'processors': ('solitude.processor.JSONProcessor',),
+}
+
+ALLOWED_HOSTS = ['*']
+
+SITE_URL = 'http://mock-solitude.paas.allizom.org'

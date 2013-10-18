@@ -221,6 +221,36 @@ When done, you can run ``stackato delete my-solitude`` to remove your VM.
 For more docs on the Stackato tools, see the
 `Stackato docs site <https://api.paas.allizom.org/docs/client/index.html>`_.
 
+Mock Solitude
++++++++++++++
+
+.. note:: This is about a copy of solitude running on the Mozilla paas. If you don't work at Mozilla skip the next bit.
+
+There is a copy of solitude running on paas at http://mock-solitude.paas.allizom.org/.
+
+The best way to update this server is to check out a completely seperate copy
+of solitude and call it mock solitude.
+
+Next::
+
+  pushd solitude/settings
+  cp mock-local.py-dist local.py
+  cp mock-aes-sample.keys-dist aes-sample.keys
+  popd
+
+Your instance should now be good to push to stackato. Unfortunately
+`stackato.yml` has the app name as solitude. So all commands should be suffixed
+with the application name. For example to now update solitude::
+
+  stackato update mock-solitude
+
+Migrations should be run automatically. To test that mock solitude is running,
+try the sample script::
+
+  python samples/bango-basic.py https://mock-solitude.paas.allizom.org
+
+...and lots of good information should be printed out.
+
 Optional settings
 -----------------
 
