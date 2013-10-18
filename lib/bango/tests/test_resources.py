@@ -628,13 +628,17 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         tran = Transaction.objects.get()
         eq_(tran.provider, 1)
 
-    def test_transaction_source(self):
+    def test_transaction_bits(self):
         data = self.good()
         data['source'] = 'marketplace'
+        data['carrier'] = 't-mobile'
+        data['region'] = 'uk'
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 201, res.content)
         tran = Transaction.objects.get()
         eq_(tran.source, 'marketplace')
+        eq_(tran.carrier, 't-mobile')
+        eq_(tran.region, 'uk')
 
     def test_no_transaction(self):
         data = self.good()

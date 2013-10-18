@@ -21,8 +21,14 @@ class Transaction(Model):
                                  null=True)
     buyer = models.ForeignKey('buyers.Buyer', blank=True, null=True,
                               db_index=True)
+    # The carrier if this was carrier billing.
+    carrier = models.CharField(max_length=255, blank=True, null=True,
+                               db_index=True)
     currency = models.CharField(max_length=3, blank=True)
     provider = models.PositiveIntegerField(choices=constants.PROVIDERS_CHOICES)
+    # The region of the purchase.
+    region = models.CharField(max_length=255, blank=True, null=True,
+                              db_index=True)
     related = models.ForeignKey('self', blank=True, null=True,
                                 on_delete=models.PROTECT,
                                 related_name='relations')
@@ -71,7 +77,7 @@ class Transaction(Model):
             status=constants.STATUS_COMPLETED).exists()
 
     def for_log(self):
-        return ('v2',  # Version.
+        return ('v3',  # Version.
             self.uuid,
             self.created.isoformat(),
             self.modified.isoformat(),
@@ -80,7 +86,9 @@ class Transaction(Model):
             self.status,
             self.buyer.uuid if self.buyer else None,
             self.seller_product.seller.uuid,
-            self.source)
+            self.source,
+            self.carrier,
+            self.region)
 
 
 @receiver(paypal_create, dispatch_uid='transaction-create-paypal')
@@ -139,6 +147,8 @@ def create_bango_transaction(sender, **kwargs):
         seller_product=seller_product)
 
     transaction.source = form.cleaned_data.get('source', '')
+    transaction.carrier = form.cleaned_data.get('carrier', '')
+    transaction.region = form.cleaned_data.get('region', '')
     # uid_support will be set with the transaction id.
     # uid_pay is the uid of the billingConfiguration request.
     if 'billingConfigurationId' in bundle:

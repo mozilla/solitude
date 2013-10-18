@@ -19,7 +19,8 @@ def generate_log(day, filename, log_type):
     writer = csv.writer(out)
     next_day = day + timedelta(days=1)
     writer.writerow(('version', 'uuid', 'created', 'modified', 'amount',
-                     'currency', 'status', 'buyer', 'seller', 'source'))
+                     'currency', 'status', 'buyer', 'seller', 'source',
+                     'carrier', 'region'))
 
     transactions = Transaction.objects.filter(modified__range=(day, next_day))
 
