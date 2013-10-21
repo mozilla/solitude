@@ -4,8 +4,9 @@ from cached import Resource
 from lib.bango.constants import CANCEL, OK
 from lib.bango.forms import EventForm, NotificationForm
 from lib.transactions.constants import (STATUS_CANCELLED, STATUS_COMPLETED,
-                                        STATUS_FAILED)
+                                        STATUS_FAILED, STATUSES_INVERTED)
 
+from solitude.base import log_cef
 from solitude.logger import getLogger
 
 log = getLogger('s.bango')
@@ -52,6 +53,11 @@ class NotificationResource(Resource):
         log.info(u'Transaction %s: %s' % (message, trans.uuid))
         statsd.incr('bango.notification.%s' % message)
         statsd.decr('solitude.pending_transactions')
+
+        log_cef('Transaction change success', request, severity=7,
+                cs6Label='old', cs6=STATUSES_INVERTED.get(trans.status),
+                cs7Label='new', cs7=STATUSES_INVERTED.get(state))
+
         trans.status = state
         # This is the id for the actual transaction, useful for refunds.
         trans.uid_support = form.cleaned_data['bango_trans_id']
@@ -81,6 +87,10 @@ class EventResource(Resource):
             old_status = transaction.status
             transaction.status = notification['new_status']
             transaction.save()
+
+            log_cef('Transaction change success', request, severity=7,
+                    cs6Label='old', cs6=STATUSES_INVERTED[old_status],
+                    cs7Label='new', cs7=STATUSES_INVERTED[transaction.status])
             log.info('Transaction {0} changed to {1} from {2}'
                      .format(transaction.pk, transaction.status,
                              old_status))
