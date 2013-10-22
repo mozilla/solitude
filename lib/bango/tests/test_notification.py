@@ -88,7 +88,8 @@ class TestNotification(APITest):
         eq_(res.status_code, expected_status, res.content)
         return json.loads(res.content)
 
-    def test_success(self):
+    @patch('solitude.base.log_cef')
+    def test_success(self, log_cef):
         self.setup_token()
         data = self.data()
         self.post(data)
@@ -97,6 +98,7 @@ class TestNotification(APITest):
         eq_(tr.amount, Decimal(data['amount']))
         eq_(tr.currency, data['currency'])
         ok_(tr.uid_support)
+        assert log_cef.called
 
     def test_no_price(self):
         self.setup_token()
@@ -239,10 +241,12 @@ class TestEvent(APITest):
     def test_missing(self):
         self.post(data={}, expected=400)
 
-    def test_good(self):
+    @patch('solitude.base.log_cef')
+    def test_good(self, log_cef):
         self.post()
         trans = self.trans.reget()
         eq_(trans.status, STATUS_COMPLETED)
+        assert log_cef.called
 
     def test_no_action(self):
         self.post(notice=samples.event_notification_no_action,
