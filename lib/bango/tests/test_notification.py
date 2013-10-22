@@ -99,6 +99,7 @@ class TestNotification(APITest):
         eq_(tr.currency, data['currency'])
         ok_(tr.uid_support)
         assert log_cef.called
+        ok_(not tr.carrier)
 
     def test_no_price(self):
         self.setup_token()
@@ -207,6 +208,15 @@ class TestNotification(APITest):
         self.setup_token(res=res)
 
         self.post(self.data(), expected_status=400)
+
+    def test_network(self):
+        self.setup_token()
+        data = self.data()
+        data['network'] = 'CAN_TELUS'
+        self.post(data)
+        tr = self.trans.reget()
+        eq_(tr.region, 'CAN')
+        eq_(tr.carrier, 'TELUS')
 
 
 @patch.object(settings, 'BANGO_BASIC_AUTH', {'USER': 'f', 'PASSWORD': 'b'})

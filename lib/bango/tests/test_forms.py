@@ -1,13 +1,15 @@
 import json
 
 from django.conf import settings
+from django.forms import ValidationError
+from django.test import RequestFactory
 
 import mock
-from nose.tools import eq_, ok_
+from nose.tools import eq_, ok_, raises
 
 from ..forms import (CreateBankDetailsForm, CreateBillingConfigurationForm,
                      CreateBillingConfigurationForm as BillingForm, EventForm,
-                     PackageForm, PriceForm, VatNumberForm)
+                     NotificationForm, PackageForm, PriceForm, VatNumberForm)
 from .samples import (event_notification, good_address, good_bank_details,
                       good_billing_request)
 from lib.sellers.models import Seller, SellerProduct
@@ -188,3 +190,30 @@ class TestEvent(APITest):
         self.trans.save()
         form = self.form({'notification': event_notification})
         ok_(not form.is_valid())
+
+
+@mock.patch.object(settings, 'CHECK_BANGO_TOKEN', False)
+class TestNotification(APITest):
+
+    def form(self, **kw):
+        req = RequestFactory().get('/')
+        return NotificationForm(req, data=kw)
+
+    def test_good_network(self):
+        form = self.form()
+        form.cleaned_data = {'network': 'CAN_TELUS'}
+        form.clean_network()
+        eq_(form.cleaned_data['carrier'], 'TELUS')
+        eq_(form.cleaned_data['region'], 'CAN')
+
+    @raises(ValidationError)
+    def test_bad(self):
+        form = self.form()
+        form.cleaned_data = {'network': 'blargh'}
+        form.clean_network()
+
+    @raises(ValidationError)
+    def test_bad_country(self):
+        form = self.form()
+        form.cleaned_data = {'network': 'foo_blargh'}
+        form.clean_network()

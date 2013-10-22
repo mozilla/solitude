@@ -6,6 +6,8 @@ from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
+import mobile_codes
+
 from django_statsd.clients import statsd
 from lxml import etree
 
@@ -303,6 +305,7 @@ class NotificationForm(forms.Form):
     currency = forms.CharField(required=False)
     # Bango token to use with the token checker service.
     bango_token = forms.CharField(required=True)
+    network = forms.CharField(required=False)
 
     def __init__(self, request, *attr, **kw):
         self._request = request
@@ -371,6 +374,26 @@ class NotificationForm(forms.Form):
                         'Form field {0} has been tampered with. '
                         'True: {1}; fake: {2}'.format(
                                         form_fld, true_val, form_val))
+
+    def clean_network(self):
+        network = self.cleaned_data['network']
+        if not network:
+            return network
+
+        try:
+            region, carrier = network.split('_')
+        except ValueError:
+            raise forms.ValidationError('Network {0} not in the Bango format '
+                                        'of COUNTRY_NETWORK.'.format(network))
+        try:
+            mobile_codes.alpha3(region)
+        except KeyError:
+            raise forms.ValidationError('Invalid country: {0}'.format(region))
+
+        self.cleaned_data['carrier'] = carrier
+        self.cleaned_data['region'] = region
+        return network
+
 
     def clean_moz_transaction(self):
         uuid = self.cleaned_data['moz_transaction']

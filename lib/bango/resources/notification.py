@@ -64,6 +64,11 @@ class NotificationResource(Resource):
         # The price/currency may be empty for error notifications.
         trans.amount = form.cleaned_data['amount']
         trans.currency = form.cleaned_data['currency']
+        # Set carrier and region.
+        if form.cleaned_data.get('network'):
+            trans.carrier = form.cleaned_data['carrier']
+            trans.region = form.cleaned_data['region']
+
         trans.save()
         return bundle
 
