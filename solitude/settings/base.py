@@ -321,3 +321,6 @@ REST_FRAMEWORK = {
 S3_AUTH = {'key': '',
            'secret': ''}
 S3_BUCKET = ''
+
+# New Relic is configured here.
+NEWRELIC_INI = None
