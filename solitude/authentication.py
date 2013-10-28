@@ -8,6 +8,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from tastypie.authentication import Authentication
 
 from solitude.logger import getLogger
+from solitude.middleware import set_oauth_key
 
 log = getLogger('s.auth')
 
@@ -45,10 +46,12 @@ class OAuthAuthentication(Authentication):
             key = get_oauth_consumer_key_from_header(auth_header_value)
             if not key:
                 if settings.REQUIRE_OAUTH:
+                    log.error(u'No key.')
                     return False
                 return True
             oauth_server.verify_request(oauth_request, Consumer(key), None)
             request.OAUTH_KEY = key
+            set_oauth_key(key)
             log.info(u'Access granted: %s' % key)
             return True
 
@@ -75,10 +78,12 @@ class RestOAuthAuthentication(BaseAuthentication):
             key = get_oauth_consumer_key_from_header(auth_header_value)
             if not key:
                 if settings.REQUIRE_OAUTH:
+                    log.error(u'No key.')
                     return None
                 return (DummyUser(), None)
             oauth_server.verify_request(oauth_request, Consumer(key), None)
             request.OAUTH_KEY = key
+            set_oauth_key(key)
             log.info(u'Access granted: %s' % key)
             return (DummyUser(), None)
 
