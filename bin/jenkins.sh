@@ -26,7 +26,7 @@ git submodule sync -q
 git submodule update --init --recursive
 
 source $VENV/bin/activate
-pip install -q --exists-action=w --no-deps -r requirements/test.txt
+pip install -q --exists-action=w --no-deps -r requirements/test.txt --no-index -f https://pyrepo.addons.mozilla.org/
 
 cat > solitude/settings/local.py <<SETTINGS
 from solitude.settings.base import *
