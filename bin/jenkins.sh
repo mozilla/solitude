@@ -20,7 +20,6 @@ if [ ! -d "$VENV/bin" ]; then
   virtualenv $VENV --system-site-packages
   source $VENV/bin/activate
   pip install --upgrade pip
-  pip install coverage
 fi
 
 git submodule sync -q
@@ -66,7 +65,6 @@ echo "CREATE DATABASE IF NOT EXISTS ${JOB_NAME}"|mysql -u $DB_USER -h $DB_HOST
 
 echo "Starting tests..."
 export FORCE_DB=1
-coverage run manage.py test --noinput --with-xunit --with-blockage
-coverage xml $(find apps lib -name '*.py')
+python manage.py test --noinput --with-xunit --with-blockage
 
 echo "FIN"
