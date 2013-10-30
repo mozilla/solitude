@@ -47,6 +47,7 @@ PAYPAL_URL_WHITELIST = ('https://marketplace.allizom.org',)
 
 BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
 BANGO_ENV = 'prod'
+BANGO_INSERT_STAGE = 'FROM STAGE '
 BANGO_PROXY = private.BANGO_PROXY
 BANGO_NOTIFICATION_URL = (
     'https://marketplace.allizom.org/mozpay/bango/notification')
