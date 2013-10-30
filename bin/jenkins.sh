@@ -1,7 +1,7 @@
 #!/bin/sh
 # This script makes sure that Jenkins can properly run your tests against your
 # codebase.
-source /opt/rh/python27/enable
+scl enable python27 python
 set -e
 
 DB_HOST="localhost"
