@@ -66,6 +66,11 @@ class PackageForm(forms.Form):
     @property
     def bango_data(self):
         result = self.cleaned_data.copy()
+        insert = settings.BANGO_INSERT_STAGE
+        if insert:  # See bug 919814.
+            result['vendorName'] = insert + result['vendorName']
+            result['companyName'] = insert + result['companyName']
+
         del result['seller']
         if settings.BANGO_NOTIFICATION_URL:
             result.update({

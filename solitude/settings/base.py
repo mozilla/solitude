@@ -228,6 +228,10 @@ BANGO_ENV = 'test'
 BANGO_MOCK = False
 BANGO_PROXY = ''
 
+# Set this to a string if you'd like to insert data into the vendor
+# and company name when a package is created.
+BANGO_INSERT_STAGE = ''
+
 # Notification end points use basic auth.
 # These are the credentials for Bango calling us.
 BANGO_BASIC_AUTH = {'USER': '', 'PASSWORD': ''}

@@ -171,6 +171,15 @@ class TestPackageResource(BangoAPI):
         seller_bango = SellerBango.objects.get()
         eq_(json.loads(res.content)['resource_pk'], seller_bango.pk)
 
+    @mock.patch.object(ClientMock, 'call')
+    def test_insert(self, call):
+        with self.settings(BANGO_INSERT_STAGE='STAGE '):
+            self.client.post(self.list_url, data=self.good_data())
+
+        data = call.call_args[0][1]
+        eq_(data['vendorName'], 'STAGE Some Company')
+        eq_(data['companyName'], 'STAGE Some Company, LLC')
+
     def good_data(self):
         post = samples.good_address.copy()
         post['seller'] = ('/generic/seller/%s/' %
