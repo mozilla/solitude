@@ -48,7 +48,7 @@ except ImportError:
 from django.conf import settings
 newrelic_ini = getattr(settings, 'NEWRELIC_INI', None)
 
-if newrelic_ini:
+if newrelic_ini and os.path.exists(newrelic_ini):
     import newrelic.agent
     try:
         newrelic.agent.initialize(newrelic_ini)
