@@ -8,7 +8,7 @@ cef==0.5
 celery==2.5.1
 celery-tasktree==0.3.2
 commonware==0.4.0
-curling==0.2.4
+curling==0.3.6
 dj-database-url==0.2.1
 django-aesfield==0.1.2
 django-celery==2.2.4

@@ -30,9 +30,15 @@ class TestAuthentication(test_utils.TestCase):
         with self.settings(REQUIRE_OAUTH=True):
             ok_(not self.authentication.is_authenticated(req))
 
+    def setup_authorization(self, keys):
+        headers = {}
+        sign_request(None, method='GET', extra=keys, headers=headers,
+                     url=settings.SITE_URL)
+        return headers['Authorization']
+
     def test_signed(self):
-        res = sign_request('GET', keys_dict, settings.SITE_URL, None)
-        req = self.factory.get('/', HTTP_AUTHORIZATION=res)
+        authorization = self.setup_authorization(keys_dict)
+        req = self.factory.get('/', HTTP_AUTHORIZATION=authorization)
         with self.settings(REQUIRE_OAUTH=True):
             ok_(self.authentication.is_authenticated(req))
             eq_(req.OAUTH_KEY, 'foo')
@@ -40,8 +46,8 @@ class TestAuthentication(test_utils.TestCase):
     def test_signed_incorrectly(self):
         keys_ = keys_dict.copy()
         keys_['secret'] = 'baz'
-        res = sign_request('GET', keys_, settings.SITE_URL, None)
-        req = self.factory.get('/foo/', HTTP_AUTHORIZATION=res)
+        authorization = self.setup_authorization(keys_)
+        req = self.factory.get('/foo/', HTTP_AUTHORIZATION=authorization)
         with self.settings(REQUIRE_OAUTH=True):
             ok_(not self.authentication.is_authenticated(req))
             eq_(req.OAUTH_KEY, None)
