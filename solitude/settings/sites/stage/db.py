@@ -58,3 +58,6 @@ S3_AUTH = {'key': private.S3_AUTH_KEY, 'secret': private.S3_AUTH_SECRET}
 S3_BUCKET = private.S3_BUCKET
 
 REQUIRE_OAUTH = True
+
+# Disabled until bug 933772 is fixed.
+CHECK_BANGO_TOKEN = False
