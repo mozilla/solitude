@@ -73,7 +73,7 @@ class Transaction(Model):
 
     def is_refunded(self):
         return Transaction.objects.filter(related=self,
-            type__in=(constants.TYPE_REFUND, constants.TYPE_REVERSAL),
+            type__in=constants.TYPE_REFUNDS_REVERSALS,
             status=constants.STATUS_COMPLETED).exists()
 
     def for_log(self):

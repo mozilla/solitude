@@ -281,6 +281,11 @@ SENSITIVE_DATA_KEYS = ['bankAccountNumber', 'pin', 'secret']
 SITE_URL = ''
 
 # Fake out refunds, set this to True for test until bug 845332 is resolved.
+# Turning this on, just fakes out the Bango backend completely and never
+# really refunds anything.
+#
+# This is different from manual refund which is to force a refund through
+# if Bango use the manual refund flow.
 BANGO_FAKE_REFUNDS = False
 
 # When True, send product icon URLs to Bango in the billing config task.
