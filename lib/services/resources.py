@@ -45,7 +45,7 @@ class StatusObject(object):
             Seller.objects.exists()
             return True
         except Exception:
-            log.error('Error connection to the db', exc_info=True)
+            log.info('Error connection to the db', exc_info=True)
             return False
 
     def test_settings(self):
