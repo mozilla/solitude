@@ -51,6 +51,7 @@ urlpatterns = patterns('',
     url(r'^', include(paypal.urls)),
     url(r'^', include(bango.urls)),
     url(r'^bango/', include('lib.bango.urls')),
+    url(r'^zippy/', include('lib.zippy.urls')),
     url(r'^', include(delayable.urls)),
     url(r'^$', 'solitude.views.home', name='home'),
     url(r'^services/', include(services_patterns))
