@@ -1,8 +1,13 @@
 #!/bin/sh
 # This script makes sure that Jenkins can properly run your tests against your
 # codebase.
-source /opt/rh/python27/enable
+
+if [ -f /opt/rh/python27/enable ]; then
+  source /opt/rh/python27/enable
+fi
+
 set -e
+
 
 DB_HOST="localhost"
 DB_USER="hudson"
