@@ -162,6 +162,10 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True
         },
+        's.services': {
+            'handlers': ['unicodesyslog'],
+            'level': 'ERROR',
+        },
         'django.request': {
             'handlers': ['unicodesyslog', 'sentry'],
             'level': 'INFO',
