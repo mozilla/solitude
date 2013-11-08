@@ -19,7 +19,7 @@ from lib.bango.utils import verify_sig
 from lib.sellers.models import SellerProductBango
 from lib.transactions.constants import (PROVIDER_BANGO, STATUS_COMPLETED,
                                         STATUS_RECEIVED, TYPE_PAYMENT,
-                                        TYPE_REFUND)
+                                        TYPE_REFUNDS)
 from lib.transactions.forms import check_status
 from lib.transactions.models import Transaction
 
@@ -527,6 +527,7 @@ class GetEmailAddressesForm(forms.Form):
 
 class RefundForm(forms.Form):
     uuid = forms.CharField()
+    manual = forms.BooleanField(required=False)
 
     def clean_uuid(self):
         transaction = get_object_or_404(Transaction,
@@ -554,7 +555,7 @@ class RefundStatusForm(forms.Form):
         # Rather than just returning a 404, let's help the caller of this API
         # tell them why their transaction is denied.
         transaction = Transaction.objects.get(uuid=self.cleaned_data['uuid'])
-        if transaction.type != TYPE_REFUND:
+        if transaction.type not in TYPE_REFUNDS:
             raise forms.ValidationError('Not a refund')
 
         return transaction

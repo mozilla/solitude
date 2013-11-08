@@ -13,7 +13,8 @@ from lib.bango.constants import CANT_REFUND, NOT_SUPPORTED, OK, PENDING
 from lib.bango.errors import BangoFormError
 from lib.bango.forms import RefundForm, RefundStatusForm
 from lib.transactions.constants import (STATUS_COMPLETED, STATUS_FAILED,
-                                        STATUS_PENDING, TYPE_REFUND)
+                                        STATUS_PENDING, TYPE_REFUND,
+                                        TYPE_REFUND_MANUAL)
 from lib.transactions.models import Transaction
 from lib.transactions.resources import TransactionResource
 
@@ -55,14 +56,14 @@ class RefundResource(SimpleResource):
         list_allowed_methods = ['post']
         resource_name = 'refund'
 
-    def get_client(self, extra):
+    def get_client(self, extra, fake=False):
         """
         A wrapper around the original client call to allow us to return a Mock
-        object for refunds. See bug 845332 for more information.
+        object for refunds. See bug 845332 and bug 936242 for more information.
         """
-        fake = getattr(settings, 'BANGO_FAKE_REFUNDS', None)
+        fake = fake or getattr(settings, 'BANGO_FAKE_REFUNDS', None)
         if fake:
-            log.warning('Faking out refunds')
+            log.info('Faking out refunds')
             res = extra.get('fake_response', {})
             client = ClientMock()
             if not res:
@@ -86,12 +87,13 @@ class RefundResource(SimpleResource):
             raise self.form_errors(form)
 
         obj = form.cleaned_data['uuid']
+        is_manual = obj.type == TYPE_REFUND_MANUAL
 
         try:
             res = self.client('GetRefundStatus',
                 {'refundTransactionId': obj.uid_pay},
                 raise_on=(PENDING, CANT_REFUND, NOT_SUPPORTED),
-                client=self.get_client(data)
+                client=self.get_client(data, fake=is_manual)
             )
             code = res.responseCode
         except BangoFormError, exc:
@@ -101,6 +103,7 @@ class RefundResource(SimpleResource):
         response = RefundResponse(code, obj)
 
         log.info('Transaction %s: %s' % (code, obj.pk))
+
         # Alter our transaction if we need to.
         if code == OK and obj.status != STATUS_COMPLETED:
             log.info('Status updated to %s: %s' % (code, obj.pk))
@@ -126,7 +129,7 @@ class RefundResource(SimpleResource):
             raise self.form_errors(form)
 
         obj = form.cleaned_data['uuid']
-
+        manual = form.cleaned_data['manual']
         external_uuid = str(uuid.uuid4())
 
         try:
@@ -137,12 +140,14 @@ class RefundResource(SimpleResource):
                     'transactionId': obj.uid_support
                 },
                 raise_on=(PENDING,),
-                client=self.get_client(bundle.data)
+                client=self.get_client(bundle.data, fake=manual)
             )
         except BangoFormError, exc:
             # We haven't been able to get a response back that is pending
-            # so I'm not sure if the refundTransactionId is there. Check this.
+            # so I'm not sure if the refundTransactionId is there. Check
+            # this.
             res = BangoResponse(exc.id, exc.message, 'todo')
+
 
         status = {OK: STATUS_COMPLETED,
                   PENDING: STATUS_PENDING}
@@ -159,7 +164,7 @@ class RefundResource(SimpleResource):
             # the moment we'll assume they go straight through.
             status=status.get(res.responseCode),
             source='',
-            type=TYPE_REFUND,
+            type=TYPE_REFUND_MANUAL if manual else TYPE_REFUND,
             uuid=external_uuid,
             uid_pay=res.refundTransactionId)
 

@@ -18,7 +18,7 @@ from lib.transactions import constants
 from lib.transactions.constants import (PROVIDER_BANGO, PROVIDER_PAYPAL,
                                         STATUS_CANCELLED, STATUS_COMPLETED,
                                         STATUS_FAILED, STATUS_PENDING,
-                                        TYPE_REFUND)
+                                        TYPE_REFUND, TYPE_REFUND_MANUAL)
 from lib.transactions.models import Transaction
 from solitude.base import APITest, Resource as TastypieBaseResource
 from solitude.constants import (PAYMENT_METHOD_OPERATOR, PAYMENT_METHOD_CARD,
@@ -754,21 +754,28 @@ class TestRefund(APITest):
                                           seller_bango=self.seller_bango,
                                           bango_id='1234')
 
-    def _status(self, their_status, our_status):
-        res = self.client.post(self.url, data={'uuid': self.uuid})
+    def _status(self, their_status, our_status, data=None, typ=TYPE_REFUND):
+        refund_data = {'uuid': self.uuid}
+        if data:
+            refund_data.update(data)
+        res = self.client.post(self.url, data=refund_data)
         eq_(res.status_code, 201, res.content)
-        data = json.loads(res.content)
-        eq_(data['status'], their_status)
+        res_data = json.loads(res.content)
+        eq_(res_data['status'], their_status)
 
         eq_(len(Transaction.objects.all()), 2)
-        trans = Transaction.objects.get(pk=data['resource_pk'])
+        trans = Transaction.objects.get(pk=res_data['resource_pk'])
         eq_(trans.related.pk, self.trans.pk)
-        eq_(trans.type, TYPE_REFUND)
+        eq_(trans.type, typ)
         eq_(trans.status, our_status)
         assert trans.uuid
 
     def test_ok(self):
         self._status(OK, STATUS_COMPLETED)
+
+    def test_ok_manual(self):
+        self._status(OK, STATUS_COMPLETED, data={'manual': True},
+                     typ=TYPE_REFUND_MANUAL)
 
     @mock.patch.object(ClientMock, 'mock_results')
     def test_pending(self, mock_results):
@@ -856,6 +863,15 @@ class TestRefundStatus(APITest):
         data = json.loads(res.content)
         eq_(data['status'], OK)
 
+    def test_get_manual(self):
+        self.refund.type = TYPE_REFUND_MANUAL
+        self.refund.save()
+
+        res = self.client.get_with_body(self.url,
+                                        data={'uuid': self.refund_uuid})
+        data = json.loads(res.content)
+        eq_(data['status'], OK)
+
     def test_not_refund(self):
         self.refund.type = constants.TYPE_PAYMENT
         self.refund.save()
@@ -873,6 +889,20 @@ class TestRefundStatus(APITest):
                                         data={'uuid': self.refund.uuid})
         data = json.loads(res.content)
         eq_(data['status'], PENDING)
+        eq_(self.refund.reget().status, constants.STATUS_PENDING)
+
+    @mock.patch.object(ClientMock, 'mock_results')
+    def test_pending_manual(self, mock_results):
+        mock_results.return_value = {'responseCode': PENDING,
+                                     'responseMessage': 'patience padawan'}
+        self.refund.type = TYPE_REFUND_MANUAL
+        self.refund.save()
+
+        res = self.client.get_with_body(self.url,
+                                        data={'uuid': self.refund.uuid})
+        eq_(res.status_code, 200)
+        # This is not pending, because its a manual response and it got
+        # ignored.
         eq_(self.refund.reget().status, constants.STATUS_PENDING)
 
     @mock.patch.object(ClientMock, 'mock_results')
