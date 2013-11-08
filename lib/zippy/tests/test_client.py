@@ -1,13 +1,13 @@
 from django.conf import settings
 
-import test_utils
 from nose import SkipTest
-from nose.tools import eq_
+from nose.tools import eq_, ok_
+from test_utils import TestCase
 
-from ..client import get_client
+from ..client import Client, get_client
 
 
-class TestClient(test_utils.TestCase):
+class TestClient(TestCase):
 
     def setUp(self):
         self.api = get_client('reference').api
@@ -44,3 +44,23 @@ class TestClient(test_utils.TestCase):
         eq_(res, True)
         res = self.api.sellers.get()
         eq_(res, [])
+
+
+class TestClientObj(TestCase):
+
+    def test_non_existant(self):
+        client = Client('does-not-exist')
+        eq_(client.api, None)
+
+    def test_existing(self):
+        config = {
+            'bob': {
+                'url': 'http://f.com',
+                'auth': {'key': 'k', 'secret': 's'}
+                }
+            }
+
+        with self.settings(ZIPPY_CONFIGURATION=config):
+            client = Client('bob')
+            ok_(client.api)
+            eq_(client.config, config['bob'])

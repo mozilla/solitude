@@ -1,9 +1,36 @@
 import json
 
 from django.core.urlresolvers import reverse
-from django.test import Client, TestCase
+from django.test import Client
 
 from nose.tools import eq_
+from test_utils import RequestFactory, TestCase
+
+from ..views import APIView, NoReference, ZippyView
+
+
+class FakeView(ZippyView):
+
+    def get(self, request):
+        raise NoReference
+
+
+class TestZippyView(TestCase):
+
+    def test_no_reference(self):
+        req = RequestFactory().get('/')
+        eq_(FakeView().dispatch(req).status_code, 404)
+
+
+class TestAPIView(TestCase):
+
+    def setUp(self):
+        self.req = RequestFactory().get('/')
+
+    def test_no_reference(self):
+        with self.settings(ZIPPY_MOCK=False):
+            eq_(APIView().dispatch(self.req, reference_name='bob',
+                                   resource_name='sellers').status_code, 404)
 
 
 class TestViews(TestCase):

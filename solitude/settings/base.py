@@ -337,3 +337,8 @@ S3_BUCKET = ''
 
 # New Relic is configured here.
 NEWRELIC_INI = None
+
+# Here be all the zippy stuff.
+ZIPPY_MOCK = False
+# Override this to configure some zippy backends.
+ZIPPY_CONFIGURATION = {}
