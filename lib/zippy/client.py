@@ -6,10 +6,12 @@ from curling.lib import API
 class Client(object):
 
     def __init__(self, reference_name):
-        self.configuration = settings.ZIPPY_CONFIGURATION.get(reference_name)
-        self.api = API(self.configuration.get('url'), append_slash=False)
-        self.api.activate_oauth(self.configuration.get('auth').get('key'),
-                                self.configuration.get('auth').get('secret'))
+        self.config = settings.ZIPPY_CONFIGURATION.get(reference_name)
+        self.api = None
+        if self.config:
+            self.api = API(self.config['url'], append_slash=False)
+            self.api.activate_oauth(self.config['auth']['key'],
+                                    self.config['auth']['secret'])
 
 
 class APIMockObject(object):
