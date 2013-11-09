@@ -1,75 +1,40 @@
-import json
+from rest_framework.response import Response
 
-from django.conf import settings
-from django.http import HttpResponse, HttpResponseNotFound
-from django.views.generic import View
-
-from .client import get_client
-from solitude.base import colorize, log_cef
+from errors import NoReference
+from client import get_client
+from solitude.base import BaseAPIView
 from solitude.logger import getLogger
 
 log = getLogger('s.zippy')
 
 
-class NoReference(Exception):
-    pass
+class ProxyView(BaseAPIView):
+    """
+    This view does very little except pass the incoming API call
+    straight onto the zippy backend that it is a proxy too.
 
+    TODO:
+    -   what happens when the client throws an error, will that
+        be propogated correctly?
+    -   what happens to deeper urls, eg: /zippy/ref/sellers/1/?
+    """
 
-class ZippyView(View):
+    def initial(self, request, *args, **kwargs):
+        super(ProxyView, self).initial(request, *args, **kwargs)
+        self.proxy = self._get_client(*args, **kwargs)
 
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Overwrite so we can add log_cef.
-        """
-        if request.method.lower() in self.http_method_names:
-            handler = getattr(self, request.method.lower(),
-                              self.http_method_not_allowed)
-        else:
-            handler = self.http_method_not_allowed
-
-        # Log the call with CEF and logging.
-        if settings.DUMP_REQUESTS:
-            print colorize('brace', request.method), request.get_full_path()
-        else:
-            log.info('%s %s' % (colorize('brace', request.method),
-                                request.get_full_path()))
-
-        msg = '%s:%s' % (kwargs.get('reference_name', 'unknown'),
-                         kwargs.get('resource_name', 'unknown'))
-        log_cef(msg, request, severity=2)
-
-        try:
-            return handler(request, *args, **kwargs)
-        except NoReference:
-            return HttpResponseNotFound()
-
-    def clean_data(self, request):
-        """
-        Only validate data for solitude related checks.
-        """
-        return request.POST
-
-
-class APIView(ZippyView):
-
-    def _get_client(self, name):
-        api = get_client(name).api
+    def _get_client(self, *args, **kwargs):
+        api = get_client(kwargs['reference_name']).api
         if not api:
-            log.info('No reference found: {0}'.format(name))
-            raise NoReference(name)
-        return api
+            log.info('No reference found: {0}'
+                     .format(kwargs['reference_name']))
+            raise NoReference(kwargs['reference_name'])
+        return getattr(api, kwargs['resource_name'])
 
     def get(self, request, *args, **kwargs):
-        api = self._get_client(kwargs['reference_name'])
-        res = getattr(api, kwargs['resource_name']).get()
-        return HttpResponse(json.dumps(res),
-                            **{'content_type': 'application/json'})
+        return Response(self.proxy.get())
 
     def post(self, request, *args, **kwargs):
-        api = self._get_client(kwargs['reference_name'])
-        data = self.clean_data(request)
-        res = getattr(api, kwargs['resource_name']).post(data)
-        return HttpResponse(json.dumps(res),
-                            **{'content_type': 'application/json'})
-
-api_view = APIView.as_view()
+        # Just piping request.DATA through isn't great but it will do for the
+        # moment.
+        return Response(self.proxy.post(request.DATA))
