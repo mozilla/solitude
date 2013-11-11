@@ -40,7 +40,7 @@ newrelic==2.4.0.4
 nose==1.2.1
 oauth2==1.5.211
 ordereddict==1.1
-py-bcrypt==0.2
+py-bcrypt==0.4
 python-dateutil==1.5
 python-memcached==1.48
 pytz==2010e
