@@ -61,3 +61,5 @@ REQUIRE_OAUTH = True
 
 # Disabled until bug 933772 is fixed.
 CHECK_BANGO_TOKEN = False
+
+NEWRELIC_INI = '/etc/newrelic.d/payments.allizom.org.ini'
