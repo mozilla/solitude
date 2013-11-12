@@ -6,12 +6,12 @@ from django.test import Client
 from nose.tools import eq_
 from test_utils import RequestFactory, TestCase
 
-from ..views import APIView, NoReference, ZippyView
+from ..views import ProxyView, NoReference
 
 
-class FakeView(ZippyView):
+class FakeView(ProxyView):
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         raise NoReference
 
 
@@ -19,18 +19,17 @@ class TestZippyView(TestCase):
 
     def test_no_reference(self):
         req = RequestFactory().get('/')
-        eq_(FakeView().dispatch(req).status_code, 404)
+        eq_(FakeView().dispatch(req, reference_name='bob',
+                                resource_name='sellers').status_code, 404)
 
 
 class TestAPIView(TestCase):
 
-    def setUp(self):
-        self.req = RequestFactory().get('/')
-
     def test_no_reference(self):
+        req = RequestFactory().get('/')
         with self.settings(ZIPPY_MOCK=False):
-            eq_(APIView().dispatch(self.req, reference_name='bob',
-                                   resource_name='sellers').status_code, 404)
+            eq_(ProxyView().dispatch(req, reference_name='bob',
+                                     resource_name='sellers').status_code, 404)
 
 
 class TestViews(TestCase):
@@ -42,7 +41,7 @@ class TestViews(TestCase):
         resp = self.client.get(reverse('zippy.api_view',
                                        args=['reference', 'sellers']))
         eq_(json.loads(resp.content), [])
-        eq_(resp['Content-Type'], 'application/json')
+        assert resp['Content-Type'].startswith('application/json')
 
     def test_create_seller(self):
         seller = {

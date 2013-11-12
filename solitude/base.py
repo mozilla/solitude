@@ -37,6 +37,7 @@ from rest_framework import status
 from rest_framework.mixins import UpdateModelMixin as DJRUpdateModelMixin
 from rest_framework.relations import HyperlinkedRelatedField
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from tastypie import http
 from tastypie.authorization import Authorization
@@ -271,6 +272,15 @@ def format_form_errors(forms):
     return errors
 
 
+def dump_request(request):
+    if settings.DUMP_REQUESTS:
+        print colorize('brace', request.method), request.get_full_path()
+    else:
+        log.info('%s %s' % (colorize('brace', request.method),
+                 request.get_full_path()))
+
+
+
 class DRFBaseResource(object):
     """
     A TastypieBaseResource for DRF.
@@ -278,6 +288,19 @@ class DRFBaseResource(object):
 
     def form_errors(self, forms):
         return Response(format_form_errors(forms), status=400)
+
+
+class BaseAPIView(APIView):
+    """
+    A base APIView for DRF that we can subclass everything off of.
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        dump_request(request)
+        msg = '%s:%s' % (kwargs.get('reference_name', 'unknown'),
+                         kwargs.get('resource_name', 'unknown'))
+        log_cef(msg, request, severity=2)
+        return super(BaseAPIView, self).dispatch(request, *args, **kwargs)
 
 
 class TastypieBaseResource(object):
@@ -330,13 +353,7 @@ class TastypieBaseResource(object):
             return http.HttpResponse(content, status=202,
                                      content_type='application/json')
 
-        # Log the call with CEF and logging.
-        if settings.DUMP_REQUESTS:
-            print colorize('brace', method), request.get_full_path()
-        else:
-            log.info('%s %s' % (colorize('brace', method),
-                                request.get_full_path()))
-
+        dump_request(request)
         msg = '%s:%s' % (kw.get('api_name', 'unknown'),
                          kw.get('resource_name', 'unknown'))
         log_cef(msg, request, severity=2)
