@@ -2,6 +2,8 @@ from django.conf import settings
 
 from curling.lib import API
 
+mock_data = {}
+
 
 class Client(object):
 
@@ -16,13 +18,19 @@ class Client(object):
 
 class APIMockObject(object):
 
-    def __init__(self, resource_name):
+    def __init__(self, resource_name, uuid=None):
         self.resource_name = resource_name
+        self.uuid = uuid
         self.last_pk = 0
-        self.data = {}
+
+    def __call__(self, uuid):
+        return APIMockObject(self.resource_name, uuid)
 
     def get(self):
-        return self.data and [self.data] or []
+        if self.uuid:
+            return mock_data[self.uuid]
+        else:
+            return mock_data and mock_data.values() or []
 
     def post(self, data):
         pk = self.last_pk + 1
@@ -30,11 +38,21 @@ class APIMockObject(object):
         data['resource_uri'] = '/{resource_name}/{pk}'.format(pk=pk,
                                resource_name=self.resource_name)
         self.last_pk += 1
-        self.data[data['uuid']] = data
-        return self.data[data['uuid']]
+        mock_data[data['uuid']] = data
+        return mock_data[data['uuid']]
+
+    def put(self, data):
+        initial_data = mock_data[self.uuid]
+        initial_data.update(data)
+        mock_data[self.uuid] = initial_data
+        return mock_data[self.uuid]
+
+    def delete(self):
+        del mock_data[self.uuid]
 
 
 class APIMock(object):
+
     @property
     def sellers(self, *args, **kwargs):
         return APIMockObject('sellers')

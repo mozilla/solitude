@@ -29,7 +29,10 @@ class ProxyView(BaseAPIView):
             log.info('No reference found: {0}'
                      .format(kwargs['reference_name']))
             raise NoReference(kwargs['reference_name'])
-        return getattr(api, kwargs['resource_name'])
+        if 'uuid' in kwargs:
+            return getattr(api, kwargs['resource_name'])(kwargs['uuid'])
+        else:
+            return getattr(api, kwargs['resource_name'])
 
     def get(self, request, *args, **kwargs):
         return Response(self.proxy.get())
@@ -38,3 +41,9 @@ class ProxyView(BaseAPIView):
         # Just piping request.DATA through isn't great but it will do for the
         # moment.
         return Response(self.proxy.post(request.DATA))
+
+    def put(self, request, *args, **kwargs):
+        return Response(self.proxy.put(request.DATA))
+
+    def delete(self, request, *args, **kwargs):
+        return Response(self.proxy.delete())
