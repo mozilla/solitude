@@ -48,6 +48,7 @@ seller = {
 }
 res = client.api.sellers.post(seller)
 print res
+seller_id = res['resource_pk']
 
 print 'Retrieving sellers.'
 res = client.api.sellers.get()
@@ -59,6 +60,15 @@ print res
 
 print 'Updating the created seller.'
 res = client.api.sellers(uid).put({'name': 'Jack'})
+print res
+
+external_id = str(uuid.uuid4())
+print 'Creating seller product with external_id: ' + external_id
+product = {
+    'seller_id': seller_id,
+    'external_id': external_id,
+}
+res = client.api.products.post(product)
 print res
 
 print 'Deleting the created seller.'

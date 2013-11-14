@@ -1,8 +1,10 @@
+from collections import defaultdict
+
 from django.conf import settings
 
 from curling.lib import API
 
-mock_data = {}
+mock_data = defaultdict(dict)
 
 
 class Client(object):
@@ -28,27 +30,29 @@ class APIMockObject(object):
 
     def get(self):
         if self.uuid:
-            return mock_data[self.uuid]
+            return mock_data[self.resource_name][self.uuid]
         else:
-            return mock_data and mock_data.values() or []
+            return (mock_data[self.resource_name] and
+                    mock_data[self.resource_name].values() or [])
 
     def post(self, data):
         pk = self.last_pk + 1
+        id = data.get('uuid', data.get('external_id'))
         data['resource_pk'] = str(pk)
         data['resource_uri'] = '/{resource_name}/{pk}'.format(pk=pk,
                                resource_name=self.resource_name)
         self.last_pk += 1
-        mock_data[data['uuid']] = data
-        return mock_data[data['uuid']]
+        mock_data[self.resource_name][id] = data
+        return mock_data[self.resource_name][id]
 
     def put(self, data):
-        initial_data = mock_data[self.uuid]
+        initial_data = mock_data[self.resource_name][self.uuid]
         initial_data.update(data)
-        mock_data[self.uuid] = initial_data
-        return mock_data[self.uuid]
+        mock_data[self.resource_name][self.uuid] = initial_data
+        return mock_data[self.resource_name][self.uuid]
 
     def delete(self):
-        del mock_data[self.uuid]
+        del mock_data[self.resource_name][self.uuid]
 
 
 class APIMock(object):
@@ -56,6 +60,10 @@ class APIMock(object):
     @property
     def sellers(self, *args, **kwargs):
         return APIMockObject('sellers')
+
+    @property
+    def products(self, *args, **kwargs):
+        return APIMockObject('products')
 
 
 class ClientMock(object):
