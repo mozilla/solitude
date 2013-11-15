@@ -3,8 +3,12 @@ import collections
 from lib.sellers.models import (Seller, SellerBango, SellerProduct,
                                 SellerProductBango)
 
+Sellers = collections.namedtuple('Seller', 'seller bango product')
+SellerProducts = collections.namedtuple('SellerProduct',
+                                        'product_bango seller bango product ')
 
-def make_sellers(uuid='sample:uuid', bangoid='sample:bangoid'):
+
+def make_no_product(uuid='sample:uuid', bangoid='sample:bangoid'):
     seller = Seller.objects.create(uuid=uuid)
     bango = SellerBango.objects.create(
         seller=seller,
@@ -17,11 +21,14 @@ def make_sellers(uuid='sample:uuid', bangoid='sample:bangoid'):
         seller=seller,
         external_id='xyz',
     )
+    return Sellers(seller, bango, product)
+
+
+def make_sellers(uuid='sample:uuid', bangoid='sample:bangoid'):
+    no = make_no_product(uuid=uuid, bangoid=bangoid)
     product_bango = SellerProductBango.objects.create(
-        seller_product=product,
-        seller_bango=bango,
+        seller_product=no.product,
+        seller_bango=no.bango,
         bango_id=bangoid,
     )
-    Sellers = collections.namedtuple('Sellers',
-                                     'seller bango product product_bango')
-    return Sellers(seller, bango, product, product_bango)
+    return SellerProducts(product_bango, *no)

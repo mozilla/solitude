@@ -33,7 +33,7 @@ from cef import log_cef as _log_cef
 from solitude.patch import patch  # NOQA
 patch()
 
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.mixins import UpdateModelMixin as DJRUpdateModelMixin
 from rest_framework.relations import HyperlinkedRelatedField
 from rest_framework.response import Response
@@ -124,6 +124,23 @@ def json_response(request, exc_type, exc_value, tb):
 debug.technical_500_response = json_response
 
 
+def json_parse(fn):
+    """Wrapper around responses to add additional info."""
+    @functools.wraps(fn)
+    def wrapper(*args, **kw):
+        response = fn(*args, **kw)
+        def _json(self):
+            """Will return parsed JSON on response if there is any."""
+            if self.content and 'application/json' in self['Content-Type']:
+                if not hasattr(self, '_content_json'):
+                    self._content_json = json.loads(self.content)
+                return self._content_json
+
+        response.json = property(_json)
+        return response
+    return wrapper
+
+
 class APIClient(Client):
 
     def _process(self, kwargs):
@@ -133,6 +150,11 @@ class APIClient(Client):
             kwargs['data'] = json.dumps(kwargs['data'])
         return kwargs
 
+    @json_parse
+    def get(self, *args, **kwargs):
+        return super(APIClient, self).get(*args, **kwargs)
+
+    @json_parse
     def get_with_body(self, *args, **kwargs):
         # The Django test client automatically serializes data, not allowing
         # you to do a GET with a body. We want to be able to do that in our
@@ -140,12 +162,15 @@ class APIClient(Client):
         return super(APIClient, self).post(*args, REQUEST_METHOD='GET',
                                            **self._process(kwargs))
 
+    @json_parse
     def post(self, *args, **kwargs):
         return super(APIClient, self).post(*args, **self._process(kwargs))
 
+    @json_parse
     def put(self, *args, **kwargs):
         return super(APIClient, self).put(*args, **self._process(kwargs))
 
+    @json_parse
     def patch(self, *args, **kwargs):
         return super(APIClient, self).put(*args, REQUEST_METHOD='PATCH',
                                           **self._process(kwargs))
@@ -263,6 +288,7 @@ def format_form_errors(forms):
     if not isinstance(forms, list):
         forms = [forms]
     for f in forms:
+        log.info('Error processing form: {0}'.format(f.__class__.__name__))
         if isinstance(f.errors, list):  # Cope with formsets.
             for e in f.errors:
                 errors.update(e)
@@ -279,6 +305,16 @@ def dump_request(request):
         log.info('%s %s' % (colorize('brace', request.method),
                  request.get_full_path()))
 
+
+class BaseSerializer(serializers.ModelSerializer):
+    """
+    Retains compatability between DRF and Tastypie.
+    """
+    resource_pk = serializers.CharField(source='pk')
+    resource_uri = serializers.SerializerMethodField('get_resource_uri')
+
+    def get_resource_uri(self, obj):
+        return self.resource_uri(obj.pk)
 
 
 class DRFBaseResource(object):
@@ -301,6 +337,9 @@ class BaseAPIView(APIView):
                          kwargs.get('resource_name', 'unknown'))
         log_cef(msg, request, severity=2)
         return super(BaseAPIView, self).dispatch(request, *args, **kwargs)
+
+    def form_errors(self, forms):
+        return Response(format_form_errors(forms), status=400)
 
 
 class TastypieBaseResource(object):
