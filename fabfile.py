@@ -19,6 +19,10 @@ import deploysettings as settings
 env.key_filename = settings.SSH_KEY
 fabdeploytools.envs.loadenv(settings.CLUSTER)
 
+SCL_NAME = getattr(settings, 'SCL_NAME', False)
+if SCL_NAME:
+    helpers.scl_enable(SCL_NAME)
+
 IS_PROXY = getattr(settings, 'IS_PROXY', False)
 
 ROOT, SOLITUDE = helpers.get_app_dirs(__file__)
@@ -84,9 +88,15 @@ def install_cron(installed_dir):
 
     sol = pjoin(installed_dir, 'solitude')
     python = pjoin(installed_dir, 'venv', 'bin', 'python')
+    if SCL_NAME:
+        python = "source %s; %s" % (
+            os.path.join('/opt/rh', SCL_NAME, 'enable'),
+            python
+        )
+
     with lcd(SOLITUDE):
         local('%s ./bin/crontab/gen-crons.py '
-              '-p %s -u %s -w %s > /etc/cron.d/.%s' %
+              '-p "%s" -u %s -w %s > /etc/cron.d/.%s' %
               (PYTHON, python, settings.CRON_USER, sol,
                settings.CRON_NAME))
 
