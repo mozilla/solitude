@@ -26,7 +26,7 @@ class APIMockObject(object):
         self.last_pk = 0
 
     def __call__(self, uuid):
-        return APIMockObject(self.resource_name, uuid)
+        return self.__class__(self.resource_name, uuid)
 
     def get(self):
         if self.uuid:
@@ -55,6 +55,16 @@ class APIMockObject(object):
         del mock_data[self.resource_name][self.uuid]
 
 
+class APITransactionMockObject(APIMockObject):
+
+    def post(self, data):
+        transaction = super(APITransactionMockObject, self).post(data)
+        transaction['status'] = 'STARTED'
+        transaction['token'] = 'transaction-token'
+        mock_data[self.resource_name][self.uuid] = transaction
+        return mock_data[self.resource_name][self.uuid]
+
+
 class APIMock(object):
 
     @property
@@ -64,6 +74,10 @@ class APIMock(object):
     @property
     def products(self, *args, **kwargs):
         return APIMockObject('products')
+
+    @property
+    def transactions(self, *args, **kwargs):
+        return APITransactionMockObject('transactions')
 
 
 class ClientMock(object):
