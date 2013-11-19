@@ -12,7 +12,7 @@ from solitude.base import APITest
 class TestNope(APITest):
 
     def test(self):
-        self.url = reverse('zippy.bango.nope')
+        self.url = reverse('provider.bango.nope')
         eq_(self.client.get(self.url).status_code, 405)
 
 
@@ -21,7 +21,7 @@ class TestProduct(APITest):
 
     def setUp(self):
         self.objs = utils.make_no_product()
-        self.url = reverse('zippy.bango.product')
+        self.url = reverse('provider.bango.product')
 
     def get_data(self):
         data = samples.good_bango_number

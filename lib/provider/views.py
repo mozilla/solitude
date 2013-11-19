@@ -5,7 +5,7 @@ from client import get_client
 from solitude.base import BaseAPIView
 from solitude.logger import getLogger
 
-log = getLogger('s.zippy')
+log = getLogger('s.provider')
 
 
 class NotImplementedView(BaseAPIView):
@@ -15,12 +15,12 @@ class NotImplementedView(BaseAPIView):
 class ProxyView(BaseAPIView):
     """
     This view does very little except pass the incoming API call
-    straight onto the zippy backend that it is a proxy too.
+    straight onto the provider backend that it is a proxy too.
 
     TODO:
     -   what happens when the client throws an error, will that
         be propogated correctly?
-    -   what happens to deeper urls, eg: /zippy/ref/sellers/1/?
+    -   what happens to deeper urls, eg: /provider/ref/sellers/1/?
     """
 
     def initial(self, request, *args, **kwargs):

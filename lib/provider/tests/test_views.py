@@ -36,14 +36,14 @@ class TestViews(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.seller_uuid = 'zippy-seller-uuid'
-        self.product_uuid = 'zippy-product-uuid'
+        self.seller_uuid = 'provider-seller-uuid'
+        self.product_uuid = 'provider-product-uuid'
 
     def url_list(self, resource_name):
-        return reverse('zippy.api_view', args=['reference', resource_name])
+        return reverse('provider.api_view', args=['reference', resource_name])
 
     def url_item(self, resource_name, pk):
-        return reverse('zippy.api_view', args=['reference', resource_name, pk])
+        return reverse('provider.api_view', args=['reference', resource_name, pk])
 
     def create_seller(self):
         seller = {
