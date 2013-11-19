@@ -8,6 +8,10 @@ from solitude.logger import getLogger
 log = getLogger('s.zippy')
 
 
+class NotImplementedView(BaseAPIView):
+    pass
+
+
 class ProxyView(BaseAPIView):
     """
     This view does very little except pass the incoming API call

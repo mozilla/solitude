@@ -7,7 +7,6 @@ from ..signals import create
 
 
 class BangoResource(object):
-    """A mixin that requires TastypieBaseResource to handle Bango form errors."""
 
     def client(self, method, data, raise_on=None, client=None):
         """
