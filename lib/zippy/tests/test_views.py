@@ -59,6 +59,18 @@ class TestViews(TestCase):
         })
         return seller
 
+    def create_product(self, seller):
+        product = {
+            'seller_id': seller['resource_pk'],
+            'external_id': self.product_uuid,
+        }
+        self.client.post(self.url_list('products'), product)
+        product.update({
+            'resource_pk': '1',
+            'resource_uri': '/products/1',
+        })
+        return product
+
     def delete_seller(self):
         self.client.delete(self.url_item('sellers', self.seller_uuid))
 
@@ -120,3 +132,28 @@ class TestProductViews(TestViews):
             'resource_uri': '/products/1',
         })
         eq_(json.loads(resp.content), product)
+
+
+class TestTransactionViews(TestViews):
+
+    def test_create_transaction(self):
+        seller = self.create_seller()
+        product = self.create_product(seller)
+        transaction = {
+            'product_id': product['resource_pk'],
+            'region': '123',
+            'carrier': 'USA_TMOBILE',
+            'price': '0.99',
+            'currency': 'EUR',
+            'pay_method': 'OPERATOR'
+        }
+        resp = self.client.post(self.url_list('transactions'),
+                                transaction)
+        transaction.update({
+            'resource_pk': '1',
+            'resource_uri': '/transactions/1',
+            'status': 'STARTED',
+            'token': 'transaction-token',
+        })
+        eq_(json.loads(resp.content), transaction)
+
