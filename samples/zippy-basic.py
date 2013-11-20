@@ -1,44 +1,23 @@
 # -*- coding: utf-8 -*-
+import functools
 import sys
 import uuid
 
-from curling.lib import API
-
-ZIPPY_CONFIGURATION = {
-    'reference': {
-        'url': 'http://127.0.0.1:8080',  # No trailing slash.
-        'auth': {
-            'key': 'dpf43f3p2l4k3l03',
-            'secret': 'kd94hf93k423kf44',
-        },
-    },
-}
+import lib
 
 try:
     # Read the root from the command line, rather than hard coding.
     root = sys.argv[1]
 except:
-    root = ZIPPY_CONFIGURATION['reference']['url']
-
-
-class Client(object):
-
-    def __init__(self, reference_name):
-        self.config = ZIPPY_CONFIGURATION.get(reference_name)
-        self.api = None
-        if self.config:
-            self.api = API(self.config['url'], append_slash=False)
-            self.api.activate_oauth(self.config['auth']['key'],
-                                    self.config['auth']['secret'])
+    root = 'http://localhost:8001'
 
 
 uid = str(uuid.uuid4())
+call = functools.partial(lib.call, root)
 
-client = Client('reference')
 print 'Retrieving sellers.'
-res = client.api.sellers.get()
+res = call('/provider/reference/sellers/', 'get', {})
 print res
-assert res == []
 
 print 'Creating for:', uid
 seller = {
@@ -47,22 +26,19 @@ seller = {
     'name': 'John',
     'email': 'jdoe@example.org',
 }
-res = client.api.sellers.post(seller)
+res = call('/provider/reference/sellers/', 'post', seller)
 print res
 seller_id = res['resource_pk']
+seller_uuid = res['uuid']
 
-print 'Retrieving sellers.'
-res = client.api.sellers.get()
-print res
-assert len(res) == 1
-
-print 'Retrieving the created seller.'
-res = client.api.sellers(uid).get()
+print 'Retrieving the created seller'
+res = call('/provider/reference/sellers/{0}/'.format(seller_uuid), 'get', {})
 print res
 assert res['name'] == 'John'
 
 print 'Updating the created seller.'
-res = client.api.sellers(uid).put({'name': 'Jack'})
+res = call('/provider/reference/sellers/{0}/'.format(seller_uuid), 'put',
+           {'name': 'Jack'})
 print res
 assert res['name'] == 'Jack'
 
@@ -73,7 +49,7 @@ product = {
     'seller_id': seller_id,
     'external_id': external_id,
 }
-res = client.api.products.post(product)
+res = call('/provider/reference/products/', 'post', product)
 print res
 assert res['name'] == 'Product name'
 
@@ -87,16 +63,6 @@ transaction = {
     'currency': 'EUR',
     'pay_method': 'OPERATOR'
 }
-res = client.api.transactions.post(transaction)
+res = call('/provider/reference/transactions/', 'post', transaction)
 print res
 assert res['status'] == 'STARTED'
-
-print 'Deleting the created seller.'
-res = client.api.sellers(uid).delete()
-print res
-assert res
-
-print 'Retrieving sellers.'
-res = client.api.sellers.get()
-print res
-assert res == []
