@@ -59,7 +59,7 @@ S3_BUCKET = private.S3_BUCKET
 
 REQUIRE_OAUTH = True
 
-# Disabled until bug 933772 is fixed.
-CHECK_BANGO_TOKEN = False
+# Enabling to test bug 938314
+CHECK_BANGO_TOKEN = True
 
 NEWRELIC_INI = '/etc/newrelic.d/payments.allizom.org.ini'
