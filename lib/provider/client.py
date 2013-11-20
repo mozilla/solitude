@@ -3,7 +3,9 @@ from collections import defaultdict
 from django.conf import settings
 
 from curling.lib import API
+from solitude.logger import getLogger
 
+log = getLogger('s.provider')
 mock_data = defaultdict(dict)
 
 
@@ -16,6 +18,9 @@ class Client(object):
             self.api = API(self.config['url'], append_slash=False)
             self.api.activate_oauth(self.config['auth']['key'],
                                     self.config['auth']['secret'])
+        else:
+            log.warning('No config for {ref}; oauth disabled'
+                        .format(ref=reference_name))
 
 
 class APIMockObject(object):
