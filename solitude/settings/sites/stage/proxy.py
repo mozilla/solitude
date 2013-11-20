@@ -48,7 +48,4 @@ PAYPAL_USE_SANDBOX = True
 BANGO_ENV = 'prod'
 BANGO_AUTH = private.BANGO_AUTH
 
-# Enabling to test bug 938314
-CHECK_BANGO_TOKEN = True
-
 NEWRELIC_INI = '/etc/newrelic.d/payments-proxy.allizom.org.ini'
