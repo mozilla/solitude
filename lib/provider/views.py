@@ -20,8 +20,6 @@ class ProxyView(BaseAPIView):
     straight onto the provider backend that it is a proxy too.
 
     TODO:
-    -   what happens when the client throws an error, will that
-        be propogated correctly?
     -   what happens to deeper urls, eg: /provider/ref/sellers/1/?
     """
 
