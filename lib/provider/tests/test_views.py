@@ -1,8 +1,10 @@
 import json
 
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse
 from django.test import Client
 
+from curling.lib import HttpClientError
 import mock
 from nose.tools import eq_, ok_
 from test_utils import RequestFactory, TestCase
@@ -58,6 +60,27 @@ class TestAPIasProxy(TestCase):
         assert self.api.products.get.called
         eq_(self.api.products.get.call_args[1], {'foo': 'bar'})
 
+    def test_proxy_error_responses(self):
+        # Create a scenario where the proxied API raises an HTTP error.
+        data = json.dumps({'error': 'something not found'})
+        proxy_res = HttpResponse(data,
+                                 content_type='application/json',
+                                 status=404)
+        proxy_res.json = data
+        proxy_res.request = RequestFactory().get('http://api/some/endpoint')
+        exc = HttpClientError(proxy_res.content, response=proxy_res)
+        self.api.products.get.side_effect = exc
+
+        # TODO: fixup when david's refactoring lands
+        # https://github.com/mozilla/solitude/pull/169/files
+
+        req = RequestFactory().get('/reference/products?foo=bar')
+        res = ProxyView().dispatch(req, reference_name='reference',
+                                   resource_name='products')
+        content = res.render()
+
+        eq_(content.status_code, 404)
+
 
 class TestViews(TestCase):
 
@@ -70,7 +93,8 @@ class TestViews(TestCase):
         return reverse('provider.api_view', args=['reference', resource_name])
 
     def url_item(self, resource_name, pk):
-        return reverse('provider.api_view', args=['reference', resource_name, pk])
+        return reverse('provider.api_view',
+                       args=['reference', resource_name, pk])
 
     def create_seller(self):
         seller = {
