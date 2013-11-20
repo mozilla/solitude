@@ -158,6 +158,27 @@ username and password for them. Example::
 
 These are passed to Bango each time a package is created.
 
+Zippy settings
+~~~~~~~~~~~~~~
+
+To configure zippy you'll need to have a configuration that looks like::
+
+    ZIPPY_CONFIGURATION = {
+        'reference': {
+            'url': 'http://localhost:8080',
+            'auth': {'key': 'a.key',
+                     'secret': 'a.secret',
+                     'realm': 'a.realm'}
+        }
+    }
+
+* `reference`: this is the name of the zippy implementation. Its used as
+  the key for the URLs.
+* `url`: the location of the zippy server.
+* `auth`: the key, secret and realm used for calculating the oAuth. Zippy must
+  have the same configuration.
+
+
 Running Locally
 ~~~~~~~~~~~~~~~
 
