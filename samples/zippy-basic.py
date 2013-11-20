@@ -36,6 +36,11 @@ res = call('/provider/reference/sellers/{0}/'.format(seller_uuid), 'get', {})
 print res
 assert res['name'] == 'John'
 
+print 'Retrieving seller terms.'
+res = client.api.terms(uid).get()
+print res
+assert res['terms'] == 'Terms for seller: John'
+
 print 'Updating the created seller.'
 res = call('/provider/reference/sellers/{0}/'.format(seller_uuid), 'put',
            {'name': 'Jack'})
