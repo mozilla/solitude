@@ -22,7 +22,7 @@ django-raven-metlog==0.1
 django-sha2==0.4
 django-statsd-mozilla==0.3.8.3
 django-tastypie==0.9.11
-djangorestframework==2.3.5
+djangorestframework==2.3.9
 funfactory==2.1.1
 gunicorn==0.17.2
 httplib2==0.7.6
