@@ -3,6 +3,7 @@ import json
 from django.core.urlresolvers import reverse
 from django.test import Client
 
+import mock
 from nose.tools import eq_, ok_
 from test_utils import RequestFactory, TestCase
 
@@ -30,6 +31,32 @@ class TestAPIView(TestCase):
         with self.settings(ZIPPY_MOCK=False):
             eq_(ProxyView().dispatch(req, reference_name='bob',
                                      resource_name='sellers').status_code, 404)
+
+
+class TestAPIasProxy(TestCase):
+
+    def setUp(self):
+        super(TestAPIasProxy, self).setUp()
+
+        p = mock.patch('lib.provider.client.get_client')
+        get_client = p.start()
+        self.addCleanup(p.stop)
+
+        self.api = mock.Mock()
+
+        domain = mock.Mock(api=self.api)
+        get_client.return_value = domain
+
+    def test_proxy_get_params(self):
+        self.api.products.get.return_value = '{}'
+
+        req = RequestFactory().get('/reference/products?foo=bar')
+        res = ProxyView().dispatch(req, reference_name='reference',
+                                   resource_name='products')
+        res.render()
+
+        assert self.api.products.get.called
+        eq_(self.api.products.get.call_args[1], {'foo': 'bar'})
 
 
 class TestViews(TestCase):
@@ -109,7 +136,7 @@ class TestSellerViews(TestViews):
         resp = self.client.put(self.url_item('sellers', self.seller_uuid),
                                json.dumps({'name': new_name}),
                                content_type='application/json')
-        seller.update({ 'name': new_name })
+        seller.update({'name': new_name})
         eq_(json.loads(resp.content), seller)
 
     def test_delete_seller(self):
@@ -156,4 +183,3 @@ class TestTransactionViews(TestViews):
             'token': 'transaction-token',
         })
         eq_(json.loads(resp.content), transaction)
-

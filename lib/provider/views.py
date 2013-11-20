@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 
+import client
 from errors import NoReference
-from client import get_client
 from solitude.base import BaseAPIView
 from solitude.logger import getLogger
 
@@ -28,7 +28,7 @@ class ProxyView(BaseAPIView):
         self.proxy = self._get_client(*args, **kwargs)
 
     def _get_client(self, *args, **kwargs):
-        api = get_client(kwargs['reference_name']).api
+        api = client.get_client(kwargs['reference_name']).api
         if not api:
             log.info('No reference found: {0}'
                      .format(kwargs['reference_name']))
@@ -38,8 +38,19 @@ class ProxyView(BaseAPIView):
         else:
             return getattr(api, kwargs['resource_name'])
 
+    def _normalize_qs(self, complete_qs):
+        # This code looks like it does nothing but that's because complete_qs
+        # is a "special" query string object. Its values are lists but we
+        # want them as single values. Iterating with items() magically
+        # converts the lists to single values.
+        qs = {}
+        for k, v in complete_qs.items():
+            qs[k] = v
+        return qs
+
     def get(self, request, *args, **kwargs):
-        return Response(self.proxy.get())
+        qs = self._normalize_qs(request.QUERY_PARAMS)
+        return Response(self.proxy.get(**qs))
 
     def post(self, request, *args, **kwargs):
         # Just piping request.DATA through isn't great but it will do for the
