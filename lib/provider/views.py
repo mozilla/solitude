@@ -38,19 +38,8 @@ class ProxyView(BaseAPIView):
         else:
             return getattr(api, kwargs['resource_name'])
 
-    def _normalize_qs(self, complete_qs):
-        # This code looks like it does nothing but that's because complete_qs
-        # is a "special" query string object. Its values are lists but we
-        # want them as single values. Iterating with items() magically
-        # converts the lists to single values.
-        qs = {}
-        for k, v in complete_qs.items():
-            qs[k] = v
-        return qs
-
     def get(self, request, *args, **kwargs):
-        qs = self._normalize_qs(request.QUERY_PARAMS)
-        return Response(self.proxy.get(**qs))
+        return Response(self.proxy.get(**request.QUERY_PARAMS.dict()))
 
     def post(self, request, *args, **kwargs):
         # Just piping request.DATA through isn't great but it will do for the
