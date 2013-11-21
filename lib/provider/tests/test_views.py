@@ -1,12 +1,10 @@
 import json
 
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.test import Client
 
 from curling.lib import HttpClientError
 import mock
-from nose.tools import eq_, ok_
+from nose.tools import eq_
 from test_utils import RequestFactory, TestCase
 
 from ..views import ProxyView, NoReference
@@ -45,20 +43,24 @@ class TestAPIasProxy(TestCase):
         self.addCleanup(p.stop)
 
         self.api = mock.Mock()
-
         domain = mock.Mock(api=self.api)
         get_client.return_value = domain
 
+        self.fake_data = {'foo': 'bar'}
+
+    def request(self, method, url, resource_name, data=''):
+        api = getattr(RequestFactory(), method)
+        req = api(url, data and json.dumps(data) or '',
+                  content_type='application/json')
+        res = ProxyView().dispatch(req, reference_name='reference',
+                                   resource_name=resource_name)
+        return res
+
     def test_proxy_get_params(self):
         self.api.products.get.return_value = '{}'
-
-        req = RequestFactory().get('/reference/products?foo=bar')
-        res = ProxyView().dispatch(req, reference_name='reference',
-                                   resource_name='products')
-        res.render()
-
+        self.request('get', '/reference/products?foo=bar', 'products')
         assert self.api.products.get.called
-        eq_(self.api.products.get.call_args[1], {'foo': 'bar'})
+        eq_(self.api.products.get.call_args[1], self.fake_data)
 
     def test_proxy_error_responses(self):
         # Create a scenario where the proxied API raises an HTTP error.
@@ -70,140 +72,31 @@ class TestAPIasProxy(TestCase):
         proxy_res.request = RequestFactory().get('http://api/some/endpoint')
         exc = HttpClientError(proxy_res.content, response=proxy_res)
         self.api.products.get.side_effect = exc
-
-        # TODO: fixup when david's refactoring lands
-        # https://github.com/mozilla/solitude/pull/169/files
-
-        req = RequestFactory().get('/reference/products?foo=bar')
-        res = ProxyView().dispatch(req, reference_name='reference',
-                                   resource_name='products')
+        res = self.request('get', '/reference/products?foo=bar', 'products')
         content = res.render()
 
         eq_(content.status_code, 404)
 
+    def test_proxy_routing(self):
+        self.api.products.get.return_value = '{}'
+        self.request('get', '/reference/products/fake-uuid', 'products')
+        assert self.api.products.get.called
 
-class TestViews(TestCase):
+    def test_proxy_post(self):
+        self.api.products.post.return_value = '{}'
+        self.request('post', '/reference/products/fake-uuid', 'products',
+                     self.fake_data)
+        assert self.api.products.post.called
+        eq_(self.api.products.post.call_args[0][0], self.fake_data)
 
-    def setUp(self):
-        self.client = Client()
-        self.seller_uuid = 'provider-seller-uuid'
-        self.product_uuid = 'provider-product-uuid'
+    def test_proxy_put(self):
+        self.api.products.put.return_value = '{}'
+        self.request('put', '/reference/products/fake-uuid', 'products',
+                     self.fake_data)
+        assert self.api.products.put.called
+        eq_(self.api.products.put.call_args[0][0], self.fake_data)
 
-    def url_list(self, resource_name):
-        return reverse('provider.api_view', args=['reference', resource_name])
-
-    def url_item(self, resource_name, pk):
-        return reverse('provider.api_view',
-                       args=['reference', resource_name, pk])
-
-    def create_seller(self):
-        seller = {
-            'uuid': self.seller_uuid,
-            'status': 'ACTIVE',
-            'name': 'John',
-            'email': 'jdoe@example.org',
-        }
-        self.client.post(self.url_list('sellers'), seller)
-        seller.update({
-            'resource_pk': '1',
-            'resource_uri': '/sellers/1',
-        })
-        return seller
-
-    def create_product(self, seller):
-        product = {
-            'seller_id': seller['resource_pk'],
-            'external_id': self.product_uuid,
-        }
-        self.client.post(self.url_list('products'), product)
-        product.update({
-            'resource_pk': '1',
-            'resource_uri': '/products/1',
-        })
-        return product
-
-    def delete_seller(self):
-        self.client.delete(self.url_item('sellers', self.seller_uuid))
-
-
-class TestSellerViews(TestViews):
-
-    def test_retrieve_sellers_empty(self):
-        self.delete_seller()
-        resp = self.client.get(self.url_list('sellers'))
-        ok_(resp['Content-Type'].startswith('application/json'))
-        eq_(json.loads(resp.content), [])
-
-    def test_create_seller(self):
-        seller = {
-            'uuid': self.seller_uuid,
-            'status': 'ACTIVE',
-            'name': 'John',
-            'email': 'jdoe@example.org',
-        }
-        resp = self.client.post(self.url_list('sellers'), seller)
-        seller.update({
-            'resource_pk': '1',
-            'resource_uri': '/sellers/1',
-        })
-        eq_(json.loads(resp.content), seller)
-
-    def test_retrieve_seller(self):
-        seller = self.create_seller()
-        resp = self.client.get(self.url_item('sellers', self.seller_uuid))
-        eq_(json.loads(resp.content), seller)
-        ok_(resp['Content-Type'].startswith('application/json'))
-
-    def test_update_seller(self):
-        seller = self.create_seller()
-        new_name = 'Jack'
-        resp = self.client.put(self.url_item('sellers', self.seller_uuid),
-                               json.dumps({'name': new_name}),
-                               content_type='application/json')
-        seller.update({'name': new_name})
-        eq_(json.loads(resp.content), seller)
-
-    def test_delete_seller(self):
-        self.create_seller()
-        resp = self.client.delete(self.url_item('sellers', self.seller_uuid))
-        eq_(resp.status_code, 200)
-
-
-class TestProductViews(TestViews):
-
-    def test_create_product(self):
-        seller = self.create_seller()
-        product = {
-            'seller_id': seller['resource_pk'],
-            'external_id': self.product_uuid,
-        }
-        resp = self.client.post(self.url_list('products'), product)
-        product.update({
-            'resource_pk': '1',
-            'resource_uri': '/products/1',
-        })
-        eq_(json.loads(resp.content), product)
-
-
-class TestTransactionViews(TestViews):
-
-    def test_create_transaction(self):
-        seller = self.create_seller()
-        product = self.create_product(seller)
-        transaction = {
-            'product_id': product['resource_pk'],
-            'region': '123',
-            'carrier': 'USA_TMOBILE',
-            'price': '0.99',
-            'currency': 'EUR',
-            'pay_method': 'OPERATOR'
-        }
-        resp = self.client.post(self.url_list('transactions'),
-                                transaction)
-        transaction.update({
-            'resource_pk': '1',
-            'resource_uri': '/transactions/1',
-            'status': 'STARTED',
-            'token': 'transaction-token',
-        })
-        eq_(json.loads(resp.content), transaction)
+    def test_proxy_delete(self):
+        self.api.products.delete.return_value = '{}'
+        self.request('delete', '/reference/products/fake-uuid', 'products')
+        assert self.api.products.delete.called
