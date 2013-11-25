@@ -1,8 +1,10 @@
+from django.core.urlresolvers import reverse
+
 from curling.lib import HttpClientError
+from django_statsd.clients import statsd
 from rest_framework.response import Response
 
 import client
-from django_statsd.clients import statsd
 from errors import NoReference
 from solitude.base import BaseAPIView
 from solitude.logger import getLogger
@@ -38,13 +40,28 @@ class ProxyView(BaseAPIView):
         else:
             return getattr(api, kwargs['resource_name'])
 
+    def _mapping_resource_uri(self, result):
+        """
+        Turns Zippy's resource_uri into a solitude one.
+        """
+        if 'resource_uri' in result:
+            result['resource_uri'] = reverse('provider.api_view', kwargs={
+                'reference_name': self.reference_name,
+                'resource_name': result['resource_name'],
+                'uuid': result['resource_pk'],
+            })
+            if not result['resource_uri'].endswith('/'):
+                result['resource_uri'] = result['resource_uri'] + '/'
+        return result
+
     def _make_response(self, proxied_endpoint, args=[], kwargs={}):
         method = getattr(proxied_endpoint, '__name__', 'unknown_method')
         try:
             with statsd.timer('solitude.provider.{ref}.proxy.{method}'
                               .format(ref=self.reference_name,
                                       method=method)):
-                return Response(proxied_endpoint(*args, **kwargs))
+                return Response(self._mapping_resource_uri(
+                                    proxied_endpoint(*args, **kwargs)))
         except HttpClientError, exc:
 
             url = getattr(exc.response.request, 'full_url', 'unknown_url')

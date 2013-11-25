@@ -54,10 +54,11 @@ class TestAPIasProxy(TestCase):
                   content_type='application/json')
         res = ProxyView().dispatch(req, reference_name='reference',
                                    resource_name=resource_name)
+        res.render()  # Useful to access content later on.
         return res
 
     def test_proxy_get_params(self):
-        self.api.products.get.return_value = '{}'
+        self.api.products.get.return_value = {}
         self.request('get', '/reference/products?foo=bar', 'products')
         assert self.api.products.get.called
         eq_(self.api.products.get.call_args[1], self.fake_data)
@@ -73,30 +74,39 @@ class TestAPIasProxy(TestCase):
         exc = HttpClientError(proxy_res.content, response=proxy_res)
         self.api.products.get.side_effect = exc
         res = self.request('get', '/reference/products?foo=bar', 'products')
-        content = res.render()
-
-        eq_(content.status_code, 404)
+        eq_(res.status_code, 404)
 
     def test_proxy_routing(self):
-        self.api.products.get.return_value = '{}'
+        self.api.products.get.return_value = {}
         self.request('get', '/reference/products/fake-uuid', 'products')
         assert self.api.products.get.called
 
     def test_proxy_post(self):
-        self.api.products.post.return_value = '{}'
+        self.api.products.post.return_value = {}
         self.request('post', '/reference/products/fake-uuid', 'products',
                      self.fake_data)
         assert self.api.products.post.called
         eq_(self.api.products.post.call_args[0][0], self.fake_data)
 
     def test_proxy_put(self):
-        self.api.products.put.return_value = '{}'
+        self.api.products.put.return_value = {}
         self.request('put', '/reference/products/fake-uuid', 'products',
                      self.fake_data)
         assert self.api.products.put.called
         eq_(self.api.products.put.call_args[0][0], self.fake_data)
 
     def test_proxy_delete(self):
-        self.api.products.delete.return_value = '{}'
+        self.api.products.delete.return_value = {}
         self.request('delete', '/reference/products/fake-uuid', 'products')
         assert self.api.products.delete.called
+
+    def test_proxy_resource_uri(self):
+        self.api.products.get.return_value = {
+            'resource_uri': '/foo/bar',
+            'resource_name': 'products',
+            'resource_pk': 'foo-bar',
+        }
+        res = self.request('get', '/reference/products/fake-uuid', 'products')
+        eq_(json.loads(res.content)['resource_uri'],
+            '/provider/reference/products/foo-bar/')
+
