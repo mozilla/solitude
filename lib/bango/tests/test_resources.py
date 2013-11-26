@@ -702,7 +702,10 @@ class TestGetSBI(BangoAPI):
                 data={'seller_bango': self.seller_bango_uri})
         eq_(res.status_code, 200)
         data = json.loads(res.content)
-        eq_(data['text'], 'Blah...')
+        # The SBI mock is there.
+        ok_('Blah...' in data['text'])
+        # The en-US terms are present.
+        ok_('Bango Developer Terms' in data['text'])
         eq_(data['valid'], '2010-08-31T00:00:00')
 
     def test_post(self):

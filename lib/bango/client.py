@@ -185,7 +185,12 @@ mock_data = {
         'sbiAgreementExpires': '2014-01-23 00:00:00'
     },
     'GetSBIAgreement': {
-        'sbiAgreement': 'Blah...',
+        'sbiAgreement': """
+Self-Billing Agreement
+This is an agreement to a self-billing procedure between:
+Bango
+Bango .Net Ltd.
+5 Westbrook Centre...""",
         # Although its a date, the WSDL has this as a date time.
         'sbiAgreementValidFrom': '2010-08-31T00:00:00',
     },
