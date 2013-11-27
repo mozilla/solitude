@@ -7,6 +7,7 @@ from cached import SimpleResource
 from lib.bango.constants import SBI_ALREADY_ACCEPTED
 from lib.bango.errors import BangoFormError
 from lib.bango.forms import SBIForm
+from lib.bango.utils import terms
 
 
 class SBIAgreement(object):
@@ -65,5 +66,6 @@ class SBIResource(SimpleResource):
             raise self.form_errors(form)
 
         res = self.client('GetSBIAgreement', form.bango_data)
-        return SBIAgreement(res.sbiAgreement, res.sbiAgreementValidFrom,
+        return SBIAgreement(terms(res.sbiAgreement),
+                            res.sbiAgreementValidFrom,
                             None, None)

@@ -4,7 +4,7 @@ import tempfile
 from nose.tools import raises
 import test_utils
 
-from lib.bango.utils import sign, verify_sig
+from lib.bango.utils import sign, terms, terms_directory, verify_sig
 
 
 class TestSigning(test_utils.TestCase):
@@ -29,3 +29,24 @@ class TestSigning(test_utils.TestCase):
         with self.settings(AES_KEYS={'bango:signature': tmp.name}):
             sig = sign('123')
         assert not verify_sig(sig, '123')
+
+
+class TestTerms(test_utils.TestCase):
+
+    def setUp(self):
+        self.fr = os.path.join(terms_directory, 'fr.html')
+
+    def tearDown(self):
+        if os.path.exists(self.fr):
+            os.remove(self.fr)
+
+    def test_en(self):
+        assert 'Bango Developer Terms' in terms('sbi')
+
+    def test_fr(self):
+        with open(self.fr, 'w') as fr:
+            fr.write('fr')
+        assert 'fr' in terms('sbi', language='fr')
+
+    def test_fallback(self):
+        assert 'Bango Developer Terms' in terms('sbi', language='de')
