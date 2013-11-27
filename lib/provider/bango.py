@@ -44,7 +44,7 @@ class ProductView(BaseAPIView, BangoResource):
             return self.form_errors(form)
 
         # Create the product.
-        resp = self.client('CreatePackage', form.bango_data)
+        resp = self.client('CreateBangoNumber', form.bango_data)
         product = SellerProductBango.objects.create(
             seller_bango=form.cleaned_data['seller_bango'],
             seller_product=form.cleaned_data['seller_product'],
