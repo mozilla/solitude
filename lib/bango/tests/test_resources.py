@@ -703,7 +703,7 @@ class TestGetSBI(BangoAPI):
         eq_(res.status_code, 200)
         data = json.loads(res.content)
         # The SBI mock is there.
-        ok_('Blah...' in data['text'])
+        ok_('Self-Billing' in data['text'])
         # The en-US terms are present.
         ok_('Bango Developer Terms' in data['text'])
         eq_(data['valid'], '2010-08-31T00:00:00')
