@@ -232,6 +232,35 @@ BANGO_ENV = 'test'
 BANGO_MOCK = False
 BANGO_PROXY = ''
 
+# Where we will cache the Bango WSDLs locally.
+BANGO_WSDL_DIRECTORY = os.path.join(ROOT, 'lib', 'bango', 'wsdl')
+
+# Where to get the Bango WSDLs.
+BANGO_WSDL = {
+    'prod': [
+        ('https://webservices.bango.com/mozillaexporter/?WSDL',
+         'mozilla_exporter.wsdl'),
+        ('https://webservices.bango.com/billingconfiguration_v2_0/?WSDL',
+         'billing_configuration.wsdl'),
+        ('https://webservices.bango.com/directbilling_v3_1/?wsdl',
+         'direct_billing.wsdl'),
+        ('https://mozilla.bango.net/_/ws/tokenchecker.asmx?wsdl',
+         'token_checker.wsdl'),
+    ],
+    # Commented out until bug 943581 has a solution.
+    #'test': [
+    #    ('https://webservices.test.bango.org/mozillaexporter/?WSDL',
+    #     'mozilla_exporter.wsdl'),
+    #    ('https://webservices.test.bango.org/billingconfiguration/?WSDL',
+    #     'billing_configuration.wsdl'),
+    #    ('https://webservices.test.bango.org/directbilling_v3_1/?wsdl',
+    #     'direct_billing.wsdl'),
+    #    ('http://mozilla.test.bango.org/_/ws/tokenchecker.asmx?wsdl',
+    #     'token_checker.wsdl'),
+    #]
+}
+
+
 # Set this to a string if you'd like to insert data into the vendor
 # and company name when a package is created.
 BANGO_INSERT_STAGE = ''
@@ -243,6 +272,29 @@ BANGO_BASIC_AUTH = {'USER': '', 'PASSWORD': ''}
 # The URL that Bango will send notifications too. If this is not set, the
 # notification URL will not be set.
 BANGO_NOTIFICATION_URL = ''
+
+# Fake out refunds, set this to True for test until bug 845332 is resolved.
+# Turning this on, just fakes out the Bango backend completely and never
+# really refunds anything.
+#
+# This is different from manual refund which is to force a refund through
+# if Bango use the manual refund flow.
+BANGO_FAKE_REFUNDS = False
+
+# When True, send product icon URLs to Bango in the billing config task.
+BANGO_ICON_URLS = True
+
+# When True, send MOZ_USER_ID to Bango in the billing config task.
+SEND_USER_ID_TO_BANGO = True
+
+# Time in seconds after which a Bango API request will be aborted.
+# We can deal with slow requests because we mostly use background tasks.
+# The API can indeed be slow, see bug 883389.
+BANGO_TIMEOUT = 30
+
+# Time in days after which Bango statuses will be cleaned by the
+# `clean_statuses` command.
+BANGO_STATUSES_LIFETIME = 30
 
 # Time in seconds that a transaction expires. If you try to complete a
 # transaction after this time, it will fail.
@@ -279,29 +331,6 @@ SENSITIVE_DATA_KEYS = ['bankAccountNumber', 'pin', 'secret']
 
 # Set this for OAuth.
 SITE_URL = ''
-
-# Fake out refunds, set this to True for test until bug 845332 is resolved.
-# Turning this on, just fakes out the Bango backend completely and never
-# really refunds anything.
-#
-# This is different from manual refund which is to force a refund through
-# if Bango use the manual refund flow.
-BANGO_FAKE_REFUNDS = False
-
-# When True, send product icon URLs to Bango in the billing config task.
-BANGO_ICON_URLS = True
-
-# When True, send MOZ_USER_ID to Bango in the billing config task.
-SEND_USER_ID_TO_BANGO = True
-
-# Time in seconds after which a Bango API request will be aborted.
-# We can deal with slow requests because we mostly use background tasks.
-# The API can indeed be slow, see bug 883389.
-BANGO_TIMEOUT = 30
-
-# Time in days after which Bango statuses will be cleaned by the
-# `clean_statuses` command.
-BANGO_STATUSES_LIFETIME = 30
 
 # When True, use the token check service to verify query string parameters.
 CHECK_BANGO_TOKEN = True
