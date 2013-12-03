@@ -7,7 +7,7 @@ This is a standard Django or Playdoh project so the setup should be pretty
 straight forward. Requirements:
 
 * MySQL
-* Python 2.6 or 2.7
+* Python 2.7
 
 For more information see the playdoh_ installation docs.
 
