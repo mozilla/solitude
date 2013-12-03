@@ -17,16 +17,16 @@ sources = {
         ('https://mozilla.bango.net/_/ws/tokenchecker.asmx?wsdl',
          'token_checker.wsdl'),
     ],
-    'test': [
-        ('https://webservices.test.bango.org/mozillaexporter/?WSDL',
-         'mozilla_exporter.wsdl'),
-        ('https://webservices.test.bango.org/billingconfiguration/?WSDL',
-         'billing_configuration.wsdl'),
-        ('https://webservices.test.bango.org/directbilling_v3_1/?wsdl',
-         'direct_billing.wsdl'),
-        ('http://mozilla.test.bango.org/_/ws/tokenchecker.asmx?wsdl',
-         'token_checker.wsdl'),
-    ]
+    #'test': [
+    #    ('https://webservices.test.bango.org/mozillaexporter/?WSDL',
+    #     'mozilla_exporter.wsdl'),
+    #    ('https://webservices.test.bango.org/billingconfiguration/?WSDL',
+    #     'billing_configuration.wsdl'),
+    #    ('https://webservices.test.bango.org/directbilling_v3_1/?wsdl',
+    #     'direct_billing.wsdl'),
+    #    ('http://mozilla.test.bango.org/_/ws/tokenchecker.asmx?wsdl',
+    #     'token_checker.wsdl'),
+    #]
 }
 
 
