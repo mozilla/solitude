@@ -1,24 +1,31 @@
 # -*- coding: utf-8 -*-
 import functools
+import optparse
+import os
 import sys
 import uuid
 
 import lib
 
-try:
-    # Read the root from the command line, rather than hard coding.
-    root = sys.argv[1]
-except:
-    root = 'http://localhost:8001'
+parser = optparse.OptionParser(usage='%prog [options]')
+parser.add_option('--url', default='http://localhost:8001',
+                  help='root URL to Solitude. Default: %default')
+parser.add_option('--seller-uuid',
+                  help='Create seller with this UUID. If not '
+                       'specified, one will be generated.')
+parser.add_option('--product-id',
+                  help='Create a product with this external ID. If not '
+                       'specified, one will be generated.')
+(options, args) = parser.parse_args()
 
 
-uid = str(uuid.uuid4())
-call = functools.partial(lib.call, root)
+uid = options.seller_uuid or str(uuid.uuid4())
+call = functools.partial(lib.call, options.url)
 
 print 'Retrieving sellers.'
 res = call('/provider/reference/sellers/', 'get', {})
 
-print 'Creating for:', uid
+print 'Creating seller for:', uid
 seller = {
     'uuid': uid,
     'status': 'ACTIVE',
@@ -46,7 +53,8 @@ res = call('/provider/reference/sellers/{0}/'.format(seller_uuid), 'put',
            {'name': 'Jack'})
 assert res['name'] == 'Jack'
 
-external_id = str(uuid.uuid4())
+external_id = options.product_id or str(uuid.uuid4())
+
 print 'Creating seller product with external_id: ' + external_id
 product = {
     'name': 'Product name',
@@ -64,7 +72,9 @@ transaction = {
     'carrier': 'USA_TMOBILE',
     'price': '0.99',
     'currency': 'EUR',
-    'pay_method': 'OPERATOR'
+    'pay_method': 'OPERATOR',
+    'success_url': 'http://marketplace.firefox.com/mozpay/provider/sucess/',
+    'error_url': 'http://marketplace.firefox.com/mozpay/provider/error/',
 }
 res = call('/provider/reference/transactions/', 'post', transaction)
 assert res['status'] == 'STARTED'
