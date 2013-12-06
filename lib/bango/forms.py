@@ -465,8 +465,10 @@ class EventForm(forms.Form):
 
             # Easier to work with a dictionary than etree.
             data = dict([c.values() for c in elem.getchildren()])
-            if not data.get('externalCPTransId'):
-                raise forms.ValidationError('External trans id is required')
+            if (not data.get('externalCPTransId') and
+                not data.get('transId')):
+                raise forms.ValidationError('externalCPTransId or transId'
+                                            'required')
 
         except Exception, exc:
             log.error('Error with event XML: '
@@ -479,15 +481,30 @@ class EventForm(forms.Form):
             raise forms.ValidationError('Unspecified state: {0}'
                                         .format(data.get('status')))
 
-        try:
-            # The UUID field is the external transaction id that we pass to
-            # bango. We use this because we might not know the transaction id.
-            # The transaction id is sent in the redirect back from Bango,
-            # see https://bugzilla.mozilla.org/show_bug.cgi?id=903567.
-            trans = Transaction.objects.get(uuid=data['externalCPTransId'])
-        except Transaction.DoesNotExist:
-            raise forms.ValidationError('Transaction not found: {0}'
-                                        .format(data['externalCPTransId']))
+        trans = None
+        # Could be done with a Q(), but more long winded to get some logging.
+        if data.get('transId'):
+            try:
+                # This is not guaranteed to exist on the transaction yet.
+                # It might be there.
+                trans = Transaction.objects.get(uid_support=data['transId'])
+            except Transaction.DoesNotExist:
+                log.warning('Transaction not found by transId'
+                            .format(data['transId']))
+
+        if not trans and data.get('externalCPTransId'):
+            try:
+                # The UUID field is the external transaction id that we pass to
+                # bango. We use this because we might not know the transaction
+                # id. The transaction id is sent in the redirect back from
+                # Bango, see bug 903567.
+                trans = Transaction.objects.get(uuid=data['externalCPTransId'])
+            except Transaction.DoesNotExist:
+                log.warning('Transaction not found by externalCPTransId'
+                            .format(data['externalCPTransId']))
+
+        if not trans:
+            raise forms.ValidationError('Transaction not found, aborting.')
 
         data['new_status'] = {OK: STATUS_COMPLETED}[data['status']]
         old = {'status': trans.status, 'created': trans.created}

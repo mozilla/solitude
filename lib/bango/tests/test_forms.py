@@ -134,6 +134,12 @@ class TestEvent(APITest):
 
     def form(self, *args, **kw):
         kw['request_encoding'] = 'utf8'
+        # Add in the default user account.
+        if len(args) > 0:
+            if 'username' not in args[0]:
+                args[0]['username'] = 'f'
+            if 'password' not in args[0]:
+                args[0]['password'] = 'b'
         return EventForm(*args, **kw)
 
     def test_empty(self):
@@ -168,14 +174,32 @@ class TestEvent(APITest):
             amount=1, provider=constants.PROVIDER_BANGO,
             seller_product=self.product,
             uuid=self.trans_uuid,
-            uid_pay='bango-trans-uid'
+            uid_support='bango-trans-uid'
         )
 
     def test_check_good(self):
         self.create()
-        form = self.form({'notification': event_notification,
-                          'username': 'f', 'password': 'b'})
+        form = self.form({'notification': event_notification})
         ok_(form.is_valid(), form.errors)
+
+    def test_no_trans_id(self):
+        self.create()
+        no = event_notification.replace('bango-trans-uid', '')
+        form = self.form({'notification': no})
+        ok_(form.is_valid())
+
+    def test_no_external(self):
+        self.create()
+        no = event_notification.replace('external-trans-uid', '')
+        form = self.form({'notification': no})
+        ok_(form.is_valid(), form.errors)
+
+    def test_neither(self):
+        self.create()
+        no = (event_notification.replace('external-trans-uid', 'f')
+                                .replace('bango-trans-uid', 'b'))
+        form = self.form({'notification': no})
+        ok_(not form.is_valid())
 
     def test_check_wrong(self):
         self.create()
