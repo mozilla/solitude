@@ -17,7 +17,8 @@ class Client(object):
         if self.config:
             self.api = API(self.config['url'], append_slash=False)
             self.api.activate_oauth(self.config['auth']['key'],
-                                    self.config['auth']['secret'])
+                                    self.config['auth']['secret'],
+                                    params={'oauth_token': 'not-implemented'})
         else:
             log.warning('No config for {ref}; oauth disabled'
                         .format(ref=reference_name))
