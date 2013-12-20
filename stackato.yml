@@ -1,8 +1,5 @@
 name: solitude
 
-min-version:
-  client: 1.4.3
-
 ignores:
   - ".git"
   - "*.pyc"
