@@ -13,8 +13,8 @@ ignores:
 
 env:
   DJANGO_SETTINGS_MODULE: solitude.settings
-  PIP_OPTS: --no-deps --exists-action=w --no-deps --no-index -f https://pyrepo.addons.mozilla.org/
-  PIP_REQUIREMENTS_FILE: requirements/prod.txt
+  PIP_OPTS: --no-deps --no-index -f https://pyrepo.addons.mozilla.org/
+  PIP_REQUIREMENTS_FILE: requirements/stackato.txt
 
 requirements:
   pypm:
