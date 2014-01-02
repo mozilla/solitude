@@ -23,6 +23,8 @@ Currently we support:
 This project is based on **playdoh**. Mozilla's Playdoh is an open source
 web application template based on `Django <http://www.djangoproject.com/>`_.
 
+This document is available as a `PDF <https://media.readthedocs.org/pdf/solitude/latest/solitude.pdf>`_.
+
 Solitude is also a nice tasting beer from `Brewery Vivant <http://breweryvivant.com/>`_. The logo is
 theirs.
 

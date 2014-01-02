@@ -180,7 +180,7 @@ htmlhelp_basename = 'playdohdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'playdoh.tex', u'playdoh Documentation',
+  ('index', 'playdoh.tex', u'Solitude Documentation',
    u'Mozilla', 'manual'),
 ]
 
