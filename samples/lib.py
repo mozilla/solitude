@@ -13,7 +13,10 @@ def call(root, url, method, data):
     pprint.pprint(data)
     data = json.dumps(data)
     result = method(url, data=data,
-                    headers={'content-type': 'application/json'})
+                    headers={
+                        'content-type': 'application/json',
+                        'accept': 'application/json',
+                    })
     print 'Status code:', result.status_code
     if result.status_code not in (200, 201, 202, 204):
         print 'Error:', result.content

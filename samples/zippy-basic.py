@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import functools
 import optparse
-import os
-import sys
 import uuid
 
 import lib
