@@ -2,10 +2,14 @@ import urlparse
 
 from django import http
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.core.urlresolvers import reverse
 
+import requests
+from curling.lib import sign_request
 from django_statsd.clients import statsd
 from lxml import etree
-import requests
+from slumber import url_join
 
 from lib.bango.constants import HEADERS_SERVICE_GET
 
@@ -26,15 +30,20 @@ class Proxy(object):
     body = None
     headers = None
     url = None
+    # Name of settings variables.
+    setting_proxy = 'SOLITUDE_PROXY'
+    setting_timeout = ''
     # Nice name for the URL we are going to hit.
     service = ''
 
     def __init__(self):
-        pass
+        self.enabled = getattr(settings, self.setting_proxy, False)
+        self.timeout = getattr(settings, self.setting_timeout, 10)
 
     def pre(self, request):
         """Do any processing of the incoming request."""
-        self.body = request.raw_post_data
+        self.method = request.META['REQUEST_METHOD'].lower()
+        self.body = str(request.raw_post_data)
         try:
             self.service = request.META[HEADERS_URL_GET]
         except KeyError:
@@ -44,19 +53,20 @@ class Proxy(object):
         self.url = urls[self.service]
 
     def call(self):
-        """Go all the proxied service, return a response."""
+        """Call the proxied service, return a response."""
         response = http.HttpResponse()
+        method = getattr(requests, self.method)
         try:
             with statsd.timer('solitude.proxy.%s.%s' %
                               (self.service, self.name)):
-                log.info('Calling service: %s at %s' %
-                         (self.service, self.url))
+                log.info('Calling service: %s at %s with %s' %
+                         (self.service, self.url, self.method))
                 # We aren't calling client._call because that tries to parse
                 # the output. Once the headers are prepared, this will do the
                 # rest.
-                result = requests.post(self.url, data=self.body,
-                                       headers=self.headers,
-                                       timeout=self.timeout, verify=True)
+                result = method(self.url, data=self.body,
+                                headers=self.headers,
+                                timeout=self.timeout, verify=True)
         except requests.exceptions.RequestException as err:
             log.error('%s: %s' % (err.__class__.__name__, err))
             response.status_code = 500
@@ -65,8 +75,10 @@ class Proxy(object):
         if result.status_code < 200 or result.status_code > 299:
             log.error('Warning response status: %s' % result.status_code)
 
+        # Ensure the response passed along is updated with the response given.
         response.status_code = result.status_code
         response.content = result.text
+        response['Content-Type'] = result.headers['Content-Type']
         return response
 
     def __call__(self, request):
@@ -86,10 +98,7 @@ class Proxy(object):
 
 class PaypalProxy(Proxy):
     name = 'paypal'
-
-    def __init__(self):
-        self.enabled = getattr(settings, 'SOLITUDE_PROXY', False)
-        self.timeout = getattr(settings, 'PAYPAL_TIMEOUT', 10)
+    setting_timeout = 'PAYPAL_TIMEOUT'
 
     def pre(self, request):
         """
@@ -103,14 +112,17 @@ class PaypalProxy(Proxy):
 
         client = paypal_client()
         self.headers = client.headers(self.url, auth_token=token)
+        # Paypal requirs POST on its methods.
+        self.method = 'post'
 
 
 class BangoProxy(Proxy):
     name = 'bango'
-    service = 'bango'
     namespaces = ['com.bango.webservices.billingconfiguration',
                   'com.bango.webservices.directbilling',
                   'com.bango.webservices.mozillaexporter']
+    setting_timeout = 'BANGO_TIMEOUT'
+    service = 'bango'
 
     def __init__(self):
         self.enabled = getattr(settings, 'SOLITUDE_PROXY', False)
@@ -122,6 +134,8 @@ class BangoProxy(Proxy):
     def pre(self, request):
         self.url = request.META[HEADERS_SERVICE_GET]
         self.headers = {'Content-Type': 'text/xml; charset=utf-8'}
+        # All the Bango methods are a POST.
+        self.method = 'post'
 
         # Alter the XML to include the username and password from the config.
         # Perhaps this can be done quicker with XPath.
@@ -145,6 +159,42 @@ class BangoProxy(Proxy):
             log.info('Did not set a username and password on the request.')
 
         self.body = etree.tostring(root)
+
+
+class ProviderProxy(Proxy):
+    name = 'provider'
+
+    def __init__(self, reference_name):
+        self.reference_name = reference_name
+        super(ProviderProxy, self).__init__()
+
+    def pre(self, request):
+        config = settings.ZIPPY_CONFIGURATION.get(self.reference_name)
+        if not config:
+            raise ImproperlyConfigured('No config: %s' % self.reference_name)
+
+        # Headers we want from the proxying request.
+        self.headers = {
+            'Content-Type': request.META.get('CONTENT_TYPE'),
+            'Accept': request.META.get('HTTP_ACCEPT')
+        }
+        self.body = str(request.raw_post_data)
+        self.method = request.META['REQUEST_METHOD'].lower()
+        # The URL is made up of the defined scheme and host plus the trailing
+        # URL after the proxy in urls.py.
+        root = len(reverse('provider.proxy',
+                   kwargs={'reference_name':self.reference_name}))
+
+        self.url = url_join(config['url'], request.META['PATH_INFO'][root:])
+        # Before we do the request, use curling to sign the request headers.
+        sign_request(None, config['auth'], headers=self.headers,
+                     method=self.method.upper(),
+                     params={'oauth_token': 'not-implemented'},
+                     url=self.url)
+
+
+def provider(request, reference_name):
+    return ProviderProxy(reference_name)(request)
 
 
 def paypal(request):

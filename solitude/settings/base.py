@@ -342,3 +342,6 @@ NEWRELIC_INI = None
 ZIPPY_MOCK = False
 # Override this to configure some zippy backends.
 ZIPPY_CONFIGURATION = {}
+
+# The URL for a solitude proxy to zippy.
+ZIPPY_PROXY = ''
