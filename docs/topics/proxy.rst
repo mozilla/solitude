@@ -45,9 +45,20 @@ To run in proxy mode, make the following changes:
 
         BANGO_PROXY = 'https://some.server.local/proxy/bango'
 
+  * For payment providers using *zippy*, set `ZIPPY_PROXY` to point to the
+    *proxy server* referencing the path `/proxy/provider` for example::
+
+        BANGO_PROXY = 'https://some.server.local/proxy/provider'
+
+    You should also ensure that you do not have the *auth* section in your
+    `ZIPPY_CONFIGURATION` dictionary, since the *database server* will not be
+    referencing the *auth*.
+
 * *proxy server* ensure you have not specified any database or cache settings,
   but have specified the provider settings, such as username, password, sandbox
   and so on.
+
+  * For zippy, ensure that the `ZIPPY_CONFIGURATION` configuration has the *auth* dictionary.
 
 To run the proxy server, run with the environment variable::
 

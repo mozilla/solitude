@@ -92,10 +92,22 @@ class ClientMock(object):
         self.api = APIMock()
 
 
+class ClientProxy(object):
+
+    def __init__(self, reference_name):
+        proxy = settings.ZIPPY_PROXY
+        if not settings.ZIPPY_PROXY.endswith('/'):
+            proxy = proxy + '/'
+        self.config = settings.ZIPPY_CONFIGURATION.get(reference_name)
+        self.api = API(proxy + reference_name, append_slash=False)
+
+
 def get_client(reference_name):
     """
     Use this to get the right client and communicate with Zippy.
     """
     if settings.ZIPPY_MOCK:
         return ClientMock(reference_name)
+    if settings.ZIPPY_PROXY:
+        return ClientProxy(reference_name)
     return Client(reference_name)

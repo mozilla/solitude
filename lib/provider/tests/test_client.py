@@ -1,7 +1,7 @@
 from nose.tools import eq_, ok_
 from test_utils import TestCase
 
-from ..client import Client
+from ..client import get_client, Client, ClientProxy
 
 
 class TestClientObj(TestCase):
@@ -22,3 +22,9 @@ class TestClientObj(TestCase):
             client = Client('bob')
             ok_(client.api)
             eq_(client.config, config['bob'])
+
+    def test_proxy(self):
+        with self.settings(ZIPPY_MOCK=False, ZIPPY_PROXY='http://blah/proxy'):
+            client = get_client('bob')
+            ok_(isinstance(client, ClientProxy))
+            eq_(client.api._store['base_url'], 'http://blah/proxy/bob')
