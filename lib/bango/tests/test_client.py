@@ -4,7 +4,7 @@ from nose.tools import eq_
 import test_utils
 
 from ..client import (Client, ClientMock, ClientProxy, dict_to_mock,
-                      get_client, response_to_dict)
+                      get_client, get_request, response_to_dict)
 from ..constants import OK, ACCESS_DENIED
 from ..errors import AuthError, BangoError, ProxyError
 
@@ -124,3 +124,9 @@ def test_callable():
     data = {'foo': lambda: 'x'}
     assert callable(dict_to_mock(data).foo)
     assert not callable(dict_to_mock(data, callables=True).foo)
+
+
+def test_request():
+    eq_(get_request('foo'), 'fooRequest')
+    eq_(get_request('CreateBillingConfiguration'),
+        'InnerCreateBillingConfigurationRequest')

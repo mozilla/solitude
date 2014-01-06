@@ -18,13 +18,6 @@ from .constants import (ACCESS_DENIED, HEADERS_SERVICE, INTERNAL_ERROR,
                         SERVICE_UNAVAILABLE)
 from .errors import AuthError, BangoError, BangoFormError, ProxyError
 
-root = os.path.join(settings.ROOT, 'lib', 'bango', 'wsdl', settings.BANGO_ENV)
-wsdl = {
-    'exporter': 'file://' + os.path.join(root, 'mozilla_exporter.wsdl'),
-    'billing': 'file://' + os.path.join(root, 'billing_configuration.wsdl'),
-    'direct': 'file://' + os.path.join(root, 'direct_billing.wsdl'),
-    'token_checker': 'file://' + os.path.join(root, 'token_checker.wsdl'),
-}
 
 # Add in the whitelist of supported methods here.
 exporter = [
@@ -63,19 +56,38 @@ token_checker = [
 # Status codes from the proxy that raise an error and stop processing.
 FATAL_PROXY_STATUS_CODES = (404, 500,)
 
+name_map = {
+    'request': {
+        'CreateBillingConfiguration': 'InnerCreateBillingConfigurationRequest',
+    }
+}
 
-# Turn the method into the approiate name. If the Bango WSDL diverges this will
-# need to change.
+
+# Map the name of the WSDL into a file. Do this dynamically so that tests
+# can mess with this as they need to.
+def get_wsdl(name):
+    root = os.path.join(settings.ROOT, 'lib/bango/wsdl', settings.BANGO_ENV)
+    wsdl = {
+        'exporter': 'mozilla_exporter.wsdl',
+        'billing': 'billing_configuration.wsdl',
+        'direct': 'direct_billing.wsdl',
+        'token_checker': 'token_checker.wsdl',
+    }
+    return os.path.join('file://' + os.path.join(root, wsdl[name]))
+
+
+# Turn the method into the appropriate name. If the Bango WSDL diverges this
+# will need to change.
 def get_request(name):
-    return name + 'Request'
+    return name_map['request'].get(name, name + 'Request')
 
 
 def get_response(name):
-    return name + 'Response'
+    return name_map['response'].get(name, name + 'Response')
 
 
 def get_result(name):
-    return name + 'Result'
+    return name_map['result'].get(name, name + 'Result')
 
 
 log = getLogger('s.bango')
@@ -111,7 +123,7 @@ class Client(object):
     def client(self, name):
         # By default, WSDL files are cached but we use local files so we don't
         # need that.
-        return sudsclient.Client(wsdl[name], cache=None)
+        return sudsclient.Client(get_wsdl(name), cache=None)
 
     def is_error(self, code, message):
         # Count the numbers of responses we get.
@@ -149,7 +161,7 @@ class Proxy(HttpTransport):
 class ClientProxy(Client):
 
     def client(self, name):
-        return sudsclient.Client(wsdl[name], transport=Proxy())
+        return sudsclient.Client(get_wsdl(name), transport=Proxy())
 
 
 # Add in your mock method data here. If the method only returns a

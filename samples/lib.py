@@ -24,7 +24,7 @@ def call(root, url, method, data):
 
     if result.content:
         print 'Response data:'
-        data = result.json
+        data = result.json() if callable(result.json) else result.json
         pprint.pprint(data)
         print
         return data
