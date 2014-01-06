@@ -37,7 +37,6 @@ Sellers
     :status 400: there was a problem with the seller creation. Examine the
         response contents for more information.
 
-    :param uuid: the uuid of the seller.
     :param email: email of the seller.
     :param name: name of the seller.
     :param status: status of the seller.
@@ -57,8 +56,7 @@ Sellers
             "resource_name": "sellers",
             "resource_pk": "{seller-uuid}",
             "resource_uri": "/sellers/{seller-uuid}",
-            "status": "ACTIVE",
-            "uuid": "{seller-uuid}"
+            "status": "ACTIVE"
         }
 
 
@@ -73,7 +71,6 @@ Sellers
     :status 400: there was a problem with the seller retrieval. Examine the
         response contents for more information.
 
-    :param uuid: the uuid of the seller.
     :param email: email of the seller.
     :param name: name of the seller.
     :param status: status of the seller.
@@ -93,8 +90,7 @@ Sellers
             "resource_name": "sellers",
             "resource_pk": "{seller-uuid}",
             "resource_uri": "/sellers/{seller-uuid}",
-            "status": "ACTIVE",
-            "uuid": "{seller-uuid}"
+            "status": "ACTIVE"
         }
 
 
@@ -126,7 +122,6 @@ Sellers
     :status 400: there was a problem with the seller modification. Examine the
         response contents for more information.
 
-    :param uuid: the uuid of the seller.
     :param email: email of the seller.
     :param name: name of the seller.
     :param status: status of the seller.
@@ -146,8 +141,7 @@ Sellers
             "resource_name": "sellers",
             "resource_pk": "{seller-uuid}",
             "resource_uri": "/sellers/{seller-uuid}",
-            "status": "ACTIVE",
-            "uuid": "{seller-uuid}"
+            "status": "ACTIVE"
         }
 
 

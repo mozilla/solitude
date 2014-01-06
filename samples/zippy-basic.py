@@ -34,8 +34,6 @@ res = call('/provider/reference/sellers/', 'post', seller)
 seller_id = res['resource_pk']
 
 print 'Retrieving the created seller'
-# TODO: the uuid/pk/id refactoring should lead to the same seller_url
-# called and returned.
 seller_url = '/provider/reference/sellers/{0}/'
 res = call(seller_url.format(seller_id), 'get', {})
 assert res['name'] == 'John'

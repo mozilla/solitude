@@ -26,39 +26,37 @@ class Client(object):
 
 class APIMockObject(object):
 
-    def __init__(self, resource_name, uuid=None):
+    def __init__(self, resource_name, pk=None):
         self.resource_name = resource_name
-        self.uuid = uuid
-        self.last_pk = 0
+        self.pk = pk
 
-    def __call__(self, uuid):
-        return self.__class__(self.resource_name, uuid)
+    def __call__(self, pk):
+        return self.__class__(self.resource_name, pk)
 
     def get(self):
-        if self.uuid:
-            return mock_data[self.resource_name][self.uuid]
+        if self.pk:
+            return mock_data[self.resource_name][self.pk]
         else:
             return (mock_data[self.resource_name] and
                     mock_data[self.resource_name].values() or [])
 
     def post(self, data):
-        pk = self.last_pk + 1
-        id = data.get('uuid', data.get('external_id'))
-        data['resource_pk'] = str(pk)
-        data['resource_uri'] = '/{resource_name}/{pk}'.format(pk=pk,
+        id = data.get('pk', data.get('external_id'))
+        data['resource_pk'] = self.pk
+        data['resource_uri'] = '/{resource_name}/{resource_pk}'.format(
+                               resource_pk=self.pk,
                                resource_name=self.resource_name)
-        self.last_pk += 1
         mock_data[self.resource_name][id] = data
         return mock_data[self.resource_name][id]
 
     def put(self, data):
-        initial_data = mock_data[self.resource_name][self.uuid]
+        initial_data = mock_data[self.resource_name][self.pk]
         initial_data.update(data)
-        mock_data[self.resource_name][self.uuid] = initial_data
-        return mock_data[self.resource_name][self.uuid]
+        mock_data[self.resource_name][self.pk] = initial_data
+        return mock_data[self.resource_name][self.pk]
 
     def delete(self):
-        del mock_data[self.resource_name][self.uuid]
+        del mock_data[self.resource_name][self.pk]
 
 
 class APITransactionMockObject(APIMockObject):
@@ -67,8 +65,8 @@ class APITransactionMockObject(APIMockObject):
         transaction = super(APITransactionMockObject, self).post(data)
         transaction['status'] = 'STARTED'
         transaction['token'] = 'transaction-token'
-        mock_data[self.resource_name][self.uuid] = transaction
-        return mock_data[self.resource_name][self.uuid]
+        mock_data[self.resource_name][self.pk] = transaction
+        return mock_data[self.resource_name][self.pk]
 
 
 class APIMock(object):
