@@ -78,26 +78,26 @@ class TestAPIasProxy(TestCase):
 
     def test_proxy_routing(self):
         self.api.products.get.return_value = {}
-        self.request('get', '/reference/products/fake-uuid', 'products')
+        self.request('get', '/reference/products/fake-pk', 'products')
         assert self.api.products.get.called
 
     def test_proxy_post(self):
         self.api.products.post.return_value = {}
-        self.request('post', '/reference/products/fake-uuid', 'products',
+        self.request('post', '/reference/products/fake-pk', 'products',
                      self.fake_data)
         assert self.api.products.post.called
         eq_(self.api.products.post.call_args[0][0], self.fake_data)
 
     def test_proxy_put(self):
         self.api.products.put.return_value = {}
-        self.request('put', '/reference/products/fake-uuid', 'products',
+        self.request('put', '/reference/products/fake-pk', 'products',
                      self.fake_data)
         assert self.api.products.put.called
         eq_(self.api.products.put.call_args[0][0], self.fake_data)
 
     def test_proxy_delete(self):
         self.api.products.delete.return_value = {}
-        self.request('delete', '/reference/products/fake-uuid', 'products')
+        self.request('delete', '/reference/products/fake-pk', 'products')
         assert self.api.products.delete.called
 
     def test_proxy_resource_uri(self):
@@ -106,7 +106,7 @@ class TestAPIasProxy(TestCase):
             'resource_name': 'products',
             'resource_pk': 'foo-bar',
         }
-        res = self.request('get', '/reference/products/fake-uuid', 'products')
+        res = self.request('get', '/reference/products/fake-pk', 'products')
         eq_(json.loads(res.content)['resource_uri'],
             '/provider/reference/products/foo-bar/')
 
