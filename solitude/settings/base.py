@@ -345,3 +345,7 @@ ZIPPY_CONFIGURATION = {}
 
 # The URL for a solitude proxy to zippy.
 ZIPPY_PROXY = ''
+
+# Flip to the new billing configuration for Bango. This is temporary and once
+# we are on the new config, we can probably remove it.
+BANGO_BILLING_CONFIG_V2 = False

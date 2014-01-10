@@ -6,12 +6,15 @@ from django.core.management.base import BaseCommand
 import requests
 
 root = os.path.join(settings.ROOT, 'lib', 'bango', 'wsdl')
+
 sources = {
     'prod': [
         ('https://webservices.bango.com/mozillaexporter/?WSDL',
          'mozilla_exporter.wsdl'),
-        ('https://webservices.bango.com/billingconfiguration_v2_0/?WSDL',
+        ('https://webservices.bango.com/billingconfiguration/?WSDL',
          'billing_configuration.wsdl'),
+        ('https://webservices.bango.com/billingconfiguration_v2_0/?WSDL',
+         'billing_configuration_v2_0.wsdl'),
         ('https://webservices.bango.com/directbilling_v3_1/?wsdl',
          'direct_billing.wsdl'),
         ('https://mozilla.bango.net/_/ws/tokenchecker.asmx?wsdl',
