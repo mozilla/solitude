@@ -10,7 +10,7 @@ sources = {
     'prod': [
         ('https://webservices.bango.com/mozillaexporter/?WSDL',
          'mozilla_exporter.wsdl'),
-        ('https://webservices.bango.com/billingconfiguration/?WSDL',
+        ('https://webservices.bango.com/billingconfiguration_v2_0/?WSDL',
          'billing_configuration.wsdl'),
         ('https://webservices.bango.com/directbilling_v3_1/?wsdl',
          'direct_billing.wsdl'),
