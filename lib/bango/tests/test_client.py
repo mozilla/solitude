@@ -132,12 +132,12 @@ class TestRequest(test_utils.TestCase):
         eq_(get_request('foo'), 'fooRequest')
         eq_(get_request('CreateBillingConfiguration'),
             'CreateBillingConfigurationRequest')
-        with self.settings(BANGO_NEW_BILLING_CONFIG=True):
+        with self.settings(BANGO_BILLING_CONFIG_V2=True):
             eq_(get_request('CreateBillingConfiguration'),
                 'InnerCreateBillingConfigurationRequest')
 
     def test_file(self):
         assert get_wsdl('billing').endswith('billing_configuration.wsdl')
-        with self.settings(BANGO_NEW_BILLING_CONFIG=True):
+        with self.settings(BANGO_BILLING_CONFIG_V2=True):
             assert (get_wsdl('billing')
                     .endswith('billing_configuration_v2_0.wsdl'))
