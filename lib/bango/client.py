@@ -56,11 +56,18 @@ token_checker = [
 # Status codes from the proxy that raise an error and stop processing.
 FATAL_PROXY_STATUS_CODES = (404, 500,)
 
-name_map = {
-    'request': {
-        'CreateBillingConfiguration': 'InnerCreateBillingConfigurationRequest',
-    }
-}
+# Most of the names in the WSDL map easily, for example: Foo to FooRequest,
+# FooResponse etc. Some do not, this is a map of the exceptions.
+def name_map():
+    if settings.BANGO_BILLING_CONFIG_V2:
+        return {
+            'request': {
+                'CreateBillingConfiguration':
+                'InnerCreateBillingConfigurationRequest',
+            }
+        }
+    else:
+        return {'request': {}}
 
 
 # Map the name of the WSDL into a file. Do this dynamically so that tests
@@ -73,21 +80,24 @@ def get_wsdl(name):
         'direct': 'direct_billing.wsdl',
         'token_checker': 'token_checker.wsdl',
     }
+    if settings.BANGO_BILLING_CONFIG_V2:
+        wsdl['billing'] = 'billing_configuration_v2_0.wsdl'
+
     return os.path.join('file://' + os.path.join(root, wsdl[name]))
 
 
 # Turn the method into the appropriate name. If the Bango WSDL diverges this
 # will need to change.
 def get_request(name):
-    return name_map['request'].get(name, name + 'Request')
+    return name_map()['request'].get(name, name + 'Request')
 
 
 def get_response(name):
-    return name_map['response'].get(name, name + 'Response')
+    return name_map()['response'].get(name, name + 'Response')
 
 
 def get_result(name):
-    return name_map['result'].get(name, name + 'Result')
+    return name_map()['result'].get(name, name + 'Result')
 
 
 log = getLogger('s.bango')

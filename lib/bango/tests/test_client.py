@@ -4,7 +4,7 @@ from nose.tools import eq_
 import test_utils
 
 from ..client import (Client, ClientMock, ClientProxy, dict_to_mock,
-                      get_client, get_request, response_to_dict)
+                      get_client, get_request, get_wsdl, response_to_dict)
 from ..constants import OK, ACCESS_DENIED
 from ..errors import AuthError, BangoError, ProxyError
 
@@ -126,7 +126,18 @@ def test_callable():
     assert not callable(dict_to_mock(data, callables=True).foo)
 
 
-def test_request():
-    eq_(get_request('foo'), 'fooRequest')
-    eq_(get_request('CreateBillingConfiguration'),
-        'InnerCreateBillingConfigurationRequest')
+class TestRequest(test_utils.TestCase):
+
+    def test_mapping(self):
+        eq_(get_request('foo'), 'fooRequest')
+        eq_(get_request('CreateBillingConfiguration'),
+            'CreateBillingConfigurationRequest')
+        with self.settings(BANGO_NEW_BILLING_CONFIG=True):
+            eq_(get_request('CreateBillingConfiguration'),
+                'InnerCreateBillingConfigurationRequest')
+
+    def test_file(self):
+        assert get_wsdl('billing').endswith('billing_configuration.wsdl')
+        with self.settings(BANGO_NEW_BILLING_CONFIG=True):
+            assert (get_wsdl('billing')
+                    .endswith('billing_configuration_v2_0.wsdl'))
