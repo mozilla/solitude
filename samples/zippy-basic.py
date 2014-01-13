@@ -61,7 +61,7 @@ assert res['name'] == 'Product name'
 
 product_id = res['id']
 print 'Creating product transaction with product_id: ' + product_id
-base_url = 'http://marketplace.firefox.com/mozpay/provider'
+base_url = 'http://marketplace.firefox.com/mozpay'
 transaction = {
     'product_id': product_id,
     'region': '123',
@@ -71,8 +71,8 @@ transaction = {
     'pay_method': 'OPERATOR',
     'callback_success_url': base_url + '/callback/sucess/',
     'callback_error_url': base_url + '/callback/error/',
-    'success_url': base_url + '/sucess/',
-    'error_url': base_url + '/error/',
+    'success_url': base_url + '/provider/sucess/',
+    'error_url': base_url + '/provider/error/',
     'ext_transaction_id': str(uuid.uuid4())
 }
 res = call('/provider/reference/transactions/', 'post', transaction)
