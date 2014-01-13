@@ -68,6 +68,8 @@ transaction = {
     'price': '0.99',
     'currency': 'EUR',
     'pay_method': 'OPERATOR',
+    'callback_success_url': 'http://marketplace.firefox.com/postback/sucess/',
+    'callback_error_url': 'http://marketplace.firefox.com/postback/error/',
     'success_url': 'http://marketplace.firefox.com/mozpay/provider/sucess/',
     'error_url': 'http://marketplace.firefox.com/mozpay/provider/error/',
     'ext_transaction_id': str(uuid.uuid4())
