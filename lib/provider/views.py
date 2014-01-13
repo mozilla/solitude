@@ -62,12 +62,10 @@ class ProxyView(BaseAPIView):
         """
         Turns Zippy's error into a solitude one.
         """
-        data = (isinstance(response.json, dict)
-                and response.json or json.loads(response.json))
         try:
-            message = data['error']['message']
+            message = response.json['error']['message']
         except KeyError:
-            message = data
+            message = response.json
         return {'error_message': message}
 
     def _make_response(self, proxied_endpoint, args=[], kwargs={}):

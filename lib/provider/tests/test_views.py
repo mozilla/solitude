@@ -65,7 +65,7 @@ class TestAPIasProxy(TestCase):
 
     def test_proxy_error_responses(self):
         # Create a scenario where the proxied API raises an HTTP error.
-        data = json.dumps({'error': {'message': 'something not found'}})
+        data = {'error': {'message': 'something not found'}}
         proxy_res = HttpResponse(data,
                                  content_type='application/json',
                                  status=404)
@@ -79,7 +79,7 @@ class TestAPIasProxy(TestCase):
 
     def test_unknown_error_responses(self):
         # Create a scenario where the proxied API raises an HTTP error.
-        data = json.dumps({'unknown_error': 'something went wrong'})
+        data = {'unknown_error': 'something went wrong'}
         proxy_res = HttpResponse(data,
                                  content_type='application/json',
                                  status=403)
