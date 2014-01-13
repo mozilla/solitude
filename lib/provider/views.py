@@ -1,3 +1,5 @@
+import json
+
 from django.core.urlresolvers import reverse
 
 from curling.lib import HttpClientError
@@ -40,9 +42,9 @@ class ProxyView(BaseAPIView):
         else:
             return getattr(api, kwargs['resource_name'])
 
-    def _mapping_resource_uri(self, result):
+    def _mapping_resource(self, result):
         """
-        Turns Zippy's resource_uri into a solitude one.
+        Turns Zippy's resource into a solitude one.
         """
         if 'resource_uri' in result:
             result['resource_uri'] = reverse('provider.api_view', kwargs={
@@ -52,7 +54,19 @@ class ProxyView(BaseAPIView):
             })
             if not result['resource_uri'].endswith('/'):
                 result['resource_uri'] = result['resource_uri'] + '/'
+        if 'resource_pk' in result:
+            result['id'] = result.pop('resource_pk')
         return result
+
+    def _mapping_error(self, response):
+        """
+        Turns Zippy's error into a solitude one.
+        """
+        try:
+            message = response.json['error']['message']
+        except KeyError:
+            message = response.json
+        return {'error_message': message}
 
     def _make_response(self, proxied_endpoint, args=[], kwargs={}):
         method = getattr(proxied_endpoint, '__name__', 'unknown_method')
@@ -60,20 +74,13 @@ class ProxyView(BaseAPIView):
             with statsd.timer('solitude.provider.{ref}.proxy.{method}'
                               .format(ref=self.reference_name,
                                       method=method)):
-                return Response(self._mapping_resource_uri(
+                return Response(self._mapping_resource(
                                     proxied_endpoint(*args, **kwargs)))
         except HttpClientError, exc:
-
             url = getattr(exc.response.request, 'full_url', 'unknown_url')
             log.exception('Proxy exception for {method} on {url}'
                           .format(method=method, url=url))
-
-            data = getattr(exc.response, 'json', None)
-            if data:
-                proxy_error = data
-            else:
-                proxy_error = exc.response.content
-            return Response({'proxy_error': proxy_error},
+            return Response(self._mapping_error(exc.response),
                             status=exc.response.status_code)
 
     def get(self, request, *args, **kwargs):
