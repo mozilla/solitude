@@ -42,7 +42,7 @@ Sellers
     :param status: status of the seller.
     :param agreement: an optional date that can be used for terms validation.
     :param resource_name: the name of the resource.
-    :param resource_pk: the primary key of the resource.
+    :param id: the primary key of the resource.
     :param resource_uri: the URI of the resource.
 
     Example successful seller creation:
@@ -54,7 +54,7 @@ Sellers
             "email": "jdoe@example.org",
             "name": "John",
             "resource_name": "sellers",
-            "resource_pk": "{seller-uuid}",
+            "id": "{seller-uuid}",
             "resource_uri": "/sellers/{seller-uuid}",
             "status": "ACTIVE"
         }
@@ -76,7 +76,7 @@ Sellers
     :param status: status of the seller.
     :param agreement: an optional date that can be used for terms validation.
     :param resource_name: the name of the resource.
-    :param resource_pk: the primary key of the resource.
+    :param id: the primary key of the resource.
     :param resource_uri: the URI of the resource.
 
     Example successful seller retrieval:
@@ -88,7 +88,7 @@ Sellers
             "email": "jdoe@example.org",
             "name": "John",
             "resource_name": "sellers",
-            "resource_pk": "{seller-uuid}",
+            "id": "{seller-uuid}",
             "resource_uri": "/sellers/{seller-uuid}",
             "status": "ACTIVE"
         }
@@ -127,7 +127,7 @@ Sellers
     :param status: status of the seller.
     :param agreement: an optional date that can be used for terms validation.
     :param resource_name: the name of the resource.
-    :param resource_pk: the primary key of the resource.
+    :param id: the primary key of the resource.
     :param resource_uri: the URI of the resource.
 
     Example successful seller modification:
@@ -139,7 +139,7 @@ Sellers
             "email": "jdoe@example.org",
             "name": "Jack",
             "resource_name": "sellers",
-            "resource_pk": "{seller-uuid}",
+            "id": "{seller-uuid}",
             "resource_uri": "/sellers/{seller-uuid}",
             "status": "ACTIVE"
         }
@@ -182,7 +182,7 @@ Using that newly created "seller", we can now create a "product".
     :param name: name of the product.
     :param status: status of the product.
     :param resource_name: the name of the resource.
-    :param resource_pk: the primary key of the resource.
+    :param id: the primary key of the resource.
     :param resource_uri: the URI of the resource.
 
     Example successful product creation:
@@ -194,7 +194,7 @@ Using that newly created "seller", we can now create a "product".
             "seller_id": "{seller-uuid}",
             "name": "Product name",
             "resource_name": "products",
-            "resource_pk": "{product-uuid}",
+            "id": "{product-uuid}",
             "resource_uri": "/products/{product-uuid}",
             "status": "ACTIVE"
         }
@@ -254,7 +254,7 @@ Let's buy that product by creating a "transaction".
     :param error_url: the URL to reach in case of error of the transaction.
     :param success_url: the URL to reach in case of success of the transaction.
     :param resource_name: the name of the resource.
-    :param resource_pk: the primary key of the resource.
+    :param id: the primary key of the resource.
     :param resource_uri: the URI of the resource.
     :param status: status of the transaction. Should be STARTED at this point.
     :param token: the security token for the transaction.
@@ -274,7 +274,7 @@ Let's buy that product by creating a "transaction".
             "price": "0.99",
             "region": "123"
             "resource_name": "transactions",
-            "resource_pk": "{product-uuid}",
+            "id": "{product-uuid}",
             "resource_uri": "/transactions/{product-uuid}",
             "token": "97ccb8ced0318a2751e936e354848...",
             "status": "STARTED"
