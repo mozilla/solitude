@@ -158,7 +158,7 @@ LOGGING = {
     },
     'loggers': {
         '': {
-            'handlers': ['unicodesyslog'],
+            'handlers': ['unicodesyslog', 'sentry'],
             'level': 'INFO',
             'propagate': True
         },

@@ -68,7 +68,7 @@ class Proxy(object):
                                 headers=self.headers,
                                 timeout=self.timeout, verify=True)
         except requests.exceptions.RequestException as err:
-            log.error('%s: %s' % (err.__class__.__name__, err))
+            log.exception('%s: %s' % (err.__class__.__name__, err))
             response.status_code = 500
             return response
 
