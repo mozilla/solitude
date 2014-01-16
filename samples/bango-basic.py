@@ -75,14 +75,14 @@ res = call('/bango/sbi/', 'post', {
     'seller_bango': seller_bango_uri,
 })
 
-print 'Creating seller bango product.'
-res = call('/bango/product/', 'post', {
+print 'Making product and updating rating.'
+res = call('/provider/bango/product/', 'post', {
     'seller_bango': seller_bango_uri,
     'seller_product': seller_product_uri,
-    'name': 'A name for the number',
+    'name': 'A product name',
+    'packageId': package_id,
     'categoryId': 1,
-    'packageId': 1,
-    'secret': 'n'
+    'secret': 'A secret',
 })
 bango_product_uri = res['resource_uri']
 
@@ -100,32 +100,6 @@ res = call('/bango/bank/', 'post', {
 
 print 'Checking bango id, as an example.'
 res = call(bango_product_uri, 'get', {})
-
-print 'Making premium.'
-res = call('/bango/premium/', 'post', {
-    'bango': '123',
-    'price': 1,
-    'currencyIso': 'EUR',
-    'seller_product_bango': bango_product_uri
-})
-
-print 'Updating rating.'
-res = call('/bango/rating/', 'post', {
-    'bango': '123',
-    'rating': 'UNIVERSAL',
-    'ratingScheme': 'GLOBAL',
-    'seller_product_bango': bango_product_uri
-})
-
-print 'Updating rating.'
-res = call('/bango/rating/', 'post', {
-    'bango': '123',
-    'rating': 'GENERAL',
-    'ratingScheme': 'USA',
-    'seller_product_bango': bango_product_uri
-})
-
-
 
 res = call(seller_bango_uri, 'get', {})
 old_support_id = res['support_person_id']
