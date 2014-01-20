@@ -368,36 +368,12 @@ class TastypieBaseResource(object):
         return result
 
     def dispatch(self, request_type, request, **kw):
-        method = request.META['REQUEST_METHOD']
-        delay = request.META.get('HTTP_SOLITUDE_ASYNC', False)
-        if delay:
-            # Move the import here to remove warnings in management commands.
-            from lib.delayable.tasks import delayable
-            # Only do async on these requests.
-            if method not in ['PATCH', 'POST', 'PUT']:
-                raise ImmediateHttpResponse(response=
-                        http.HttpMethodNotAllowed())
-
-            # Create a delayed dispatch.
-            uid = str(uuid.uuid4())
-            # We only need a subset of meta.
-            whitelist = ['PATH_INFO', 'REQUEST_METHOD', 'QUERY_STRING']
-            meta = dict([k, request.META[k]] for k in whitelist)
-            # Celery could magically serialise some of this, but I don't
-            # trust it that much.
-            delayable.delay(self.__class__.__module__, self.__class__.__name__,
-                            request_type, meta, request.body, kw, uid)
-            content = json.dumps({'replay': '/delay/replay/%s/' % uid,
-                                  'result': '/delay/result/%s/' % uid})
-            return http.HttpResponse(content, status=202,
-                                     content_type='application/json')
-
         dump_request(request)
         msg = '%s:%s' % (kw.get('api_name', 'unknown'),
                          kw.get('resource_name', 'unknown'))
         log_cef(msg, request, severity=2)
-
-        return super(TastypieBaseResource, self).dispatch(request_type, request, **kw)
+        return super(TastypieBaseResource, self).dispatch(request_type,
+                                                          request, **kw)
 
     def build_filters(self, filters=None):
         # Override the filters so we can stop Tastypie silently ignoring

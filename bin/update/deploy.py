@@ -96,13 +96,6 @@ def deploy_app(ctx):
     ctx.remote('service %s reload' % settings.GUNICORN)
 
 
-@hostgroups(settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
-def update_celery(ctx):
-    ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-    if getattr(settings, 'CELERY_SERVICE', False):
-        ctx.remote("/sbin/service %s restart" % settings.CELERY_SERVICE)
-
-
 @task
 def update_info(ctx):
     """Write info about the current state to a publicly visible file."""
@@ -163,5 +156,4 @@ def update_site(ctx, tag):
     pre_update(tag)
     create_virtualenv()
     update()
-    update_celery()
     post_update()

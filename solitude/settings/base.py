@@ -19,7 +19,6 @@ INSTALLED_APPS = (
     'django_extensions',
     'django_nose',
     'django_statsd',
-    'djcelery',
     'solitude',
     'rest_framework',
     'django_filters'
@@ -65,7 +64,6 @@ else:
         'lib.buyers',
         'lib.sellers',
         'lib.transactions',
-        'lib.delayable',
         'lib.bango',
     )
 
@@ -251,13 +249,6 @@ TRANSACTION_EXPIRY = 60 * 30
 # Time in seconds after a transaction is created that it becomes locked.
 # After that time, no changes can be made to a transaction.
 TRANSACTION_LOCKDOWN = 60 * 60 * 24
-
-# Celery configs.
-CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
-CELERY_IGNORE_RESULT = False
-CELERY_IMPORTS = ('lib.delayable.tasks',)
-CELERY_RESULT_BACKEND = 'database'
-CELERYD_HIJACK_ROOT_LOGGER = False
 
 # Paranoia levels.
 DJANGO_PARANOIA_REPORTERS = [
