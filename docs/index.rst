@@ -41,7 +41,6 @@ Contents
    topics/bango.rst
    topics/paypal.rst
    topics/zippy.rst
-   topics/async.rst
    topics/proxy.rst
    topics/services.rst
 

@@ -3,7 +3,6 @@ from django.conf.urls import include, patterns, url
 from tastypie.api import Api
 
 from lib.bango.urls import bango
-from lib.delayable.resources import DelayableResource, ReplayResource
 from lib.buyers.resources import (BuyerConfirmPinResource, BuyerPaypalResource,
                                   BuyerResetPinResource, BuyerResource,
                                   BuyerVerifyPinResource)
@@ -26,11 +25,6 @@ api.register(TransactionResource())
 paypal.register(BuyerPaypalResource())
 paypal.register(SellerPaypalResource())
 
-# URLs to query delayed jobs.
-delayable = Api(api_name='delay')
-delayable.register(DelayableResource())
-delayable.register(ReplayResource())
-
 services_patterns = patterns('lib.services.resources',
     url(r'^settings/$', 'settings_list', name='services.settings'),
     url(r'^settings/(?P<setting>[^/<>]+)/$', 'settings_view',
@@ -52,7 +46,6 @@ urlpatterns = patterns('',
     url(r'^', include(bango.urls)),
     url(r'^bango/', include('lib.bango.urls')),
     url(r'^provider/', include('lib.provider.urls')),
-    url(r'^', include(delayable.urls)),
     url(r'^$', 'solitude.views.home', name='home'),
     url(r'^services/', include(services_patterns))
 )
