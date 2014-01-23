@@ -60,3 +60,5 @@ S3_BUCKET = private.S3_BUCKET
 REQUIRE_OAUTH = True
 
 NEWRELIC_INI = '/etc/newrelic.d/payments.allizom.org.ini'
+
+BANGO_BILLING_CONFIG_V2 = True
