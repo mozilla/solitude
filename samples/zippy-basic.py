@@ -11,7 +11,10 @@ parser.add_option('--url', default='http://localhost:8001',
 parser.add_option('--seller-uuid',
                   help='Create seller with this UUID. If not '
                        'specified, one will be generated.')
-parser.add_option('--product-id',
+parser.add_option('--product-uuid',
+                  help='Create a product with this UUID. If not '
+                       'specified, one will be generated.')
+parser.add_option('--product-external-id',
                   help='Create a product with this external ID. If not '
                        'specified, one will be generated.')
 (options, args) = parser.parse_args()
@@ -48,13 +51,15 @@ seller['name'] = 'Jack'
 res = call('/provider/reference/sellers/{0}/'.format(seller_id), 'put', seller)
 assert res['name'] == 'Jack'
 
-external_id = options.product_id or str(uuid.uuid4())
+product_uuid = options.product_uuid or str(uuid.uuid4())
+external_id = options.product_external_id or str(uuid.uuid4())
 
 print 'Creating seller product with external_id: ' + external_id
 product = {
     'name': 'Product name',
     'seller_id': seller_id,
     'external_id': external_id,
+    'uuid': product_uuid,
 }
 res = call('/provider/reference/products/', 'post', product)
 assert res['name'] == 'Product name'
