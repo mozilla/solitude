@@ -44,8 +44,8 @@ res = call('/provider/reference/terms/{0}/'.format(seller_id), 'get', {})
 assert res['text'] == 'Terms for seller: John'
 
 print 'Updating the created seller.'
-res = call('/provider/reference/sellers/{0}/'.format(seller_id), 'put',
-           {'name': 'Jack'})
+seller['name'] = 'Jack'
+res = call('/provider/reference/sellers/{0}/'.format(seller_id), 'put', seller)
 assert res['name'] == 'Jack'
 
 external_id = options.product_id or str(uuid.uuid4())
