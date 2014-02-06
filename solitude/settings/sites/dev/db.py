@@ -61,7 +61,7 @@ S3_BUCKET = private.S3_BUCKET
 
 NEWRELIC_INI = '/etc/newrelic.d/payments-dev.allizom.org.ini'
 
-ZIPPY_PROXY = True
+ZIPPY_PROXY = 'https://payments-proxy-dev.allizom.org/proxy/provider'
 ZIPPY_CONFIGURATION = {
     'reference': {
         'url': 'https://zippy.paas.allizom.org'
