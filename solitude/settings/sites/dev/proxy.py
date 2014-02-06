@@ -52,6 +52,7 @@ NEWRELIC_INI = '/etc/newrelic.d/payments-proxy-dev.allizom.org.ini'
 
 ZIPPY_CONFIGURATION = {
     'reference': {
+        'url': 'https://zippy.paas.allizom.org',
         'auth': {'key': private.ZIPPY_PAAS_KEY,
                  'secret': private.ZIPPY_PAAS_SECRET,
                  'realm': 'zippy.paas.allizom.org'}

@@ -58,7 +58,8 @@ To run in proxy mode, make the following changes:
   but have specified the provider settings, such as username, password, sandbox
   and so on.
 
-  * For zippy, ensure that the `ZIPPY_CONFIGURATION` configuration has the *auth* dictionary.
+  * For zippy, ensure that the `ZIPPY_CONFIGURATION` configuration has the
+    *auth* dictionary and *url* string.
 
 To run the proxy server, run with the environment variable::
 
