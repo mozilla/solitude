@@ -50,5 +50,10 @@ BANGO_AUTH = private.BANGO_AUTH
 
 NEWRELIC_INI = '/etc/newrelic.d/payments-proxy-dev.allizom.org.ini'
 
-ZIPPY_PAAS_KEY = private.ZIPPY_PAAS_KEY 
-ZIPPY_PAAS_SECRET = private.ZIPPY_PAAS_SECRET 
+ZIPPY_CONFIGURATION = {
+    'reference': {
+        'auth': {'key': private.ZIPPY_PAAS_KEY,
+                 'secret': private.ZIPPY_PAAS_SECRET,
+                 'realm': 'zippy.paas.allizom.org'}
+    }
+}

@@ -60,3 +60,9 @@ S3_AUTH = {'key': private.S3_AUTH_KEY, 'secret': private.S3_AUTH_SECRET}
 S3_BUCKET = private.S3_BUCKET
 
 NEWRELIC_INI = '/etc/newrelic.d/payments-dev.allizom.org.ini'
+
+ZIPPY_CONFIGURATION = {
+    'reference': {
+        'url': 'https://zippy.paas.allizom.org'
+    }
+}
