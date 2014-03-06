@@ -186,6 +186,10 @@ class ProviderProxy(Proxy):
                    kwargs={'reference_name':self.reference_name}))
 
         self.url = url_join(config['url'], request.META['PATH_INFO'][root:])
+        # Add in the query string.
+        query = request.META.get('QUERY_STRING')
+        if query:
+            self.url = '%s?%s' % (self.url, query)
         # Before we do the request, use curling to sign the request headers.
         sign_request(None, config['auth'], headers=self.headers,
                      method=self.method.upper(),
