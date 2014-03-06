@@ -42,9 +42,8 @@ class TestAPIasProxy(TestCase):
         get_client = p.start()
         self.addCleanup(p.stop)
 
-        self.api = mock.Mock()
-        domain = mock.Mock(api=self.api)
-        get_client.return_value = domain
+        self.api = mock.MagicMock()
+        get_client.return_value = mock.Mock(api=self.api)
 
         self.fake_data = {'foo': 'bar'}
 
