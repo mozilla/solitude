@@ -136,3 +136,7 @@ class TestProvider(Proxy):
     def test_post(self):
         self.client.post(self.url, data={'foo': 'bar'})
         assert 'foo' in self.req.post.call_args[1]['data']
+
+    def test_get(self):
+        self.client.get(self.url, data={'baz': 'quux'})
+        assert '?baz=quux' in self.req.get.call_args[0][0]
