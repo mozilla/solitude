@@ -69,9 +69,6 @@ class ProxyView(BaseAPIView):
         return {'error_message': message}
 
     def _make_response(self, proxied_endpoint, args=[], kwargs={}):
-        if hasattr(proxied_endpoint, '__name__'):
-            log.info('{p} from reference args: {a}, kwargs: {k}'.format(
-                p=proxied_endpoint.__name__.upper(), a=args, k=kwargs))
         method = getattr(proxied_endpoint, '__name__', 'unknown_method')
         try:
             with statsd.timer('solitude.provider.{ref}.proxy.{method}'
