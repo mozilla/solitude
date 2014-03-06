@@ -191,6 +191,7 @@ class ProviderProxy(Proxy):
         if query:
             self.url = '%s?%s' % (self.url, query)
         # Before we do the request, use curling to sign the request headers.
+        log.info('%s: %s' % (self.method.upper(), self.url))
         sign_request(None, config['auth'], headers=self.headers,
                      method=self.method.upper(),
                      params={'oauth_token': 'not-implemented'},
