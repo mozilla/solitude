@@ -14,8 +14,8 @@ from suds.transport import Reply
 from suds.transport.http import HttpTransport
 
 from solitude.logger import getLogger
-from .constants import (ACCESS_DENIED, HEADERS_SERVICE, INTERNAL_ERROR,
-                        SERVICE_UNAVAILABLE)
+from .constants import (ACCESS_DENIED, HEADERS_SERVICE, HEADERS_WHITELIST,
+                        INTERNAL_ERROR, SERVICE_UNAVAILABLE)
 from .errors import AuthError, BangoError, BangoFormError, ProxyError
 
 
@@ -155,10 +155,17 @@ class Client(object):
 
 class Proxy(HttpTransport):
 
+    def get_headers(self, url, headers):
+        filtered = {HEADERS_SERVICE: url}
+        for k, v in HEADERS_WHITELIST.items():
+            if k in headers:
+                filtered[v] = headers[k]
+        return filtered
+
     def send(self, request):
         response = post(settings.BANGO_PROXY,
                         data=request.message,
-                        headers={HEADERS_SERVICE: request.url},
+                        headers=self.get_headers(request.url, request.headers),
                         verify=False)
         if response.status_code in FATAL_PROXY_STATUS_CODES:
             msg = ('Proxy returned: %s from: %s' %

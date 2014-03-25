@@ -25,6 +25,8 @@ sources = {
          'mozilla_exporter.wsdl'),
         ('https://webservices.test.bango.org/billingconfiguration/?WSDL',
          'billing_configuration.wsdl'),
+        ('https://webservices.test.bango.org/billingconfiguration_v2_0/?WSDL',
+         'billing_configuration_v2_0.wsdl'),
         ('https://webservices.test.bango.org/directbilling_v3_1/?wsdl',
          'direct_billing.wsdl'),
         ('http://mozilla.test.bango.org/_/ws/tokenchecker.asmx?wsdl',
