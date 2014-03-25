@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 import mock
+
+from django.test import RequestFactory
+
 from nose.tools import eq_
 import test_utils
 
 from ..client import (Client, ClientMock, ClientProxy, dict_to_mock,
-                      get_client, get_request, get_wsdl, response_to_dict)
+                      get_client, get_request, get_wsdl, Proxy,
+                      response_to_dict)
 from ..constants import OK, ACCESS_DENIED
 from ..errors import AuthError, BangoError, ProxyError
 
@@ -113,6 +117,11 @@ class TestProxy(test_utils.TestCase):
             res = self.bango.CreatePackage(address)
             eq_(res.packageId, 1)
             assert 'CreatePackageResponse' in str(res)
+
+    def test_headers(self):
+        eq_(Proxy().get_headers('http://foo.com', {'SOAPAction': 'foo'}),
+            {'x-solitude-soapaction': 'foo',
+             'x-solitude-service': 'http://foo.com'})
 
 
 def test_convert_data():

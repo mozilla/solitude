@@ -36,6 +36,11 @@ VAT_NUMBER_DOES_NOT_EXIST = 'VAT_NUMBER_DOES_NOT_EXIST'
 HEADERS_SERVICE = 'x-solitude-service'
 HEADERS_SERVICE_GET = 'HTTP_X_SOLITUDE_SERVICE'
 
+# A whitelist of headers that we need to pass through from suds to the
+# proxy. These will be passed through as HTTP headers to the proxy.
+HEADERS_WHITELIST = {'SOAPAction': 'x-solitude-soapaction'}
+HEADERS_WHITELIST_INVERTED = dict(invert(HEADERS_WHITELIST))
+
 CURRENCIES = {
     'AUD': 'Australian Dollars',
     'CAD': 'Canadian Dollars',

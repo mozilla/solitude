@@ -79,6 +79,15 @@ class TestBango(Proxy):
             self.client.post(self.url, samples.sample_request,
                              **{'content_type': 'text/xml'})
 
+
+    def test_header(self):
+        self.client.post(self.url,
+                         samples.sample_request,
+                         **{'content_type': 'text/xml',
+                            HEADERS_SERVICE_GET: 'http://url.com/b',
+                            'HTTP_X_SOLITUDE_SOAPACTION': 'foo'})
+        eq_(self.req.post.call_args[1]['headers']['SOAPAction'], 'foo')
+
     def test_good(self):
         self.client.post(self.url,
                          samples.sample_request,

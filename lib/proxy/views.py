@@ -11,7 +11,7 @@ from django_statsd.clients import statsd
 from lxml import etree
 from slumber import url_join
 
-from lib.bango.constants import HEADERS_SERVICE_GET
+from lib.bango.constants import HEADERS_SERVICE_GET, HEADERS_WHITELIST_INVERTED
 
 from lib.paypal.client import get_client as paypal_client
 from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
@@ -134,6 +134,15 @@ class BangoProxy(Proxy):
     def pre(self, request):
         self.url = request.META[HEADERS_SERVICE_GET]
         self.headers = {'Content-Type': 'text/xml; charset=utf-8'}
+
+        # Add in any headers we need to pass through,
+        for k, v in HEADERS_WHITELIST_INVERTED.items():
+            # Transform the key from the settings into the appropriate
+            # format from Django request.
+            k = 'HTTP_' + k.upper().replace('-', '_')
+            if k in request.META:
+                self.headers[v] = request.META[k]
+
         # All the Bango methods are a POST.
         self.method = 'post'
 
