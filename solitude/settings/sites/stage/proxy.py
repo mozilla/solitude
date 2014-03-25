@@ -49,3 +49,5 @@ BANGO_ENV = 'prod'
 BANGO_AUTH = private.BANGO_AUTH
 
 NEWRELIC_INI = '/etc/newrelic.d/payments-proxy.allizom.org.ini'
+
+BANGO_BILLING_CONFIG_V2 = True
