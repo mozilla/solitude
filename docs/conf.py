@@ -220,8 +220,3 @@ man_pages = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None}
-
-import mdn_theme
-
-html_theme_path = [mdn_theme.get_theme_dir()]
-html_theme = 'mdn'
