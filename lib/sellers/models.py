@@ -96,3 +96,12 @@ class SellerProductBango(Model):
 
     class Meta(Model.Meta):
         db_table = 'seller_product_bango'
+
+
+class SellerBoku(Model):
+    seller = models.OneToOneField(Seller, related_name='boku')
+    merchant_id = models.CharField(max_length=255, blank=False, null=False)
+    service_id = models.CharField(max_length=255, blank=False, null=False)
+
+    class Meta(Model.Meta):
+        db_table = 'seller_boku'

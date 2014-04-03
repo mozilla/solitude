@@ -8,7 +8,7 @@ import sys
 def call(root, url, method, data):
     method = getattr(requests, method)
     url = root + url
-    print 'Calling url:', url
+    print 'Calling url:', url, method
     print 'Request data:'
     pprint.pprint(data)
     data = json.dumps(data)
@@ -19,7 +19,11 @@ def call(root, url, method, data):
                     })
     print 'Status code:', result.status_code
     if result.status_code not in (200, 201, 202, 204):
-        print 'Error:', result.content
+        print 'Error:'
+        try:
+            print pprint.pprint(json.loads(result.content))
+        except ValueError:
+            print result.content
         sys.exit()
 
     if result.content:
