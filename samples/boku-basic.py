@@ -8,52 +8,48 @@ import lib
 parser = optparse.OptionParser(usage='%prog [options]')
 parser.add_option('--url', default='http://localhost:8001',
                   help='root URL to Solitude. Default: %default')
-parser.add_option('--seller-uuid',
-                  help='Create seller with this UUID. If not '
-                       'specified, one will be generated.')
-parser.add_option('--product-uuid',
-                  help='Create a product with this UUID. If not '
-                       'specified, one will be generated.')
-parser.add_option('--product-external-id',
-                  help='Create a product with this external ID. If not '
-                       'specified, one will be generated.')
 (options, args) = parser.parse_args()
 
 
-uid = options.seller_uuid or str(uuid.uuid4())
-merchant_id = '12345'
-service_id = '12345'
 call = functools.partial(lib.call, options.url)
 
-print 'Retrieving sellers.'
-res = call('/boku/sellers/', 'get', {})
+seller_uuid = str(uuid.uuid4())
+merchant_id = '12345'
+service_id = '12345'
 
-print 'Creating seller for:', uid
+print 'Creating seller for:', seller_uuid
+res = call('/generic/seller/', 'post', {'uuid': seller_uuid})
+print res
+seller_uri = res['resource_uri']
+
+print 'Retrieving boku sellers.'
+res = call('/boku/seller/', 'get', {})
+
+print 'Creating boku seller for:', seller_uri
 seller = {
-    'uuid': uid,
-    'status': 'ACTIVE',
+    'seller': seller_uri,
     'merchant_id': merchant_id,
     'service_id': service_id,
 }
-res = call('/boku/sellers/', 'post', seller)
-seller_id = res['id']
+res = call('/boku/seller/', 'post', seller)
+boku_seller_id = res['id']
 
-print 'Retrieving the created seller'
-seller_url = '/boku/sellers/{0}/'
-res = call(seller_url.format(seller_id), 'get', {})
+print 'Retrieving the created boku seller'
+boku_seller_url = '/boku/seller/{0}/'
+res = call(boku_seller_url.format(boku_seller_id), 'get', {})
 assert res['merchant_id'] == merchant_id
 assert res['service_id'] == service_id
-assert res['resource_uri'] == seller_url.format(seller_id)
+assert res['resource_uri'] == boku_seller_url.format(boku_seller_id)
 
 print 'Updating the created seller.'
 seller['merchant_id'] = '54321'
-res = call('/boku/sellers/{0}/'.format(seller_id), 'put', seller)
-assert res['name'] == '54321'
+res = call('/boku/seller/{0}/'.format(boku_seller_id), 'put', seller)
+assert res['merchant_id'] == '54321'
 
 product_uuid = options.product_uuid or str(uuid.uuid4())
 external_id = options.product_external_id or str(uuid.uuid4())
 
-product_id = res['id']
+product_id = '123' 
 print 'Creating product transaction with product_id: ' + product_id
 base_url = 'http://marketplace.firefox.com/mozpay'
 transaction = {
