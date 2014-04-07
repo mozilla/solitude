@@ -349,3 +349,6 @@ BOKU_API_DOMAIN = 'https://api2.boku.com'
 BOKU_SECRET_KEY = ''
 BOKU_MERCHANT_ID = ''
 BOKU_MOCK = False
+
+# If you'd like to use the proxy for Boku, set this to ZIPPY_PROXY.
+BOKU_PROXY = ''
