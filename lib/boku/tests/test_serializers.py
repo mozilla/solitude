@@ -48,4 +48,4 @@ class SellerBokuSerializerTests(SellerBokuTest):
         eq_(serializer.data['merchant_id'], seller_boku.merchant_id)
         eq_(serializer.data['service_id'], seller_boku.service_id)
         eq_(serializer.data['resource_uri'],
-            reverse('sellerboku-detail', kwargs={'pk': seller_boku.pk}))
+            reverse('boku:sellerboku-detail', kwargs={'pk': seller_boku.pk}))
