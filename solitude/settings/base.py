@@ -340,3 +340,6 @@ ZIPPY_PROXY = ''
 # Flip to the new billing configuration for Bango. This is temporary and once
 # we are on the new config, we can probably remove it.
 BANGO_BILLING_CONFIG_V2 = False
+
+# Boku Settings
+BOKU_API_DOMAIN = 'https://api2.boku.com'
