@@ -54,6 +54,7 @@ DJANGO_PARANOIA_REPORTERS = []
 # We don't want to hit the live bango in tests.
 BANGO_MOCK = True
 ZIPPY_MOCK = True
+BOKU_MOCK = True
 
 SITE_URL = 'http://localhost/'
 
