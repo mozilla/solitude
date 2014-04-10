@@ -174,7 +174,10 @@ LOGGING = {
             'propagate': True
         },
         'suds': {
-            'level': 'DEBUG',
+            # This is very verbose and setting it to DEBUG may
+            # cause problems on jenkins because the logging within suds
+            # actually causes errors.
+            'level': 'ERROR',
             'propagate': True
         },
         'boto': {
