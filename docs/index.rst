@@ -39,6 +39,7 @@ Contents
    topics/auth.rst
    topics/generic.rst
    topics/bango.rst
+   topics/boku.rst
    topics/paypal.rst
    topics/zippy.rst
    topics/proxy.rst

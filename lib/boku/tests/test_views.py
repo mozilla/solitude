@@ -1,10 +1,12 @@
 import json
 import uuid
+
 from django.core.urlresolvers import reverse
+
 from nose.tools import eq_, ok_
 
+from lib.boku.tests.utils import SellerBokuTest
 from lib.sellers.models import Seller, SellerBoku
-from .utils import SellerBokuTest
 
 
 class TestSellerBokuViews(SellerBokuTest):
@@ -18,14 +20,14 @@ class TestSellerBokuViews(SellerBokuTest):
                 service_id=self.example_service_id,
             )
 
-        response = self.client.get(reverse('sellerboku-list'))
+        response = self.client.get(reverse('boku:sellerboku-list'))
         eq_(response.status_code, 200, response.content)
         sellers_data = json.loads(response.content)
         eq_(len(sellers_data['objects']), 3)
 
     def test_create_view_creates_seller_boku(self):
         response = self.client.post(
-            reverse('sellerboku-list'), data=self.seller_data
+            reverse('boku:sellerboku-list'), data=self.seller_data
         )
         eq_(response.status_code, 201, response.content)
         seller_boku_data = json.loads(response.content)
@@ -42,7 +44,7 @@ class TestSellerBokuViews(SellerBokuTest):
             service_id=self.example_service_id,
         )
         response = self.client.get(
-            reverse('sellerboku-detail', kwargs={'pk': seller_boku.pk}),
+            reverse('boku:sellerboku-detail', kwargs={'pk': seller_boku.pk}),
         )
         eq_(response.status_code, 200, response.content)
 
@@ -53,7 +55,8 @@ class TestSellerBokuViews(SellerBokuTest):
         eq_(seller_boku_data['service_id'], seller_boku.service_id)
         ok_(
             seller_boku_data['resource_uri'].endswith(
-                reverse('sellerboku-detail', kwargs={'pk': seller_boku.pk})
+                reverse('boku:sellerboku-detail',
+                        kwargs={'pk': seller_boku.pk})
             ),
             'Unexpected URI: {uri}'.format(
                 uri=seller_boku_data['resource_uri']
@@ -68,7 +71,7 @@ class TestSellerBokuViews(SellerBokuTest):
             service_id=self.example_service_id,
         )
         response = self.client.patch(
-            reverse('sellerboku-detail', kwargs={'pk': seller_boku.pk}),
+            reverse('boku:sellerboku-detail', kwargs={'pk': seller_boku.pk}),
             data={'merchant_id': new_merchant_id},
         )
         eq_(response.status_code, 200, response.content)
@@ -83,6 +86,6 @@ class TestSellerBokuViews(SellerBokuTest):
             service_id=self.example_service_id,
         )
         response = self.client.delete(
-            reverse('sellerboku-detail', kwargs={'pk': seller_boku.pk})
+            reverse('boku:sellerboku-detail', kwargs={'pk': seller_boku.pk})
         )
         eq_(response.status_code, 403, response.content)

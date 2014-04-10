@@ -1,0 +1,3 @@
+CURRENCIES = {
+    'MXN': 'Mexican Pesos',
+}

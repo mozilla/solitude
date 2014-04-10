@@ -15,7 +15,7 @@ class SellerBokuSerializer(serializers.ModelSerializer):
         queryset=Seller.objects.filter()
     )
     resource_uri = serializers.HyperlinkedIdentityField(
-        view_name='sellerboku-detail'
+        view_name='boku:sellerboku-detail'
     )
 
     class Meta:
