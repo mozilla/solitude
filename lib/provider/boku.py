@@ -2,7 +2,6 @@ from django.http import HttpResponse
 
 from rest_framework import viewsets
 
-from lib.boku.utils import verify
 from lib.boku.forms import EventForm
 from lib.transactions.constants import (STATUS_COMPLETED, STATUSES_INVERTED)
 
@@ -31,11 +30,6 @@ class Event(viewsets.ViewSet, BaseAPIView):
 
         cleaned = form.cleaned_data
         transaction = cleaned['param']
-
-        # Verify this against Boku, this will raise errors if there's
-        # an issue.
-        verify(transaction, cleaned['amount'])
-
         old_status = transaction.status
         # For the moment assume that all notifications that come in
         # are complete.
