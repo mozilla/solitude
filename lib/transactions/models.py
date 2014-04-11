@@ -47,6 +47,8 @@ class Transaction(Model):
     # An ID from the provider that relates to this transaction.
     uid_pay = models.CharField(max_length=255, db_index=True, blank=True,
                                null=True)
+    # Absolute payment start URL for this transaction.
+    pay_url = models.CharField(max_length=255, blank=True, null=True)
     # An ID we generate for this transaction, we'll generate one for you if
     # you don't specify one.
     uuid = models.CharField(max_length=255, db_index=True, unique=True)
