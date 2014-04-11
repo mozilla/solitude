@@ -26,9 +26,10 @@ class TransactionResource(ModelResource):
 
     class Meta(ModelResource.Meta):
         queryset = Transaction.objects.filter()
-        fields = ['uuid', 'seller_product', 'amount', 'currency', 'provider',
-                  'uid_pay', 'uid_support', 'type', 'status', 'related',
-                  'notes', 'created', 'buyer', 'source']
+        fields = ['uuid', 'seller_product', 'amount', 'currency',
+                  'pay_url', 'provider', 'uid_pay', 'uid_support',
+                  'type', 'status', 'related', 'notes', 'created',
+                  'buyer', 'source']
         list_allowed_methods = ['get', 'post']
         allowed_methods = ['get', 'patch']
         resource_name = 'transaction'

@@ -182,6 +182,7 @@ Example response:
             "created": "2013-04-15T05:39:22",
             "currency": "GBP",
             "notes": "",
+            "pay_url": "https://provider.com/pay?transaction=1234",
             "provider": 1,
             "related": null,
             "relations": [],

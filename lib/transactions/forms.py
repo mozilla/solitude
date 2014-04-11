@@ -16,7 +16,7 @@ log = getLogger('s.transaction')
 
 def check_status(old, new):
     if ((old['created'] + timedelta(seconds=settings.TRANSACTION_LOCKDOWN)) <
-         datetime.now()):
+            datetime.now()):
         raise forms.ValidationError('Transaction locked down')
 
     elif old['status'] == constants.STATUS_PENDING:
@@ -43,6 +43,7 @@ class UpdateForm(ParanoidForm):
     status = forms.ChoiceField(choices=[(v, v) for v in STATUSES.values()],
                                required=False)
     uid_pay = forms.CharField(required=False)
+    pay_url = forms.URLField(required=False)
 
     def __init__(self, *args, **kw):
         self.request = kw.pop('request')  # Storing request for CEF logs.

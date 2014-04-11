@@ -70,6 +70,16 @@ class TestTransaction(APITest):
         eq_(res.status_code, 202)
         eq_(self.trans.reget().uid_pay, 'xyz')
 
+    def test_patch_pay_url(self):
+        pay_url = 'https://bango.com/pay'
+        res = self.client.patch(self.detail_url, data={'pay_url': pay_url})
+        eq_(res.status_code, 202, res.content)
+        eq_(self.trans.reget().pay_url, pay_url)
+
+    def test_invalid_pay_url(self):
+        res = self.client.patch(self.detail_url, data={'pay_url': 'not-a-url'})
+        eq_(res.status_code, 400, res.content)
+
     def test_patch_status(self):
         self.trans.status = constants.STATUS_FAILED
         self.trans.save()
