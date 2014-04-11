@@ -2,8 +2,10 @@ import calendar
 import hashlib
 import time
 import urllib
+from collections import namedtuple
 from decimal import Decimal
 from itertools import chain
+from urlparse import parse_qs, urlparse
 
 from django.conf import settings
 
@@ -11,6 +13,8 @@ import lxml
 import requests
 from django_statsd.clients import statsd
 
+from lib.boku.errors import BokuException
+from lib.boku.tests import sample_xml
 from solitude.logger import getLogger
 
 
@@ -45,19 +49,16 @@ def get_boku_request_signature(secret_key, request_args):
     return hashlib.md5(signature_string.encode('utf8')).hexdigest()
 
 
-class BokuException(Exception):
-
-    def __init__(self, message, result_code=None, result_msg=None):
-        super(BokuException, self).__init__(message)
-        self.result_code = result_code
-        self.result_msg = result_msg
-
-
 class BokuClient(object):
 
     def __init__(self, merchant_id, secret_key):
         self.merchant_id = merchant_id
         self.secret_key = secret_key
+
+    def _get(self, url):
+        log.info('Boku client call: {url}'.format(url=url))
+        with statsd.timer('solitude.boku.api'):
+            return requests.get(url)
 
     def api_call(self, path, params):
         if 'timestamp' not in params:
@@ -71,9 +72,7 @@ class BokuClient(object):
             params=urllib.urlencode(params)
         )
 
-        log.info('Boku client call: {url}'.format(url=url))
-        with statsd.timer('solitude.boku.api'):
-            response = requests.get(url)
+        response = self._get(url)
 
         # Handle an http request failure.
         if response.status_code != 200:
@@ -196,3 +195,30 @@ class BokuClient(object):
             'amount': Decimal(tree.find('amount').text),
             'paid': Decimal(tree.find('paid').text),
         }
+
+
+mocks = {
+    'verify-trx-id': (200, sample_xml.transaction_request),
+}
+
+
+class MockClient(BokuClient):
+    """
+    A mock client that returns the value of mock, based on the
+    action above.
+    """
+
+    def _get(self, url):
+        lookup = parse_qs(urlparse(url).query)['action'][0]
+        MockResult = namedtuple('MockResult', ['status_code', 'content'])
+        result = MockResult(*mocks[lookup])
+        return result
+
+
+def get_client(*args):
+    """
+    Use this to get the right client and communicate with Bango.
+    """
+    if settings.BOKU_MOCK:
+        return MockClient(*args)
+    return BokuClient(*args)

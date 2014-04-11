@@ -2,7 +2,7 @@ import uuid
 
 from django.core.urlresolvers import reverse
 
-from lib.sellers.models import Seller, SellerProduct
+from lib.sellers.models import Seller, SellerBoku, SellerProduct
 from lib.transactions.constants import PROVIDER_BOKU
 from lib.transactions.models import Transaction
 from solitude.base import APITest
@@ -40,10 +40,15 @@ class EventTest(SellerBokuTest):
                                                 provider=PROVIDER_BOKU,
                                                 seller_product=self.product)
 
+    def add_seller_boku(self):
+        self.seller_boku = SellerBoku.objects.create(seller=self.seller,
+                                                     merchant_id='123',
+                                                     service_id='456')
+
     def sample(self):
         return {
             'action': 'billingresult',
-            'amount': '0.99',
+            'amount': '1.00',
             'currency': 'MXN',
             'param': 'some:uuid',
             'sig': 'some:sig',
