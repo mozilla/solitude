@@ -10,3 +10,7 @@ CURRENCIES = {
 DECIMAL_PLACES = {
     'MXN': 100,
 }
+
+COUNTRY_CHOICES = (
+    ('MX', 'MX'),
+)

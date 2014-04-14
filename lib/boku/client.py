@@ -155,29 +155,46 @@ class BokuClient(object):
 
         return [pricing.attrib for pricing in tree.findall('pricing')]
 
-    def start_transaction(self, service_id, consumer_id,
-                          price_row, external_id):
+    def get_price_rows(self, country, currency=None):
+        """
+        Given a country and optionally a currency, retrieve a dictionary
+        which maps a price to its associated price row number suitable for
+        starting a transaction.
+        """
+        pricing = self.get_pricing(country, currency=currency)
+        price_rows = {}
+
+        for row_num, price_row in enumerate(pricing):
+            decimal_places = int(price_row['currency-decimal-places'])
+            price_amount = int(price_row['price-inc-salestax'])
+            price_decimal = Decimal(price_amount) / (10**decimal_places)
+            price_rows[price_decimal] = row_num + 1
+        return price_rows
+
+    def start_transaction(self, callback_url, consumer_id,
+                          external_id, price_row, service_id):
         """
         Begin a transaction with Boku.
 
         Parameters:
 
-            service_id - <str> The Boku ID for the service being sold
-            consumer_id - <str> A unique identifier for the purchaser
+            callback_url - <str> A url to POST the transaction results to.
+            consumer_id - <str> A unique identifier for the purchaser.
+            external_id - <str> A unique identifier for the transaction.
             price_row - <int> The price row for a given amount
-                              can be found in get_pricing()
-            external_id - <str> A unique identifier for the transaction
+                              can be found in get_pricing().
+            service_id - <str> The Boku ID for the service being sold.
         """
         tree = self.api_call('/billing/request', {
             'action': 'prepare',
-            'param': external_id,
+            'callback-url': callback_url,
             'consumer-id': consumer_id,
+            'param': external_id,
             'row-ref': price_row,
             'service-id': service_id,
         })
 
         return {
-            'button_markup': tree.find('button-markup').text,
             'buy_url': tree.find('buy-url').text,
             'transaction_id': tree.find('trx-id').text,
         }
@@ -198,6 +215,8 @@ class BokuClient(object):
 
 
 mocks = {
+    'price': (200, sample_xml.pricing_request),
+    'prepare': (200, sample_xml.prepare_request),
     'verify-trx-id': (200, sample_xml.transaction_request),
 }
 

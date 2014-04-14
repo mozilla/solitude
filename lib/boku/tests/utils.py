@@ -2,6 +2,9 @@ import uuid
 
 from django.core.urlresolvers import reverse
 
+import test_utils
+
+from lib.boku import constants
 from lib.sellers.models import Seller, SellerBoku, SellerProduct
 from lib.transactions.constants import PROVIDER_BOKU
 from lib.transactions.models import Transaction
@@ -53,4 +56,28 @@ class EventTest(SellerBokuTest):
             'param': 'some:uuid',
             'sig': 'some:sig',
             'trx-id': 'some:trxid'
+        }
+
+
+class BokuTransactionTest(test_utils.TestCase):
+
+    def setUp(self):
+        self.transaction_uuid = str(uuid.uuid4())
+        self.seller_uuid = str(uuid.uuid4())
+        self.user_uuid = str(uuid.uuid4())
+
+        self.seller = Seller.objects.create(uuid=self.seller_uuid)
+        self.seller_boku = SellerBoku.objects.create(
+            seller=self.seller,
+            merchant_id='merchant_id',
+            service_id='service_id'
+        )
+
+        self.post_data = {
+            'callback_url': 'http://testing.com/callback/',
+            'country': constants.COUNTRY_CHOICES[0][0],
+            'transaction_uuid': self.transaction_uuid,
+            'price': '15.00',
+            'seller_uuid': self.seller_uuid,
+            'user_uuid': self.user_uuid,
         }

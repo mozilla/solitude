@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 
 from nose.tools import eq_, ok_
 
-from lib.boku.tests.utils import SellerBokuTest
+from lib.boku.tests.utils import BokuTransactionTest, SellerBokuTest
 from lib.sellers.models import Seller, SellerBoku
 
 
@@ -89,3 +89,25 @@ class TestSellerBokuViews(SellerBokuTest):
             reverse('boku:sellerboku-detail', kwargs={'pk': seller_boku.pk})
         )
         eq_(response.status_code, 403, response.content)
+
+
+class TestBokuTransactionView(BokuTransactionTest):
+
+    def setUp(self):
+        super(TestBokuTransactionView, self).setUp()
+        self.url = reverse('boku:start_transaction')
+
+    def test_valid_data_starts_transaction(self):
+        response = self.client.post(self.url, data=self.post_data)
+        eq_(response.status_code, 200, response.content)
+
+        transaction_data = json.loads(response.content)
+        ok_('transaction_id' in transaction_data)
+
+    def test_invalid_data_returns_form_errors(self):
+        self.post_data['callback_url'] = 'foo'
+        response = self.client.post(self.url, data=self.post_data)
+        eq_(response.status_code, 400, response.content)
+
+        transaction_data = json.loads(response.content)
+        eq_(transaction_data['callback_url'], ['Enter a valid URL.'])
