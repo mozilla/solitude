@@ -15,11 +15,11 @@ class TestFixPrice(TestCase):
         eq_(fix_price(Decimal('100'), 'MXN'), Decimal('1.00'))
 
     @raises(KeyError)
-    def test_other(self):
+    def test_bad_currency_name_raises_keyerror(self):
         eq_(fix_price(Decimal('100'), 'FOO'))
 
     @raises(AssertionError)
-    def test_other(self):
+    def test_decimal_required_for_value(self):
         eq_(fix_price(100.0, 'MXN'))
 
 

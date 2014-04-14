@@ -151,24 +151,27 @@ class BokuClientTests(test_utils.TestCase):
         consumer_id = 'consumer'
         price_row = 1
         external_id = 'external id'
+        callback_url = 'http://test/'
 
         with mock.patch('lib.boku.client.BokuClient.api_call') as MockClient:
             try:
                 self.client.start_transaction(
-                    service_id,
-                    consumer_id,
-                    price_row,
-                    external_id=external_id
+                    callback_url=callback_url,
+                    consumer_id=consumer_id,
+                    external_id=external_id,
+                    price_row=price_row,
+                    service_id=service_id,
                 )
             except BokuException:
                 pass
 
             MockClient.assert_called_with('/billing/request', {
                 'action': 'prepare',
-                'consumer-id': 'consumer',
-                'row-ref': 1,
-                'param': 'external id',
-                'service-id': 'service id',
+                'callback-url': callback_url,
+                'consumer-id': consumer_id,
+                'param': external_id,
+                'row-ref': price_row,
+                'service-id': service_id,
             })
 
     def test_client_start_transaction_returns_start_transaction_json(self):
@@ -176,6 +179,7 @@ class BokuClientTests(test_utils.TestCase):
         consumer_id = 'consumer'
         price_row = 1
         external_id = 'external id'
+        callback_url = 'http://test/'
         transaction_id = 'abc123'
 
         response = mock.Mock()
@@ -186,16 +190,16 @@ class BokuClientTests(test_utils.TestCase):
         self.mock_get.return_value = response
 
         transaction = self.client.start_transaction(
-            service_id,
-            consumer_id,
-            price_row,
-            external_id=external_id
+            callback_url=callback_url,
+            consumer_id=consumer_id,
+            external_id=external_id,
+            price_row=price_row,
+            service_id=service_id,
         )
         eq_(
             transaction, {
                 'buy_url': 'http://example_buy_url/',
                 'transaction_id': transaction_id,
-                'button_markup': 'example_markup',
             }
         )
 

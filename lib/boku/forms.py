@@ -4,6 +4,14 @@ from lib.boku.constants import CURRENCIES
 from lib.transactions.constants import (PROVIDER_BOKU, STATUS_COMPLETED)
 from lib.transactions.models import Transaction
 
+from django.conf import settings
+from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
+
+from lib.boku import constants
+from lib.boku.client import get_client
+from lib.boku.errors import BokuException
+from lib.sellers.models import Seller
 from solitude.logger import getLogger
 
 log = getLogger('s.boku')
@@ -58,3 +66,72 @@ class EventForm(BokuForm):
             raise forms.ValidationError('Transaction completed: %s' % uuid)
 
         return trans
+
+
+class BokuTransactionForm(forms.Form):
+    callback_url = forms.URLField()
+    country = forms.ChoiceField(choices=constants.COUNTRY_CHOICES)
+    transaction_uuid = forms.CharField()
+    price = forms.DecimalField()
+    seller_uuid = forms.ModelChoiceField(
+        queryset=Seller.objects.filter(boku__isnull=False),
+        to_field_name='uuid'
+    )
+    user_uuid = forms.CharField()
+
+    ERROR_BAD_PRICE = _(
+        'This price was not found in the available price tiers.'
+    )
+    ERROR_BOKU_API = _('There was an error communicating with Boku.')
+
+    @cached_property
+    def boku_client(self):
+        return get_client(
+            self.cleaned_data['seller_uuid'].boku.merchant_id,
+            settings.BOKU_SECRET_KEY
+        )
+
+    def clean(self):
+        cleaned_data = super(BokuTransactionForm, self).clean()
+
+        if not ('country' in cleaned_data and
+                'seller_uuid' in cleaned_data and
+                'price' in cleaned_data):
+            # Not all fields have validated correctly
+            # and we can not validate the price.
+            return cleaned_data
+
+        # Retrieve the available price tiers for the selected country.
+        try:
+            price_rows = self.boku_client.get_price_rows(
+                cleaned_data['country']
+            )
+        except BokuException, e:
+            log.debug('Boku API error: {error}'.format(error=e.message))
+            raise forms.ValidationError(
+                self.ERROR_BOKU_API.format(message=e.message)
+            )
+
+        if cleaned_data['price'] not in price_rows:
+            raise forms.ValidationError(self.ERROR_BAD_PRICE)
+
+        # Store the retrieved price row in cleaned_data.
+        cleaned_data['price_row'] = price_rows[cleaned_data['price']]
+
+        return cleaned_data
+
+    def start_transaction(self):
+        if not (hasattr(self, 'cleaned_data') or
+                not 'seller_uuid' in self.cleaned_data):
+            raise Exception(
+                'The form must pass validation'
+                'before a transaction can be started.'
+            )
+
+        return self.boku_client.start_transaction(
+            callback_url=self.cleaned_data['callback_url'],
+            external_id=self.cleaned_data['transaction_uuid'],
+            consumer_id=self.cleaned_data['user_uuid'],
+            price_row=self.cleaned_data['price_row'],
+            service_id=self.cleaned_data['seller_uuid'].boku.service_id,
+        )
