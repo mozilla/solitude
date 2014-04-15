@@ -23,7 +23,7 @@ class SellerBokuViewSet(viewsets.ModelViewSet):
 class BokuTransactionView(BaseAPIView):
 
     def post(self, request):
-        form = BokuTransactionForm(request.POST)
+        form = BokuTransactionForm(request.DATA)
 
         if form.is_valid():
             transaction = form.start_transaction()
