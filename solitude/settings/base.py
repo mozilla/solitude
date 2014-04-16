@@ -347,3 +347,4 @@ BANGO_BILLING_CONFIG_V2 = False
 # Boku Settings
 BOKU_API_DOMAIN = 'https://api2.boku.com'
 BOKU_SECRET_KEY = ''
+BOKU_MERCHANT_ID = ''

@@ -1,7 +1,6 @@
 from decimal import Decimal
 
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 
 from lib.boku.constants import DECIMAL_PLACES
 from lib.boku.client import get_client
@@ -30,15 +29,7 @@ def verify(transaction, amount, currency):
         log.error(msg)
         raise VerificationError(msg)
 
-    try:
-        seller_boku = transaction.seller_product.seller.boku
-    except ObjectDoesNotExist:
-        error('did not have a seller_boku row')
-
-    if not seller_boku.merchant_id:
-        error('did not have a merchant id')
-
-    client = get_client(seller_boku.merchant_id, settings.BOKU_SECRET_KEY)
+    client = get_client(settings.BOKU_MERCHANT_ID, settings.BOKU_SECRET_KEY)
     res = client.check_transaction(transaction.uid_support)
 
     try:

@@ -24,11 +24,9 @@ class SellerBokuTest(APITest):
                 'pk': self.seller.pk,
             }
         )
-        self.example_merchant_id = '12345'
         self.example_service_id = '67890'
         self.seller_data = {
             'seller': self.seller_uri,
-            'merchant_id': self.example_merchant_id,
             'service_id': self.example_service_id,
         }
 
@@ -45,7 +43,6 @@ class EventTest(SellerBokuTest):
 
     def add_seller_boku(self):
         self.seller_boku = SellerBoku.objects.create(seller=self.seller,
-                                                     merchant_id='123',
                                                      service_id='456')
 
     def sample(self):
@@ -69,7 +66,6 @@ class BokuTransactionTest(test_utils.TestCase):
         self.seller = Seller.objects.create(uuid=self.seller_uuid)
         self.seller_boku = SellerBoku.objects.create(
             seller=self.seller,
-            merchant_id='merchant_id',
             service_id='service_id'
         )
 

@@ -14,7 +14,6 @@ parser.add_option('--url', default='http://localhost:8001',
 call = functools.partial(lib.call, options.url)
 
 seller_uuid = str(uuid.uuid4())
-merchant_id = '12345'
 service_id = '12345'
 
 print 'Creating seller for:', seller_uuid
@@ -28,7 +27,6 @@ res = call('/boku/seller/', 'get', {})
 print 'Creating boku seller for:', seller_uri
 seller = {
     'seller': seller_uri,
-    'merchant_id': merchant_id,
     'service_id': service_id,
 }
 res = call('/boku/seller/', 'post', seller)
@@ -37,14 +35,11 @@ boku_seller_id = res['id']
 print 'Retrieving the created boku seller'
 boku_seller_url = '/boku/seller/{0}/'
 res = call(boku_seller_url.format(boku_seller_id), 'get', {})
-assert res['merchant_id'] == merchant_id
 assert res['service_id'] == service_id
 assert res['resource_uri'] == boku_seller_url.format(boku_seller_id)
 
 print 'Updating the created seller.'
-seller['merchant_id'] = '54321'
 res = call('/boku/seller/{0}/'.format(boku_seller_id), 'put', seller)
-assert res['merchant_id'] == '54321'
 
 product_uuid = options.product_uuid or str(uuid.uuid4())
 external_id = options.product_external_id or str(uuid.uuid4())

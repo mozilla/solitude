@@ -38,7 +38,3 @@ class TestVerify(EventTest):
     def test_wrong_currency(self):
         self.add_seller_boku()
         ok_(verify(self.trans, Decimal('1.01'), 'FOO'))
-
-    @raises(VerificationError)
-    def test_no_boku(self):
-        ok_(verify(self.trans, Decimal('1.00'), 'MXN'))
