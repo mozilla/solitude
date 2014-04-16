@@ -20,4 +20,4 @@ class SellerBokuSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SellerBoku
-        fields = ('id', 'seller', 'merchant_id', 'service_id', 'resource_uri')
+        fields = ('id', 'seller', 'service_id', 'resource_uri')

@@ -87,7 +87,7 @@ class BokuTransactionForm(forms.Form):
     @cached_property
     def boku_client(self):
         return get_client(
-            self.cleaned_data['seller_uuid'].boku.merchant_id,
+            settings.BOKU_MERCHANT_ID,
             settings.BOKU_SECRET_KEY
         )
 
