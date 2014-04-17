@@ -77,3 +77,9 @@ class BokuTransactionTest(test_utils.TestCase):
             'seller_uuid': self.seller_uuid,
             'user_uuid': self.user_uuid,
         }
+
+
+class BokuVerifyServiceTest(test_utils.TestCase):
+
+    def setUp(self):
+        self.post_data = {'service_id': 'abc'}

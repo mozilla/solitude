@@ -3,9 +3,11 @@ import uuid
 
 from django.core.urlresolvers import reverse
 
+import mock
 from nose.tools import eq_, ok_
 
-from lib.boku.tests.utils import BokuTransactionTest, SellerBokuTest
+from lib.boku.tests.utils import (BokuTransactionTest, BokuVerifyServiceTest,
+                                  SellerBokuTest)
 from lib.sellers.models import Seller, SellerBoku
 
 
@@ -105,3 +107,22 @@ class TestBokuTransactionView(BokuTransactionTest):
 
         transaction_data = json.loads(response.content)
         eq_(transaction_data['callback_url'], ['Enter a valid URL.'])
+
+
+class TestBokuVerifyServiceView(BokuVerifyServiceTest):
+
+    def setUp(self):
+        super(TestBokuVerifyServiceView, self).setUp()
+        self.url = reverse('boku:verify_service')
+
+    def test_valid_service_id_returns_204(self):
+        response = self.client.post(self.url, data=self.post_data)
+        eq_(response.status_code, 204, response.content)
+
+    def test_invalid_service_id_returns_400(self):
+        with mock.patch(
+            'lib.boku.client.mocks',
+            {'service-prices': (500, '')}
+        ):
+            response = self.client.post(self.url, data=self.post_data)
+            eq_(response.status_code, 400, response.content)

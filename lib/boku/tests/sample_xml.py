@@ -61,3 +61,42 @@ transaction_request = \
       <amount>100</amount>
       <paid>100</paid>
     </billing-request>"""
+
+
+service_prices_request = \
+    """<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+    <service-prices>
+        <action>service-prices</action>
+        <result-code>0</result-code>
+        <result-msg>Operation Successful</result-msg>
+        <service
+          id='{service_id}'
+          name='Test App'
+          reference-currency='USD'
+          price-mode='price'
+        >
+            <key-value row-ref='0' key='99'>
+                <pricing
+                  country='MX'
+                  amount='1500'
+                  currency='MXN'
+                  currency-symbol='$'
+                  currency-symbol-orientation='l'
+                  currency-decimal-places='2'
+                  price-inc-salestax='1500'
+                  price-ex-salestax='1293'
+                  receivable-gross='465'
+                  receivable-net='419'
+                  exchange='13.05583'
+                  reference-amount='115'
+                  reference-price-inc-salestax='115'
+                  reference-price-ex-salestax='99'
+                  reference-receivable-gross='36'
+                  reference-receivable-net='32'
+                  number-billed-messages='1'
+                  status='1'
+                  display-price='$15.00'
+                />
+            </key-value>
+        </service>
+    </service-prices>"""
