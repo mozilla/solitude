@@ -3,8 +3,10 @@ from nose.tools import assert_raises, eq_, ok_
 from test_utils import TestCase
 
 from lib.boku.errors import BokuException
-from lib.boku.forms import BokuForm, BokuTransactionForm, EventForm
-from lib.boku.tests.utils import BokuTransactionTest, EventTest
+from lib.boku.forms import (BokuForm, BokuServiceForm,
+                            BokuTransactionForm, EventForm)
+from lib.boku.tests.utils import (BokuTransactionTest, BokuVerifyServiceTest,
+                                  EventTest)
 from lib.transactions.constants import PROVIDER_BANGO, STATUS_COMPLETED
 
 
@@ -100,3 +102,18 @@ class BokuTransactionFormTests(BokuTransactionTest):
         transaction = form.start_transaction()
         ok_('transaction_id' in transaction, transaction)
         ok_('buy_url' in transaction, transaction)
+
+
+class BokuServiceFormTests(BokuVerifyServiceTest):
+
+    def test_valid_service_id_passes_validation(self):
+        form = BokuServiceForm(self.post_data)
+        ok_(form.is_valid(), form.errors)
+
+    def test_invalid_service_id_fails_validation(self):
+        with mock.patch(
+            'lib.boku.client.mocks',
+            {'service-prices': (500, '')}
+        ):
+            form = BokuServiceForm(self.post_data)
+            ok_(not form.is_valid(), form.errors)

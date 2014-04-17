@@ -8,6 +8,7 @@ from itertools import chain
 from urlparse import parse_qs, urlparse
 
 from django.conf import settings
+from django.utils.functional import cached_property
 
 import lxml
 import requests
@@ -171,6 +172,35 @@ class BokuClient(object):
             price_rows[price_decimal] = row_num + 1
         return price_rows
 
+    def get_service_pricing(self, service_id):
+        """
+        Given a service id, retrieve a list of all of its
+        available price tiers and their currencies.
+
+        See Boku Technical documentation for more detail:
+
+        Static  Matrix  Price Request ('service-prices')  API Call
+        https://merchants.boku.com/white_label/
+            boku/doclibrary/Boku_Technical_Reference.pdf
+        """
+        params = {
+            'action': 'service-prices',
+            'service-id': service_id,
+        }
+
+        tree = self.api_call('/billing/request', params)
+
+        services = []
+        for service_pricing in tree.findall('service'):
+            service = dict(service_pricing.attrib)
+            service['prices'] = [
+                dict(pricing.attrib) for pricing
+                in service_pricing.findall('*/pricing')
+            ]
+            services.append(service)
+
+        return services
+
     def start_transaction(self, callback_url, consumer_id,
                           external_id, price_row, service_id):
         """
@@ -217,6 +247,7 @@ class BokuClient(object):
 mocks = {
     'price': (200, sample_xml.pricing_request),
     'prepare': (200, sample_xml.prepare_request),
+    'service-prices': (200, sample_xml.service_prices_request),
     'verify-trx-id': (200, sample_xml.transaction_request),
 }
 
@@ -241,3 +272,13 @@ def get_client(*args):
     if settings.BOKU_MOCK:
         return MockClient(*args)
     return BokuClient(*args)
+
+
+class BokuClientMixin(object):
+
+    @cached_property
+    def boku_client(self):
+        return get_client(
+            settings.BOKU_MERCHANT_ID,
+            settings.BOKU_SECRET_KEY
+        )

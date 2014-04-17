@@ -4,12 +4,10 @@ from lib.boku.constants import CURRENCIES
 from lib.transactions.constants import (PROVIDER_BOKU, STATUS_COMPLETED)
 from lib.transactions.models import Transaction
 
-from django.conf import settings
-from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from lib.boku import constants
-from lib.boku.client import get_client
+from lib.boku.client import BokuClientMixin
 from lib.boku.errors import BokuException
 from lib.sellers.models import Seller
 from solitude.logger import getLogger
@@ -68,7 +66,7 @@ class EventForm(BokuForm):
         return trans
 
 
-class BokuTransactionForm(forms.Form):
+class BokuTransactionForm(BokuClientMixin, forms.Form):
     callback_url = forms.URLField()
     country = forms.ChoiceField(choices=constants.COUNTRY_CHOICES)
     transaction_uuid = forms.CharField()
@@ -83,13 +81,6 @@ class BokuTransactionForm(forms.Form):
         'This price was not found in the available price tiers.'
     )
     ERROR_BOKU_API = _('There was an error communicating with Boku.')
-
-    @cached_property
-    def boku_client(self):
-        return get_client(
-            settings.BOKU_MERCHANT_ID,
-            settings.BOKU_SECRET_KEY
-        )
 
     def clean(self):
         cleaned_data = super(BokuTransactionForm, self).clean()
@@ -121,8 +112,7 @@ class BokuTransactionForm(forms.Form):
         return cleaned_data
 
     def start_transaction(self):
-        if not (hasattr(self, 'cleaned_data') or
-                not 'seller_uuid' in self.cleaned_data):
+        if not hasattr(self, 'cleaned_data'):
             raise Exception(
                 'The form must pass validation'
                 'before a transaction can be started.'
@@ -135,3 +125,22 @@ class BokuTransactionForm(forms.Form):
             price_row=self.cleaned_data['price_row'],
             service_id=self.cleaned_data['seller_uuid'].boku.service_id,
         )
+
+
+class BokuServiceForm(BokuClientMixin, forms.Form):
+    service_id = forms.CharField()
+
+    def clean_service_id(self):
+        service_id = self.cleaned_data['service_id']
+        try:
+            self.boku_client.get_service_pricing(service_id=service_id)
+        except BokuException, e:
+            raise forms.ValidationError(
+                'Failed to verify Boku Service ID: '
+                '{service_id} {error}'.format(
+                    service_id=service_id,
+                    error=e.message
+                )
+            )
+
+        return service_id
