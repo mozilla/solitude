@@ -104,6 +104,11 @@ class BokuTransactionForm(BokuClientMixin, forms.Form):
             )
 
         if cleaned_data['price'] not in price_rows:
+            log.debug('Posted price {price} was not a valid Boku row '
+                      'for country {country}. Choices: {rows}'
+                      .format(price=cleaned_data['price'],
+                              rows=price_rows,
+                              country=cleaned_data['country']))
             raise forms.ValidationError(self.ERROR_BAD_PRICE)
 
         # Store the retrieved price row in cleaned_data.
