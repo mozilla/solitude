@@ -38,18 +38,22 @@ Start a transaction with Boku.
 
     **Request**
 
-    callback_url - A URL which Boku will invoke when the transaction has been processed.
-    country - The country code of the purchaser.
-    transaction_uuid - A unique identifier to track the transaction.
-    price - The purchase price in Decimal format (2 decimal places).
-            It must match one of the existing price tiers in Boku.
-    seller_uuid - The UUID of the seller as it is stored in Solitude.
-    user_uuid - A unique identifier for the purchaser.
+    :param callback_url: A URL that Boku notifies when the transaction is
+                         complete.
+    :param forward_url: A URL that Boku redirects the client to
+                        after successful/failed payment.
+    :param country: The country code of the purchaser.
+    :param transaction_uuid: A unique identifier to track the transaction.
+    :param price: The purchase price in Decimal format (2 decimal places).
+                  It must match one of the existing price points in Boku.
+    :param seller_uuid: The UUID of the seller as it is stored in Solitude.
+    :param user_uuid: A unique identifier for the purchaser.
 
     .. code-block:: json
 
         {
-            "callback_url": "http://example.com/callback/",
+            "callback_url": "http://webpay.com/boku/pay/notification",
+            "forward_url": "http://webpay.com/boku/pay/finished",
             "country": "CA",
             "transaction_uuid": "<transaction uuid>",
             "price": "15.00",
