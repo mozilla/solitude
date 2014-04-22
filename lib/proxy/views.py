@@ -1,3 +1,4 @@
+import urllib
 import urlparse
 
 from django import http
@@ -12,7 +13,7 @@ from lxml import etree
 from slumber import url_join
 
 from lib.bango.constants import HEADERS_SERVICE_GET, HEADERS_WHITELIST_INVERTED
-
+from lib.boku.client import get_boku_request_signature
 from lib.paypal.client import get_client as paypal_client
 from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
 from lib.paypal.map import urls
@@ -21,6 +22,10 @@ from solitude.logger import getLogger
 
 log = getLogger('s.proxy')
 bango_timeout = getattr(settings, 'BANGO_TIMEOUT', 10)
+
+
+def qs_join(**kwargs):
+    return '{url}?{query}'.format(**kwargs)
 
 
 class Proxy(object):
@@ -112,7 +117,7 @@ class PaypalProxy(Proxy):
 
         client = paypal_client()
         self.headers = client.headers(self.url, auth_token=token)
-        # Paypal requirs POST on its methods.
+        # PayPal requires POST on its methods.
         self.method = 'post'
 
 
@@ -177,11 +182,12 @@ class ProviderProxy(Proxy):
         self.reference_name = reference_name
         super(ProviderProxy, self).__init__()
 
-    def pre(self, request):
-        config = settings.ZIPPY_CONFIGURATION.get(self.reference_name)
-        if not config:
+        self.config = settings.ZIPPY_CONFIGURATION.get(self.reference_name)
+        if not self.config:
             raise ImproperlyConfigured('No config: %s' % self.reference_name)
 
+
+    def pre(self, request):
         # Headers we want from the proxying request.
         self.headers = {
             'Content-Type': request.META.get('CONTENT_TYPE'),
@@ -194,20 +200,44 @@ class ProviderProxy(Proxy):
         root = len(reverse('provider.proxy',
                    kwargs={'reference_name':self.reference_name}))
 
-        self.url = url_join(config['url'], request.META['PATH_INFO'][root:])
+        self.url = url_join(self.config['url'],
+                            request.META['PATH_INFO'][root:])
         # Add in the query string.
         query = request.META.get('QUERY_STRING')
         if query:
-            self.url = '%s?%s' % (self.url, query)
+            self.url = qs_join(url=self.url, query=query)
         # Before we do the request, use curling to sign the request headers.
         log.info('%s: %s' % (self.method.upper(), self.url))
-        sign_request(None, config['auth'], headers=self.headers,
+        self.sign(request)
+
+    def sign(self, request):
+        sign_request(None, self.config['auth'], headers=self.headers,
                      method=self.method.upper(),
                      params={'oauth_token': 'not-implemented'},
                      url=self.url)
 
 
+class BokuProxy(ProviderProxy):
+    name = 'boku'
+
+    def sign(self, request):
+        qs = request.META.get('QUERY_STRING')
+        # The API request will come in with an invalid signature, lets
+        # strip that out before resigning.
+        qs = dict((k, v[0]) for k, v in urlparse.parse_qs(qs).items())
+        del qs['sig']
+        # Sign the request.
+        qs['sig'] = get_boku_request_signature(self.config['auth']['secret'],
+                                               qs)
+
+        # Now put the URL back together, along with the query string.
+        self.url = qs_join(url=self.url.split('?')[0],
+                           query=urllib.urlencode(qs))
+
+
 def provider(request, reference_name):
+    if reference_name == 'boku':
+        return BokuProxy(reference_name)(request)
     return ProviderProxy(reference_name)(request)
 
 

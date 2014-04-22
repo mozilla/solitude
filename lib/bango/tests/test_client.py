@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import mock
 
-from django.test import RequestFactory
-
 from nose.tools import eq_
 import test_utils
 

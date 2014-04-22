@@ -5,7 +5,7 @@ import urllib
 from collections import namedtuple
 from decimal import Decimal
 from itertools import chain
-from urlparse import parse_qs, urlparse
+from urlparse import parse_qs, urlparse, urlunparse
 
 from django.conf import settings
 from django.utils.functional import cached_property
@@ -265,12 +265,27 @@ class MockClient(BokuClient):
         return result
 
 
+class ProxyClient(BokuClient):
+
+    def _get(self, url):
+        # Strip the boku part out of the URL and insert the proxy instead.
+        url = urlunparse(('', '') + urlparse(url)[2:])
+        proxy = '{base}/boku{url}'.format(base=settings.BOKU_PROXY, url=url)
+
+        # Now continue as normal, call the proxy.
+        log.info('Boku proxy client call: {url}'.format(url=proxy))
+        with statsd.timer('solitude.boku.api'):
+            return requests.get(proxy)
+
+
 def get_client(*args):
     """
     Use this to get the right client and communicate with Bango.
     """
     if settings.BOKU_MOCK:
         return MockClient(*args)
+    if settings.BOKU_PROXY:
+        return ProxyClient(*args)
     return BokuClient(*args)
 
 

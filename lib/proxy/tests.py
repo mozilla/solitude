@@ -1,11 +1,13 @@
+from urlparse import urlparse, parse_qs
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 
 import mock
-from nose.tools import eq_
 import requests
 import test_utils
+from nose.tools import eq_
 
 from lib.bango.constants import HEADERS_SERVICE_GET
 from lib.bango.tests import samples
@@ -79,7 +81,6 @@ class TestBango(Proxy):
             self.client.post(self.url, samples.sample_request,
                              **{'content_type': 'text/xml'})
 
-
     def test_header(self):
         self.client.post(self.url,
                          samples.sample_request,
@@ -117,6 +118,17 @@ class TestBango(Proxy):
 
 
 @mock.patch.object(settings, 'SOLITUDE_PROXY', True)
+class TestBoku(Proxy):
+
+    def setUp(self):
+        super(TestBoku, self).setUp()
+        self.url = reverse('boku.proxy')
+
+    def test_not_implemented(self):
+        self.client.post(self.url, {})
+
+
+@mock.patch.object(settings, 'SOLITUDE_PROXY', True)
 @mock.patch.object(settings, 'ZIPPY_CONFIGURATION', {'f':
     {'url': 'http://f.c', 'auth': {'key': 'k', 'secret': 's'}}})
 class TestProvider(Proxy):
@@ -149,3 +161,20 @@ class TestProvider(Proxy):
     def test_get(self):
         self.client.get(self.url, data={'baz': 'quux'})
         assert '?baz=quux' in self.req.get.call_args[0][0]
+
+
+@mock.patch.object(settings, 'SOLITUDE_PROXY', True)
+@mock.patch.object(settings, 'ZIPPY_CONFIGURATION',
+    {'boku': {'url': 'http://f.c', 'auth': {'secret': 's'}}})
+class TestBoku(Proxy):
+
+    def setUp(self):
+        super(TestBoku, self).setUp()
+        self.url = reverse('provider.proxy', kwargs={'reference_name': 'boku'})
+        self.url = self.url + '/billing/request?f=b&sig=foo'
+
+    def test_call(self):
+        self.client.get(self.url)
+
+        sig = parse_qs(urlparse(self.req.get.call_args[0][0]).query)['sig']
+        assert sig != 'foo', 'Signature not changed'
