@@ -1,5 +1,5 @@
 # What needs to be installed on stackato is a subset of prod.txt
-Django==1.5.4
+Django==1.5.6
 PyJWT-mozilla==0.1.4.2
 amqplib==1.0.2
 anyjson==0.3.3
