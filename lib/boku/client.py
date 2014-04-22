@@ -270,7 +270,7 @@ class ProxyClient(BokuClient):
     def _get(self, url):
         # Strip the boku part out of the URL and insert the proxy instead.
         url = urlunparse(('', '') + urlparse(url)[2:])
-        proxy = '{base}/boku{url}'.format(base=settings.BOKU_PROXY, url=url)
+        proxy = '{base}boku{url}'.format(base=settings.BOKU_PROXY, url=url)
 
         # Now continue as normal, call the proxy.
         log.info('Boku proxy client call: {url}'.format(url=proxy))
