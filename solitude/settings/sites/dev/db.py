@@ -65,5 +65,10 @@ ZIPPY_PROXY = 'https://payments-proxy-dev.allizom.org/proxy/provider'
 ZIPPY_CONFIGURATION = {
     'reference': {
         'url': 'https://zippy.paas.allizom.org'
+    },
+    'boku': {
+        'url': base.BOKU_API_DOMAIN
     }
 }
+
+BOKU_PROXY = ZIPPY_PROXY
