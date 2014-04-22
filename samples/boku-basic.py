@@ -48,7 +48,8 @@ user_uuid = str(uuid.uuid4())
 
 print 'Starting a transaction'
 transaction = {
-    'callback_url': 'http://testing.com/callback/',
+    'callback_url': 'http://testing.com/notification',
+    'forward_url': 'http://testing.com/result',
     'country': 'MX',
     'transaction_uuid': transaction_uuid,
     'price': '15.00',

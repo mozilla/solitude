@@ -54,6 +54,12 @@ class BokuTransactionFormTests(BokuTransactionTest):
         ok_(not form.is_valid(), form.errors)
         ok_('callback_url' in form.errors, form.errors)
 
+    def test_forward_url_requires_a_valid_url(self):
+        self.post_data['forward_url'] = 'not-a-url'
+        form = BokuTransactionForm(self.post_data)
+        ok_(not form.is_valid(), form.errors)
+        ok_('forward_url' in form.errors, form.errors)
+
     def test_country_requires_a_defined_country_code(self):
         self.post_data['country'] = 'foo'
         form = BokuTransactionForm(self.post_data)

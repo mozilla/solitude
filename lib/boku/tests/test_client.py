@@ -21,6 +21,18 @@ class BokuClientTests(test_utils.TestCase):
         self.mock_get = self.patched_get.start()
         self.addCleanup(self.patched_get.stop)
 
+    def start_transaction(self, service_id='service id',
+                          consumer_id='consumer', price_row=1,
+                          external_id='external id',
+                          callback_url='http://test/',
+                          forward_url='http://test/success'):
+        return self.client.start_transaction(service_id=service_id,
+                                             consumer_id=consumer_id,
+                                             price_row=price_row,
+                                             external_id=external_id,
+                                             callback_url=callback_url,
+                                             forward_url=forward_url)
+
     def test_client_uses_signed_request(self):
         params = {
             'merchant-id': self.merchant_id,
@@ -154,11 +166,13 @@ class BokuClientTests(test_utils.TestCase):
         price_row = 1
         external_id = 'external id'
         callback_url = 'http://test/'
+        forward_url = 'http://test/success'
 
         with mock.patch('lib.boku.client.BokuClient.api_call') as MockClient:
             try:
-                self.client.start_transaction(
+                self.start_transaction(
                     callback_url=callback_url,
+                    forward_url=forward_url,
                     consumer_id=consumer_id,
                     external_id=external_id,
                     price_row=price_row,
@@ -170,6 +184,7 @@ class BokuClientTests(test_utils.TestCase):
             MockClient.assert_called_with('/billing/request', {
                 'action': 'prepare',
                 'callback-url': callback_url,
+                'fwdurl': forward_url,
                 'consumer-id': consumer_id,
                 'param': external_id,
                 'row-ref': price_row,
@@ -177,13 +192,7 @@ class BokuClientTests(test_utils.TestCase):
             })
 
     def test_client_start_transaction_returns_start_transaction_json(self):
-        service_id = 'service id'
-        consumer_id = 'consumer'
-        price_row = 1
-        external_id = 'external id'
-        callback_url = 'http://test/'
         transaction_id = 'abc123'
-
         response = mock.Mock()
         response.status_code = 200
         response.content = sample_xml.prepare_request.format(
@@ -191,13 +200,7 @@ class BokuClientTests(test_utils.TestCase):
         )
         self.mock_get.return_value = response
 
-        transaction = self.client.start_transaction(
-            callback_url=callback_url,
-            consumer_id=consumer_id,
-            external_id=external_id,
-            price_row=price_row,
-            service_id=service_id,
-        )
+        transaction = self.start_transaction()
         eq_(
             transaction, {
                 'buy_url': 'http://example_buy_url/',

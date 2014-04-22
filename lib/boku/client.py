@@ -202,22 +202,27 @@ class BokuClient(object):
         return services
 
     def start_transaction(self, callback_url, consumer_id,
-                          external_id, price_row, service_id):
+                          external_id, price_row, service_id,
+                          forward_url):
         """
         Begin a transaction with Boku.
 
         Parameters:
 
-            callback_url - <str> A url to POST the transaction results to.
-            consumer_id - <str> A unique identifier for the purchaser.
-            external_id - <str> A unique identifier for the transaction.
-            price_row - <int> The price row for a given amount
-                              can be found in get_pricing().
-            service_id - <str> The Boku ID for the service being sold.
+        :param callback_url: A URL that Boku notifies when transaction is
+                             complete.
+        :param forward_url: A url to redirect to after successful/failed
+                            payment.
+        :param consumer_id: A unique string identifier for the purchaser.
+        :param external_id: A unique string identifier for the transaction.
+        :param price_row: The price row (integer) for a given amount
+                          can be found in get_pricing().
+        :param service_id: The Boku ID (integer) for the service being sold.
         """
         tree = self.api_call('/billing/request', {
             'action': 'prepare',
             'callback-url': callback_url,
+            'fwdurl': forward_url,
             'consumer-id': consumer_id,
             'param': external_id,
             'row-ref': price_row,

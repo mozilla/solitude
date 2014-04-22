@@ -70,7 +70,8 @@ class BokuTransactionTest(test_utils.TestCase):
         )
 
         self.post_data = {
-            'callback_url': 'http://testing.com/callback/',
+            'callback_url': 'http://testing.com/pay/notification',
+            'forward_url': 'http://testing.com/pay/success',
             'country': constants.COUNTRY_CHOICES[0][0],
             'transaction_uuid': self.transaction_uuid,
             'price': '15.00',
