@@ -33,7 +33,9 @@ class Event(viewsets.ViewSet, BaseAPIView):
 
         # Verify this against Boku, this will raise errors if there's
         # an issue.
-        verify(transaction, cleaned['amount'], cleaned['currency'])
+        log.info('Verifying notification for Boku transaction id: {0}'
+                 .format(transaction))
+        verify(cleaned['trx_id'], cleaned['amount'], cleaned['currency'])
 
         old_status = transaction.status
         # For the moment assume that all notifications that come in
