@@ -186,7 +186,6 @@ class ProviderProxy(Proxy):
         if not self.config:
             raise ImproperlyConfigured('No config: %s' % self.reference_name)
 
-
     def pre(self, request):
         # Headers we want from the proxying request.
         self.headers = {
@@ -226,6 +225,7 @@ class BokuProxy(ProviderProxy):
         # strip that out before resigning.
         qs = dict((k, v[0]) for k, v in urlparse.parse_qs(qs).items())
         del qs['sig']
+        qs['merchant-id'] = self.config['auth']['key']
         # Sign the request.
         qs['sig'] = get_boku_request_signature(self.config['auth']['secret'],
                                                qs)
