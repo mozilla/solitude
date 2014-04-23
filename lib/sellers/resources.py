@@ -64,3 +64,8 @@ class SellerProductResource(ModelResource):
             'public_id': 'exact',
             'seller': ALL_WITH_RELATIONS,
         }
+
+    def dehydrate(self, bundle):
+        bundle.data['resource_pk'] = bundle.obj.pk
+        bundle.data['seller_uuids'] = bundle.obj.supported_providers()
+        return bundle

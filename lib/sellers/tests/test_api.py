@@ -4,7 +4,9 @@ from nose.tools import eq_
 
 from lib.sellers.constants import (ACCESS_PURCHASE, ACCESS_SIMULATE,
                                    EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE)
-from lib.sellers.models import Seller, SellerProduct, SellerPaypal
+from lib.sellers.models import (Seller, SellerBango, SellerBoku,
+                                SellerPaypal, SellerProduct,
+                                SellerProductBango, SellerProductBoku)
 from solitude.base import APITest
 
 uuid = 'sample:uid'
@@ -150,12 +152,33 @@ class TestSellerProduct(APITest):
         self.seller = Seller.objects.create(uuid=uuid)
         self.seller_url = self.get_detail_url('seller', self.seller.pk)
         self.list_url = self.get_list_url('product')
+        self.public_id = 'public_id'
 
     def create(self, **kw):
         params = {'seller': self.seller, 'external_id': 'xyz',
                   'public_id': uuid}
         params.update(kw)
         return SellerProduct.objects.create(**params)
+
+    def create_bango_product(self, product):
+        seller_bango = SellerBango.objects.create(
+            seller=self.seller,
+            package_id=1,
+            admin_person_id=1,
+            support_person_id=1,
+            finance_person_id=1
+        )
+        return SellerProductBango.objects.create(
+            seller_bango=seller_bango,
+            seller_product=product
+        )
+
+    def create_boku_product(self, product):
+        seller_boku = SellerBoku.objects.create(seller=self.seller)
+        return SellerProductBoku.objects.create(
+            seller_boku=seller_boku,
+            seller_product=product
+        )
 
     def create_url(self):
         obj = self.create(public_id='%s-url' % uuid)
@@ -310,3 +333,30 @@ class TestSellerProduct(APITest):
         eq_(res.status_code, 400)
         eq_(self.get_errors(res.content, '__all__'),
             [EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE], res.content)
+
+    def test_supported_providers_listed(self):
+        product = self.create(public_id=self.public_id)
+        self.create_boku_product(product)
+        self.create_bango_product(product)
+
+        res = self.client.get(
+            self.list_url,
+            data={'public_id': self.public_id}
+        )
+        eq_(res.status_code, 200, res)
+        data = json.loads(res.content)
+        eq_(data['objects'][0]['seller_uuids']['bango'], uuid)
+        eq_(data['objects'][0]['seller_uuids']['boku'], uuid)
+
+    def test_one_supported_provider_listed(self):
+        product = self.create(public_id=self.public_id)
+        self.create_boku_product(product)
+
+        res = self.client.get(
+            self.list_url,
+            data={'public_id': self.public_id}
+        )
+        eq_(res.status_code, 200, res)
+        data = json.loads(res.content)
+        eq_(data['objects'][0]['seller_uuids']['bango'], None)
+        eq_(data['objects'][0]['seller_uuids']['boku'], uuid)
