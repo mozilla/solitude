@@ -104,3 +104,12 @@ class SellerBoku(Model):
 
     class Meta(Model.Meta):
         db_table = 'seller_boku'
+
+
+class SellerProductBoku(Model):
+    seller_product = models.OneToOneField(SellerProduct,
+                                          related_name='product_boku')
+    seller_boku = models.ForeignKey(SellerBoku, related_name='product_boku')
+
+    class Meta(Model.Meta):
+        db_table = 'seller_product_boku'

@@ -3,8 +3,9 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from lib.boku.forms import BokuTransactionForm, BokuServiceForm
-from lib.boku.serializers import SellerBokuSerializer
-from lib.sellers.models import SellerBoku
+from lib.boku.serializers import (SellerBokuSerializer,
+                                  SellerProductBokuSerializer)
+from lib.sellers.models import SellerBoku, SellerProductBoku
 from solitude.base import BaseAPIView
 from solitude.logger import getLogger
 
@@ -15,6 +16,14 @@ log = getLogger('s.boku')
 class SellerBokuViewSet(viewsets.ModelViewSet):
     model = SellerBoku
     serializer_class = SellerBokuSerializer
+
+    def destroy(self, request, pk=None):
+        raise PermissionDenied
+
+
+class SellerProductBokuViewSet(viewsets.ModelViewSet):
+    model = SellerProductBoku
+    serializer_class = SellerProductBokuSerializer
 
     def destroy(self, request, pk=None):
         raise PermissionDenied

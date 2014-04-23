@@ -7,8 +7,9 @@ import mock
 from nose.tools import eq_, ok_
 
 from lib.boku.tests.utils import (BokuTransactionTest, BokuVerifyServiceTest,
-                                  SellerBokuTest)
-from lib.sellers.models import Seller, SellerBoku
+                                  SellerBokuTest, SellerProductBokuTest)
+from lib.sellers.models import (Seller, SellerBoku,
+                                SellerProduct, SellerProductBoku)
 
 
 class TestSellerBokuViews(SellerBokuTest):
@@ -83,6 +84,107 @@ class TestSellerBokuViews(SellerBokuTest):
         )
         response = self.client.delete(
             reverse('boku:sellerboku-detail', kwargs={'pk': seller_boku.pk})
+        )
+        eq_(response.status_code, 403, response.content)
+
+
+class TestSellerProductBokuViews(SellerProductBokuTest):
+
+    def test_list_view_lists_all_seller_products(self):
+        for i in range(3):
+            seller = Seller.objects.create(uuid=str(uuid.uuid4()))
+            seller_boku = SellerBoku.objects.create(seller=seller)
+            seller_product = SellerProduct.objects.create(
+                seller=seller,
+                public_id=str(uuid.uuid4()),
+                external_id=str(uuid.uuid4()),
+            )
+            SellerProductBoku.objects.create(
+                seller_boku=seller_boku,
+                seller_product=seller_product,
+            )
+
+        response = self.client.get(reverse('boku:sellerproductboku-list'))
+        eq_(response.status_code, 200, response.content)
+        sellers_data = json.loads(response.content)
+        eq_(len(sellers_data['objects']), 3)
+
+    def test_create_view_creates_seller_product_boku(self):
+        response = self.client.post(
+            reverse('boku:sellerproductboku-list'),
+            data=self.seller_product_boku_data
+        )
+        eq_(response.status_code, 201, response.content)
+        seller_product_boku_data = json.loads(response.content)
+
+        seller_product_boku = SellerProductBoku.objects.get(
+            pk=seller_product_boku_data['id'])
+        eq_(seller_product_boku.seller_boku, self.seller_boku)
+        eq_(seller_product_boku.seller_product, self.seller_product)
+
+    def test_detail_view_returns_seller_product_boku(self):
+        seller_product_boku = SellerProductBoku.objects.create(
+            seller_boku=self.seller_boku,
+            seller_product=self.seller_product,
+        )
+        seller_product_boku_uri = reverse(
+            'boku:sellerproductboku-detail',
+            kwargs={'pk': seller_product_boku.pk},
+        )
+        response = self.client.get(seller_product_boku_uri)
+        eq_(response.status_code, 200, response.content)
+
+        seller_product_boku_data = json.loads(response.content)
+        eq_(seller_product_boku_data['id'], seller_product_boku.pk)
+        eq_(seller_product_boku_data['seller_boku'], self.seller_boku_uri)
+        eq_(seller_product_boku_data['seller_product'],
+            self.seller_product_uri)
+        ok_(
+            seller_product_boku_data['resource_uri'].endswith(
+                seller_product_boku_uri
+            ),
+            'Unexpected URI: {uri}'.format(
+                uri=seller_product_boku_data['resource_uri']
+            )
+        )
+
+    def test_update_view_modifies_existing_seller_product_boku(self):
+        new_seller_product = SellerProduct.objects.create(
+            seller=self.seller,
+            public_id=str(uuid.uuid4()),
+            external_id=str(uuid.uuid4()),
+        )
+        new_seller_product_uri = reverse(
+            'api_dispatch_detail',
+            kwargs={
+                'api_name': 'generic',
+                'resource_name': 'product',
+                'pk': new_seller_product.pk,
+            }
+        )
+        seller_product_boku = SellerProductBoku.objects.create(
+            seller_boku=self.seller_boku,
+            seller_product=self.seller_product,
+        )
+        response = self.client.patch(
+            reverse('boku:sellerproductboku-detail',
+                    kwargs={'pk': seller_product_boku.pk}),
+            data={'seller_product': new_seller_product_uri},
+        )
+        eq_(response.status_code, 200, response.content)
+
+        seller_product_boku = SellerProductBoku.objects.get(
+            pk=seller_product_boku.pk)
+        eq_(seller_product_boku.seller_product, new_seller_product)
+
+    def test_delete_not_allowed(self):
+        seller_product_boku = SellerProductBoku.objects.create(
+            seller_boku=self.seller_boku,
+            seller_product=self.seller_product,
+        )
+        response = self.client.delete(
+            reverse('boku:sellerproductboku-detail',
+                    kwargs={'pk': seller_product_boku.pk})
         )
         eq_(response.status_code, 403, response.content)
 

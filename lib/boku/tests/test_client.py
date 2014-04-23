@@ -118,13 +118,13 @@ class BokuClientTests(test_utils.TestCase):
     def test_client_get_pricing_calls_api_with_correct_params(self):
         country = 'CA'
 
-        with mock.patch('lib.boku.client.BokuClient.api_call') as MockClient:
+        with mock.patch('lib.boku.client.BokuClient.api_call') as mock_client:
             try:
                 self.client.get_pricing(country)
             except BokuException:
                 pass
 
-            MockClient.assert_called_with('/billing/request', {
+            mock_client.assert_called_with('/billing/request', {
                 'action': 'price',
                 'country': country,
             })
@@ -168,7 +168,7 @@ class BokuClientTests(test_utils.TestCase):
         callback_url = 'http://test/'
         forward_url = 'http://test/success'
 
-        with mock.patch('lib.boku.client.BokuClient.api_call') as MockClient:
+        with mock.patch('lib.boku.client.BokuClient.api_call') as mock_client:
             try:
                 self.start_transaction(
                     callback_url=callback_url,
@@ -181,7 +181,7 @@ class BokuClientTests(test_utils.TestCase):
             except BokuException:
                 pass
 
-            MockClient.assert_called_with('/billing/request', {
+            mock_client.assert_called_with('/billing/request', {
                 'action': 'prepare',
                 'callback-url': callback_url,
                 'fwdurl': forward_url,
@@ -211,13 +211,13 @@ class BokuClientTests(test_utils.TestCase):
     def test_client_check_transaction_calls_api_with_correct_params(self):
         transaction_id = 'abc123'
 
-        with mock.patch('lib.boku.client.BokuClient.api_call') as MockClient:
+        with mock.patch('lib.boku.client.BokuClient.api_call') as mock_client:
             try:
                 self.client.check_transaction(transaction_id)
             except Exception:
                 pass
 
-            MockClient.assert_called_with('/billing/request', {
+            mock_client.assert_called_with('/billing/request', {
                 'action': 'verify-trx-id',
                 'trx-id': transaction_id,
             })
