@@ -165,7 +165,7 @@ class TestProvider(Proxy):
 
 @mock.patch.object(settings, 'SOLITUDE_PROXY', True)
 @mock.patch.object(settings, 'ZIPPY_CONFIGURATION',
-    {'boku': {'url': 'http://f.c', 'auth': {'secret': 's'}}})
+    {'boku': {'url': 'http://f.c', 'auth': {'secret': 's', 'key': 'f'}}})
 class TestBoku(Proxy):
 
     def setUp(self):
