@@ -261,25 +261,35 @@ class TestProxy(test_utils.TestCase):
         self.mock_get = self.patched_get.start()
         self.addCleanup(self.patched_get.stop)
 
-    def test_good(self):
-        # A copy of
-        # test_client_check_transaction_returns_check_transaction_json
-        # to prove that everything went through successfully.
-        transaction_id = 'abc123'
-        amount = 100
+        self.transaction_id = 'abc123'
 
         response = mock.Mock()
         response.status_code = 200
         response.content = sample_xml.transaction_request.format(
-            transaction_id=transaction_id
+            transaction_id=self.transaction_id
         )
         self.mock_get.return_value = response
 
+    def test_good(self):
+        # A copy of
+        # test_client_check_transaction_returns_check_transaction_json
+        # to prove that everything went through successfully.
+        amount = 100
+
         with self.settings(BOKU_PROXY='https://some.proxy/foo/'):
-            transaction = self.client.check_transaction(transaction_id)
+            transaction = self.client.check_transaction(self.transaction_id)
+
         eq_(transaction, {'amount': amount, 'paid': amount})
 
         # The only difference is here, we test it went it to the proxy.
         url = urlparse.urlparse(self.mock_get.call_args_list[0][0][0])
         eq_(url.netloc, 'some.proxy')
+        eq_(url.path, '/foo/boku/billing/request')
+
+    def test_no_trailing_slash(self):
+        # Same as above, but without the trailing slash on the URL.
+        with self.settings(BOKU_PROXY='https://some.proxy/foo'):
+            self.client.check_transaction(self.transaction_id)
+
+        url = urlparse.urlparse(self.mock_get.call_args_list[0][0][0])
         eq_(url.path, '/foo/boku/billing/request')
