@@ -186,6 +186,9 @@ LOGGING = {
         },
         'cef': {
             'handlers': ['cef_syslog']
+        },
+        'newrelic': {
+            'level': 'ERROR'
         }
     }
 }
