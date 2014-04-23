@@ -99,7 +99,8 @@ class BokuTransactionForm(BokuClientMixin, forms.Form):
                 cleaned_data['country']
             )
         except BokuException, e:
-            log.error('Boku API error: {error}'.format(error=e.message))
+            log.error('Boku API error from get_price_rows: {error}'
+                      .format(error=e.message))
             raise forms.ValidationError(
                 self.ERROR_BOKU_API.format(message=e.message)
             )
