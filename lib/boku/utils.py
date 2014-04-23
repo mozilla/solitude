@@ -25,12 +25,12 @@ def verify(transaction, amount, currency):
     Verify a transaction against Boku.
     """
     def error(msg):
-        msg = 'transaction {0}: {1}'.format(transaction.pk, msg)
+        msg = 'transaction {0}: {1}'.format(transaction, msg)
         log.error(msg)
         raise VerificationError(msg)
 
     client = get_client(settings.BOKU_MERCHANT_ID, settings.BOKU_SECRET_KEY)
-    res = client.check_transaction(transaction.uid_support)
+    res = client.check_transaction(transaction)
 
     try:
         real = fix_price(res['amount'], currency)
@@ -41,4 +41,4 @@ def verify(transaction, amount, currency):
     if real != amount:
         error('did not verify: {0} != {1}'.format(real, amount))
 
-    log.info('transaction: {0} verified successfully'.format(transaction.pk))
+    log.info('transaction: {0} verified successfully'.format(transaction))

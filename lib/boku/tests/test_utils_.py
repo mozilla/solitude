@@ -32,9 +32,9 @@ class TestVerify(EventTest):
     @raises(VerificationError)
     def test_wrong_amount(self):
         self.add_seller_boku()
-        ok_(verify(self.trans, Decimal('1.01'), 'MXN'))
+        ok_(verify(self.trans.uid_support, Decimal('1.01'), 'MXN'))
 
     @raises(VerificationError)
     def test_wrong_currency(self):
         self.add_seller_boku()
-        ok_(verify(self.trans, Decimal('1.01'), 'FOO'))
+        ok_(verify(self.trans.uid_support, Decimal('1.01'), 'FOO'))
