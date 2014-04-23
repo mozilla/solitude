@@ -13,6 +13,7 @@ from django.utils.functional import cached_property
 import lxml
 import requests
 from django_statsd.clients import statsd
+from slumber import url_join
 
 from lib.boku.errors import BokuException
 from lib.boku.tests import sample_xml
@@ -275,7 +276,9 @@ class ProxyClient(BokuClient):
     def _get(self, url):
         # Strip the boku part out of the URL and insert the proxy instead.
         url = urlunparse(('', '') + urlparse(url)[2:])
-        proxy = '{base}boku{url}'.format(base=settings.BOKU_PROXY, url=url)
+        # url_join takes care of missing or extra / in urls, but we must strip
+        # the first / off the url above.
+        proxy = url_join(settings.BOKU_PROXY, 'boku', url[1:])
 
         # Now continue as normal, call the proxy.
         log.info('Boku proxy client call: {url}'.format(url=proxy))
