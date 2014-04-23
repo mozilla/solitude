@@ -43,7 +43,7 @@ class BokuTransactionView(BaseAPIView):
             return Response(transaction)
         else:
             log.error('Failed to start Boku Transaction: {errors}'.format(
-                errors=form.errors,
+                errors=form.errors.as_text(),
             ))
             return self.form_errors(form)
 
