@@ -2,11 +2,12 @@ from django.conf.urls import url
 
 from rest_framework.routers import DefaultRouter
 
-from lib.boku.views import (SellerBokuViewSet, BokuTransactionView,
-                            BokuVerifyServiceView)
+from lib.boku.views import (SellerBokuViewSet, SellerProductBokuViewSet,
+                            BokuTransactionView, BokuVerifyServiceView)
 
 router = DefaultRouter()
 router.register(r'seller', SellerBokuViewSet)
+router.register(r'product', SellerProductBokuViewSet)
 
 urlpatterns = router.urls
 urlpatterns += [

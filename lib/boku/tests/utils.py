@@ -31,6 +31,39 @@ class SellerBokuTest(APITest):
         }
 
 
+class SellerProductBokuTest(SellerBokuTest):
+
+    def setUp(self):
+        super(SellerProductBokuTest, self).setUp()
+        self.seller_product = SellerProduct.objects.create(
+            seller=self.seller,
+            public_id=str(uuid.uuid4()),
+            external_id=str(uuid.uuid4()),
+        )
+        self.seller_boku = SellerBoku.objects.create(
+            seller=self.seller,
+            service_id='abc',
+        )
+
+        self.seller_product_uri = reverse(
+            'api_dispatch_detail',
+            kwargs={
+                'api_name': 'generic',
+                'resource_name': 'product',
+                'pk': self.seller_product.pk,
+            }
+        )
+        self.seller_boku_uri = reverse(
+            'boku:sellerboku-detail',
+            args=(self.seller_boku.pk,)
+        )
+
+        self.seller_product_boku_data = {
+            'seller_product': self.seller_product_uri,
+            'seller_boku': self.seller_boku_uri,
+        }
+
+
 class EventTest(SellerBokuTest):
 
     def setUp(self):
