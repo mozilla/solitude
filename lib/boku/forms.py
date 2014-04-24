@@ -69,7 +69,9 @@ class EventForm(BokuForm):
             raise forms.ValidationError('Transaction not found: %s' % uuid)
 
         if trans.status == STATUS_COMPLETED:
-            raise forms.ValidationError('Transaction completed: %s' % uuid)
+            raise forms.ValidationError(
+                'Transaction already completed; uuid={uuid}'
+                .format(uuid=trans.uuid))
 
         return trans
 
