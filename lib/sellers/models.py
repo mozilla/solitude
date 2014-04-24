@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from aesfield.field import AESField
@@ -71,6 +72,30 @@ class SellerProduct(Model):
     class Meta(Model.Meta):
         db_table = 'seller_product'
         unique_together = (('seller', 'external_id'),)
+
+    def supported_providers(self):
+        # This will provide the seller_uuids for each supported
+        # payment provider on the product.  This is a temporary solution
+        # that should not be expanded upon but rather refactored to be
+        # more generic, see bug
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=1001018
+        providers = {}
+
+        provider_fields = (
+            ('bango', 'product', 'seller_bango'),
+            ('boku', 'product_boku', 'seller_boku'),
+        )
+
+        for provider_name, product_field, provider_field in provider_fields:
+            try:
+                providers[provider_name] = getattr(
+                    getattr(self, product_field),
+                    provider_field
+                ).seller.uuid
+            except ObjectDoesNotExist:
+                providers[provider_name] = None
+
+        return providers
 
 
 class SellerBango(Model):
