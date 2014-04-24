@@ -56,4 +56,4 @@ SITE_URL = 'https://payments.firefox.com'
 S3_AUTH = {'key': private.S3_AUTH_KEY, 'secret': private.S3_AUTH_SECRET}
 S3_BUCKET = private.S3_BUCKET
 
-REQUIRE_OAUTH = False
+REQUIRE_OAUTH = True
