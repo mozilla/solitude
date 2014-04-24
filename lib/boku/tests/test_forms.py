@@ -19,6 +19,11 @@ class TestBokuForm(TestCase):
 
 class TestForm(EventTest):
 
+    def form_error(self, data, *errors):
+        form = EventForm(data)
+        assert not form.is_valid()
+        eq_(set(errors), set(form.errors.keys()), form.errors)
+
     def test_action(self):
         form = EventForm(self.sample())
         ok_(form.is_valid(), form.errors)
@@ -26,24 +31,32 @@ class TestForm(EventTest):
     def test_wrong_action(self):
         data = self.sample()
         data['action'] = 'foo'
-        form = EventForm(data)
-        ok_(not form.is_valid(), form.errors)
+        self.form_error(data, 'action')
 
     def test_not_exist(self):
         data = self.sample()
         data['param'] = 'does-not-exist'
-        form = EventForm(data)
-        ok_(not form.is_valid(), form.errors)
+        self.form_error(data, 'param')
 
     def test_wrong_provider(self):
         self.trans.provider = PROVIDER_BANGO
         self.trans.save()
-        ok_(not EventForm(self.sample()).is_valid())
+        self.form_error(self.sample(), 'param')
 
     def test_completed(self):
         self.trans.status = STATUS_COMPLETED
         self.trans.save()
-        ok_(not EventForm(self.sample()).is_valid())
+        self.form_error(self.sample(), 'param')
+
+    def test_wrong_currency(self):
+        data = self.sample()
+        data['currency'] = 'FOO'
+        self.form_error(data, 'currency', '__all__')
+
+    def test_no_amount(self):
+        data = self.sample()
+        del data['amount']
+        self.form_error(data, 'amount', '__all__')
 
 
 class BokuTransactionFormTests(BokuTransactionTest):

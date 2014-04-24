@@ -81,7 +81,7 @@ class EventTest(SellerBokuTest):
     def sample(self):
         return {
             'action': 'billingresult',
-            'amount': '1.00',
+            'amount': '100',
             'currency': 'MXN',
             'param': 'some:uuid',
             'sig': 'some:sig',
