@@ -45,6 +45,8 @@ PAYPAL_CHAINS = private.PAYPAL_CHAINS
 PAYPAL_URL_WHITELIST = ('https://payments-bango.allizom.org',)
 PAYPAL_USE_SANDBOX = True
 
+SITE_URL = 'https://payments-bango-solitude-proxy.allizom.org'
+
 BANGO_ENV = 'prod'
 BANGO_AUTH = private.BANGO_AUTH
 

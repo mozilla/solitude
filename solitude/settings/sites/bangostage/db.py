@@ -52,7 +52,7 @@ BANGO_PROXY = private.BANGO_PROXY
 BANGO_NOTIFICATION_URL = (
     'https://payments-bango.allizom.org/mozpay/bango/notification')
 
-SITE_URL = 'https://payments-bango.allizom.org'
+SITE_URL = 'https://payments-bango-solitude.allizom.org'
 
 S3_AUTH = {'key': private.S3_AUTH_KEY, 'secret': private.S3_AUTH_SECRET}
 S3_BUCKET = private.S3_BUCKET
