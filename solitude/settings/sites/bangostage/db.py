@@ -43,14 +43,14 @@ AES_KEYS = private.AES_KEYS
 CLIENT_OAUTH_KEYS = private.CLIENT_OAUTH_KEYS
 
 PAYPAL_PROXY = private.PAYPAL_PROXY
-PAYPAL_URL_WHITELIST = ('https://marketplace.allizom.org',)
+PAYPAL_URL_WHITELIST = ('https://payments-bango.allizom.org',)
 
 BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
 BANGO_ENV = 'prod'
 BANGO_INSERT_STAGE = 'FROM STAGE '
 BANGO_PROXY = private.BANGO_PROXY
 BANGO_NOTIFICATION_URL = (
-    'https://marketplace.allizom.org/mozpay/bango/notification')
+    'https://payments-bango.allizom.org/mozpay/bango/notification')
 
 SITE_URL = 'https://payments-bango.allizom.org'
 

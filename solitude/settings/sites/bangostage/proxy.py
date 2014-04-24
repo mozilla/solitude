@@ -42,7 +42,7 @@ CLIENT_JWT_KEYS = private.CLIENT_JWT_KEYS
 PAYPAL_APP_ID = private.PAYPAL_APP_ID
 PAYPAL_AUTH = private.PAYPAL_AUTH
 PAYPAL_CHAINS = private.PAYPAL_CHAINS
-PAYPAL_URL_WHITELIST = ('https://marketplace.allizom.org',)
+PAYPAL_URL_WHITELIST = ('https://payments-bango.allizom.org',)
 PAYPAL_USE_SANDBOX = True
 
 BANGO_ENV = 'prod'
