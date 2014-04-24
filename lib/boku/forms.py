@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from lib.boku import constants
 from lib.boku.client import BokuClientMixin
 from lib.boku.errors import BokuException
+from lib.boku.utils import fix_price
 from lib.sellers.models import Seller
 from solitude.logger import getLogger
 
@@ -47,6 +48,13 @@ class EventForm(BokuForm):
         cleaned_data = super(EventForm, self).clean()
         # TODO: before going any further check the sig and or verify
         # that this is valid as per. bug 987846.
+        try:
+            cleaned_data['amount'] = fix_price(cleaned_data['amount'],
+                                               cleaned_data['currency'])
+        except (KeyError, AssertionError):
+            raise forms.ValidationError('Not a valid price {0} or currency {1}'
+                                        .format(cleaned_data.get('amount'),
+                                                cleaned_data.get('currency')))
         return cleaned_data
 
     def clean_param(self):
