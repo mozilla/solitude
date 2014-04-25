@@ -204,6 +204,7 @@ AES_KEYS = {
     'sellerpaypal:token': '',
     'sellerpaypal:secret': '',
     'sellerproduct:secret': '',
+    'bango:signature': '',
 }
 
 # Playdoh ships with sha512 password hashing by default. Bcrypt+HMAC is safer,
@@ -233,28 +234,6 @@ SKIP_OAUTH = (reverse_lazy('services.status'),)
 # for any server talking to this server.
 CLIENT_OAUTH_KEYS = {}
 
-# Bango API settings.
-# These are the credentials for calling Bango.
-BANGO_AUTH = {'USER': 'Mozilla', 'PASSWORD': ''}
-
-# The Bango API environment. This value must be an existing subdirectory
-# under lib/bango/wsdl.
-BANGO_ENV = 'test'
-BANGO_MOCK = False
-BANGO_PROXY = ''
-
-# Set this to a string if you'd like to insert data into the vendor
-# and company name when a package is created.
-BANGO_INSERT_STAGE = ''
-
-# Notification end points use basic auth.
-# These are the credentials for Bango calling us.
-BANGO_BASIC_AUTH = {'USER': '', 'PASSWORD': ''}
-
-# The URL that Bango will send notifications too. If this is not set, the
-# notification URL will not be set.
-BANGO_NOTIFICATION_URL = ''
-
 # Time in seconds that a transaction expires. If you try to complete a
 # transaction after this time, it will fail.
 TRANSACTION_EXPIRY = 60 * 30
@@ -283,32 +262,6 @@ SENSITIVE_DATA_KEYS = ['bankAccountNumber', 'pin', 'secret']
 
 # Set this for OAuth.
 SITE_URL = ''
-
-# Fake out refunds, set this to True for test until bug 845332 is resolved.
-# Turning this on, just fakes out the Bango backend completely and never
-# really refunds anything.
-#
-# This is different from manual refund which is to force a refund through
-# if Bango use the manual refund flow.
-BANGO_FAKE_REFUNDS = False
-
-# When True, send product icon URLs to Bango in the billing config task.
-BANGO_ICON_URLS = True
-
-# When True, send MOZ_USER_ID to Bango in the billing config task.
-SEND_USER_ID_TO_BANGO = True
-
-# Time in seconds after which a Bango API request will be aborted.
-# We can deal with slow requests because we mostly use background tasks.
-# The API can indeed be slow, see bug 883389.
-BANGO_TIMEOUT = 30
-
-# Time in days after which Bango statuses will be cleaned by the
-# `clean_statuses` command.
-BANGO_STATUSES_LIFETIME = 30
-
-# When True, use the token check service to verify query string parameters.
-CHECK_BANGO_TOKEN = True
 
 REST_FRAMEWORK = {
     'DEFAULT_MODEL_SERIALIZER_CLASS':
@@ -342,23 +295,111 @@ S3_BUCKET = ''
 # New Relic is configured here.
 NEWRELIC_INI = None
 
-# Here be all the zippy stuff.
-ZIPPY_MOCK = False
-# Override this to configure some zippy backends.
-ZIPPY_CONFIGURATION = {}
+# Below is configuration of payment providers.
 
-# The URL for a solitude proxy to zippy.
-ZIPPY_PROXY = ''
+###############################################################################
+# Start Bango configuration.
+
+# If you want to just run a mock, that will get you so far.
+BANGO_MOCK = False
+
+# These are the credentials for calling Bango.
+BANGO_AUTH = {'USER': 'Mozilla', 'PASSWORD': ''}
+
+# Fake out refunds, set this to True for test until bug 845332 is resolved.
+# Turning this on, just fakes out the Bango backend completely and never
+# really refunds anything.
+#
+# This is different from manual refund which is to force a refund through
+# if Bango use the manual refund flow.
+BANGO_FAKE_REFUNDS = True
+
+# When True, send product icon URLs to Bango in the billing config task.
+BANGO_ICON_URLS = True
+
+# When True, send MOZ_USER_ID to Bango in the billing config task.
+SEND_USER_ID_TO_BANGO = True
+
+# Time in seconds after which a Bango API request will be aborted.
+# We can deal with slow requests because we mostly use background tasks.
+# The API can indeed be slow, see bug 883389.
+BANGO_TIMEOUT = 30
+
+# Time in days after which Bango statuses will be cleaned by the
+# `clean_statuses` command.
+BANGO_STATUSES_LIFETIME = 30
+
+# When True, use the token check service to verify query string parameters.
+CHECK_BANGO_TOKEN = True
+
+# The Bango API environment. This value must be an existing subdirectory
+# under lib/bango/wsdl.
+BANGO_ENV = 'test'
+
+# If you'd like to use the internal Solitude proxy for Bango, set this to
+# the value of the Solitude proxy instance.
+BANGO_PROXY = ''
+
+# Set this to a string if you'd like to insert data into the vendor
+# and company name when a package is created.
+BANGO_INSERT_STAGE = ''
+
+# Notification end points use basic auth.
+# These are the credentials for Bango calling us.
+BANGO_BASIC_AUTH = {'USER': '', 'PASSWORD': ''}
+
+# The URL that Bango will send notifications too. If this is not set, the
+# notification URL will not be set.
+BANGO_NOTIFICATION_URL = ''
 
 # Flip to the new billing configuration for Bango. This is temporary and once
 # we are on the new config, we can probably remove it.
 BANGO_BILLING_CONFIG_V2 = False
 
-# Boku Settings
-BOKU_API_DOMAIN = 'https://api2.boku.com'
-BOKU_SECRET_KEY = ''
-BOKU_MERCHANT_ID = ''
+# End Bango configuration.
+###############################################################################
+
+###############################################################################
+# Start Zippy configuration.
+
+# Mock out Zippy, because we are sharing zippy.paas configuration.
+ZIPPY_MOCK = False
+
+# Override this to configure some zippy backends.
+ZIPPY_CONFIGURATION = {
+    'reference': {
+        'url': 'https://zippy.paas.allizom.org',  # No trailing slash.
+        'auth': {
+            'key': 'dpf43f3p2l4k3l03',
+            'secret': 'kd94hf93k423kf44',
+            'realm': 'Zippy'
+        },
+    },
+}
+
+# The URL for a solitude proxy to zippy.
+ZIPPY_PROXY = ''
+
+# End Zippy configuration.
+###############################################################################
+
+###############################################################################
+# Start Boku configuration.
+
+# Mock out Boku, when you've got an account, you'll need to set this to False.
 BOKU_MOCK = False
+
+# The secret key created with the account. This is found in Boku emails.
+BOKU_SECRET_KEY = ''
+
+# The merchant id for the Boku integrator account.
+BOKU_MERCHANT_ID = ''
+
+# This is the API that Boku has for setting up payments.
+BOKU_API_DOMAIN = 'https://api2.boku.com'
 
 # If you'd like to use the proxy for Boku, set this to ZIPPY_PROXY.
 BOKU_PROXY = ''
+
+# End Bango configuration.
+###############################################################################

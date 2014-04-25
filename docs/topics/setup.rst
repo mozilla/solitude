@@ -51,6 +51,7 @@ Now edit the `local.py` settings. In your favourite text editor. Example
 settings::
 
     SECRET_KEY ='enter.some.string.here'
+
     if not base.DATABASES:
         DATABASES = {
                'default': {
@@ -70,10 +71,7 @@ settings::
                 },
         }
 
-    CLEANSED_SETTINGS_ACCESS = True
-
     SITE_URL = 'http://your.solitude.instance/'
-    STATSD_CLIENT = 'django_statsd.clients.null'
 
 Solitude requires some keys on the file system. For each key in `base.py`,
 copy into `local.py` and point to a file that makes sense for your install. For
@@ -91,6 +89,8 @@ example::
 
 PayPal settings
 ~~~~~~~~~~~~~~~
+
+.. note:: PayPal is there in the code, but has not been used in production.
 
 Having solitude communicate with PayPal can be a slow and cumbersome. To speed
 it up you can just mock out all of PayPal::
@@ -138,18 +138,13 @@ front end site is using Solitude::
 Bango settings
 ~~~~~~~~~~~~~~
 
-Having solitude communicate with Bango can be a slow and cumbersome. To speed
-it up you can just mock out all of Bango::
-
-    BANGO_MOCK = True
-
-This assumes a happy path, where everything works. To actually talk to Bango
-you'll have need to setup the following::
+To process payments with Bango, you will need a Bango account. Once you have
+that, setup your account details::
 
     BANGO_AUTH = {'USER': 'the.bango.username',
                   'PASSWORD': 'the.bango.password'}
 
-Solitude receives calls from Bango. Bango needs to know a URL and a
+Solitude also receives requests from Bango. Bango needs to know a URL and a
 username and password for them. Example::
 
     BANGO_BASIC_AUTH = {'USER': 'a.username',
@@ -158,10 +153,28 @@ username and password for them. Example::
 
 These are passed to Bango each time a package is created.
 
+You can fake out Bango for some tasks if you'd like::
+
+    BANGO_MOCK = True
+
+Boku settings
+~~~~~~~~~~~~~
+
+To process payments with Boku, you will need a Boku account. Once you have
+that, setup your account details::
+
+    BOKU_SECRET_KEY = 'your-secret-key'
+    BOKU_MERCHANT_ID = 'your-merchant-id'
+
+You can fake out Boku for some tasks if you'd like::
+
+    BOKU_MOCK = True
+
 Zippy settings
 ~~~~~~~~~~~~~~
 
-To configure zippy you'll need to have a configuration that looks like::
+Solitude supports zippy by default. If you'd like to use a server other
+than paas, then alter `ZIPPY_CONFIGURATION`, for example::
 
     ZIPPY_CONFIGURATION = {
         'reference': {
@@ -177,7 +190,6 @@ To configure zippy you'll need to have a configuration that looks like::
 * `url`: the location of the zippy server.
 * `auth`: the key, secret and realm used for calculating the oAuth. Zippy must
   have the same configuration.
-
 
 Running Locally
 ~~~~~~~~~~~~~~~
@@ -214,63 +226,6 @@ You should get a response similar to this:
         "db": true,
         "settings": true
     }
-
-Running on Stackato
-~~~~~~~~~~~~~~~~~~~
-
-.. note:: If you have an old ``solitude/settings/local.py`` that defines DATABASES unconditionally, you will need to modify it, since Stackato supplies its own database config.
-
-To deploy your Solitude config on Stackato, first install the `Stackato
-client <http://www.activestate.com/stackato/download_client>`_.
-
-then run:
-
-``stackato target https://api.paas.allizom.org/``
-
-``stackato login`` (use your LDAP credentials)
-
-After a successful login, ``stackato push --path . my-solitude`` will
-upload your app and start it. (``my-solitude`` is an example name, use
-a name that makes sense for your deployment.) Leave the prompt for
-domain name blank, accepting the default. The command should result in
-a log of the install/deploy process and end with the url your service
-is now available at. You can use ``stackato ssh my-solitude`` to
-connect to the VM running your app. Logs are stored in ``/app/logs``.
-
-When done, you can run ``stackato delete my-solitude`` to remove your VM.
-
-For more docs on the Stackato tools, see the
-`Stackato docs site <https://api.paas.allizom.org/docs/client/index.html>`_.
-
-Mock Solitude
-+++++++++++++
-
-.. note:: This is about a copy of solitude running on the Mozilla paas. If you don't work at Mozilla skip the next bit.
-
-There is a copy of solitude running on paas at http://mock-solitude.paas.allizom.org/.
-
-The best way to update this server is to check out a completely seperate copy
-of solitude and call it mock solitude.
-
-Next::
-
-  pushd solitude/settings
-  cp mock-local.py-dist local.py
-  cp mock-aes-sample.keys-dist aes-sample.keys
-  popd
-
-Your instance should now be good to push to stackato. Unfortunately
-`stackato.yml` has the app name as solitude. So all commands should be suffixed
-with the application name. For example to now update solitude::
-
-  stackato update mock-solitude
-
-Migrations should be run automatically. To test that mock solitude is running,
-try the sample script::
-
-  python samples/bango-basic.py https://mock-solitude.paas.allizom.org
-
-...and lots of good information should be printed out.
 
 Optional settings
 -----------------

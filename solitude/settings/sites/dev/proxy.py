@@ -39,6 +39,10 @@ AES_KEYS = {}
 CLEANSED_SETTINGS_ACCESS = True
 CLIENT_JWT_KEYS = private.CLIENT_JWT_KEYS
 
+NEWRELIC_INI = '/etc/newrelic.d/payments-proxy-dev.allizom.org.ini'
+
+# Below is configuration of payment providers.
+
 PAYPAL_APP_ID = private.PAYPAL_APP_ID
 PAYPAL_AUTH = private.PAYPAL_AUTH
 PAYPAL_CHAINS = private.PAYPAL_CHAINS
@@ -47,8 +51,6 @@ PAYPAL_USE_SANDBOX = True
 
 BANGO_ENV = 'test'
 BANGO_AUTH = private.BANGO_AUTH
-
-NEWRELIC_INI = '/etc/newrelic.d/payments-proxy-dev.allizom.org.ini'
 
 ZIPPY_CONFIGURATION = {
     'reference': {

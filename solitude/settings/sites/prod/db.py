@@ -42,6 +42,17 @@ AES_KEYS = private.AES_KEYS
 
 CLIENT_OAUTH_KEYS = private.CLIENT_OAUTH_KEYS
 
+REQUIRE_OAUTH = True
+
+SITE_URL = 'https://payments.firefox.com'
+
+S3_AUTH = {'key': private.S3_AUTH_KEY, 'secret': private.S3_AUTH_SECRET}
+S3_BUCKET = private.S3_BUCKET
+
+# Below is configuration of payment providers.
+
+ZIPPY_CONFIGURATION = {}
+
 PAYPAL_PROXY = private.PAYPAL_PROXY
 PAYPAL_URL_WHITELIST = ('https://marketplace.firefox.com',)
 
@@ -50,10 +61,3 @@ BANGO_ENV = 'prod'
 BANGO_PROXY = private.BANGO_PROXY
 BANGO_NOTIFICATION_URL = (
     'https://marketplace.firefox.com/mozpay/bango/notification')
-
-SITE_URL = 'https://payments.firefox.com'
-
-S3_AUTH = {'key': private.S3_AUTH_KEY, 'secret': private.S3_AUTH_SECRET}
-S3_BUCKET = private.S3_BUCKET
-
-REQUIRE_OAUTH = True

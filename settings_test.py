@@ -51,7 +51,7 @@ process.disconnect(dispatch_uid='paranoia.reporter.django_paranoia'
                                 '.reporters.log')
 DJANGO_PARANOIA_REPORTERS = []
 
-# We don't want to hit the live bango in tests.
+# We don't want to hit the live servers in tests.
 BANGO_MOCK = True
 ZIPPY_MOCK = True
 BOKU_MOCK = True

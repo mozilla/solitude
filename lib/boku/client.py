@@ -8,6 +8,7 @@ from itertools import chain
 from urlparse import parse_qs, urlparse, urlunparse
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 
 import lxml
@@ -307,9 +308,16 @@ def get_client(*args):
     Use this to get the right client and communicate with Bango.
     """
     if settings.BOKU_MOCK:
+        log.warning('Boku is using the mock client')
         return MockClient(*args)
+
     if settings.BOKU_PROXY:
         return ProxyClient(*args)
+
+    if not settings.BOKU_SECRET_KEY:
+        raise ImproperlyConfigured('Boku secret key is blank, configure '
+                                   'your BOKU_SECRET_KEY setting.')
+
     return BokuClient(*args)
 
 

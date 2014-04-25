@@ -43,14 +43,16 @@ NEWRELIC_INI = '/etc/newrelic.d/payments-alt-proxy.allizom.org.ini'
 
 SITE_URL = 'https://payments-alt-solitude-proxy.allizom.org'
 
+# Below is configuration of payment providers.
+
 PAYPAL_APP_ID = private.PAYPAL_APP_ID
 PAYPAL_AUTH = private.PAYPAL_AUTH
 PAYPAL_CHAINS = private.PAYPAL_CHAINS
 PAYPAL_URL_WHITELIST = ('https://payments-alt.allizom.org',)
 PAYPAL_USE_SANDBOX = True
 
-BANGO_ENV = 'prod'
 BANGO_AUTH = private.BANGO_AUTH
+BANGO_ENV = 'prod'
 
 ZIPPY_CONFIGURATION = {
     'boku': {
@@ -58,5 +60,5 @@ ZIPPY_CONFIGURATION = {
     }
 }
 
-BOKU_SECRET_KEY = private.BOKU_SECRET_KEY
 BOKU_MERCHANT_ID = private.BOKU_MERCHANT_ID
+BOKU_SECRET_KEY = private.BOKU_SECRET_KEY

@@ -1,9 +1,11 @@
 import time
 import urlparse
 
+from django.core.exceptions import ImproperlyConfigured
+
 import mock
 import test_utils
-from nose.tools import assert_raises, eq_, ok_
+from nose.tools import assert_raises, eq_, ok_, raises
 
 from lib.boku.client import (get_boku_request_signature, get_client,
                              BokuClient, BokuException, MockClient,
@@ -254,6 +256,11 @@ class TestClient(test_utils.TestCase):
     def test_real(self):
         with self.settings(BOKU_PROXY='', BOKU_MOCK=False):
             assert isinstance(get_client('', ''), BokuClient)
+
+    @raises(ImproperlyConfigured)
+    def test_nope(self):
+        with self.settings(BOKU_SECRET_KEY=''):
+            get_client('', '')
 
 
 class TestProxy(test_utils.TestCase):
