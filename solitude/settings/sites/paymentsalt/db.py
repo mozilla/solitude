@@ -43,20 +43,20 @@ AES_KEYS = private.AES_KEYS
 CLIENT_OAUTH_KEYS = private.CLIENT_OAUTH_KEYS
 
 PAYPAL_PROXY = private.PAYPAL_PROXY
-PAYPAL_URL_WHITELIST = ('https://payments-bango.allizom.org',)
+PAYPAL_URL_WHITELIST = ('https://payments-alt.allizom.org',)
 
 BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
 BANGO_ENV = 'prod'
 BANGO_INSERT_STAGE = 'FROM STAGE '
 BANGO_PROXY = private.BANGO_PROXY
 BANGO_NOTIFICATION_URL = (
-    'https://payments-bango.allizom.org/mozpay/bango/notification')
+    'https://payments-alt.allizom.org/mozpay/bango/notification')
 
-SITE_URL = 'https://payments-bango-solitude.allizom.org'
+SITE_URL = 'https://payments-alt-solitude.allizom.org'
 
 S3_AUTH = {'key': private.S3_AUTH_KEY, 'secret': private.S3_AUTH_SECRET}
 S3_BUCKET = private.S3_BUCKET
 
 REQUIRE_OAUTH = True
 
-NEWRELIC_INI = '/etc/newrelic.d/payments-bango.allizom.org.ini'
+NEWRELIC_INI = '/etc/newrelic.d/payments-alt.allizom.org.ini'
