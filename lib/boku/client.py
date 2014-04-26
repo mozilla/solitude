@@ -62,12 +62,16 @@ class BokuClient(object):
         with statsd.timer('solitude.boku.api'):
             return requests.get(url)
 
+    def _sign(self, params):
+        params['merchant-id'] = self.merchant_id
+        params['sig'] = get_boku_request_signature(self.secret_key, params)
+        return params
+
     def api_call(self, path, params):
         if 'timestamp' not in params:
             params['timestamp'] = str(calendar.timegm(time.gmtime()))
 
-        params['merchant-id'] = self.merchant_id
-        params['sig'] = get_boku_request_signature(self.secret_key, params)
+        self._sign(params)
         url = '{domain}{path}?{params}'.format(
             domain=settings.BOKU_API_DOMAIN,
             path=path,
@@ -272,6 +276,15 @@ class MockClient(BokuClient):
 
 
 class ProxyClient(BokuClient):
+    """
+    A client, that instead of speaking to Boku directly, sends requests to
+    the solitude proxy. The solitude proxy will sign the actual request and
+    send it on to Boku.
+    """
+
+    def _sign(self, params):
+        # Don't do any signing, the proxy will do that.
+        return params
 
     def _get(self, url):
         # Strip the boku part out of the URL and insert the proxy instead.

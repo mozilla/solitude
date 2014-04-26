@@ -225,10 +225,9 @@ class BokuProxy(ProviderProxy):
         # strip that out before resigning.
         qs = dict((k, v[0]) for k, v in urlparse.parse_qs(qs).items())
         del qs['sig']
-        qs['merchant-id'] = self.config['auth']['key']
+        qs['merchant-id'] = settings.BOKU_MERCHANT_ID
         # Sign the request.
-        qs['sig'] = get_boku_request_signature(self.config['auth']['secret'],
-                                               qs)
+        qs['sig'] = get_boku_request_signature(settings.BOKU_SECRET_KEY, qs)
 
         # Now put the URL back together, along with the query string.
         self.url = qs_join(url=self.url.split('?')[0],
