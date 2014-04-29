@@ -42,6 +42,15 @@ TEMPLATE_DEBUG = DEBUG
 AES_KEYS = private.AES_KEYS
 CLIENT_OAUTH_KEYS = private.CLIENT_OAUTH_KEYS
 
+NEWRELIC_INI = '/etc/newrelic.d/payments-alt.allizom.org.ini'
+
+SITE_URL = 'https://payments-alt-solitude.allizom.org'
+
+S3_AUTH = {'key': private.S3_AUTH_KEY, 'secret': private.S3_AUTH_SECRET}
+S3_BUCKET = private.S3_BUCKET
+
+REQUIRE_OAUTH = True
+
 PAYPAL_PROXY = private.PAYPAL_PROXY
 PAYPAL_URL_WHITELIST = ('https://payments-alt.allizom.org',)
 
@@ -52,11 +61,11 @@ BANGO_PROXY = private.BANGO_PROXY
 BANGO_NOTIFICATION_URL = (
     'https://payments-alt.allizom.org/mozpay/bango/notification')
 
-SITE_URL = 'https://payments-alt-solitude.allizom.org'
+ZIPPY_PROXY = 'https://payments-alt-solitude-proxy.allizom.org/proxy/provider'
+ZIPPY_CONFIGURATION = {
+    'boku': {
+        'url': base.BOKU_API_DOMAIN
+    }
+}
 
-S3_AUTH = {'key': private.S3_AUTH_KEY, 'secret': private.S3_AUTH_SECRET}
-S3_BUCKET = private.S3_BUCKET
-
-REQUIRE_OAUTH = True
-
-NEWRELIC_INI = '/etc/newrelic.d/payments-alt.allizom.org.ini'
+BOKU_PROXY = ZIPPY_PROXY

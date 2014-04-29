@@ -39,15 +39,25 @@ AES_KEYS = {}
 CLEANSED_SETTINGS_ACCESS = True
 CLIENT_JWT_KEYS = private.CLIENT_JWT_KEYS
 
+NEWRELIC_INI = '/etc/newrelic.d/payments-alt-proxy.allizom.org.ini'
+
+SITE_URL = 'https://payments-alt-solitude-proxy.allizom.org'
+
 PAYPAL_APP_ID = private.PAYPAL_APP_ID
 PAYPAL_AUTH = private.PAYPAL_AUTH
 PAYPAL_CHAINS = private.PAYPAL_CHAINS
 PAYPAL_URL_WHITELIST = ('https://payments-alt.allizom.org',)
 PAYPAL_USE_SANDBOX = True
 
-SITE_URL = 'https://payments-alt-solitude-proxy.allizom.org'
-
 BANGO_ENV = 'prod'
 BANGO_AUTH = private.BANGO_AUTH
 
-NEWRELIC_INI = '/etc/newrelic.d/payments-alt-proxy.allizom.org.ini'
+ZIPPY_CONFIGURATION = {
+    'boku': {
+        'url': base.BOKU_API_DOMAIN,
+        'auth': {
+            'key': private.BOKU_MERCHANT_ID,
+            'secret': private.BOKU_SECRET_KEY
+        }
+    }
+}
