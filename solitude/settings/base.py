@@ -81,6 +81,7 @@ if not SOLITUDE_PROXY:
         'solitude.middleware.LoggerMiddleware',
         'django.middleware.transaction.TransactionMiddleware',
         'django.middleware.common.CommonMiddleware',
+        'django.middleware.http.ConditionalGetMiddleware',
         'django_statsd.middleware.GraphiteMiddleware',
         'django_statsd.middleware.TastyPieRequestTimingMiddleware',
         'django_paranoia.middleware.Middleware'
