@@ -81,37 +81,35 @@ class TestBango(Proxy):
             self.client.post(self.url, samples.sample_request,
                              **{'content_type': 'text/xml'})
 
+    def sample(self, data=samples.sample_request, **hdrs):
+        headers = {'content_type': 'text/xml',
+                   HEADERS_SERVICE_GET: 'http://url.com/b'}
+        headers.update(**hdrs)
+        self.client.post(self.url, data, **headers)
+
     def test_header(self):
-        self.client.post(self.url,
-                         samples.sample_request,
-                         **{'content_type': 'text/xml',
-                            HEADERS_SERVICE_GET: 'http://url.com/b',
-                            'HTTP_X_SOLITUDE_SOAPACTION': 'foo'})
+        self.sample(HTTP_X_SOLITUDE_SOAPACTION='foo')
         eq_(self.req.post.call_args[1]['headers']['SOAPAction'], 'foo')
 
+    def test_use_user_id(self):
+        self.sample(HTTP_X_BANGO_USE_MERCHANT_IDENTIFIER='foo')
+        eq_(self.req.post.call_args[1]['headers']
+            ['X-Bango-Use-Merchant-Identifier'], 'foo')
+
     def test_good(self):
-        self.client.post(self.url,
-                         samples.sample_request,
-                         **{'content_type': 'text/xml',
-                            HEADERS_SERVICE_GET: 'http://url.com/b'})
+        self.sample()
         body = self.req.post.call_args[1]['data']
         assert '<ns0:username>me</ns0:username>' in body
         assert '<ns0:password>shh</ns0:password>' in body
 
     def test_billing(self):
-        self.client.post(self.url,
-                         samples.billing_request,
-                         **{'content_type': 'text/xml',
-                            HEADERS_SERVICE_GET: 'http://url.com/b'})
+        self.sample(data=samples.billing_request)
         body = self.req.post.call_args[1]['data']
         assert '<ns1:username>me</ns1:username>' in body
         assert '<ns1:password>shh</ns1:password>' in body
 
     def test_refund(self):
-        self.client.post(self.url,
-                         samples.refund_request,
-                         **{'content_type': 'text/xml',
-                            HEADERS_SERVICE_GET: 'http://url.com/b'})
+        self.sample(data=samples.refund_request)
         body = self.req.post.call_args[1]['data']
         assert '<ns0:username>me</ns0:username>' in body
         assert '<ns0:password>shh</ns0:password>' in body

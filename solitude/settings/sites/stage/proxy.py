@@ -47,5 +47,6 @@ PAYPAL_USE_SANDBOX = True
 
 BANGO_ENV = 'prod'
 BANGO_AUTH = private.BANGO_AUTH
+BANGO_USE_USER_ID = True
 
 NEWRELIC_INI = '/etc/newrelic.d/payments-proxy.allizom.org.ini'
