@@ -339,7 +339,7 @@ class BaseAPIView(APIView):
         return super(BaseAPIView, self).dispatch(request, *args, **kwargs)
 
     def form_errors(self, forms):
-        return Response(json.dumps(format_form_errors(forms)), status=400)
+        return Response(format_form_errors(forms), status=400)
 
 
 class TastypieBaseResource(object):
