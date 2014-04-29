@@ -56,7 +56,7 @@ class SellerProduct(Model):
     # seller's catalog. This is only guaranteed to be unique
     # per seller, not per all products.
     external_id = models.CharField(max_length=255, db_index=True)
-    # An publicly visible id used in in-app payments so that we
+    # A publicly visible id used in in-app payments so that we
     # can identify the seller. This will be the iss field in JWT.
     public_id = models.CharField(max_length=255, db_index=True, unique=True)
     seller = models.ForeignKey(Seller, related_name='product')
