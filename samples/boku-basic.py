@@ -59,4 +59,4 @@ transaction = {
 res = call('/boku/transactions/', 'post', transaction)
 print 'Transaction started', res
 assert 'transaction_id' in res
-assert 'buy_url' in res
+print 'Buy URL', res['buy_url']
