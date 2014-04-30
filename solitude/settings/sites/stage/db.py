@@ -51,6 +51,7 @@ BANGO_INSERT_STAGE = 'FROM STAGE '
 BANGO_PROXY = private.BANGO_PROXY
 BANGO_NOTIFICATION_URL = (
     'https://marketplace.allizom.org/mozpay/bango/notification')
+BANGO_USE_USER_ID = True
 
 SITE_URL = 'https://payments.allizom.org'
 

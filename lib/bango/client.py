@@ -14,8 +14,8 @@ from suds.transport import Reply
 from suds.transport.http import HttpTransport
 
 from solitude.logger import getLogger
-from .constants import (ACCESS_DENIED, HEADERS_SERVICE, HEADERS_WHITELIST,
-                        INTERNAL_ERROR, SERVICE_UNAVAILABLE)
+from .constants import (ACCESS_DENIED, get_headers_extra, HEADERS_SERVICE,
+                        HEADERS_WHITELIST, INTERNAL_ERROR, SERVICE_UNAVAILABLE)
 from .errors import AuthError, BangoError, BangoFormError, ProxyError
 
 
@@ -134,7 +134,9 @@ class Client(object):
     def client(self, name):
         # By default, WSDL files are cached but we use local files so we don't
         # need that.
-        return sudsclient.Client(get_wsdl(name), cache=None)
+        client = sudsclient.Client(get_wsdl(name), cache=None)
+        client.set_options(headers=get_headers_extra())
+        return client
 
     def is_error(self, code, message):
         # Count the numbers of responses we get.
@@ -179,8 +181,9 @@ class Proxy(HttpTransport):
 class ClientProxy(Client):
 
     def client(self, name):
-        return sudsclient.Client(get_wsdl(name), transport=Proxy())
-
+        client = sudsclient.Client(get_wsdl(name), transport=Proxy())
+        client.set_options(headers=get_headers_extra())
+        return client
 
 # Add in your mock method data here. If the method only returns a
 # responseCode and a responseMessage, there's no need to add the method.
