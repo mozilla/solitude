@@ -7,7 +7,8 @@ from nose.tools import eq_, raises
 
 from lib.boku.client import BokuException
 from lib.boku.tests.utils import EventTest
-from lib.transactions.constants import STATUS_COMPLETED
+from lib.transactions.constants import (
+    STATUS_CANCELLED, STATUS_COMPLETED, STATUS_FAILED)
 
 
 class TestEvent(EventTest):
@@ -38,3 +39,27 @@ class TestEvent(EventTest):
     def test_verify_fails(self):
         self.add_seller_boku()
         eq_(self.client.post(self.url, data=self.sample()).status_code, 200)
+
+    @patch('lib.boku.client.BokuClient.api_call')
+    def test_trans_failure_from_error_code(self, api):
+        api.side_effect = BokuException(
+            'boku failure',
+            result_code=5, result_msg='Failed - external billing failure')
+        eq_(self.client.post(self.url, data=self.sample()).status_code, 200)
+        self.trans = self.trans.reget()
+        eq_(self.trans.status, STATUS_FAILED)
+
+    @patch('lib.boku.client.BokuClient.api_call')
+    def test_cancelled_trans_from_error_code(self, api):
+        api.side_effect = BokuException(
+            'cancelled purchase', result_code=8, result_msg='cancellation')
+        eq_(self.client.post(self.url, data=self.sample()).status_code, 200)
+        self.trans = self.trans.reget()
+        eq_(self.trans.status, STATUS_CANCELLED)
+
+    @raises(BokuException)
+    @patch('lib.boku.client.BokuClient.api_call')
+    def test_unknown_boku_error(self, api):
+        api.side_effect = BokuException(
+            'boku explosion', result_code=-1, result_msg='unknown error')
+        self.client.post(self.url, data=self.sample())
