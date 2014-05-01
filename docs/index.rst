@@ -17,8 +17,9 @@ every API that the provider supports.
 Currently we support:
 
 * some `PayPal <https://www.paypal.com/>`_ APIs
-* some `Bango <http://bango.com/>`_ support
-* some `Zippy <http://zippypayments.readthedocs.org/>`_ support
+* some `Bango <http://bango.com/>`_ APIs
+* some `Boku <http://www.boku.com/>`_ APIs
+* some `Zippy <http://zippypayments.readthedocs.org/>`_ compliance
 
 This project is based on **playdoh**. Mozilla's Playdoh is an open source
 web application template based on `Django <http://www.djangoproject.com/>`_.

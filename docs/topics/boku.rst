@@ -42,7 +42,7 @@ Start a transaction with Boku.
                          complete.
     :param forward_url: A URL that Boku redirects the client to
                         after successful/failed payment.
-    :param country: The country code of the purchaser.
+    :param country: The `ISO 3166-1-alpha-2`_ country code of the purchaser.
     :param transaction_uuid: A unique identifier to track the transaction.
     :param price: The purchase price in Decimal format (2 decimal places).
                   It must match one of the existing price points in Boku.
@@ -72,6 +72,8 @@ Start a transaction with Boku.
 
     :status 200: successfully processed.
     :status 400: problem with the data.
+
+.. _`ISO 3166-1-alpha-2`: http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 
 Event
 =====

@@ -11,6 +11,7 @@ DECIMAL_PLACES = {
     'MXN': 100,
 }
 
+# Boku country choices as specified in ISO 3166-1-alpha-2.
 COUNTRY_CHOICES = (
     ('MX', 'MX'),
 )

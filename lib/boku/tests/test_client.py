@@ -25,13 +25,15 @@ class BokuClientTests(test_utils.TestCase):
                           consumer_id='consumer', price_row=1,
                           external_id='external id',
                           callback_url='http://test/',
-                          forward_url='http://test/success'):
+                          forward_url='http://test/success',
+                          country='MX'):
         return self.client.start_transaction(service_id=service_id,
                                              consumer_id=consumer_id,
                                              price_row=price_row,
                                              external_id=external_id,
                                              callback_url=callback_url,
-                                             forward_url=forward_url)
+                                             forward_url=forward_url,
+                                             country=country)
 
     def test_client_uses_signed_request(self):
         params = {
@@ -167,6 +169,7 @@ class BokuClientTests(test_utils.TestCase):
         external_id = 'external id'
         callback_url = 'http://test/'
         forward_url = 'http://test/success'
+        country = 'MX'
 
         with mock.patch('lib.boku.client.BokuClient.api_call') as mock_client:
             try:
@@ -177,6 +180,7 @@ class BokuClientTests(test_utils.TestCase):
                     external_id=external_id,
                     price_row=price_row,
                     service_id=service_id,
+                    country=country,
                 )
             except BokuException:
                 pass
@@ -189,6 +193,7 @@ class BokuClientTests(test_utils.TestCase):
                 'param': external_id,
                 'row-ref': price_row,
                 'service-id': service_id,
+                'country': country,
             })
 
     def test_client_start_transaction_returns_start_transaction_json(self):
