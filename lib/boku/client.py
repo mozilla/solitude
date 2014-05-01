@@ -204,7 +204,7 @@ class BokuClient(object):
 
     def start_transaction(self, callback_url, consumer_id,
                           external_id, price_row, service_id,
-                          forward_url):
+                          forward_url, country):
         """
         Begin a transaction with Boku.
 
@@ -219,6 +219,8 @@ class BokuClient(object):
         :param price_row: The price row (integer) for a given amount
                           can be found in get_pricing().
         :param service_id: The Boku ID (integer) for the service being sold.
+        :param country: The ISO 3166-1-alpha-2 country code that they
+                        buyer is in.
         """
         tree = self.api_call('/billing/request', {
             'action': 'prepare',
@@ -228,6 +230,7 @@ class BokuClient(object):
             'param': external_id,
             'row-ref': price_row,
             'service-id': service_id,
+            'country': country,
         })
 
         return {

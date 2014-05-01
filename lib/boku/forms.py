@@ -142,6 +142,7 @@ class BokuTransactionForm(BokuClientMixin, forms.Form):
             consumer_id=self.cleaned_data['user_uuid'],
             price_row=self.cleaned_data['price_row'],
             service_id=self.cleaned_data['seller_uuid'].boku.service_id,
+            country=self.cleaned_data['country'],
         )
 
 
