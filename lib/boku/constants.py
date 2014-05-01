@@ -1,3 +1,5 @@
+from lib.transactions import constants as trans_const
+
 CURRENCIES = {
     'MXN': 'Mexican Pesos',
 }
@@ -15,3 +17,15 @@ DECIMAL_PLACES = {
 COUNTRY_CHOICES = (
     ('MX', 'MX'),
 )
+
+# This is a map of error codes returned from the Boku verify API that
+# can be translated into transaction statuses.
+# These error codes are the same as the "testing codes" on Mana:
+# https://mana.mozilla.org/wiki/display/MARKET/Boku
+TRANS_STATUS_FROM_VERIFY_CODE = {
+    4: trans_const.STATUS_FAILED,
+    5: trans_const.STATUS_FAILED,
+    7: trans_const.STATUS_FAILED,
+    8: trans_const.STATUS_CANCELLED,
+    11: trans_const.STATUS_FAILED,
+}

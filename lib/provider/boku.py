@@ -2,6 +2,8 @@ from django.http import HttpResponse
 
 from rest_framework import viewsets
 
+from lib.boku.constants import TRANS_STATUS_FROM_VERIFY_CODE
+from lib.boku.errors import BokuException
 from lib.boku.utils import verify
 from lib.boku.forms import EventForm
 from lib.transactions.constants import (STATUS_COMPLETED, STATUSES_INVERTED)
@@ -35,12 +37,26 @@ class Event(viewsets.ViewSet, BaseAPIView):
         # an issue.
         log.info('Verifying notification for Boku transaction id: {0}'
                  .format(transaction))
-        verify(cleaned['trx_id'], cleaned['amount'], cleaned['currency'])
+
+        status = STATUS_COMPLETED
+        try:
+            verify(cleaned['trx_id'], cleaned['amount'], cleaned['currency'])
+        except BokuException, exc:
+            log.info('Got non-zero Boku API response: '
+                     '{exc}; code={exc.result_code}; msg={exc.result_msg}'
+                     .format(exc=exc))
+            # Boku will return non-zero error codes to indicate certain
+            # transaction states. These states mean that the notification
+            # itself is valid.
+            if exc.result_code in TRANS_STATUS_FROM_VERIFY_CODE:
+                status = TRANS_STATUS_FROM_VERIFY_CODE[exc.result_code]
+                log.info('got Boku transaction status {s} from code {c}'
+                         .format(s=status, c=exc.result_code))
+            else:
+                raise
 
         old_status = transaction.status
-        # For the moment assume that all notifications that come in
-        # are complete.
-        transaction.status = STATUS_COMPLETED
+        transaction.status = status
         transaction.amount = cleaned['amount']
         transaction.currency = cleaned['currency']
         transaction.uid_support = cleaned['trx_id']
