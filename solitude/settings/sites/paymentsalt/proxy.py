@@ -55,9 +55,5 @@ BANGO_AUTH = private.BANGO_AUTH
 ZIPPY_CONFIGURATION = {
     'boku': {
         'url': base.BOKU_API_DOMAIN,
-        'auth': {
-            'key': private.BOKU_MERCHANT_ID,
-            'secret': private.BOKU_SECRET_KEY
-        }
     }
 }
