@@ -147,6 +147,7 @@ class BangoProxy(Proxy):
             k = 'HTTP_' + k.upper().replace('-', '_')
             if k in request.META:
                 self.headers[v] = request.META[k]
+                log.debug('Adding header: {0},{1}'.format(v, request.META[k]))
 
         # All the Bango methods are a POST.
         self.method = 'post'
