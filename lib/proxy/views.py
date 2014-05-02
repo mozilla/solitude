@@ -148,9 +148,6 @@ class BangoProxy(Proxy):
             if k in request.META:
                 self.headers[v] = request.META[k]
                 log.info('Adding header: {0}, {1}'.format(v, request.META[k]))
-            else:
-                log.info('Skipping header: {0}, not in: {1}'
-                         .format(v, request.META.keys()))
 
         # All the Bango methods are a POST.
         self.method = 'post'
