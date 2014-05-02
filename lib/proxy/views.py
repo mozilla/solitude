@@ -147,7 +147,10 @@ class BangoProxy(Proxy):
             k = 'HTTP_' + k.upper().replace('-', '_')
             if k in request.META:
                 self.headers[v] = request.META[k]
-                log.debug('Adding header: {0},{1}'.format(v, request.META[k]))
+                log.info('Adding header: {0}, {1}'.format(v, request.META[k]))
+            else:
+                log.info('Skipping header: {0}, not in: {1}'
+                         .format(v, request.META.keys()))
 
         # All the Bango methods are a POST.
         self.method = 'post'
@@ -155,7 +158,6 @@ class BangoProxy(Proxy):
         # Alter the XML to include the username and password from the config.
         # Perhaps this can be done quicker with XPath.
         root = etree.fromstring(request.raw_post_data)
-        #log.info(request.raw_post_data)
         username = self.tags('username')
         password = self.tags('password')
         changed_username = False
