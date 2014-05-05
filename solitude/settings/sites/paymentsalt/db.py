@@ -35,7 +35,7 @@ STATSD_HOST = private.STATSD_HOST
 STATSD_PORT = private.STATSD_PORT
 STATSD_PREFIX = private.STATSD_PREFIX
 
-SYSLOG_TAG = 'http_app_payments_bango_stage'
+SYSLOG_TAG = 'http_app_payments_paymentsalt'
 TEMPLATE_DEBUG = DEBUG
 
 # Solitude specific settings.
