@@ -61,6 +61,6 @@ class BokuVerifyServiceView(BaseAPIView):
             return Response(status=204)
         else:
             log.error('Failed to verify Boku Service ID: {errors}'.format(
-                errors=form.errors,
+                errors=form.errors.as_text(),
             ))
             return self.form_errors(form)
