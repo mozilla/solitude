@@ -197,7 +197,7 @@ class ProviderProxy(Proxy):
         # The URL is made up of the defined scheme and host plus the trailing
         # URL after the proxy in urls.py.
         root = len(reverse('provider.proxy',
-                   kwargs={'reference_name':self.reference_name}))
+                   kwargs={'reference_name': self.reference_name}))
 
         self.url = url_join(self.config['url'],
                             request.META['PATH_INFO'][root:])
@@ -224,7 +224,6 @@ class BokuProxy(ProviderProxy):
         # The API request will come in with an invalid signature, lets
         # strip that out before resigning.
         qs = dict((k, v[0]) for k, v in urlparse.parse_qs(qs).items())
-        del qs['sig']
         qs['merchant-id'] = settings.BOKU_MERCHANT_ID
         # Sign the request.
         qs['sig'] = get_boku_request_signature(settings.BOKU_SECRET_KEY, qs)
