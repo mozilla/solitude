@@ -60,7 +60,8 @@ class TestPaypal(Proxy):
     def test_result(self):
         self.req.post.side_effect = self.req.exceptions.RequestException()
         with self.settings(DEBUG=False):
-            res = self.client.post(self.url, **{HEADERS_URL_GET: 'get-pay-key'})
+            res = self.client.post(self.url,
+                                   **{HEADERS_URL_GET: 'get-pay-key'})
             eq_(res.status_code, 500)
 
     def test_not_enabled(self):
@@ -116,19 +117,9 @@ class TestBango(Proxy):
 
 
 @mock.patch.object(settings, 'SOLITUDE_PROXY', True)
-class TestBoku(Proxy):
-
-    def setUp(self):
-        super(TestBoku, self).setUp()
-        self.url = reverse('boku.proxy')
-
-    def test_not_implemented(self):
-        self.client.post(self.url, {})
-
-
-@mock.patch.object(settings, 'SOLITUDE_PROXY', True)
-@mock.patch.object(settings, 'ZIPPY_CONFIGURATION', {'f':
-    {'url': 'http://f.c', 'auth': {'key': 'k', 'secret': 's'}}})
+@mock.patch.object(
+    settings, 'ZIPPY_CONFIGURATION',
+    {'f': {'url': 'http://f.c', 'auth': {'key': 'k', 'secret': 's'}}})
 class TestProvider(Proxy):
 
     def setUp(self):
@@ -162,17 +153,18 @@ class TestProvider(Proxy):
 
 
 @mock.patch.object(settings, 'SOLITUDE_PROXY', True)
-@mock.patch.object(settings, 'ZIPPY_CONFIGURATION',
+@mock.patch.object(
+    settings, 'ZIPPY_CONFIGURATION',
     {'boku': {'url': 'http://f.c', 'auth': {'secret': 's', 'key': 'f'}}})
 class TestBoku(Proxy):
 
     def setUp(self):
         super(TestBoku, self).setUp()
         self.url = reverse('provider.proxy', kwargs={'reference_name': 'boku'})
-        self.url = self.url + '/billing/request?f=b&sig=foo'
+        self.url = self.url + '/billing/request?f=b'
 
     def test_call(self):
         self.client.get(self.url)
 
         sig = parse_qs(urlparse(self.req.get.call_args[0][0]).query)['sig']
-        assert sig != 'foo', 'Signature not changed'
+        assert sig, 'A sig parameter should have been added'
