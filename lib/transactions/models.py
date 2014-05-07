@@ -79,7 +79,7 @@ class Transaction(Model):
             status=constants.STATUS_COMPLETED).exists()
 
     def for_log(self):
-        return ('v3',  # Version.
+        return ('v4',  # Version.
             self.uuid,
             self.created.isoformat(),
             self.modified.isoformat(),
@@ -90,7 +90,8 @@ class Transaction(Model):
             self.seller_product.seller.uuid,
             self.source,
             self.carrier,
-            self.region)
+            self.region,
+            self.provider)
 
 
 @receiver(paypal_create, dispatch_uid='transaction-create-paypal')

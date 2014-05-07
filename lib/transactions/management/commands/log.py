@@ -20,7 +20,7 @@ def generate_log(day, filename, log_type):
     next_day = day + timedelta(days=1)
     writer.writerow(('version', 'uuid', 'created', 'modified', 'amount',
                      'currency', 'status', 'buyer', 'seller', 'source',
-                     'carrier', 'region'))
+                     'carrier', 'region', 'provider'))
 
     transactions = Transaction.objects.filter(modified__range=(day, next_day))
 
