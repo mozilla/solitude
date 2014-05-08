@@ -46,21 +46,24 @@ class OAuthAuthentication(Authentication):
             key = get_oauth_consumer_key_from_header(auth_header_value)
             if not key:
                 if settings.REQUIRE_OAUTH:
-                    log.error(u'No key.')
+                    log.error(u'No key to: {0}'.format(request.path))
                     return False
                 return True
             oauth_server.verify_request(oauth_request, Consumer(key), None)
             request.OAUTH_KEY = key
             set_oauth_key(key)
-            log.info(u'Access granted: %s' % key)
+            log.info(u'Access granted for: {0}, to: {1}'
+                     .format(key, request.path))
             return True
 
         except KeyError:
-            log.error(u'No key: %s' % key)
+            log.error(u'No key to: {0}'.format(request.path))
             return False
 
         except:
-            log.error(u'Access failed: %s' % key, exc_info=True)
+            log.error(u'Access failed for: {0}, to: {1}'
+                      .format(key, request.path),
+                      exc_info=True)
             return False
 
 
@@ -78,21 +81,24 @@ class RestOAuthAuthentication(BaseAuthentication):
             key = get_oauth_consumer_key_from_header(auth_header_value)
             if not key:
                 if settings.REQUIRE_OAUTH:
-                    log.error(u'No key.')
+                    log.error(u'No key to: {1}'.format(request.path))
                     return None
                 return (DummyUser(), None)
             oauth_server.verify_request(oauth_request, Consumer(key), None)
             request.OAUTH_KEY = key
             set_oauth_key(key)
-            log.info(u'Access granted: %s' % key)
+            log.info(u'Access granted for: {0}, to: {1}'
+                     .format(key, request.path))
             return (DummyUser(), None)
 
         except KeyError:
-            log.error(u'No key: %s' % key)
+            log.error(u'No key to: {0}'.format(request.path))
             return AuthenticationFailed
 
         except:
-            log.error(u'Access failed: %s' % key, exc_info=True)
+            log.error(u'Access failed for: {0}, to: {1}'
+                      .format(key, request.path),
+                      exc_info=True)
             return AuthenticationFailed
 
 
