@@ -24,6 +24,7 @@ class SellerBokuViewSet(viewsets.ModelViewSet):
 class SellerProductBokuViewSet(viewsets.ModelViewSet):
     model = SellerProductBoku
     serializer_class = SellerProductBokuSerializer
+    filter_fields = ('seller_product',)
 
     def destroy(self, request, pk=None):
         raise PermissionDenied
