@@ -1,4 +1,5 @@
 import json
+import urllib
 import uuid
 
 from django.core.urlresolvers import reverse
@@ -90,24 +91,56 @@ class TestSellerBokuViews(SellerBokuTest):
 
 class TestSellerProductBokuViews(SellerProductBokuTest):
 
+    def create_seller_product_boku(self):
+        seller = Seller.objects.create(uuid=str(uuid.uuid4()))
+        seller_boku = SellerBoku.objects.create(seller=seller)
+        seller_product = SellerProduct.objects.create(
+            seller=seller,
+            public_id=str(uuid.uuid4()),
+            external_id=str(uuid.uuid4()),
+        )
+        return SellerProductBoku.objects.create(
+            seller_boku=seller_boku,
+            seller_product=seller_product,
+        )
+
     def test_list_view_lists_all_seller_products(self):
         for i in range(3):
-            seller = Seller.objects.create(uuid=str(uuid.uuid4()))
-            seller_boku = SellerBoku.objects.create(seller=seller)
-            seller_product = SellerProduct.objects.create(
-                seller=seller,
-                public_id=str(uuid.uuid4()),
-                external_id=str(uuid.uuid4()),
-            )
-            SellerProductBoku.objects.create(
-                seller_boku=seller_boku,
-                seller_product=seller_product,
-            )
+            self.create_seller_product_boku()
 
         response = self.client.get(reverse('boku:sellerproductboku-list'))
         eq_(response.status_code, 200, response.content)
         sellers_data = json.loads(response.content)
         eq_(len(sellers_data['objects']), 3)
+
+    def test_list_view_allows_filtering_on_generic_product(self):
+        seller_product_boku = self.create_seller_product_boku()
+        for i in range(2):
+            self.create_seller_product_boku()
+
+        list_all_url = reverse('boku:sellerproductboku-list')
+        list_filter_url = '{path}?{query}'.format(
+            path=list_all_url,
+            query=urllib.urlencode({
+                'seller_product': seller_product_boku.seller_product.pk,
+            })
+        )
+
+        response = self.client.get(list_all_url)
+        eq_(response.status_code, 200, response.content)
+        sellers_data = json.loads(response.content)
+        eq_(
+            [seller['id'] for seller in sellers_data['objects']],
+            [seller.id for seller in SellerProductBoku.objects.all()]
+        )
+
+        response = self.client.get(list_filter_url)
+        eq_(response.status_code, 200, response.content)
+        sellers_data = json.loads(response.content)
+        eq_(
+            [seller['id'] for seller in sellers_data['objects']],
+            [seller_product_boku.id]
+        )
 
     def test_create_view_creates_seller_product_boku(self):
         response = self.client.post(
