@@ -130,8 +130,8 @@ class TestSellerProductBokuViews(SellerProductBokuTest):
         eq_(response.status_code, 200, response.content)
         sellers_data = json.loads(response.content)
         eq_(
-            [seller['id'] for seller in sellers_data['objects']],
-            [seller.id for seller in SellerProductBoku.objects.all()]
+            sorted([seller['id'] for seller in sellers_data['objects']]),
+            sorted([seller.id for seller in SellerProductBoku.objects.all()]),
         )
 
         response = self.client.get(list_filter_url)
