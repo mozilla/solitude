@@ -1,6 +1,8 @@
 import logging.handlers
 import os
 
+from django.core.urlresolvers import reverse_lazy
+
 import cef
 import dj_database_url
 
@@ -222,6 +224,9 @@ DUMP_REQUESTS = False
 # If this flag is set, any communication will require OAuth signing of the
 # request. Without this, OAuth is optional. This should be True for production.
 REQUIRE_OAUTH = False
+
+# URLs that should not require oauth autentication, for example Nagios checks.
+SKIP_OAUTH = (reverse_lazy('services.status'))
 
 # A mapping of the keys and secrets that will be used to sign OAuth
 # for any server talking to this server.
