@@ -39,6 +39,10 @@ class OAuthAuthentication(Authentication):
         return request.META.get('HTTP_AUTHORIZATION', None)
 
     def is_authenticated(self, request, **kwargs):
+        if request.META['PATH_INFO'] in settings.SKIP_OAUTH:
+            log.debug('Skipping OAuth because of SKIP_OAUTH')
+            return True
+
         auth_header_value = self._header(request)
         request.OAUTH_KEY = None
         oauth_server, oauth_request = initialize_oauth_server_request(request)
@@ -74,6 +78,10 @@ class DummyUser(object):
 class RestOAuthAuthentication(BaseAuthentication):
 
     def authenticate(self, request):
+        if request.META['PATH_INFO'] in settings.SKIP_OAUTH:
+            log.debug('Skipping OAuth because of SKIP_OAUTH')
+            return (DummyUser(), None)
+
         auth_header_value = request.META.get('HTTP_AUTHORIZATION', None)
         request.OAUTH_KEY = None
         oauth_server, oauth_request = initialize_oauth_server_request(request)
@@ -81,8 +89,8 @@ class RestOAuthAuthentication(BaseAuthentication):
             key = get_oauth_consumer_key_from_header(auth_header_value)
             if not key:
                 if settings.REQUIRE_OAUTH:
-                    log.error(u'No key to: {1}'.format(request.path))
-                    return None
+                    log.error(u'No key to: {0}'.format(request.path))
+                    return AuthenticationFailed
                 return (DummyUser(), None)
             oauth_server.verify_request(oauth_request, Consumer(key), None)
             request.OAUTH_KEY = key
