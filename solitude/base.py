@@ -29,13 +29,8 @@ except ImportError:
 
 from cef import log_cef as _log_cef
 
-# This has to be here to patch before the next line imports.
-from solitude.patch import patch  # NOQA
-patch()
-
 from rest_framework import serializers, status
 from rest_framework.mixins import UpdateModelMixin as DJRUpdateModelMixin
-from rest_framework.relations import HyperlinkedRelatedField
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -52,6 +47,7 @@ import test_utils
 
 from solitude.authentication import OAuthAuthentication
 from solitude.logger import getLogger
+from solitude.related_fields import PathRelatedField
 
 
 log = getLogger('s')
@@ -597,7 +593,7 @@ def invert(data):
     return [(v, k) for k, v in data.items()]
 
 
-class CompatRelatedField(HyperlinkedRelatedField):
+class CompatRelatedField(PathRelatedField):
     """
     Compatible field for connecting Tastypie resources to
     django-rest-framework instances.
