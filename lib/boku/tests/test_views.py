@@ -53,13 +53,11 @@ class TestSellerBokuViews(SellerBokuTest):
         eq_(seller_boku_data['id'], seller_boku.pk)
         eq_(seller_boku_data['seller'], self.seller_uri)
         eq_(seller_boku_data['service_id'], seller_boku.service_id)
-        ok_(
-            seller_boku_data['resource_uri'].endswith(
-                reverse('boku:sellerboku-detail',
-                        kwargs={'pk': seller_boku.pk})
-            ),
-            'Unexpected URI: {uri}'.format(
-                uri=seller_boku_data['resource_uri']
+        eq_(
+            seller_boku_data['resource_uri'],
+            reverse(
+                'boku:sellerboku-detail',
+                kwargs={'pk': seller_boku.pk},
             )
         )
 
@@ -172,14 +170,7 @@ class TestSellerProductBokuViews(SellerProductBokuTest):
         eq_(seller_product_boku_data['seller_boku'], self.seller_boku_uri)
         eq_(seller_product_boku_data['seller_product'],
             self.seller_product_uri)
-        ok_(
-            seller_product_boku_data['resource_uri'].endswith(
-                seller_product_boku_uri
-            ),
-            'Unexpected URI: {uri}'.format(
-                uri=seller_product_boku_data['resource_uri']
-            )
-        )
+        eq_(seller_product_boku_data['resource_uri'], seller_product_boku_uri)
 
     def test_update_view_modifies_existing_seller_product_boku(self):
         new_seller_product = SellerProduct.objects.create(

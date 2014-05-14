@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from solitude.base import CompatRelatedField
+from solitude.related_fields import PathRelatedField, PathIdentityField
 from lib.sellers.models import (Seller, SellerBoku,
                                 SellerProduct, SellerProductBoku)
 
@@ -15,7 +16,7 @@ class SellerBokuSerializer(serializers.ModelSerializer):
         view_name='api_dispatch_detail',
         queryset=Seller.objects.filter()
     )
-    resource_uri = serializers.HyperlinkedIdentityField(
+    resource_uri = PathIdentityField(
         view_name='boku:sellerboku-detail'
     )
 
@@ -34,12 +35,12 @@ class SellerProductBokuSerializer(serializers.ModelSerializer):
         view_name='api_dispatch_detail',
         queryset=SellerProduct.objects.filter()
     )
-    seller_boku = serializers.HyperlinkedRelatedField(
+    seller_boku = PathRelatedField(
         many=False,
         read_only=False,
         view_name='boku:sellerboku-detail',
     )
-    resource_uri = serializers.HyperlinkedIdentityField(
+    resource_uri = PathIdentityField(
         view_name='boku:sellerproductboku-detail'
     )
 
