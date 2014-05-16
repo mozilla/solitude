@@ -201,7 +201,7 @@ class TestSellerProductBokuViews(SellerProductBokuTest):
             pk=seller_product_boku.pk)
         eq_(seller_product_boku.seller_product, new_seller_product)
 
-    def test_delete_not_allowed(self):
+    def test_delete_removes_seller_product_boku(self):
         seller_product_boku = SellerProductBoku.objects.create(
             seller_boku=self.seller_boku,
             seller_product=self.seller_product,
@@ -210,7 +210,10 @@ class TestSellerProductBokuViews(SellerProductBokuTest):
             reverse('boku:sellerproductboku-detail',
                     kwargs={'pk': seller_product_boku.pk})
         )
-        eq_(response.status_code, 403, response.content)
+        eq_(response.status_code, 204, response.content)
+        ok_(not SellerProduct.objects
+                             .filter(pk=seller_product_boku.pk)
+                             .exists())
 
 
 class TestBokuTransactionView(BokuTransactionTest):
