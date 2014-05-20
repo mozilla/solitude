@@ -27,7 +27,16 @@ class SellerProductBokuViewSet(viewsets.ModelViewSet):
     filter_fields = ('seller_product',)
 
     def destroy(self, request, pk=None):
-        raise PermissionDenied
+        instance = self.get_object()
+        log.info((
+            'Deleting SellerProductBoku {id} for boku '
+            'account {account_id} and product {product_id}'
+        ).format(
+            id=instance.pk,
+            account_id=instance.seller_boku.id,
+            product_id=instance.seller_product.public_id
+        ))
+        return super(SellerProductBokuViewSet, self).destroy(request, pk=pk)
 
 
 class BokuTransactionView(BaseAPIView):
