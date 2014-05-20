@@ -36,7 +36,7 @@ oauth2==1.5.211
 py-bcrypt==0.4
 python-dateutil==1.5
 python-memcached==1.48
-raven==2.0.10
+raven==4.2.3
 requests==0.14.1
 schematic==0.2
 six==1.2.0
