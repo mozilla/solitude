@@ -12,6 +12,9 @@ class TransactionResource(ModelResource):
     buyer = fields.ToOneField(
         'lib.buyers.resources.BuyerResource',
         'buyer', blank=True, full=False, null=True)
+    seller = fields.ToOneField(
+        'lib.sellers.resources.SellerResource',
+        'seller', blank=True, full=False, null=True)
     seller_product = fields.ToOneField(
         'lib.sellers.resources.SellerProductResource',
         'seller_product', blank=True, full=False, null=True)
@@ -22,7 +25,6 @@ class TransactionResource(ModelResource):
         'lib.transactions.resources.TransactionResource',
         lambda bundle: Transaction.objects.filter(related=bundle.obj),
         blank=True, full=True, null=True, readonly=True)
-
 
     class Meta(ModelResource.Meta):
         queryset = Transaction.objects.filter()

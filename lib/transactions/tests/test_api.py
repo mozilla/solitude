@@ -2,7 +2,7 @@ import json
 
 from django.core.urlresolvers import reverse
 
-from nose.tools import eq_, ok_
+from nose.tools import eq_
 
 from lib.sellers.tests.utils import make_seller_paypal
 from lib.transactions import constants
@@ -41,11 +41,24 @@ class TestTransaction(APITest):
         eq_(json.loads(res.content)['uuid'], self.uuid)
 
     def test_post_uuid(self):
-        data = {'provider': constants.PROVIDER_BANGO,
-                'seller_product': '/generic/product/%s/' % self.product.pk}
+        data = {
+            'provider': constants.PROVIDER_BANGO,
+            'seller_product': '/generic/product/{product_id}/'.format(
+                product_id=self.product.pk),
+            'seller': '/generic/seller/{seller_id}/'.format(
+                seller_id=self.seller.pk),
+        }
+
         res = self.client.post(self.list_url, data=data)
+
         eq_(res.status_code, 201)
-        ok_(json.loads(res.content)['uuid'])
+
+        json_data = json.loads(res.content)
+        transaction = Transaction.objects.get(uuid=json_data['uuid'])
+
+        eq_(transaction.provider, constants.PROVIDER_BANGO)
+        eq_(transaction.seller, self.seller)
+        eq_(transaction.seller_product, self.product)
 
     def test_provider(self):
         res = self.client.get(self.list_url, data={'provider':

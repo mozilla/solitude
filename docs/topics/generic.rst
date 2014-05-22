@@ -188,6 +188,7 @@ Example response:
             "relations": [],
             "resource_pk": 2977,
             "resource_uri": "/generic/transaction/2977/",
+            "seller": "/generic/seller/385/",
             "seller_product": "/generic/product/449/",
             "status": 5,
             "type": 0,
@@ -218,3 +219,25 @@ Statuses:
 * 4: ``Failed`` - an error occurred and the transaction failed.
 
 * 5: ``Cancelled`` - the transaction was cancelled explicitly by the user.
+
+
+To create a new transaction::
+
+    POST /generic/transaction/
+
+    {
+        "amount": "0.62",
+        "buyer": null,
+        "currency": "GBP",
+        "notes": "",
+        "pay_url": "https://provider.com/pay?transaction=1234",
+        "provider": 1,
+        "seller": "/generic/seller/385/",
+        "seller_product": "/generic/product/449/",
+        "source": "bango",
+        "status": 5,
+        "type": 0,
+        "uid_pay": "230450",
+        "uid_support": "0",
+        "uuid": "webpay:d8d143f3-d484-4903-bd29-bae3d280c5b3"
+    }

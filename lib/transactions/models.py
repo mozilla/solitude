@@ -33,6 +33,8 @@ class Transaction(Model):
                                 on_delete=models.PROTECT,
                                 related_name='relations')
     seller_product = models.ForeignKey('sellers.SellerProduct', db_index=True)
+    seller = models.ForeignKey('sellers.Seller', db_index=True,
+                               blank=True, null=True)
     status = models.PositiveIntegerField(default=constants.STATUS_DEFAULT,
                                          choices=constants.STATUSES_CHOICES)
     source = models.CharField(max_length=255, blank=True, null=True,
@@ -74,12 +76,14 @@ class Transaction(Model):
         return transaction
 
     def is_refunded(self):
-        return Transaction.objects.filter(related=self,
+        return Transaction.objects.filter(
+            related=self,
             type__in=constants.TYPE_REFUNDS_REVERSALS,
             status=constants.STATUS_COMPLETED).exists()
 
     def for_log(self):
-        return ('v4',  # Version.
+        return (
+            'v4',  # Version.
             self.uuid,
             self.created.isoformat(),
             self.modified.isoformat(),
