@@ -219,6 +219,7 @@ BASE_PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
 )
 
+# Prints out incoming and outgoing HTTP Requests.
 DUMP_REQUESTS = False
 
 # If this flag is set, any communication will require OAuth signing of the
