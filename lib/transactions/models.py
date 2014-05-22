@@ -32,7 +32,11 @@ class Transaction(Model):
     related = models.ForeignKey('self', blank=True, null=True,
                                 on_delete=models.PROTECT,
                                 related_name='relations')
+    # This is the generic seller product which is linked to a payment provider.
     seller_product = models.ForeignKey('sellers.SellerProduct', db_index=True)
+    # This is the generic seller which is linked to the
+    # "payment account setup" info. This seller may be different
+    # than the one linked to via seller_product.
     seller = models.ForeignKey('sellers.Seller', db_index=True,
                                blank=True, null=True)
     status = models.PositiveIntegerField(default=constants.STATUS_DEFAULT,
