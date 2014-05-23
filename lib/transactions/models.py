@@ -149,6 +149,7 @@ def create_bango_transaction(sender, **kwargs):
     bundle = kwargs['bundle'].data
     data = kwargs['data']
     form = kwargs['form']
+    seller = form.cleaned_data['seller_product_bango'].seller_bango.seller
     seller_product = form.cleaned_data['seller_product_bango'].seller_product
 
     transaction, c = Transaction.objects.safer_get_or_create(
@@ -157,6 +158,7 @@ def create_bango_transaction(sender, **kwargs):
         provider=constants.PROVIDER_BANGO,
         seller_product=seller_product)
 
+    transaction.seller = seller
     transaction.source = form.cleaned_data.get('source', '')
     transaction.carrier = form.cleaned_data.get('carrier', '')
     transaction.region = form.cleaned_data.get('region', '')

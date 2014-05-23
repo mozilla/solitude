@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import contextlib
 import json
-from decimal import Decimal
 from hashlib import md5
 
 from django import test
@@ -9,7 +8,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 
 import mock
-from nose.tools import eq_, ok_, raises
+from nose.tools import eq_, ok_
 
 from lib.sellers.models import (Seller, SellerBango, SellerProduct,
                                 SellerProductBango)
@@ -21,8 +20,7 @@ from lib.transactions.constants import (PROVIDER_BANGO, PROVIDER_PAYPAL,
                                         TYPE_REFUND, TYPE_REFUND_MANUAL)
 from lib.transactions.models import Transaction
 from solitude.base import APITest, Resource as TastypieBaseResource
-from solitude.constants import (PAYMENT_METHOD_OPERATOR, PAYMENT_METHOD_CARD,
-                                PAYMENT_METHOD_ALL)
+from solitude.constants import PAYMENT_METHOD_OPERATOR, PAYMENT_METHOD_ALL
 
 from ..constants import (ALREADY_REFUNDED, BANGO_ALREADY_PREMIUM_ENABLED,
                          CANT_REFUND, INTERNAL_ERROR, MICRO_PAYMENT_TYPES, OK,
@@ -124,7 +122,7 @@ class TestLoginResource(BangoAPI):
                 'adminPersonId': 1234,
                 'responseCode': 'OK'
             },
-           'GetAutoAuthenticationLoginToken': {
+            'GetAutoAuthenticationLoginToken': {
                 'authenticationToken': 'foo',
                 'responseCode': 'OK'
             }
@@ -515,6 +513,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         super(TestCreateBillingConfiguration, self).create()
         self.transaction = Transaction.objects.create(
             provider=constants.PROVIDER_BANGO,
+            seller=self.seller,
             seller_product=self.seller_product,
             status=constants.STATUS_RECEIVED,
             uuid=self.uuid)
@@ -539,6 +538,9 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         assert 'billingConfigurationId' in json.loads(res.content)
         assert 'application_size' not in json.loads(res.content)
 
+        transaction = Transaction.objects.get()
+        eq_(transaction.seller, self.seller)
+
     def test_twice(self):
         data = self.good()
         eq_(self.client.post(self.list_url, data=data).status_code, 201)
@@ -549,16 +551,20 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         Transaction.objects.all().delete()
         eq_(self.client.post(self.list_url, data=data).status_code, 201)
         eq_(self.client.post(self.list_url, data=data).status_code, 400)
+        eq_(Transaction.objects.count(), 1)
+
+        transaction = Transaction.objects.get()
+        eq_(transaction.seller, self.seller)
 
     @mock.patch('lib.bango.resources.billing'
                 '.CreateBillingConfigurationResource.client')
     def test_micro_payment_cannot_use_card(self, cli):
         data = self.good()
         data['prices'] = [
-                {'price': 0.88, 'currency': 'CAD',
-                 'method': PAYMENT_METHOD_OPERATOR},
-                {'price': 0.98, 'currency': 'USD',
-                 'method': PAYMENT_METHOD_OPERATOR},
+            {'price': 0.88, 'currency': 'CAD',
+             'method': PAYMENT_METHOD_OPERATOR},
+            {'price': 0.98, 'currency': 'USD',
+             'method': PAYMENT_METHOD_OPERATOR},
         ]
         with self.fake_client_response(cli):
             res = self.client.post(self.list_url, data=data)
@@ -599,6 +605,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         data = json.loads(res.content)
         tr = Transaction.objects.get(uid_pay=data['billingConfigurationId'])
         assert tr is not self.transaction
+        eq_(tr.seller, self.seller)
 
     def test_changed(self):
         res = self.client.post(self.list_url, data=self.good())
@@ -688,8 +695,9 @@ class TestGetSBI(BangoAPI):
         self.list_url = '/bango/sbi/'
 
     def test_not_there(self):
-        res = self.client.get_with_body(self.get_url,
-                data={'seller_bango': '/some/uri/4/'})
+        res = self.client.get_with_body(
+            self.get_url,
+            data={'seller_bango': '/some/uri/4/'})
         eq_(res.status_code, 400)
 
     def test_wrong_url(self):
@@ -698,8 +706,9 @@ class TestGetSBI(BangoAPI):
 
     def test_sbi(self):
         self.create()
-        res = self.client.get_with_body(self.get_url,
-                data={'seller_bango': self.seller_bango_uri})
+        res = self.client.get_with_body(
+            self.get_url,
+            data={'seller_bango': self.seller_bango_uri})
         eq_(res.status_code, 200)
         data = json.loads(res.content)
         # The SBI mock is there.
@@ -710,8 +719,9 @@ class TestGetSBI(BangoAPI):
 
     def test_post(self):
         self.create()
-        res = self.client.post(self.list_url,
-                data={'seller_bango': self.seller_bango_uri})
+        res = self.client.post(
+            self.list_url,
+            data={'seller_bango': self.seller_bango_uri})
         eq_(res.status_code, 201)
         data = json.loads(res.content)
         eq_(data['accepted'], '2014-01-23')
@@ -750,9 +760,10 @@ class TestRefund(APITest):
             provider=constants.PROVIDER_BANGO, uuid=self.uuid,
             status=constants.STATUS_COMPLETED)
         self.url = self.get_list_url('refund')
-        self.seller_bango = SellerBango.objects.create(seller=self.seller,
-                                package_id=1, admin_person_id=3,
-                                support_person_id=3, finance_person_id=4)
+        self.seller_bango = SellerBango.objects.create(
+            seller=self.seller,
+            package_id=1, admin_person_id=3,
+            support_person_id=3, finance_person_id=4)
         SellerProductBango.objects.create(seller_product=self.product,
                                           seller_bango=self.seller_bango,
                                           bango_id='1234')
@@ -811,7 +822,8 @@ class TestRefund(APITest):
         self._fail()
 
     def test_refunded(self):
-        Transaction.objects.create(seller_product=self.product,
+        Transaction.objects.create(
+            seller_product=self.product,
             related=self.trans, provider=constants.PROVIDER_BANGO,
             status=constants.STATUS_COMPLETED, type=constants.TYPE_REFUND,
             uuid='something', uid_pay='something')
@@ -828,14 +840,20 @@ class TestRefund(APITest):
 
     @mock.patch.object(settings, 'BANGO_FAKE_REFUNDS', True)
     def test_fake_ok(self):
-        res = self.client.post(self.url, data={'uuid': self.uuid,
-            'fake_response': {'responseCode': OK}})
+        res = self.client.post(
+            self.url,
+            data={
+                'uuid': self.uuid,
+                'fake_response': {'responseCode': OK}})
         eq_(res.status_code, 201)
 
     @mock.patch.object(settings, 'BANGO_FAKE_REFUNDS', True)
     def test_fake_already(self):
-        res = self.client.post(self.url, data={'uuid': self.uuid,
-            'fake_response': {'responseCode': ALREADY_REFUNDED}})
+        res = self.client.post(
+            self.url,
+            data={
+                'uuid': self.uuid,
+                'fake_response': {'responseCode': ALREADY_REFUNDED}})
         eq_(res.status_code, 400)
 
     @mock.patch.object(settings, 'BANGO_FAKE_REFUNDS', True)
