@@ -1,16 +1,14 @@
 from django import forms
-
-from lib.boku.constants import CURRENCIES
-from lib.transactions.constants import (PROVIDER_BOKU, STATUS_COMPLETED)
-from lib.transactions.models import Transaction
-
 from django.utils.translation import ugettext_lazy as _
 
 from lib.boku import constants
 from lib.boku.client import BokuClientMixin
+from lib.boku.constants import COUNTRIES, CURRENCIES
 from lib.boku.errors import BokuException
 from lib.boku.utils import fix_price
 from lib.sellers.models import Seller
+from lib.transactions.constants import (PROVIDER_BOKU, STATUS_COMPLETED)
+from lib.transactions.models import Transaction
 from solitude.logger import getLogger
 
 log = getLogger('s.boku')
@@ -162,4 +160,29 @@ class BokuServiceForm(BokuClientMixin, forms.Form):
                 )
             )
 
+        fake_country = COUNTRIES[0]
+        price_rows = self.boku_client.get_price_rows(fake_country)
+        try:
+            # If the service id is pending then get_service_pricing
+            # succeeds. But then start_transaction fails. To trigger
+            # that let's start a fake transaction with Boku.
+            self.boku_client.start_transaction(
+                callback_url='http://example.com/fake/callback',
+                forward_url='http://example.com/fake/forward',
+                external_id='a fake external id',
+                consumer_id='a fake consumer id',
+                # For some reason, 0 returns "31 Invalid Or Missing Price",
+                # setting this to 1, works, but why?
+                price_row=price_rows.values()[0],
+                service_id=service_id,
+                country=fake_country
+            )
+        except BokuException, e:
+            raise forms.ValidationError(
+                'Failed to verify Boku Service ID by starting a transaction: '
+                '{service_id} {error}'.format(
+                    service_id=service_id,
+                    error=e.message
+                )
+            )
         return service_id
