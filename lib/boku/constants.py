@@ -16,7 +16,7 @@ DECIMAL_PLACES = {
 COUNTRIES = ['MX']
 
 # Boku country choices as specified in ISO 3166-1-alpha-2.
-COUNTRY_CHOICES = ([k, k] for k in COUNTRIES)
+COUNTRY_CHOICES = list([k, k] for k in COUNTRIES)
 
 # This is a map of error codes returned from the Boku verify API that
 # can be translated into transaction statuses.
