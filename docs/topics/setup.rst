@@ -275,15 +275,12 @@ try the sample script::
 Optional settings
 -----------------
 
-* **DUMP_REQUESTS**: `True` or `False`. Will dump the incoming requests for std out.
-  Use this for development. For extra excitement install curlish_ to get
-  coloured output. Curlish is a really nice way to interact with the solitude
-  as a client as well.
+* **DUMP_REQUESTS**: `True` or `False`. Will dump to the `s.dump` log:
+  incoming requests, outgoing requests and incoming responses.
 
 * **CLEANSED_SETTINGS_ACCESS**: `True` or `False`. Will give you access to the
   cleansed settings in the `django.conf.settings` through the API. Should be
   `False` on production.
-
 
 Getting a traceback in development
 ----------------------------------
@@ -359,7 +356,6 @@ on the client::
     DEBUG_PROPAGATE_EXCEPTIONS = True
     TASTYPIE_FULL_DEBUG = True
 
-.. _curlish: http://pypi.python.org/pypi/curlish/
 .. _homebrew: http://mxcl.github.com/homebrew/
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
 .. _developer.paypal.com: https://developer.paypal.com

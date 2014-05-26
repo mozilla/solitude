@@ -17,7 +17,7 @@ from lib.boku.client import get_boku_request_signature
 from lib.paypal.client import get_client as paypal_client
 from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
 from lib.paypal.map import urls
-
+from solitude.base import dump_request, dump_response
 from solitude.logger import getLogger
 
 log = getLogger('s.proxy')
@@ -66,6 +66,8 @@ class Proxy(object):
                               (self.service, self.name)):
                 log.info('Calling service: %s at %s with %s' %
                          (self.service, self.url, self.method))
+                dump_request(request=None, method=self.method, url=self.url,
+                             body=self.body, headers=self.headers)
                 # We aren't calling client._call because that tries to parse
                 # the output. Once the headers are prepared, this will do the
                 # rest.
@@ -73,12 +75,15 @@ class Proxy(object):
                                 headers=self.headers,
                                 timeout=self.timeout, verify=True)
         except requests.exceptions.RequestException as err:
+            dump_response(status_code=500)
             log.exception('%s: %s' % (err.__class__.__name__, err))
             response.status_code = 500
             return response
 
+        dump_response(response=result)
         if result.status_code < 200 or result.status_code > 299:
-            log.error('Warning response status: %s' % result.status_code)
+            log.error('Warning response status: {0}'
+                      .format(result.status_code))
 
         # Ensure the response passed along is updated with the response given.
         response.status_code = result.status_code

@@ -20,13 +20,6 @@ from django.utils.decorators import method_decorator
 from django.views import debug
 from django.views.decorators.http import etag
 
-curlish = False
-try:
-    from curlish import ANSI_CODES, get_color, print_formatted_json
-    curlish = True
-except ImportError:
-    pass
-
 from cef import log_cef as _log_cef
 
 from rest_framework import serializers, status
@@ -51,6 +44,7 @@ from solitude.related_fields import PathRelatedField
 
 
 log = getLogger('s')
+dump_log = getLogger('s.dump')
 sys_cef_log = getLogger('s.cef')
 tasty_log = getLogger('django.request.tastypie')
 
@@ -85,19 +79,6 @@ def etag_func(request, data, *args, **kwargs):
         else:
             return None
     return md5(''.join(all_etags)).hexdigest()
-
-
-def colorize(colorname, text):
-    if curlish:
-        return get_color(colorname) + text + ANSI_CODES['reset']
-    return text
-
-
-def formatted_json(json):
-    if curlish:
-        print_formatted_json(json)
-        return
-    print json
 
 
 old = debug.technical_500_response
@@ -294,12 +275,45 @@ def format_form_errors(forms):
     return errors
 
 
-def dump_request(request):
-    if settings.DUMP_REQUESTS:
-        print colorize('brace', request.method), request.get_full_path()
-    else:
-        log.info('%s %s' % (colorize('brace', request.method),
-                 request.get_full_path()))
+def dump_request(request=None, **kw):
+    """
+    Dumps the request out to a log.
+
+    :param request: a request object, optional
+    :param kw: if request is None, looks up the value in kw
+    """
+    if not settings.DUMP_REQUESTS:
+        return
+
+    method = request.method if request else kw.get('method', '')
+    url = request.get_full_path() if request else kw.get('url')
+    body = request.body if request else kw.get('body')
+
+    dump_log.debug('request method: {0}'.format(method.upper()))
+    dump_log.debug('request url: {0}'.format(url))
+    dump_log.debug('request body: {0}'.format(body))
+    for hdr, value in kw.get('headers', {}).items():
+        dump_log.debug('request header: {0}: {1}'.format(hdr, value))
+
+
+def dump_response(response=None, **kw):
+    """
+    Dumps the response out to a log.
+
+    :param response: a response object, optional
+    :param kw: if response is None, looks up the value in kw
+    """
+    if not settings.DUMP_REQUESTS:
+        return
+
+    state = response.status_code if response else kw.get('status_code')
+    body = response.text if response else kw.get('text', '')
+    headers = response.headers if response else kw.get('headers')
+
+    dump_log.debug('response status: {0}'.format(state))
+    dump_log.debug('response body: {0}'.format(body))
+    for hdr, value in headers.items():
+        dump_log.debug('response header: {0}: {1}'.format(hdr, value))
 
 
 class BaseSerializer(serializers.ModelSerializer):
@@ -355,13 +369,6 @@ class TastypieBaseResource(object):
 
     def _handle_500(self, request, exception):
         return handle_500(request, exception)
-
-    def deserialize(self, request, data, format='application/json'):
-        result = (super(TastypieBaseResource, self)
-                                .deserialize(request, data, format=format))
-        if settings.DUMP_REQUESTS:
-            formatted_json(result)
-        return result
 
     def dispatch(self, request_type, request, **kw):
         dump_request(request)
