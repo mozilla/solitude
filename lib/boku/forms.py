@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from lib.boku import constants
 from lib.boku.client import BokuClientMixin
-from lib.boku.constants import CURRENCIES
+from lib.boku.constants import COUNTRIES, CURRENCIES
 from lib.boku.errors import BokuException
 from lib.boku.utils import fix_price
 from lib.sellers.models import Seller
@@ -160,7 +160,7 @@ class BokuServiceForm(BokuClientMixin, forms.Form):
                 )
             )
 
-        fake_country = 'mx'
+        fake_country = COUNTRIES[0]
         price_rows = self.boku_client.get_price_rows(fake_country)
         try:
             # If the service id is pending then get_service_pricing
