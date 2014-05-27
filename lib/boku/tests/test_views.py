@@ -154,6 +154,37 @@ class TestSellerProductBokuViews(SellerProductBokuTest):
         eq_(seller_product_boku.seller_boku, self.seller_boku)
         eq_(seller_product_boku.seller_product, self.seller_product)
 
+    def test_create_multiple_seller_product_boku_for_same_seller_product(self):
+        list_url = reverse('boku:sellerproductboku-list')
+
+        product1 = self.create_seller_product()
+        product1_uri = self.get_seller_product_uri(product1)
+
+        product2 = self.create_seller_product()
+        product2_uri = self.get_seller_product_uri(product2)
+
+        post_data1 = {
+            'seller_product': product1_uri,
+            'seller_boku': self.seller_boku_uri,
+        }
+
+        response = self.client.post(list_url, data=post_data1)
+        eq_(response.status_code, 201, response.content)
+        ok_(SellerProductBoku.objects.filter(
+            seller_product=product1,
+            seller_boku=self.seller_boku).exists())
+
+        post_data2 = {
+            'seller_product': product2_uri,
+            'seller_boku': self.seller_boku_uri,
+        }
+
+        response = self.client.post(list_url, data=post_data2)
+        eq_(response.status_code, 201, response.content)
+        ok_(SellerProductBoku.objects.filter(
+            seller_product=product2,
+            seller_boku=self.seller_boku).exists())
+
     def test_detail_view_returns_seller_product_boku(self):
         seller_product_boku = SellerProductBoku.objects.create(
             seller_boku=self.seller_boku,

@@ -6,57 +6,50 @@ import test_utils
 
 from lib.boku import constants
 from lib.sellers.models import Seller, SellerBoku, SellerProduct
+from lib.sellers.tests.utils import SellerTest
 from lib.transactions.constants import PROVIDER_BOKU
 from lib.transactions.models import Transaction
-from solitude.base import APITest
 
 
-class SellerBokuTest(APITest):
+class SellerBokuTest(SellerTest):
 
     def setUp(self):
         super(SellerBokuTest, self).setUp()
-        self.seller = Seller.objects.create(uuid=str(uuid.uuid4()))
-        self.seller_uri = reverse(
-            'api_dispatch_detail',
-            kwargs={
-                'api_name': 'generic',
-                'resource_name': 'seller',
-                'pk': self.seller.pk,
-            }
-        )
+        self.seller = self.create_seller()
+        self.seller_uri = self.get_seller_uri(self.seller)
+
         self.example_service_id = '67890'
         self.seller_data = {
             'seller': self.seller_uri,
             'service_id': self.example_service_id,
         }
 
+    def create_seller_boku(self, seller=None, **kwargs):
+        defaults = {
+            'seller': seller or self.create_seller(),
+            'service_id': 'abc',
+        }
+        defaults.update(kwargs)
+
+        return SellerBoku.objects.create(**defaults)
+
+    def get_seller_boku_uri(self, seller_boku):
+        return reverse(
+            'boku:sellerboku-detail',
+            args=(seller_boku.pk,)
+        )
+
 
 class SellerProductBokuTest(SellerBokuTest):
 
     def setUp(self):
         super(SellerProductBokuTest, self).setUp()
-        self.seller_product = SellerProduct.objects.create(
-            seller=self.seller,
-            public_id=str(uuid.uuid4()),
-            external_id=str(uuid.uuid4()),
-        )
-        self.seller_boku = SellerBoku.objects.create(
-            seller=self.seller,
-            service_id='abc',
-        )
+        self.seller_product = self.create_seller_product(seller=self.seller)
+        self.seller_product_uri = self.get_seller_product_uri(
+            self.seller_product)
 
-        self.seller_product_uri = reverse(
-            'api_dispatch_detail',
-            kwargs={
-                'api_name': 'generic',
-                'resource_name': 'product',
-                'pk': self.seller_product.pk,
-            }
-        )
-        self.seller_boku_uri = reverse(
-            'boku:sellerboku-detail',
-            args=(self.seller_boku.pk,)
-        )
+        self.seller_boku = self.create_seller_boku(seller=self.seller)
+        self.seller_boku_uri = self.get_seller_boku_uri(self.seller_boku)
 
         self.seller_product_boku_data = {
             'seller_product': self.seller_product_uri,
