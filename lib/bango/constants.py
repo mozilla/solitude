@@ -1,8 +1,6 @@
 # -*- coding: utf8 -*-
 import re
 
-from django.conf import settings
-
 from solitude.base import invert
 
 STATUS_UNKNOWN = 0
@@ -40,22 +38,7 @@ HEADERS_SERVICE_GET = 'HTTP_X_SOLITUDE_SERVICE'
 
 # A whitelist of headers that we need to pass through from suds to the
 # proxy. These will be passed through as HTTP headers to the proxy.
-HEADERS_WHITELIST = {
-    'SOAPAction': 'x-solitude-soapaction',
-    'X-Bango-Use-Merchant-Identifier': 'x-bango-use-merchant-identifier'
-}
-
-# A dictionary of headers that will be added to the request.
-HEADERS_EXTRA = {}
-
-def get_headers_extra():
-    # Make this a method so we can flip it easily in tests.
-    headers = HEADERS_EXTRA.copy()
-    if settings.BANGO_USE_USER_ID:
-        # When outgoing requests occur, set this.
-        headers['X-Bango-Use-Merchant-Identifier'] = 'true'
-    return headers
-
+HEADERS_WHITELIST = {'SOAPAction': 'x-solitude-soapaction'}
 HEADERS_WHITELIST_INVERTED = dict(invert(HEADERS_WHITELIST))
 
 CURRENCIES = {
