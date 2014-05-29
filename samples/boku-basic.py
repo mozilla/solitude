@@ -18,11 +18,6 @@ call = functools.partial(lib.call, options.url)
 
 seller_uuid = str(uuid.uuid4())
 
-print 'Verifying the service id'
-data = {'service_id': options.service_id}
-res = call('/boku/verify_service', 'post', data)
-print 'Service verified'
-
 print 'Creating seller for:', seller_uuid
 res = call('/generic/seller/', 'post', {'uuid': seller_uuid})
 print res

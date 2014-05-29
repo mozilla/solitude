@@ -7,7 +7,6 @@ from django.core.urlresolvers import reverse
 import mock
 from nose.tools import eq_, ok_
 
-from lib.boku.client import mocks
 from lib.boku.tests.utils import (BokuTransactionTest, BokuVerifyServiceTest,
                                   SellerBokuTest, SellerProductBokuTest)
 from lib.sellers.models import (Seller, SellerBoku,
@@ -281,14 +280,9 @@ class TestBokuVerifyServiceView(BokuVerifyServiceTest):
         eq_(response.status_code, 204, response.content)
 
     def test_invalid_service_id_returns_400(self):
-        with mock.patch('lib.boku.client.mocks',
-                        {'service-prices': (500, '')}):
-            response = self.client.post(self.url, data=self.post_data)
-            eq_(response.status_code, 400, response.content)
-
-    def test_start_transaction_returns_400(self):
-        _mocks = mocks.copy()
-        _mocks['prepare'] = (500, '')
-        with mock.patch('lib.boku.client.mocks', _mocks):
+        with mock.patch(
+            'lib.boku.client.mocks',
+            {'service-prices': (500, '')}
+        ):
             response = self.client.post(self.url, data=self.post_data)
             eq_(response.status_code, 400, response.content)
