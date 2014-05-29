@@ -86,6 +86,16 @@ class TestLockout(TestCase):
         self.buyer = self.buyer.reget()
         assert self.buyer.pin_was_locked_out
 
+    def test_clear_was_locked_out(self):
+        self.buyer.pin_failures = settings.PIN_FAILURES
+        self.buyer.save()
+        self.buyer.incr_lockout()
+        self.buyer = self.buyer.reget()
+        assert self.buyer.pin_was_locked_out
+        self.buyer.clear_lockout(clear_was_locked=True)
+        self.buyer = self.buyer.reget()
+        assert not self.buyer.pin_was_locked_out
+
     def test_under_timeout(self):
         self.buyer.pin_locked_out = (datetime.now() -
             timedelta(seconds=settings.PIN_FAILURE_LENGTH - 60))

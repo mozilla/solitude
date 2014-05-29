@@ -40,9 +40,11 @@ class Buyer(Model):
 
         return True
 
-    def clear_lockout(self):
+    def clear_lockout(self, clear_was_locked=False):
         self.pin_failures = 0
         self.pin_locked_out = None
+        if clear_was_locked:
+            self.pin_was_locked_out = False
         self.save()
 
     def incr_lockout(self):
