@@ -87,7 +87,9 @@ Which has a return value that looks like:
     {"valid": true,
      "locked": false}
 
-Errors are handled much in the same way as ``confirm_pin``.
+Errors are handled much in the same way as ``confirm_pin``. Calling this
+endpoint 5 times with the wrong PIN will lock the buyer. See `Locked State`_
+for more information.
 
 Reset
 -----
@@ -128,6 +130,15 @@ If there were errors they'll appear like so:
     {"confirmed": false,
      "errors": {"uuid": ["Uuid does not exist."]}}
 
+Locked State
+------------
+
+A buyer becomes locked when there have been 5 failed attempts to verify the
+PIN. Once the buyer is locked the verify PIN action will not be usable for 5
+minutes. You can tell if a buyer is locked by checking the
+``pin_is_locked_out`` property of the buyer data. Buyers that were locked out
+since the last time the PIN was changed or successfully verified will have the
+``pin_was_locked_out`` property set to ``true``.
 
 
 Sellers

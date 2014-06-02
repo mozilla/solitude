@@ -336,6 +336,13 @@ class TestBuyerVerifyPin(APITest):
         res = self.client.post(self.list_url, data={})
         eq_(res.status_code, 400)
 
+    def test_good_resets_was_locked(self):
+        self.buyer.pin_was_locked_out = True
+        self.buyer.save()
+        res = self.client.post(self.list_url, data={'uuid': self.uuid,
+                                                    'pin': self.pin})
+        eq_(self.buyer.reget().pin_was_locked_out, False)
+
 
 class TestBuyerConfirmPin(APITest):
 
@@ -383,7 +390,8 @@ class TestBuyerResetPin(APITest):
         self.new_pin = '4321'
         self.buyer = Buyer.objects.create(uuid=self.uuid, pin=self.pin,
                                           new_pin=self.new_pin,
-                                          needs_pin_reset=True)
+                                          needs_pin_reset=True,
+                                          pin_was_locked_out=True)
         self.list_url = self.get_list_url('reset_confirm_pin')
 
     def test_good_uuid_and_pin(self):
@@ -397,6 +405,7 @@ class TestBuyerResetPin(APITest):
         assert buyer.pin_confirmed
         eq_(buyer.pin, self.new_pin)
         eq_(data['uuid'], self.uuid)
+        eq_(buyer.pin_was_locked_out, False)
 
     def test_good_uuid_and_bad_pin(self):
         res = self.client.post(self.list_url, data={'uuid': self.uuid,
@@ -408,6 +417,7 @@ class TestBuyerResetPin(APITest):
         assert not buyer.pin == self.new_pin
         assert buyer.needs_pin_reset
         eq_(data['uuid'], self.uuid)
+        eq_(buyer.pin_was_locked_out, True)
 
     @mock.patch('solitude.base.log_cef')
     def test_locked_out_reset(self, log_cef):
