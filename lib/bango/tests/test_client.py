@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
+from django.core.exceptions import ImproperlyConfigured
+
 import mock
-
-from nose.tools import eq_
 import test_utils
+from nose.tools import eq_, raises
 
+import samples
 from ..client import (Client, ClientMock, ClientProxy, dict_to_mock,
                       get_client, get_request, get_wsdl, Proxy,
                       response_to_dict)
 from ..constants import OK, ACCESS_DENIED
 from ..errors import AuthError, BangoError, ProxyError
-
-import samples
 
 
 class TestClient(test_utils.TestCase):
@@ -69,6 +69,11 @@ class TestRightClient(test_utils.TestCase):
     def test_mock(self):
         with self.settings(BANGO_MOCK=True):
             assert isinstance(get_client(), ClientMock)
+
+    @raises(ImproperlyConfigured)
+    def test_nope(self):
+        with self.settings(BANGO_MOCK=False, BANGO_AUTH={'PASSWORD': ''}):
+            get_client()
 
 
 class TestProxy(test_utils.TestCase):

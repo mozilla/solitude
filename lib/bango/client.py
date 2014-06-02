@@ -1,10 +1,11 @@
-from datetime import datetime
 import functools
 import os
 import uuid
+from datetime import datetime
 from time import time
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
 from django_statsd.clients import statsd
 from mock import Mock
@@ -17,6 +18,7 @@ from solitude.logger import getLogger
 from .constants import (ACCESS_DENIED, HEADERS_SERVICE, HEADERS_WHITELIST,
                         INTERNAL_ERROR, SERVICE_UNAVAILABLE)
 from .errors import AuthError, BangoError, BangoFormError, ProxyError
+from solitude.logger import getLogger
 
 
 # Add in the whitelist of supported methods here.
@@ -308,9 +310,15 @@ def get_client():
     Use this to get the right client and communicate with Bango.
     """
     if settings.BANGO_MOCK:
+        log.warning('Bango is using the mock client')
         return ClientMock()
+
     if settings.BANGO_PROXY:
         return ClientProxy()
+
+    if not settings.BANGO_AUTH['PASSWORD']:
+        raise ImproperlyConfigured('Bango password is blank, configure '
+                                   'your BANGO_AUTH setting.')
     return Client()
 
 

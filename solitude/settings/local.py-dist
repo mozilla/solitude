@@ -4,7 +4,6 @@
 # To extend any settings from settings/base.py here's an example:
 from . import base
 INSTALLED_APPS = base.INSTALLED_APPS + ('django_extensions',)
-#INSTALLED_APPS = base.INSTALLED_APPS + ('debug_toolbar')
 
 # If this is deployed in Stackato, the database config will be
 # supplied automatically. Otherwise, we provide db info here:
@@ -25,19 +24,7 @@ if not base.DATABASES:
             'TEST_CHARSET': 'utf8',
             'TEST_COLLATION': 'utf8_general_ci',
         },
-        # 'slave': {
-        #     ...
-        # },
     }
-
-# Uncomment this and set to all slave DBs in use on the site.
-# SLAVE_DATABASES = ['slave']
-
-# Recipients of traceback emails and other notifications.
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-)
-MANAGERS = ADMINS
 
 # Debugging displays nice error messages, but leaks memory. Set this to False
 # on all server instances and True only for development.
@@ -57,46 +44,17 @@ PASSWORD_HASHERS = get_password_hashers(base.BASE_PASSWORD_HASHERS, HMAC_KEYS)
 # Make this unique, and don't share it with anybody.  It cannot be blank.
 SECRET_KEY = ''
 
-## Log settings
-
-# SYSLOG_TAG = "http_app_playdoh"  # Make this unique to your project.
-# LOGGING = dict(loggers=dict(playdoh={'level': logging.DEBUG}))
-
-# Common Event Format logging parameters
-#CEF_PRODUCT = 'Playdoh'
-#CEF_VENDOR = 'Mozilla'
-
-# The Bango API environment. This value must be an existing subdirectory
-# under lib/bango/wsdl.
-#BANGO_ENV = 'prod'
-
 # Used by OAuth, it cannot be blank.
 SITE_URL = ''
 
-# Zippy testing.
-ZIPPY_MOCK = True
-ZIPPY_CONFIGURATION = {
-    'reference': {
-        'url': 'https://zippy.paas.allizom.org',  # No trailing slash.
-        'auth': {
-            'key': 'dpf43f3p2l4k3l03',
-            'secret': 'kd94hf93k423kf44',
-            'realm': 'Zippy'
-        },
-    },
+# Files that store keys to be used by the AES encryption field.
+#
+# You will need to make a file that stores the key.
+AES_KEYS = {
+    'buyerpaypal:key': '',
+    'sellerpaypal:id': '',
+    'sellerpaypal:token': '',
+    'sellerpaypal:secret': '',
+    'sellerproduct:secret': '',
+    'bango:signature': '',
 }
-
-# Turning on debug logging for suds looks something like this:
-
-#LOGGING['loggers']['suds.transport'] = {
-#    'handlers': ['console'],
-#    'level': 'DEBUG',
-#}
-#LOGGING['loggers']['suds.xsd.schema'] = {
-#    'handlers': ['console'],
-#    'level': 'DEBUG',
-#}
-#LOGGING['loggers']['suds.wsdl'] = {
-#    'handlers': ['console'],
-#    'level': 'DEBUG',
-#}

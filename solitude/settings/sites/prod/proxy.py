@@ -39,6 +39,12 @@ AES_KEYS = {}
 CLEANSED_SETTINGS_ACCESS = True
 CLIENT_JWT_KEYS = private.CLIENT_JWT_KEYS
 
+SITE_URL = 'https://payments-proxy.firefox.com'
+
+# Below is configuration of payment providers.
+
+ZIPPY_CONFIGURATION = {}
+
 PAYPAL_APP_ID = private.PAYPAL_APP_ID
 PAYPAL_AUTH = private.PAYPAL_AUTH
 PAYPAL_CHAINS = private.PAYPAL_CHAINS
@@ -47,5 +53,3 @@ PAYPAL_USE_SANDBOX = True
 
 BANGO_ENV = 'test'
 BANGO_AUTH = private.BANGO_AUTH
-
-SITE_URL = 'https://payments-proxy.firefox.com'

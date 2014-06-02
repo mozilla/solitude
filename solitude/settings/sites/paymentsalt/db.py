@@ -42,15 +42,16 @@ TEMPLATE_DEBUG = DEBUG
 AES_KEYS = private.AES_KEYS
 CLIENT_OAUTH_KEYS = private.CLIENT_OAUTH_KEYS
 
-NEWRELIC_INI = '/etc/newrelic.d/payments-alt.allizom.org.ini'
-
 SITE_URL = 'https://payments-alt-solitude.allizom.org'
 
 S3_AUTH = {'key': private.S3_AUTH_KEY, 'secret': private.S3_AUTH_SECRET}
 S3_BUCKET = private.S3_BUCKET
 
+NEWRELIC_INI = '/etc/newrelic.d/payments-alt.allizom.org.ini'
+
 REQUIRE_OAUTH = True
 
+# Below is configuration of payment providers.
 PAYPAL_PROXY = private.PAYPAL_PROXY
 PAYPAL_URL_WHITELIST = ('https://payments-alt.allizom.org',)
 
