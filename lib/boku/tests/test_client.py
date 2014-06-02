@@ -250,16 +250,18 @@ class TestClient(test_utils.TestCase):
         assert isinstance(get_client('', ''), MockClient)
 
     def test_proxy(self):
-        with self.settings(BOKU_PROXY='blah', BOKU_MOCK=False):
+        with self.settings(BOKU_MOCK=False, BOKU_PROXY='blah'):
             assert isinstance(get_client('', ''), ProxyClient)
 
     def test_real(self):
-        with self.settings(BOKU_PROXY='', BOKU_MOCK=False):
+        with self.settings(BOKU_MOCK=False, BOKU_PROXY='',
+                           BOKU_SECRET_KEY='f'):
             assert isinstance(get_client('', ''), BokuClient)
 
     @raises(ImproperlyConfigured)
     def test_nope(self):
-        with self.settings(BOKU_SECRET_KEY=''):
+        with self.settings(BOKU_MOCK=False, BOKU_PROXY='',
+                           BOKU_SECRET_KEY=''):
             get_client('', '')
 
 
