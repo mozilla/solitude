@@ -8,12 +8,51 @@ import dj_database_url
 
 from funfactory.settings_base import *
 
-ALLOWED_HOSTS = []
-PROJECT_MODULE = 'solitude'
-MINIFY_BUNDLES = {}
+host = os.environ.get('SOLITUDE_URL', 'http://localhost')
 
-# Defines the views served for root URLs.
-ROOT_URLCONF = '%s.urls' % PROJECT_MODULE
+####################################################
+# Django settings.
+#
+# See https://docs.djangoproject.com/en/dev/ref/settings/ for info.
+#
+ALLOWED_HOSTS = []
+
+if os.environ.get('MEMCACHE_URL'):
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': os.getenv('MEMCACHE_URL'),
+        }
+    }
+
+db_env = ''
+envs = ['SOLITUDE_DATABASE', 'DATABASE_URL']
+for env in envs:
+    if os.environ.get(env):
+        db_env = env
+        break
+
+# Solitude will use the first environment variable it can find.
+DATABASES = {
+    'default': dj_database_url.config(
+        default='mysql://root:@localhost:3306/solitude',
+        env=db_env)
+}
+if 'mysql' in DATABASES['default']['ENGINE']:
+    opt = DATABASES['default'].get('OPTIONS', {})
+    opt['init_command'] = 'SET storage_engine=InnoDB'
+    opt['charset'] = 'utf8'
+    opt['use_unicode'] = True
+    DATABASES['default']['OPTIONS'] = opt
+DATABASES['default']['TEST_CHARSET'] = 'utf8'
+DATABASES['default']['TEST_COLLATION'] = 'utf8_general_ci'
+
+DEBUG = True
+DEBUG_PROPAGATE_EXCEPTIONS = True
+
+HMAC_KEYS = {
+    '2011-01-01': 'please change me',
+}
 
 INSTALLED_APPS = (
     'aesfield',
@@ -25,95 +64,8 @@ INSTALLED_APPS = (
     'rest_framework',
     'django_filters'
 )
-if os.environ.get('DATABASE_URL'):
-    DATABASES = {
-        'default': dj_database_url.config()
-    }
-    if 'mysql' in DATABASES['default']['ENGINE']:
-        opt = DATABASES['default'].get('OPTIONS', {})
-        opt['init_command'] = 'SET storage_engine=InnoDB'
-        opt['charset'] = 'utf8'
-        opt['use_unicode'] = True
-        DATABASES['default']['OPTIONS'] = opt
-    DATABASES['default']['TEST_CHARSET'] = 'utf8'
-    DATABASES['default']['TEST_COLLATION'] = 'utf8_general_ci'
-
-else:
-    DATABASES = {}
-
-if os.environ.get('MEMCACHE_URL'):
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-            'LOCATION': os.getenv('MEMCACHE_URL'),
-        }
-    }
 
 LOCALE_PATHS = ()
-USE_I18N = False
-USE_L10N = False
-USE_ETAGS = True
-
-SOLITUDE_PROXY = os.environ.get('SOLITUDE_PROXY', 'disabled') == 'enabled'
-if SOLITUDE_PROXY:
-    # The proxy runs with no database access. And just a couple of libraries.
-    INSTALLED_APPS += (
-        'lib.proxy',
-    )
-else:
-    # If this is the full solitude instance add in the rest.
-    INSTALLED_APPS += (
-        'lib.buyers',
-        'lib.sellers',
-        'lib.transactions',
-        'lib.bango',
-    )
-
-TEST_RUNNER = 'test_utils.runner.RadicalTestSuiteRunner'
-
-# Remove traces of jinja and jingo from solitude.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-)
-JINJA_CONFIG = lambda: ''
-
-if not SOLITUDE_PROXY:
-    MIDDLEWARE_CLASSES = (
-        'solitude.middleware.LoggerMiddleware',
-        'django.middleware.transaction.TransactionMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.http.ConditionalGetMiddleware',
-        'django_statsd.middleware.GraphiteMiddleware',
-        'django_statsd.middleware.TastyPieRequestTimingMiddleware',
-        'django_paranoia.middleware.Middleware'
-    )
-else:
-    MIDDLEWARE_CLASSES = (
-        'solitude.middleware.LoggerMiddleware',
-        'django_statsd.middleware.GraphiteMiddleware',
-    )
-
-SESSION_COOKIE_SECURE = True
-
-STATSD_CLIENT = 'django_statsd.clients.normal'
-
-# PayPal values.
-PAYPAL_APP_ID = ''
-PAYPAL_AUTH = {'USER': '', 'PASSWORD': '', 'SIGNATURE': ''}
-PAYPAL_CHAINS = ()
-PAYPAL_CERT = None
-PAYPAL_LIMIT_PREAPPROVAL = True
-PAYPAL_URL_WHITELIST = ()
-PAYPAL_USE_SANDBOX = True
-PAYPAL_PROXY = ''
-PAYPAL_MOCK = False
-
-# Access the cleansed settings values.
-CLEANSED_SETTINGS_ACCESS = False
-# The status object for tastypie services.
-SERVICES_STATUS_MODULE = 'lib.services.resources'
-
 
 base_fmt = ('%(name)s:%(levelname)s %(message)s '
             ':%(pathname)s:%(lineno)s')
@@ -197,15 +149,35 @@ LOGGING = {
 }
 LOGGING_CONFIG = 'django.utils.log.dictConfig'
 
+ROOT_URLCONF = 'solitude.urls'
+
+SECRET_KEY = 'please change this'
+SENSITIVE_DATA_KEYS = ['bankAccountNumber', 'pin', 'secret']
+
+# Remove traces of jinja and jingo from solitude.
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+)
+
+TEST_RUNNER = 'test_utils.runner.RadicalTestSuiteRunner'
+
+USE_I18N = False
+USE_L10N = False
+USE_ETAGS = True
+
+####################################################
+# Project settings.
+#
 # These are the AES encryption keys for different fields.
 AES_KEYS = {
-    'buyerpaypal:key': '',
-    'buyeremail:key': '',
-    'sellerpaypal:id': '',
-    'sellerpaypal:token': '',
-    'sellerpaypal:secret': '',
-    'sellerproduct:secret': '',
-    'bango:signature': '',
+    'buyerpaypal:key': 'solitude/settings/sample.key',
+    'buyeremail:key': 'solitude/settings/sample.key',
+    'sellerpaypal:id': 'solitude/settings/sample.key',
+    'sellerpaypal:token': 'solitude/settings/sample.key',
+    'sellerpaypal:secret': 'solitude/settings/sample.key',
+    'sellerproduct:secret': 'solitude/settings/sample.key',
+    'bango:signature': 'solitude/settings/sample.key',
 }
 
 # Playdoh ships with sha512 password hashing by default. Bcrypt+HMAC is safer,
@@ -221,8 +193,37 @@ BASE_PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
 )
 
+# Access the cleansed settings values.
+CLEANSED_SETTINGS_ACCESS = False
+
+# A mapping of the keys and secrets that will be used to sign OAuth
+# for any server talking to this server. Is not used if REQUIRE_OAUTH is False.
+CLIENT_OAUTH_KEYS = {}
+
+# Paranoia levels.
+DJANGO_PARANOIA_REPORTERS = [
+    'django_paranoia.reporters.log',
+    'django_paranoia.reporters.cef_'
+]
+
 # Prints out incoming and outgoing HTTP Requests.
 DUMP_REQUESTS = False
+
+# Remove traces of jinja and jingo from solitude.
+JINJA_CONFIG = lambda: ''
+
+MINIFY_BUNDLES = {}
+
+# New Relic is configured here.
+NEWRELIC_INI = None
+
+# The number of PIN failures before we lock them out.
+PIN_FAILURES = 5
+
+# The amount of time before you can try it again in seconds.
+PIN_FAILURE_LENGTH = 300
+
+PROJECT_MODULE = 'solitude'
 
 # If this flag is set, any communication will require OAuth signing of the
 # request. Without this, OAuth is optional. This should be True for production.
@@ -231,9 +232,35 @@ REQUIRE_OAUTH = False
 # URLs that should not require oauth autentication, for example Nagios checks.
 SKIP_OAUTH = (reverse_lazy('services.status'),)
 
-# A mapping of the keys and secrets that will be used to sign OAuth
-# for any server talking to this server.
-CLIENT_OAUTH_KEYS = {}
+SOLITUDE_PROXY = os.environ.get('SOLITUDE_PROXY', 'disabled') == 'enabled'
+if SOLITUDE_PROXY:
+    # The proxy runs with no database access. And just a couple of libraries.
+    INSTALLED_APPS += (
+        'lib.proxy',
+    )
+    MIDDLEWARE_CLASSES = (
+        'solitude.middleware.LoggerMiddleware',
+        'django_statsd.middleware.GraphiteMiddleware',
+    )
+else:
+    # If this is the full solitude instance add in the rest.
+    INSTALLED_APPS += (
+        'lib.buyers',
+        'lib.sellers',
+        'lib.transactions',
+        'lib.bango',
+    )
+    MIDDLEWARE_CLASSES = (
+        'solitude.middleware.LoggerMiddleware',
+        'django.middleware.transaction.TransactionMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.http.ConditionalGetMiddleware',
+        'django_statsd.middleware.GraphiteMiddleware',
+        'django_statsd.middleware.TastyPieRequestTimingMiddleware',
+        'django_paranoia.middleware.Middleware'
+    )
+
+STATSD_CLIENT = 'django_statsd.clients.normal'
 
 # Time in seconds that a transaction expires. If you try to complete a
 # transaction after this time, it will fail.
@@ -243,26 +270,10 @@ TRANSACTION_EXPIRY = 60 * 30
 # After that time, no changes can be made to a transaction.
 TRANSACTION_LOCKDOWN = 60 * 60 * 24
 
-# Paranoia levels.
-DJANGO_PARANOIA_REPORTERS = [
-    'django_paranoia.reporters.log',
-    'django_paranoia.reporters.cef_'
-]
-
-# The number of PIN failures before we lock them out.
-PIN_FAILURES = 5
-# The amount of time before you can try it again in seconds.
-PIN_FAILURE_LENGTH = 300
-
 # Ensure that sensitive data in the JSON is filtered out.
 RAVEN_CONFIG = {
     'processors': ('solitude.processor.JSONProcessor',),
 }
-# Sensitive keys.
-SENSITIVE_DATA_KEYS = ['bankAccountNumber', 'pin', 'secret']
-
-# Set this for OAuth.
-SITE_URL = ''
 
 REST_FRAMEWORK = {
     'DEFAULT_MODEL_SERIALIZER_CLASS':
@@ -288,18 +299,32 @@ REST_FRAMEWORK = {
     'PAGINATE_BY_PARAM': 'limit'
 }
 
+
 # For uploading logs from the server.
 S3_AUTH = {'key': '',
            'secret': ''}
 S3_BUCKET = ''
 
-# New Relic is configured here.
-NEWRELIC_INI = None
+# Set this for OAuth.
+SITE_URL = host
 
 # Below is configuration of payment providers.
 
 ###############################################################################
-# Start Bango configuration.
+# Start PayPal settings.
+#
+PAYPAL_APP_ID = ''
+PAYPAL_AUTH = {'USER': '', 'PASSWORD': '', 'SIGNATURE': ''}
+PAYPAL_CERT = None
+PAYPAL_CHAINS = ()
+PAYPAL_LIMIT_PREAPPROVAL = True
+PAYPAL_MOCK = False
+PAYPAL_PROXY = ''
+PAYPAL_URL_WHITELIST = ()
+PAYPAL_USE_SANDBOX = True
+
+###############################################################################
+# Start Bango settings.
 
 # If you want to just run a mock, that will get you so far.
 BANGO_MOCK = False
@@ -357,11 +382,11 @@ BANGO_NOTIFICATION_URL = ''
 # we are on the new config, we can probably remove it.
 BANGO_BILLING_CONFIG_V2 = False
 
-# End Bango configuration.
+# End Bango settings.
 ###############################################################################
 
 ###############################################################################
-# Start Zippy configuration.
+# Start Zippy settings.
 
 # Mock out Zippy, because we are sharing zippy.paas configuration.
 ZIPPY_MOCK = False
@@ -371,9 +396,9 @@ ZIPPY_CONFIGURATION = {
     'reference': {
         'url': 'https://zippy.paas.allizom.org',  # No trailing slash.
         'auth': {
-            'key': 'dpf43f3p2l4k3l03',
-            'secret': 'kd94hf93k423kf44',
-            'realm': 'Zippy'
+            'key': 'zippy-on-paas',
+            'secret': 'sjahgfjdrtgdargalrgadlfghadfjgadrgarfgnadfgdfagadflhdafg',
+            'realm': 'zippy.paas.allizom.org'
         },
     },
 }
@@ -381,11 +406,11 @@ ZIPPY_CONFIGURATION = {
 # The URL for a solitude proxy to zippy.
 ZIPPY_PROXY = ''
 
-# End Zippy configuration.
+# End Zippy settings.
 ###############################################################################
 
 ###############################################################################
-# Start Boku configuration.
+# Start Boku settings.
 
 # Mock out Boku, when you've got an account, you'll need to set this to False.
 BOKU_MOCK = False
@@ -402,5 +427,5 @@ BOKU_API_DOMAIN = 'https://api2.boku.com'
 # If you'd like to use the proxy for Boku, set this to ZIPPY_PROXY.
 BOKU_PROXY = ''
 
-# End Bango configuration.
+# End Bango settings.
 ###############################################################################
