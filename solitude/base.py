@@ -23,9 +23,10 @@ from django.views.decorators.http import etag
 from cef import log_cef as _log_cef
 
 from rest_framework import serializers, status
-from rest_framework.mixins import UpdateModelMixin as DJRUpdateModelMixin
+from rest_framework import mixins
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
 
 from tastypie import http
 from tastypie.authorization import Authorization
@@ -629,7 +630,7 @@ class CompatToOneField(ToOneField):
         return reverse(self.rest + '-detail', kwargs={'pk': bundle.obj.pk})
 
 
-class UpdateModelMixin(DJRUpdateModelMixin):
+class UpdateModelMixin(mixins.UpdateModelMixin):
     """
     Turns the django-rest-framework mixin into an etag-aware one.
     """
@@ -714,3 +715,17 @@ class RetrieveModelMixin(object):
         self.object = self.get_object()
         serializer = self.get_serializer(self.object)
         return self.retrieve_response(request, serializer.data)
+
+
+class NonDeleteModelViewSet(
+        mixins.CreateModelMixin,
+        RetrieveModelMixin,
+        mixins.RetrieveModelMixin,
+        UpdateModelMixin,
+        ListModelMixin,
+        GenericViewSet):
+    """
+    Same as the ModelViewSet, without the DeleteMixin. Uses our local mixins
+    to give us ETag support.
+    """
+    pass
