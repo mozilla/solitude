@@ -81,10 +81,10 @@ class SellerProduct(Model):
         # more generic, see bug
         # https://bugzilla.mozilla.org/show_bug.cgi?id=1001018
         providers = {}
-
         provider_fields = (
             ('bango', 'product', 'seller_bango'),
             ('boku', 'product_boku', 'seller_boku'),
+            ('reference', 'product_reference', 'seller_reference'),
         )
 
         for provider_name, product_field, provider_field in provider_fields:
@@ -139,3 +139,21 @@ class SellerProductBoku(Model):
 
     class Meta(Model.Meta):
         db_table = 'seller_product_boku'
+
+
+class SellerReference(Model):
+    seller = models.OneToOneField(Seller, related_name='reference')
+    merchant_id = models.CharField(max_length=255, blank=False, null=False)
+
+    class Meta(Model.Meta):
+        db_table = 'seller_reference'
+
+
+class SellerProductReference(Model):
+    seller_product = models.OneToOneField(SellerProduct,
+                                          related_name='product_reference')
+    seller_reference = models.ForeignKey(SellerReference,
+                                         related_name='product_reference')
+
+    class Meta(Model.Meta):
+        db_table = 'seller_product_reference'
