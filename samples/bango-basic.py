@@ -10,7 +10,7 @@ try:
     # Read the root from the command line, rather than hard coding.
     root = sys.argv[1]
 except:
-    root = 'http://localhost:8001'
+    root = 'http://localhost:2602'
 
 
 uid = str(uuid.uuid4())

@@ -6,7 +6,7 @@ import uuid
 import lib
 
 parser = optparse.OptionParser(usage='%prog [options]')
-parser.add_option('--url', default='http://localhost:8001',
+parser.add_option('--url', default='http://localhost:2602',
                   help='root URL to Solitude. Default: %default')
 
 parser.add_option('--service_id',
