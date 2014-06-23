@@ -19,7 +19,7 @@ class BuyerResource(ModelResource):
     class Meta(ModelResource.Meta):
         queryset = Buyer.objects.filter()
         fields = ['uuid', 'pin', 'active', 'new_pin', 'needs_pin_reset',
-                  'pin_confirmed', 'pin_was_locked_out']
+                  'email', 'pin_confirmed', 'pin_was_locked_out']
         list_allowed_methods = ['get', 'post', 'put']
         allowed_methods = ['get', 'patch', 'put']
         resource_name = 'buyer'

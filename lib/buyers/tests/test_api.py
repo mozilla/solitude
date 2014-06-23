@@ -18,13 +18,16 @@ class TestBuyer(APITest):
         self.api_name = 'generic'
         self.uuid = 'sample:uid'
         self.pin = '1234'
+        self.email = 'test@test.com'
         self.list_url = self.get_list_url('buyer')
 
     def test_add(self):
         res = self.client.post(self.list_url, data={'uuid': self.uuid,
-                                                    'pin': self.pin})
+                                                    'pin': self.pin,
+                                                    'email': self.email})
         eq_(res.status_code, 201)
-        eq_(Buyer.objects.filter(uuid=self.uuid).count(), 1)
+        buyer = Buyer.objects.get(uuid=self.uuid)
+        eq_(buyer.email, self.email)
         data = json.loads(res.content)
         eq_(data['pin'], True)
 
@@ -57,7 +60,7 @@ class TestBuyer(APITest):
         eq_(data['objects'][0]['uuid'], self.uuid)
 
     def create(self, **kwargs):
-        defaults = {'uuid': self.uuid, 'pin': self.pin}
+        defaults = {'uuid': self.uuid, 'pin': self.pin, 'email': self.email}
         defaults.update(kwargs)
         return Buyer.objects.create(**defaults)
 
@@ -71,6 +74,7 @@ class TestBuyer(APITest):
         eq_(data['pin_failures'], 0)
         eq_(data['pin_is_locked_out'], False)
         eq_(data['pin_was_locked_out'], False)
+        eq_(data['email'], self.email)
 
     @mock.patch.object(settings, 'PIN_FAILURES', 1)
     def test_locked_out(self):
@@ -339,8 +343,8 @@ class TestBuyerVerifyPin(APITest):
     def test_good_resets_was_locked(self):
         self.buyer.pin_was_locked_out = True
         self.buyer.save()
-        res = self.client.post(self.list_url, data={'uuid': self.uuid,
-                                                    'pin': self.pin})
+        self.client.post(self.list_url, data={'uuid': self.uuid,
+                                              'pin': self.pin})
         eq_(self.buyer.reget().pin_was_locked_out, False)
 
 
