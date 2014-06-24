@@ -10,6 +10,7 @@ filename = os.path.join(os.path.dirname(__file__), 'sample.key')
 
 AES_KEYS = {
     'buyerpaypal:key': filename,
+    'buyeremail:key': filename,
     'sellerpaypal:id': filename,
     'sellerpaypal:token': filename,
     'sellerpaypal:secret': filename,
@@ -60,6 +61,7 @@ SITE_URL = 'http://localhost/'
 
 SEND_USER_ID_TO_BANGO = True
 CHECK_BANGO_TOKEN = True
+
 
 # Suds keeps a cache of the WSDL around, so after completing the test run,
 # lets remove that so it doesn't affect the next test run.

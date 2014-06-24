@@ -20,6 +20,7 @@ class Buyer(Model):
     active = models.BooleanField(default=True, db_index=True)
     new_pin = HashField(blank=True, null=True)
     needs_pin_reset = models.BooleanField(default=False)
+    email = AESField(blank=True, null=True, aes_key='buyeremail:key')
 
     class Meta(Model.Meta):
         db_table = 'buyer'
@@ -34,7 +35,7 @@ class Buyer(Model):
             return False
 
         if ((datetime.now() - self.pin_locked_out).seconds >
-            settings.PIN_FAILURE_LENGTH):
+                settings.PIN_FAILURE_LENGTH):
             self.clear_lockout()
             return False
 

@@ -200,6 +200,7 @@ LOGGING_CONFIG = 'django.utils.log.dictConfig'
 # These are the AES encryption keys for different fields.
 AES_KEYS = {
     'buyerpaypal:key': '',
+    'buyeremail:key': '',
     'sellerpaypal:id': '',
     'sellerpaypal:token': '',
     'sellerpaypal:secret': '',
