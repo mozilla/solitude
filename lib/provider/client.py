@@ -27,6 +27,7 @@ class Client(object):
 class APIMockObject(object):
 
     def __init__(self, resource_name, pk=None):
+        self.mock_data = mock_data.copy()
         self.resource_name = resource_name
         self.pk = pk
 
@@ -35,19 +36,26 @@ class APIMockObject(object):
 
     def get(self):
         if self.pk:
-            return mock_data[self.resource_name][self.pk]
+            return self.get_data(self.resource_name)[self.pk]
         else:
-            return (mock_data[self.resource_name] and
-                    mock_data[self.resource_name].values() or [])
+            return (self.get_data(self.resource_name) and
+                    self.get_data(self.resource_name).values() or [])
+
+    def get_data(self, resource_name):
+        """Exists to make mock patching easy."""
+        return mock_data[resource_name]
 
     def post(self, data):
         id = data.get('pk', data.get('external_id'))
+        data['uuid'] = 'ref:uuid'
         data['resource_pk'] = self.pk
+        data['resource_name'] = self.resource_name
         data['resource_uri'] = '/{resource_name}/{resource_pk}'.format(
                                resource_pk=self.pk,
                                resource_name=self.resource_name)
         mock_data[self.resource_name][id] = data
-        return mock_data[self.resource_name][id]
+        return self.get_data(self.resource_name)[id]
+
 
     def put(self, data):
         initial_data = mock_data[self.resource_name][self.pk]
