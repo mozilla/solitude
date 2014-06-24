@@ -30,9 +30,10 @@ class ProxyView(BaseAPIView):
     def initial(self, request, *args, **kwargs):
         super(ProxyView, self).initial(request, *args, **kwargs)
         self.reference_name = kwargs.pop('reference_name')
-        self.proxy = self._get_client(*args, **kwargs)
+        self.proxy = self.client(*args, **kwargs)
+        self.kwargs = kwargs # Store this incase we need to recreate it later.
 
-    def _get_client(self, *args, **kwargs):
+    def client(self, *args, **kwargs):
         api = client.get_client(self.reference_name).api
         if not api:
             log.info('No reference found: {0}'.format(self.reference_name))
@@ -42,7 +43,7 @@ class ProxyView(BaseAPIView):
         else:
             return getattr(api, kwargs['resource_name'])
 
-    def _mapping_resource(self, result):
+    def resource(self, result):
         """
         Turns Zippy's resource into a solitude one.
         """
@@ -58,7 +59,7 @@ class ProxyView(BaseAPIView):
             result['id'] = result.pop('resource_pk')
         return result
 
-    def _mapping_error(self, response):
+    def error(self, response):
         """
         Turns Zippy's error into a solitude one.
         """
@@ -68,34 +69,37 @@ class ProxyView(BaseAPIView):
             message = response.json
         return {'error_message': message}
 
-    def _make_response(self, proxied_endpoint, args=[], kwargs={}):
+    def result(self, proxied_endpoint, *args, **kwargs):
         method = getattr(proxied_endpoint, '__name__', 'unknown_method')
         try:
             with statsd.timer('solitude.provider.{ref}.proxy.{method}'
                               .format(ref=self.reference_name,
                                       method=method)):
-                return Response(self._mapping_resource(
-                                    proxied_endpoint(*args, **kwargs)))
+                result = proxied_endpoint(*args, **kwargs)
+                # It looks like the proxied endpoint does not return a status
+                # so we'll assume its a 200. That's not great.
+                return self.resource(result), 200
         except HttpClientError, exc:
             url = getattr(exc.response.request, 'full_url', 'unknown_url')
             log.exception('Proxy exception for {method} on {url}'
                           .format(method=method, url=url))
-            return Response(self._mapping_error(exc.response),
-                            status=exc.response.status_code)
+            return self.error(exc.response), exc.response.status_code
+
+    def response(self, proxied_endpoint, args=None, kwargs=None):
+        args = args or []
+        kwargs = kwargs or {}
+        result, status = self.result(proxied_endpoint, *args, **kwargs)
+        return Response(result, status=status)
 
     def get(self, request, *args, **kwargs):
-        return self._make_response(self.proxy.get,
-                                   kwargs=request.QUERY_PARAMS.dict())
+        return self.response(self.proxy.get,
+                             kwargs=request.QUERY_PARAMS.dict())
 
     def post(self, request, *args, **kwargs):
-        # Just piping request.DATA through isn't great but it will do for the
-        # moment.
-        return self._make_response(self.proxy.post,
-                                   args=[request.DATA])
+        return self.response(self.proxy.post, args=[request.DATA])
 
     def put(self, request, *args, **kwargs):
-        return self._make_response(self.proxy.put,
-                                   args=[request.DATA])
+        return self.response(self.proxy.put, args=[request.DATA])
 
     def delete(self, request, *args, **kwargs):
-        return self._make_response(self.proxy.delete)
+        return self.response(self.proxy.delete)

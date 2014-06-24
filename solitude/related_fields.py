@@ -1,6 +1,7 @@
 import urlparse
 
-from rest_framework.relations import HyperlinkedRelatedField, HyperlinkedIdentityField
+from rest_framework.relations import (HyperlinkedIdentityField,
+                                      HyperlinkedRelatedField)
 
 
 class RelativePathMixin(object):

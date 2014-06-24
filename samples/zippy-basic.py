@@ -20,51 +20,68 @@ parser.add_option('--product-external-id',
 (options, args) = parser.parse_args()
 
 
-uid = options.seller_uuid or str(uuid.uuid4())
+seller_uid = options.seller_uuid or 'seller:' + str(uuid.uuid4())
 call = functools.partial(lib.call, options.url)
 
-print 'Retrieving sellers.'
-res = call('/provider/reference/sellers/', 'get', {})
+##################################################################
+# First set up the sellers and products.
+#
+print 'Creating generic seller.'
+res = call('/generic/seller/', 'post', {'uuid': seller_uid})
+seller_uri = res['resource_uri']
 
-print 'Creating seller for:', uid
+print 'Creating seller product.'
+external_id = 'external:' + str(uuid.uuid4())
+product_id = 'product:' + str(uuid.uuid4())
+res = call('/generic/product/', 'post', {'seller': seller_uri,
+                                         'external_id': external_id,
+                                         'secret': 'n',
+                                         'public_id': product_id,
+                                         'access': 1})
+seller_product_uri = res['resource_uri']
+
+print 'Create reference seller for:', seller_uid
 seller = {
-    'uuid': uid,
-    'status': 'ACTIVE',
+    'seller': seller_uri,
+    'uuid': seller_uid,
     'name': 'John',
     'email': 'jdoe@example.org',
+    'status': 'ACTIVE',
 }
-res = call('/provider/reference/sellers/', 'post', seller)
+res = call('/provider/reference-beta/sellers/', 'post', seller)
+reference_uri = res['resource_uri']
 seller_id = res['id']
 
-print 'Retrieving the created seller'
-seller_url = '/provider/reference/sellers/{0}/'
-res = call(seller_url.format(seller_id), 'get', {})
-assert res['name'] == 'John'
-assert res['resource_uri'] == seller_url.format(seller_id)
+print 'Get reference seller for:', seller_uid
+res = call(reference_uri, 'get', {})
+
+print 'Creating reference product for:', seller_uid
+product = {
+    'seller_product': seller_product_uri,
+    'seller_reference': reference_uri,
+    'external_id': external_id,
+    'name': 'example-product',
+    'uuid': product_id
+}
+res = call('/provider/reference-beta/products/', 'post', product)
+reference_product_uri = res['resource_uri']
+
+print 'Getting reference product for:', seller_uid
+res = call(reference_product_uri, 'get', {})
 
 print 'Retrieving seller terms.'
-res = call('/provider/reference/terms/{0}/'.format(seller_id), 'get', {})
+res = call('/provider/reference/terms/{0}/'.format(seller_uid), 'get', {})
 assert res['text'] == 'Terms for seller: John'
 
 print 'Updating the created seller.'
 seller['name'] = 'Jack'
-res = call('/provider/reference/sellers/{0}/'.format(seller_id), 'put', seller)
+# TODO: cope with terms through the proxy so things like this get stripped.
+del seller['seller']
+res = call('/provider/reference/sellers/{0}/'.format(seller_uid), 'put', seller)
 assert res['name'] == 'Jack'
 
-product_uuid = options.product_uuid or str(uuid.uuid4())
 external_id = options.product_external_id or str(uuid.uuid4())
 
-print 'Creating seller product with external_id: ' + external_id
-product = {
-    'name': 'Product name',
-    'seller_id': seller_id,
-    'external_id': external_id,
-    'uuid': product_uuid,
-}
-res = call('/provider/reference/products/', 'post', product)
-assert res['name'] == 'Product name'
-
-product_id = res['id']
 print 'Creating product transaction with product_id: ' + product_id
 base_url = 'http://marketplace.firefox.com/mozpay'
 transaction = {
