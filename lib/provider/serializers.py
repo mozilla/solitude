@@ -21,7 +21,7 @@ class Remote(BaseSerializer):
     def restore_object(self, attrs, instance=None):
         """Limit restoring an object to local values only."""
         new_attrs = dict([k, v] for k, v  in attrs.items()
-                     if k not in self.Meta.remote)
+                         if k not in self.Meta.remote)
         return (super(Remote, self)
                 .restore_object(new_attrs, instance=instance))
 
@@ -64,7 +64,6 @@ class SellerProductReferenceSerializer(Remote, serializers.ModelSerializer):
         lookup_field='id',
     )
     uuid = serializers.CharField(max_length=100)
-    external_id = serializers.CharField(max_length=100)
     name = serializers.CharField(max_length=100)
 
     class Meta:
@@ -75,6 +74,8 @@ class SellerProductReferenceSerializer(Remote, serializers.ModelSerializer):
     @property
     def remote_data(self):
         self.init_data['seller_id'] = self.object.seller_product.seller.uuid
+        # Use the external id from the seller_product.
+        self.init_data['external_id'] = self.object.seller_product.external_id
         return super(SellerProductReferenceSerializer, self).remote_data
 
     def get_resource_uri(self, obj):

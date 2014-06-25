@@ -16,9 +16,7 @@ def make_seller_paypal(uuid):
 class SellerTest(APITest):
 
     def create_seller(self, **kwargs):
-        defaults = {
-            'uuid': str(uuid.uuid4()),
-        }
+        defaults = {'uuid': 'seller:' + str(uuid.uuid4())}
         defaults.update(kwargs)
         return Seller.objects.create(**defaults)
 
@@ -35,8 +33,8 @@ class SellerTest(APITest):
     def create_seller_product(self, seller=None, **kwargs):
         defaults = {
             'seller': seller or self.create_seller(),
-            'public_id': str(uuid.uuid4()),
-            'external_id': str(uuid.uuid4()),
+            'public_id': 'public:' + str(uuid.uuid4()),
+            'external_id': 'external:' + str(uuid.uuid4()),
         }
         defaults.update(kwargs)
 
