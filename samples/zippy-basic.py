@@ -59,7 +59,6 @@ print 'Creating reference product for:', seller_uid
 product = {
     'seller_product': seller_product_uri,
     'seller_reference': reference_uri,
-    'external_id': external_id,
     'name': 'example-product',
     'uuid': product_id
 }

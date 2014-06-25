@@ -13,7 +13,7 @@ log = getLogger('s.provider')
 class MashupView(ProxyView):
     """
     Overrides the normal proxy view to first process the data locally
-    and then remotely, storing data in merchant_id fields on the
+    and then remotely, storing data in reference_id fields on the
     objects.
 
     This allows clients interacting with solitude to make one call which
@@ -28,7 +28,7 @@ class MashupView(ProxyView):
             # Get the remote data.
             self.remote, status = self.result(self.proxy.post,
                                               serializer.remote_data)
-            serializer.object.merchant_id = self.remote['uuid']
+            serializer.object.reference_id = self.remote['uuid']
             serializer.object.save()
 
             # Impose solitude data on top of reference data.
@@ -43,10 +43,10 @@ class MashupView(ProxyView):
         self.object = get_object_or_404(model, pk=kwargs['id'])
         serializer = self.serializer_class(self.object)
 
-        # Add in the merchant_id to the remote data.
+        # Add in the reference_id to the remote data.
         kwargs = self.kwargs
-        kwargs['uuid'] = self.object.merchant_id
-        assert self.object.merchant_id, 'Missing merchant_id'
+        kwargs['uuid'] = self.object.reference_id
+        assert self.object.reference_id, 'Missing reference_id'
 
         # Get the remote data, add it in.
         self.proxy = self.client(**kwargs)

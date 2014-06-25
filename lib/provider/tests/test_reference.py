@@ -7,7 +7,7 @@ from nose.tools import eq_
 from lib.sellers.models import SellerProductReference, SellerReference
 from lib.sellers.tests.utils import SellerTest
 
-MERCHANT_ID = 'some:merchant:id'
+REF_ID = 'some:ref:id'
 
 
 class TestSellerProductView(SellerTest):
@@ -37,13 +37,12 @@ class TestSellerProductView(SellerTest):
     @patch('lib.provider.client.APIMockObject.get_data')
     def test_get(self, get_data):
         ref = SellerReference.objects.create(seller=self.seller,
-                                             merchant_id=MERCHANT_ID)
-        get_data.return_value = {MERCHANT_ID: {'f': 'b'}}
+                                             reference_id=REF_ID)
+        get_data.return_value = {REF_ID: {'f': 'b'}}
 
         url = reverse('provider.sellers', kwargs={'id': ref.pk})
         response = self.client.get(url)
         eq_(response.status_code, 200, response.content)
-
 
 
 class TestSellerProductReferenceView(SellerTest):
@@ -58,7 +57,6 @@ class TestSellerProductReferenceView(SellerTest):
                                     api_name='generic'),
             'seller_reference':
                 reverse('provider.sellers', args=[self.ref.id]),
-            'external_id': 'ext:id',
             'name': 'bob',
             'uuid': 'some:uuid'
         }
@@ -68,13 +66,24 @@ class TestSellerProductReferenceView(SellerTest):
         response = self.client.post(self.url, data=self.data)
         eq_(response.status_code, 201, response.content)
 
+    @patch('lib.provider.client.APIMockObject.post')
+    def test_post_external_id(self, post):
+        post.return_value = {'uuid': 'some:uid'}
+        self.client.post(self.url, data=self.data)
+        post.assert_called_with({
+            'seller_id': self.seller.uuid,
+            'external_id': self.product.external_id,
+            'uuid': 'some:uuid',
+            'name': 'bob'
+        })
+
     @patch('lib.provider.client.APIMockObject.get_data')
     def test_get(self, get_data):
         ref = SellerProductReference.objects.create(
             seller_product=self.product,
             seller_reference=self.ref,
-            merchant_id=MERCHANT_ID)
-        get_data.return_value = {MERCHANT_ID: {'f': 'b'}}
+            reference_id=REF_ID)
+        get_data.return_value = {REF_ID: {'f': 'b'}}
 
         url = reverse('provider.products', args=[ref.id])
         response = self.client.get(url)
