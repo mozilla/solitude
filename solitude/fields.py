@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import get_script_prefix, resolve, Resolver404
 from django.utils import importlib
 
 from tastypie.exceptions import NotFound
@@ -25,13 +26,36 @@ class URLField(forms.CharField):
         except TypeError:
             raise ValueError('%s is not valid' % self.to)
 
+    def get_via_uri(self, uri, request=None):
+        """
+        Like get_via_uri from tastypie, but ignores resource_name
+        and reference_name, get_via_uri assumes everything in the URI
+        should be passed to get_obj.
+        """
+        prefix = get_script_prefix()
+        chomped_uri = uri
+
+        if prefix and chomped_uri.startswith(prefix):
+            chomped_uri = chomped_uri[len(prefix)-1:]
+
+        try:
+            view, args, kwargs = resolve(chomped_uri)
+        except Resolver404:
+            raise NotFound("The URL provided '%s' was not "
+                           "a link to a valid resource." % uri)
+
+        return dict((k, v) for k, v in kwargs.items()
+                    if k not in ['api_name', 'resource_name',
+                                 'reference_name'])
+
     def clean(self, value):
         super(URLField, self).clean(value)
         if not value:
             return
 
         try:
-            return self.to_instance().get_via_uri(value)
+            kwargs = self.get_via_uri(value)
+            return self.to_instance().obj_get(**kwargs)
         except (ObjectDoesNotExist, NotFound):
             raise forms.ValidationError('Not a valid resource.')
 

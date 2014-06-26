@@ -143,7 +143,7 @@ class SellerProductBoku(Model):
 
 class SellerReference(Model):
     seller = models.OneToOneField(Seller, related_name='reference')
-    merchant_id = models.CharField(max_length=255, blank=False, null=False)
+    reference_id = models.CharField(max_length=255, blank=False, null=False)
 
     class Meta(Model.Meta):
         db_table = 'seller_reference'
@@ -154,6 +154,7 @@ class SellerProductReference(Model):
                                           related_name='product_reference')
     seller_reference = models.ForeignKey(SellerReference,
                                          related_name='product_reference')
+    reference_id = models.CharField(max_length=255, blank=False, null=False)
 
     class Meta(Model.Meta):
         db_table = 'seller_product_reference'

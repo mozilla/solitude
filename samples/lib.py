@@ -8,7 +8,7 @@ import sys
 def call(root, url, method, data):
     method = getattr(requests, method)
     url = root + url
-    print 'Calling url:', url, method
+    print method.__name__.upper(), url
     print 'Request data:'
     pprint.pprint(data)
     data = json.dumps(data)

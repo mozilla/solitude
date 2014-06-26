@@ -203,6 +203,11 @@ class TestURLField(test_utils.TestCase):
                               required=False)
         eq_(self.field.clean(''), None)
 
+    def test_kwargs(self):
+        obj = Seller.objects.create()
+        self.field = URLField(to='lib.sellers.resources.SellerResource')
+        self.field.clean('/generic/seller/{0}/'.format(obj.pk))
+
 
 class TestModel(test_utils.TestCase):
 
