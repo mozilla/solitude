@@ -18,12 +18,14 @@ Sellers
     :param email: email of the seller.
     :param name: name of the seller.
     :param status: status of the seller.
+    :param seller: the url to the seller as returned from seller creation.
 
     Example:
 
     .. code-block:: json
 
         {
+            "seller": "{seller-url}",
             "email": "jdoe@example.org",
             "name": "John",
             "status": "ACTIVE",
@@ -37,28 +39,7 @@ Sellers
     :status 400: there was a problem with the seller creation. Examine the
         response contents for more information.
 
-    :param email: email of the seller.
-    :param name: name of the seller.
-    :param status: status of the seller.
-    :param agreement: an optional date that can be used for terms validation.
-    :param resource_name: the name of the resource.
-    :param id: the primary key of the resource.
-    :param resource_uri: the URI of the resource.
-
-    Example successful seller creation:
-
-    .. code-block:: json
-
-        {
-            "agreement": "",
-            "email": "jdoe@example.org",
-            "name": "John",
-            "resource_name": "sellers",
-            "id": "{seller-uuid}",
-            "resource_uri": "/sellers/{seller-uuid}",
-            "status": "ACTIVE"
-        }
-
+    See retrieving a seller for detail on the response.
 
 .. http:get:: /provider/reference/sellers/{seller-uuid}/
 
@@ -78,6 +59,8 @@ Sellers
     :param resource_name: the name of the resource.
     :param id: the primary key of the resource.
     :param resource_uri: the URI of the resource.
+    :param uuid: a UUID for the resource.
+    :param seller: the URI of the generic seller.
 
     Example successful seller retrieval:
 
@@ -88,9 +71,11 @@ Sellers
             "email": "jdoe@example.org",
             "name": "John",
             "resource_name": "sellers",
-            "id": "{seller-uuid}",
-            "resource_uri": "/sellers/{seller-uuid}",
-            "status": "ACTIVE"
+            "id": "{seller-id}",
+            "resource_uri": "/provider/reference/sellers/{seller-id}",
+            "status": "ACTIVE",
+            "seller" "/generic/seller/1/",
+            "uuid": "{seller-uuid}"
         }
 
 
@@ -156,9 +141,10 @@ Using that newly created "seller", we can now create a "product".
 
     **Request**
 
-    :param seller_id: uuid of the seller.
-    :param external_id: uuid of the product.
     :param name: name of the product.
+    :param seller_product: url of the generic product.
+    :param seller_reference: url of the reference seller.
+    :param uuid: a uuid for this product.
 
     Example:
 
@@ -166,8 +152,9 @@ Using that newly created "seller", we can now create a "product".
 
         {
             "name": "Product name",
-            "seller_id": "{seller-uuid}",
-            "external_id": "{product-uuid}"
+            "uuid": "{product-uuid}",
+            "seller_product": "{seller-product-url}",
+            "seller_reference": "{seller-reference-url}"
         }
 
     **Response**
@@ -177,28 +164,31 @@ Using that newly created "seller", we can now create a "product".
     :status 400: there was a problem with the product creation. Examine the
         response contents for more information.
 
-    :param seller_id: uuid of the seller.
-    :param external_id: uuid of the product.
-    :param name: name of the product.
-    :param status: status of the product.
-    :param resource_name: the name of the resource.
     :param id: the primary key of the resource.
+    :param name: name of the product.
+    :param resource_name: the name of the resource.
     :param resource_uri: the URI of the resource.
+    :param seller_id: uuid of the seller.
+    :param seller_product: URI of the generic product.
+    :param seller_reference: URI of the reference seller.
+    :param status: status of the product.
+    :param uuid: the uuid of the product.
 
     Example successful product creation:
 
     .. code-block:: json
 
         {
-            "external_id": "{product-uuid}",
-            "seller_id": "{seller-uuid}",
+            "id": "{product-id}",
             "name": "Product name",
             "resource_name": "products",
-            "id": "{product-uuid}",
-            "resource_uri": "/products/{product-uuid}",
-            "status": "ACTIVE"
+            "resource_uri": "/products/reference/{product-id}",
+            "seller_id": "{seller-uuid}",
+            "seller_product": "{seller-product-url}",
+            "seller_reference": "{seller-reference-url}",
+            "status": "ACTIVE",
+            "uuid": "{product-uuid}"
         }
-
 
 Transactions
 ============
