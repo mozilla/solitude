@@ -15,16 +15,19 @@ bango_overrides = patterns('',
 boku = DefaultRouter()
 boku.register('event', Event, base_name='event')
 
-reference = DefaultRouter()
-reference.register('seller', SellerReferenceView)
-reference.register('sellerproduct', SellerProductReferenceView)
-
 urlpatterns = patterns('',
     url(r'^bango/', include(bango_overrides)),
     url(r'^boku/', include(boku.urls)),
     # TODO: once I feel comfortable this is good, we'll remove beta so
     # it overrides existing URLs. This allows lots of smaller pull requests.
-    url(r'^reference-beta/', include(reference.urls, namespace='ref')),
+    url(r'^reference-beta/sellers/(?P<id>[^/]+)?/?',
+        SellerReferenceView.as_view(),
+        {'reference_name': 'reference', 'resource_name': 'sellers'},
+        name='provider.sellers'),
+    url(r'^reference-beta/products/(?P<id>[^/]+)?/?',
+        SellerProductReferenceView.as_view(),
+        {'reference_name': 'reference', 'resource_name': 'products'},
+        name='provider.products'),
     url(r'^(?P<reference_name>\w+)/(?P<resource_name>\w+)/(?P<uuid>[^/]+)?/?',
         ProxyView.as_view(), name='provider.api_view'),
 )
