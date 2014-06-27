@@ -31,10 +31,8 @@ class MashupView(ProxyView):
             serializer.object.reference_id = self.remote['uuid']
             serializer.object.save()
 
-            # Impose solitude data on top of reference data.
-            data = self.remote.copy()
-            data.update(serializer.data)
-            return Response(data, status=201)
+            serializer.data['reference'] = self.remote
+            return Response(serializer.data, status=201)
 
         return Response(serializer.errors, status=400)
 
@@ -52,10 +50,8 @@ class MashupView(ProxyView):
         self.proxy = self.client(**kwargs)
         self.remote, status = self.result(self.proxy.get)
 
-        # Impose solitude data on top of reference data.
-        data = self.remote.copy()
-        data.update(serializer.data)
-        return Response(data)
+        serializer.data['reference'] = self.remote
+        return Response(serializer.data, status=200)
 
 
 class SellerReferenceView(MashupView):
