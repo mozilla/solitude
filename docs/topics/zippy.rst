@@ -108,11 +108,12 @@ Sellers
         response contents for more information.
 
     :param email: email of the seller.
-    :param name: name of the seller.
-    :param status: status of the seller.
-    :param agreement: an optional date that can be used for terms validation.
-    :param resource_name: the name of the resource.
-    :param id: the primary key of the resource.
+    :param reference: the contents of the response from the reference server.
+    :param reference > name: name of the seller.
+    :param reference > status: status of the seller.
+    :param reference > agreement: an optional date that can be used for terms validation.
+    :param reference > resource_name: the name of the resource.
+    :param reference > id: the primary key of the resource.
     :param resource_uri: the URI of the resource.
 
     Example successful seller modification:
@@ -120,13 +121,18 @@ Sellers
     .. code-block:: json
 
         {
-            "agreement": "",
-            "email": "jdoe@example.org",
-            "name": "Jack",
-            "resource_name": "sellers",
             "id": "{seller-uuid}",
+            "reference": {
+                "agreement": "",
+                "email": "jdoe@example.org",
+                "name": "Jack",
+                "resource_name": "sellers",
+                "resource_uri": "{seller-uri}",
+                "id": "{seller-uuid}",
+                "status": "ACTIVE"
+            },
             "resource_uri": "/sellers/{seller-uuid}",
-            "status": "ACTIVE"
+            "seller": "{seller-uri}"
         }
 
 
@@ -165,14 +171,16 @@ Using that newly created "seller", we can now create a "product".
         response contents for more information.
 
     :param id: the primary key of the resource.
-    :param name: name of the product.
-    :param resource_name: the name of the resource.
-    :param resource_uri: the URI of the resource.
-    :param seller_id: uuid of the seller.
     :param seller_product: URI of the generic product.
     :param seller_reference: URI of the reference seller.
-    :param status: status of the product.
-    :param uuid: the uuid of the product.
+    :param reference: the contents of the response from the reference server.
+    :param reference > external_id: the external id.
+    :param reference > name: name of the product.
+    :param reference > resource_name: the name of the resource.
+    :param reference > resource_uri: the URI of the resource.
+    :param reference > seller_id: uuid of the seller.
+    :param reference > status: status of the product.
+    :param reference > uuid: the uuid of the product.
 
     Example successful product creation:
 
@@ -180,14 +188,18 @@ Using that newly created "seller", we can now create a "product".
 
         {
             "id": "{product-id}",
-            "name": "Product name",
-            "resource_name": "products",
+            "reference": {
+                "external_id": "{external-uuid}"
+                "name": "Product name",
+                "resource_name": "products",
+                "resource_uri": "/products/reference/{product-id}",
+                "seller_id": "{seller-uuid}",
+                "status": "ACTIVE",
+                "uuid": "{product-uuid}"
+            },
             "resource_uri": "/products/reference/{product-id}",
-            "seller_id": "{seller-uuid}",
             "seller_product": "{seller-product-url}",
             "seller_reference": "{seller-reference-url}",
-            "status": "ACTIVE",
-            "uuid": "{product-uuid}"
         }
 
 Transactions
