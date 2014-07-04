@@ -42,50 +42,36 @@ If you used a virtualenv_ activate it and compile some playdoh dependencies::
 Configure
 ---------
 
-Setup settings::
+Solitude will work without any settings changes at all with zippy, the
+reference implementation of the payment provider.
+
+However since solitudes main job is to communicate with remote payment
+providers you will need to configure those. To do so create a settings file.
+
+Create an empty settings::
 
     cd solitude/settings
-    cp local.py-dist local.py
+    echo "from . import base" > local.py
 
-Now edit the `local.py` settings. In your favourite text editor. Example
-settings::
+Environment settings
+~~~~~~~~~~~~~~~~~~~~
 
-    SECRET_KEY ='enter.some.string.here'
+Out of the box, zamboni should work without any need for settings changes. A
+few settings are configurable from the environment, they are:
 
-    if not base.DATABASES:
-        DATABASES = {
-               'default': {
-                        'ENGINE': 'django.db.backends.mysql',
-                        'NAME': 'solitude',
-                        'USER': 'root',
-                        'PASSWORD': '',
-                        'HOST': '',
-                        'PORT': '',
-                        'OPTIONS': {
-                                'init_command': 'SET storage_engine=InnoDB',
-                                'charset' : 'utf8',
-                                'use_unicode' : True,
-                        },
-                        'TEST_CHARSET': 'utf8',
-                        'TEST_COLLATION': 'utf8_general_ci',
-                },
-        }
+* ``DATABASE``: from the ``SOLITUDE_DATABASE`` environment variable, configured
+  using https://github.com/kennethreitz/dj-database-url. Example and default::
 
-    SITE_URL = 'http://your.solitude.instance/'
+    export ZAMBONI_DATABASE=mysql://root:@localhostyy:3306/zamboni
 
-Solitude requires some keys on the file system. For each key in `base.py`,
-copy into `local.py` and point to a file that makes sense for your install. For
-example::
+* ``MEMCACHE_URL``: from the ``MEMCACHE_URL`` environment variable, example::
 
-    AES_KEYS = {
-        'buyerpaypal:key': 'buyerpaypal_key.key',
-        'sellerpaypal:id': 'sellerpaypal_id.key',
-        'sellerpaypal:token': 'sellerpaypal_token.key',
-        'sellerpaypal:secret': 'sellerpaypal_secret.key',
-        'sellerproduct:secret': 'sellerproduct_secret.key',
-        'bango:signature': 'bango_signature.key',
-    }
+    export MEMCACHE_URL=localhost:11211
 
+* ``SOLITUDE_PROXY``: from the ``SOLITUDE_PROXY`` environment variable. Set
+  this to 'enabled' to turn on the solitude proxy. Example::
+
+    export SOLITUDE_PROXY=enabled
 
 PayPal settings
 ~~~~~~~~~~~~~~~
