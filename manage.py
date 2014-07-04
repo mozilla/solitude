@@ -57,5 +57,14 @@ if newrelic_ini and os.path.exists(newrelic_ini):
         startup_logger = logging.getLogger('s.startup')
         startup_logger.exception('Failed to load new relic config.')
 
+from solitude.utils import validate_settings
+validate_settings()
+
+
+# Alter solitude to run on a particular port as per the
+# marketplace docs, unless overridden.
+from django.core.management.commands import runserver
+runserver.DEFAULT_PORT = 2602
+
 if __name__ == "__main__":
     manage.main()
