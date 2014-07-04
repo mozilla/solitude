@@ -27,9 +27,10 @@ class Remote(BaseSerializer):
 
 
 class SellerReferenceSerializer(Remote, serializers.ModelSerializer):
+    agreement = serializers.CharField(max_length=10)
     seller = CompatRelatedField(
         source='seller',
-        tastypie={'resource_name': 'seller','api_name': 'generic'},
+        tastypie={'resource_name': 'seller', 'api_name': 'generic'},
         view_name='api_dispatch_detail',
         queryset=Seller.objects.filter(),
     )
@@ -44,10 +45,11 @@ class SellerReferenceSerializer(Remote, serializers.ModelSerializer):
     class Meta:
         model = SellerReference
         fields = ('id', 'seller', 'resource_uri')
-        remote = ['uuid', 'name', 'email', 'status']
+        remote = ['uuid', 'name', 'email', 'status', 'agreement']
 
     def get_resource_uri(self, obj):
-        return reverse('provider.sellers', kwargs={'id': obj.pk})
+        return reverse('provider.sellers',
+                       kwargs={'id': obj.pk, 'reference_name': 'reference'})
 
 
 class SellerProductReferenceSerializer(Remote, serializers.ModelSerializer):
@@ -79,4 +81,24 @@ class SellerProductReferenceSerializer(Remote, serializers.ModelSerializer):
         return super(SellerProductReferenceSerializer, self).remote_data
 
     def get_resource_uri(self, obj):
-        return reverse('provider.products', kwargs={'id': obj.pk})
+        return reverse('provider.products',
+                       kwargs={'id': obj.pk, 'reference_name': 'reference'})
+
+
+class TermsSerializer(Remote, serializers.ModelSerializer):
+    agreement = serializers.CharField()
+    text = serializers.CharField()
+
+    class Meta:
+        model = SellerReference
+        fields = ['id', 'resource_uri']
+        remote = ['text', 'agreement']
+
+    @property
+    def remote_data(self):
+        return super(TermsSerializer, self).remote_data
+
+    def get_resource_uri(self, obj):
+        return reverse('provider.sellers',
+            kwargs={'id': obj.pk, 'reference_name': 'reference'})
+
