@@ -305,6 +305,10 @@ S3_AUTH = {'key': '',
            'secret': ''}
 S3_BUCKET = ''
 
+# We don't actually use session cookies at all in solitude. So its safe
+# to set this, to stop funfactory complaining about it.
+SESSION_COOKIE_SECURE = True
+
 # Set this for OAuth.
 SITE_URL = host
 
