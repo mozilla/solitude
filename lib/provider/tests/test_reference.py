@@ -1,9 +1,9 @@
 from django.core.urlresolvers import reverse
 
-from curling.lib import HttpServerError
 from mock import patch
 from nose.tools import eq_
 
+from curling.lib import HttpServerError
 from lib.sellers.models import SellerProductReference, SellerReference
 from lib.sellers.tests.utils import SellerTest
 
@@ -87,4 +87,25 @@ class TestSellerProductReferenceView(SellerTest):
 
         url = reverse('provider.products', args=[ref.id])
         response = self.client.get(url)
+        eq_(response.status_code, 200, response.content)
+
+
+class TestTermsView(SellerTest):
+
+    def setUp(self):
+        self.seller = self.create_seller()
+        self.ref = SellerReference.objects.create(seller=self.seller,
+                                                  reference_id=REF_ID)
+        self.url = reverse('provider.terms', kwargs={'id': self.ref.pk})
+
+    @patch('lib.provider.client.APIMockObject.get_data')
+    def test_get(self, get_data):
+        get_data.return_value = {REF_ID: {'agreement': '', 'detail': 'Terms'}}
+        response = self.client.get(self.url)
+        eq_(response.status_code, 200, response.content)
+
+    @patch('lib.provider.client.APIMockObject.get_data')
+    def test_put(self, get_data):
+        get_data.return_value = {REF_ID: {'agreement': '', 'detail': 'Terms'}}
+        response = self.client.put(self.url, data={'agreement': '2014-01-01'})
         eq_(response.status_code, 200, response.content)

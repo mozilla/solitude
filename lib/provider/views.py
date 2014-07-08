@@ -2,11 +2,11 @@ import json
 
 from django.core.urlresolvers import reverse
 
-from curling.lib import HttpClientError
 from django_statsd.clients import statsd
 from rest_framework.response import Response
 
 import client
+from curling.lib import HttpClientError
 from errors import NoReference
 from solitude.base import BaseAPIView
 from solitude.logger import getLogger
@@ -48,6 +48,8 @@ class ProxyView(BaseAPIView):
         Turns Zippy's resource into a solitude one.
         """
         if 'resource_uri' in result:
+            # TODO: this maps everything into the generic view, let's remove
+            # this.
             result['resource_uri'] = reverse('provider.api_view', kwargs={
                 'reference_name': self.reference_name,
                 'resource_name': result['resource_name'],
@@ -83,12 +85,16 @@ class ProxyView(BaseAPIView):
             url = getattr(exc.response.request, 'full_url', 'unknown_url')
             log.exception('Proxy exception for {method} on {url}'
                           .format(method=method, url=url))
-            return self.error(exc.response), exc.response.status_code
+            raise
 
     def response(self, proxied_endpoint, args=None, kwargs=None):
         args = args or []
         kwargs = kwargs or {}
-        result, status = self.result(proxied_endpoint, *args, **kwargs)
+        try:
+            result, status = self.result(proxied_endpoint, *args, **kwargs)
+        except HttpClientError, exc:
+            return Response(self.error(exc.response),
+                            status=exc.response.status_code)
         return Response(result, status=status)
 
     def get(self, request, *args, **kwargs):

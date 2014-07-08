@@ -56,9 +56,8 @@ class APIMockObject(object):
         mock_data[self.resource_name][id] = data
         return self.get_data(self.resource_name)[id]
 
-
     def put(self, data):
-        initial_data = mock_data[self.resource_name][self.pk]
+        initial_data = self.get_data(self.resource_name)[self.pk]
         initial_data.update(data)
         mock_data[self.resource_name][self.pk] = initial_data
         return mock_data[self.resource_name][self.pk]
@@ -90,6 +89,10 @@ class APIMock(object):
     @property
     def transactions(self, *args, **kwargs):
         return APITransactionMockObject('transactions')
+
+    @property
+    def terms(self, *args, **kwargs):
+        return APIMockObject('terms')
 
 
 class ClientMock(object):

@@ -30,7 +30,7 @@ print 'Creating generic seller.'
 res = call('/generic/seller/', 'post', {'uuid': seller_uid})
 seller_uri = res['resource_uri']
 
-print 'Creating seller product.'
+print 'Creating generic product.'
 external_id = 'external:' + str(uuid.uuid4())
 product_id = 'product:' + str(uuid.uuid4())
 res = call('/generic/product/', 'post', {'seller': seller_uri,
@@ -48,7 +48,7 @@ seller = {
     'email': 'jdoe@example.org',
     'status': 'ACTIVE',
 }
-res = call('/provider/reference-beta/sellers/', 'post', seller)
+res = call('/provider/reference/sellers/', 'post', seller)
 reference_uri = res['resource_uri']
 seller_id = res['id']
 
@@ -60,31 +60,42 @@ product = {
     'seller_product': seller_product_uri,
     'seller_reference': reference_uri,
     'name': 'example-product',
-    'uuid': product_id
+    'uuid': 'reference-uuid:' + product_id
 }
-res = call('/provider/reference-beta/products/', 'post', product)
+
+res = call('/provider/reference/products/', 'post', product)
 reference_product_uri = res['resource_uri']
+
+print 'Checking we can find the reference product for:', seller_uid
+res = call(reference_product_uri, 'get', {})
+print res
 
 print 'Getting reference product for:', seller_uid
 res = call(reference_product_uri, 'get', {})
 
 print 'Retrieving seller terms.'
-res = call('/provider/reference/terms/{0}/'.format(seller_uid), 'get', {})
-assert res['text'] == 'Terms for seller: John'
+res = call('/provider/reference/terms/{0}/'.format(seller_id), 'get', {})
+assert res['reference']['text'] == 'Terms for seller: John'
 
 print 'Updating the created seller.'
 seller['name'] = 'Jack'
-# TODO: cope with terms through the proxy so things like this get stripped.
-del seller['seller']
-res = call('/provider/reference/sellers/{0}/'.format(seller_uid), 'put', seller)
-assert res['name'] == 'Jack'
+seller['agreement'] = '2010-01-01'
+res = call('/provider/reference/sellers/{0}/'.format(seller_id), 'put', seller)
+assert res['reference']['name'] == 'Jack'
+
+print 'Get reference seller for:', seller_uid
+res = call(reference_uri, 'get', {})
+
+print 'Checking that given a public id, we can get the reference seller.'
+res = call('/generic/product/?public_id={0}'.format(product_id), 'get', {})
+assert res['objects'][0]['seller_uuids']['reference'], seller_uid
 
 external_id = options.product_external_id or str(uuid.uuid4())
 
 print 'Creating product transaction with product_id: ' + product_id
 base_url = 'http://marketplace.firefox.com/mozpay'
 transaction = {
-    'product_id': product_id,
+    'product_id': 'reference-uuid:' + product_id,
     'region': '123',
     'carrier': 'USA_TMOBILE',
     'price': '0.99',
