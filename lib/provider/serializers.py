@@ -75,7 +75,9 @@ class SellerProductReferenceSerializer(Remote, serializers.ModelSerializer):
 
     @property
     def remote_data(self):
-        self.init_data['seller_id'] = self.object.seller_product.seller.uuid
+        # Use the reference to the seller created in the reference
+        # implementation.
+        self.init_data['seller_id'] = self.object.seller_reference.reference_id
         # Use the external id from the seller_product.
         self.init_data['external_id'] = self.object.seller_product.external_id
         return super(SellerProductReferenceSerializer, self).remote_data
