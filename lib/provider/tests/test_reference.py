@@ -50,7 +50,8 @@ class TestSellerProductReferenceView(SellerTest):
     def setUp(self):
         self.seller = self.create_seller()
         self.product = self.create_seller_product(seller=self.seller)
-        self.ref = SellerReference.objects.create(seller=self.seller)
+        self.ref = SellerReference.objects.create(seller=self.seller,
+                                                  reference_id='ref:id')
         self.data = {
             'seller_product':
                 self.get_detail_url('product', self.product,
@@ -71,7 +72,7 @@ class TestSellerProductReferenceView(SellerTest):
         post.return_value = {'uuid': 'some:uid'}
         self.client.post(self.url, data=self.data)
         post.assert_called_with({
-            'seller_id': self.seller.uuid,
+            'seller_id': 'ref:id',
             'external_id': self.product.external_id,
             'uuid': 'some:uuid',
             'name': 'bob'
