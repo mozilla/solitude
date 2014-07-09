@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from django_statsd.clients import statsd
 
 from lib.bango.signals import create as bango_create
+from lib.buyers.models import Buyer
 from lib.paypal.signals import create as paypal_create
 from lib.transactions import constants
 
@@ -149,6 +150,8 @@ def create_bango_transaction(sender, **kwargs):
     bundle = kwargs['bundle'].data
     data = kwargs['data']
     form = kwargs['form']
+    buyer_uuid = form.cleaned_data['user_uuid']
+    buyer = Buyer.objects.get(uuid=buyer_uuid)
     seller = form.cleaned_data['seller_product_bango'].seller_bango.seller
     seller_product = form.cleaned_data['seller_product_bango'].seller_product
 
@@ -158,6 +161,7 @@ def create_bango_transaction(sender, **kwargs):
         provider=constants.PROVIDER_BANGO,
         seller_product=seller_product)
 
+    transaction.buyer = buyer
     transaction.seller = seller
     transaction.source = form.cleaned_data.get('source', '')
     transaction.carrier = form.cleaned_data.get('carrier', '')
