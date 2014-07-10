@@ -193,6 +193,13 @@ BASE_PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
 )
 
+# Set up bcrypt.
+HMAC_KEYS = {
+    '2011-01-01': 'please change me',
+}
+from django_sha2 import get_password_hashers
+PASSWORD_HASHERS = get_password_hashers(BASE_PASSWORD_HASHERS, HMAC_KEYS)
+
 # Access the cleansed settings values.
 CLEANSED_SETTINGS_ACCESS = False
 
