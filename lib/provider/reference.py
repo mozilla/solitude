@@ -1,11 +1,14 @@
 from django.shortcuts import get_object_or_404
 
+from rest_framework import viewsets
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from lib.provider.serializers import (SellerProductReferenceSerializer,
                                       SellerReferenceSerializer,
                                       TermsSerializer)
 from lib.provider.views import ProxyView
+from lib.sellers.models import SellerProductReference, SellerReference
 from solitude.logger import getLogger
 
 log = getLogger('s.provider')
@@ -55,7 +58,7 @@ class MashupView(ProxyView):
         retreived here.
         """
         model = self.serializer_class.Meta.model
-        self.object = get_object_or_404(model, pk=self.kwargs['id'])
+        self.object = get_object_or_404(model, pk=self.kwargs['pk'])
         self._proxy_reset = True
 
     def get_proxy(self):
@@ -92,13 +95,50 @@ class MashupView(ProxyView):
         return Response(serializer.errors, status=400)
 
 
-class SellerReferenceView(MashupView):
+class MashupViewSet(viewsets.ModelViewSet):
+    """
+    Take a viewset and wrap it into a Mashup.
+    """
+    reference_name = 'reference'
+    resource_name = ''
+    serializer_class = ''
+
+    def mashup(self, request, *args, **kwargs):
+        proxy = MashupView()
+        proxy.serializer_class = self.serializer_class
+        proxy.initial(request, reference_name=self.reference_name,
+                      resource_name=self.resource_name, *args, **kwargs)
+        return proxy
+
+    def create(self, request, *args, **kwargs):
+        return self.mashup(request, *args, **kwargs).post(request)
+
+    def retrieve(self, request, *args, **kwargs):
+        return self.mashup(request, *args, **kwargs).get(request)
+
+    def update(self, request, *args, **kwargs):
+        return self.mashup(request, *args, **kwargs).put(request)
+
+    def delete(self, request, *args, **kwargs):
+        raise PermissionDenied
+
+
+class SellerReference(MashupViewSet):
+    model = SellerReference
+    resource_name = 'sellers'
     serializer_class = SellerReferenceSerializer
 
 
-class SellerProductReferenceView(MashupView):
+class SellerProductReference(MashupViewSet):
+    model = SellerProductReference
+    resource_name = 'products'
     serializer_class = SellerProductReferenceSerializer
+    filter_fields = ('seller_product__seller', 'seller_product__external_id')
+    # Note: that retrieve and list return different results, you might
+    # need to do a list and then retrieve.
 
 
-class Terms(MashupView):
+class Terms(MashupViewSet):
+    model = SellerReference
+    resource_name = 'terms'
     serializer_class = TermsSerializer

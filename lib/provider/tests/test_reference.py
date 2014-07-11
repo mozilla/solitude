@@ -22,7 +22,7 @@ class TestSellerProductView(SellerTest):
             'email': 'f@b.c',
             'status': 'ACTIVE'
         }
-        self.url = reverse('provider.sellers')
+        self.url = reverse('reference:sellers-list')
 
     def test_post(self):
         response = self.client.post(self.url, data=self.data)
@@ -40,7 +40,7 @@ class TestSellerProductView(SellerTest):
                                              reference_id=REF_ID)
         get_data.return_value = {REF_ID: {'f': 'b'}}
 
-        url = reverse('provider.sellers', kwargs={'id': ref.pk})
+        url = reverse('reference:sellers-detail', kwargs={'pk': ref.pk})
         response = self.client.get(url)
         eq_(response.status_code, 200, response.content)
 
@@ -57,38 +57,66 @@ class TestSellerProductReferenceView(SellerTest):
                 self.get_detail_url('product', self.product,
                                     api_name='generic'),
             'seller_reference':
-                reverse('provider.sellers', args=[self.ref.id]),
+                reverse('reference:sellers-detail', args=[self.ref.id]),
             'name': 'bob',
             'uuid': 'some:uuid'
         }
-        self.url = reverse('provider.products')
+        self.url = reverse('reference:products-list')
+
+        p = patch('lib.provider.client.APIMockObject.post')
+        self.provider_post = p.start()
+        self.addCleanup(p.stop)
+
+        p = patch('lib.provider.client.APIMockObject.get_data')
+        self.provider_get = p.start()
+        self.addCleanup(p.stop)
+
+    def create_provider_product(self, **kw):
+        props = dict(seller_product=self.product,
+                     seller_reference=self.ref,
+                     reference_id=REF_ID)
+        props.update(kw)
+        return SellerProductReference.objects.create(**props)
 
     def test_post(self):
+        self.provider_post.return_value = {'uuid': 'some:uid'}
         response = self.client.post(self.url, data=self.data)
         eq_(response.status_code, 201, response.content)
 
-    @patch('lib.provider.client.APIMockObject.post')
-    def test_post_external_id(self, post):
-        post.return_value = {'uuid': 'some:uid'}
+    def test_post_external_id(self):
+        self.provider_post.return_value = {'uuid': 'some:uid'}
         self.client.post(self.url, data=self.data)
-        post.assert_called_with({
+        self.provider_post.assert_called_with({
             'seller_id': 'ref:id',
             'external_id': self.product.external_id,
             'uuid': 'some:uuid',
             'name': 'bob'
         })
 
-    @patch('lib.provider.client.APIMockObject.get_data')
-    def test_get(self, get_data):
-        ref = SellerProductReference.objects.create(
-            seller_product=self.product,
-            seller_reference=self.ref,
-            reference_id=REF_ID)
-        get_data.return_value = {REF_ID: {'f': 'b'}}
+    def test_get(self):
+        ref = self.create_provider_product()
+        self.provider_get.return_value = {REF_ID: {'f': 'b'}}
 
-        url = reverse('provider.products', args=[ref.id])
+        url = reverse('reference:products-detail', args=[ref.id])
         response = self.client.get(url)
         eq_(response.status_code, 200, response.content)
+
+    def test_filter_by_ext_id(self):
+        self.create_provider_product()
+        decoy_sel = self.create_seller()
+        ext_id = 'my-fancy-ext-id'
+        decoy_prod = self.create_seller_product(seller=decoy_sel,
+                                                external_id=ext_id)
+        decoy = self.create_provider_product(seller_product=decoy_prod)
+
+        url = reverse('reference:products-list')
+        response = self.client.get(url, data={
+            'seller_product__seller': decoy_sel.pk,
+            'seller_product__external_id': ext_id})
+
+        eq_(response.status_code, 200, response.content)
+        eq_(response.data['objects'][0]['id'], decoy.pk)
+        eq_(response.data['meta']['total_count'], 1)
 
 
 class TestTermsView(SellerTest):
@@ -97,7 +125,8 @@ class TestTermsView(SellerTest):
         self.seller = self.create_seller()
         self.ref = SellerReference.objects.create(seller=self.seller,
                                                   reference_id=REF_ID)
-        self.url = reverse('provider.terms', kwargs={'id': self.ref.pk})
+        self.url = reverse('reference:terms-detail',
+                           kwargs={'pk': self.ref.pk})
 
     @patch('lib.provider.client.APIMockObject.get_data')
     def test_get(self, get_data):

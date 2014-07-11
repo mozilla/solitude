@@ -29,6 +29,7 @@ call = functools.partial(lib.call, options.url)
 print 'Creating generic seller.'
 res = call('/generic/seller/', 'post', {'uuid': seller_uid})
 seller_uri = res['resource_uri']
+seller_pk = res['resource_pk']
 
 print 'Creating generic product.'
 external_id = 'external:' + str(uuid.uuid4())
@@ -48,9 +49,10 @@ seller = {
     'email': 'jdoe@example.org',
     'status': 'ACTIVE',
 }
+
 res = call('/provider/reference/sellers/', 'post', seller)
 reference_uri = res['resource_uri']
-seller_id = res['id']
+reference_seller_id = res['id']
 
 print 'Get reference seller for:', seller_uid
 res = call(reference_uri, 'get', {})
@@ -74,13 +76,13 @@ print 'Getting reference product for:', seller_uid
 res = call(reference_product_uri, 'get', {})
 
 print 'Retrieving seller terms.'
-res = call('/provider/reference/terms/{0}/'.format(seller_id), 'get', {})
+res = call('/provider/reference/terms/{0}/'.format(reference_seller_id), 'get', {})
 assert res['reference']['text'] == 'Terms for seller: John'
 
 print 'Updating the created seller.'
 seller['name'] = 'Jack'
 seller['agreement'] = '2010-01-01'
-res = call('/provider/reference/sellers/{0}/'.format(seller_id), 'put', seller)
+res = call('/provider/reference/sellers/{0}/'.format(reference_seller_id), 'put', seller)
 assert res['reference']['name'] == 'Jack'
 
 print 'Get reference seller for:', seller_uid
@@ -90,7 +92,10 @@ print 'Checking that given a public id, we can get the reference seller.'
 res = call('/generic/product/?public_id={0}'.format(product_id), 'get', {})
 assert res['objects'][0]['seller_uuids']['reference'], seller_uid
 
-external_id = options.product_external_id or str(uuid.uuid4())
+print 'Checking that given a seller_id and external_id we can get product'
+res = call('/provider/reference/products?seller_product___seller={0}&seller_product__external_id={1}'
+           .format(seller_pk, external_id), 'get', {})
+print res
 
 print 'Creating product transaction with product_id: ' + product_id
 base_url = 'http://marketplace.firefox.com/mozpay'

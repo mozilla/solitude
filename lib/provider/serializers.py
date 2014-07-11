@@ -48,8 +48,7 @@ class SellerReferenceSerializer(Remote, serializers.ModelSerializer):
         remote = ['uuid', 'name', 'email', 'status', 'agreement']
 
     def get_resource_uri(self, obj):
-        return reverse('provider.sellers',
-                       kwargs={'id': obj.pk, 'reference_name': 'reference'})
+        return reverse('reference:sellers-detail', kwargs={'pk': obj.pk})
 
 
 class SellerProductReferenceSerializer(Remote, serializers.ModelSerializer):
@@ -62,8 +61,7 @@ class SellerProductReferenceSerializer(Remote, serializers.ModelSerializer):
     seller_reference = PathRelatedField(
         many=False,
         read_only=False,
-        view_name='provider.sellers',
-        lookup_field='id',
+        view_name='reference:sellers-detail'
     )
     uuid = serializers.CharField(max_length=100)
     name = serializers.CharField(max_length=100)
@@ -83,8 +81,7 @@ class SellerProductReferenceSerializer(Remote, serializers.ModelSerializer):
         return super(SellerProductReferenceSerializer, self).remote_data
 
     def get_resource_uri(self, obj):
-        return reverse('provider.products',
-                       kwargs={'id': obj.pk, 'reference_name': 'reference'})
+        return reverse('reference:products-detail', kwargs={'pk': obj.pk})
 
 
 class TermsSerializer(Remote, serializers.ModelSerializer):
@@ -101,6 +98,4 @@ class TermsSerializer(Remote, serializers.ModelSerializer):
         return super(TermsSerializer, self).remote_data
 
     def get_resource_uri(self, obj):
-        return reverse('provider.sellers',
-            kwargs={'id': obj.pk, 'reference_name': 'reference'})
-
+        return reverse('reference:terms-detail', kwargs={'pk': obj.pk})
