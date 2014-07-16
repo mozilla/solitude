@@ -51,5 +51,5 @@ PAYPAL_CHAINS = private.PAYPAL_CHAINS
 PAYPAL_URL_WHITELIST = ('https://marketplace.firefox.com',)
 PAYPAL_USE_SANDBOX = True
 
-BANGO_ENV = 'test'
+BANGO_ENV = 'prod'
 BANGO_AUTH = private.BANGO_AUTH
