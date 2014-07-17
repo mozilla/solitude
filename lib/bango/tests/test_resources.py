@@ -10,7 +10,6 @@ from django.core.urlresolvers import reverse
 import mock
 from nose.tools import eq_, ok_
 
-from lib.buyers.models import Buyer
 from lib.sellers.models import (Seller, SellerBango, SellerProduct,
                                 SellerProductBango)
 from lib.sellers.tests.utils import make_seller_paypal
@@ -46,8 +45,6 @@ class BangoAPI(APITest):
         The `without_product_bango` boolean is useful to test
         `SellerProductBango` objects creation and duplicates.
         """
-        self.buyer = Buyer.objects.create(
-            uuid=samples.good_billing_request['user_uuid'])
         self.sellers = utils.make_sellers(uuid=self.uuid)
         self.seller = self.sellers.seller
         self.seller_bango = self.sellers.bango
@@ -543,7 +540,6 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
 
         transaction = Transaction.objects.get()
         eq_(transaction.seller, self.seller)
-        eq_(transaction.buyer, self.buyer)
 
     def test_twice(self):
         data = self.good()
