@@ -4,7 +4,6 @@ from django.core.urlresolvers import reverse
 
 from nose.tools import eq_
 
-from lib.buyers.models import Buyer
 from lib.sellers.tests.utils import make_seller_paypal
 from lib.transactions import constants
 from lib.transactions.models import Transaction
@@ -17,7 +16,6 @@ class TestTransaction(APITest):
         self.api_name = 'generic'
         self.uuid = 'sample:uid'
         self.list_url = self.get_list_url('transaction')
-        self.buyer = Buyer.objects.create(uuid='buyer_uuid')
         self.seller, self.paypal, self.product = (
             make_seller_paypal('paypal:%s' % self.uuid))
         self.trans = Transaction.objects.create(
@@ -49,8 +47,6 @@ class TestTransaction(APITest):
                 product_id=self.product.pk),
             'seller': '/generic/seller/{seller_id}/'.format(
                 seller_id=self.seller.pk),
-            'buyer': '/generic/buyer/{buyer_id}/'.format(
-                buyer_id=self.buyer.pk),
         }
 
         res = self.client.post(self.list_url, data=data)
@@ -60,7 +56,6 @@ class TestTransaction(APITest):
         json_data = json.loads(res.content)
         transaction = Transaction.objects.get(uuid=json_data['uuid'])
 
-        eq_(transaction.buyer, self.buyer)
         eq_(transaction.provider, constants.PROVIDER_BANGO)
         eq_(transaction.seller, self.seller)
         eq_(transaction.seller_product, self.product)
