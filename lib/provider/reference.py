@@ -127,6 +127,7 @@ class SellerReference(MashupViewSet):
     model = SellerReference
     resource_name = 'sellers'
     serializer_class = SellerReferenceSerializer
+    filter_fields = ('seller__uuid',)
 
 
 class SellerProductReference(MashupViewSet):

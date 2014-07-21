@@ -101,6 +101,17 @@ class TestSellerProductReferenceView(SellerTest):
         response = self.client.get(url)
         eq_(response.status_code, 200, response.content)
 
+    def test_filter_sellers_by_uuid(self):
+        self.create_provider_product()
+
+        url = reverse('reference:sellers-list')
+        response = self.client.get(url,
+                                   data={'seller__uuid': self.seller.uuid})
+
+        eq_(response.status_code, 200, response.content)
+        eq_(response.data['objects'][0]['id'], self.ref.pk)
+        eq_(response.data['meta']['total_count'], 1)
+
     def test_filter_by_ext_id(self):
         self.create_provider_product()
         decoy_sel = self.create_seller()
