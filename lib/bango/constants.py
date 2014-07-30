@@ -43,6 +43,8 @@ HEADERS_WHITELIST_INVERTED = dict(invert(HEADERS_WHITELIST))
 
 CURRENCIES = {
     'AUD': 'Australian Dollars',
+    # BDT not in docs, but added in for bug 1043481.
+    'BDT': 'Bangladesh Taka',
     'CAD': 'Canadian Dollars',
     'CHF': 'Swiss Francs',
     'COP': 'Colombian Pesos',
