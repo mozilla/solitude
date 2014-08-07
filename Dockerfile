@@ -14,5 +14,3 @@ EXPOSE 2602
 
 ENV SOLITUDE_DATABASE mysql://root:@mysql_1:3306/solitude
 ENV MEMCACHE_URL memcache_1:11211
-
-CMD ["python", "src/manage.py", "runserver"]
