@@ -101,7 +101,7 @@ class StatusObject(object):
             try:
                 requests.get(url, verify=True, timeout=30)
             except:
-                log.error('Bango error: %s' % proxy, exc_info=True)
+                log.error('Bango error: %s' % url, exc_info=True)
                 return False
 
         return True
