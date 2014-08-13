@@ -56,7 +56,7 @@ NEWRELIC_INI = '/etc/newrelic.d/payments-dev.allizom.org.ini'
 ZIPPY_PROXY = 'https://payments-proxy-dev.allizom.org/proxy/provider'
 ZIPPY_CONFIGURATION = {
     'reference': {
-        'url': 'https://zippy.paas.allizom.org'
+        'url': 'https://zippy-dev.allizom.org'
     },
     'boku': {
         'url': base.BOKU_API_DOMAIN

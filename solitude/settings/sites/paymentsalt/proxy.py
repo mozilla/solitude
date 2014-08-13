@@ -57,10 +57,10 @@ BANGO_ENV = 'prod'
 
 ZIPPY_CONFIGURATION = {
     'reference': {
-        'url': 'https://zippy.paas.allizom.org',
+        'url': 'https://zippy-dev.allizom.org',
         'auth': {'key': private.ZIPPY_PAAS_KEY,
                  'secret': private.ZIPPY_PAAS_SECRET,
-                 'realm': 'zippy.paas.allizom.org'}
+                 'realm': 'zippy-dev.allizom.org'}
     },
     'boku': {
         'url': base.BOKU_API_DOMAIN,

@@ -66,7 +66,7 @@ BANGO_NOTIFICATION_URL = (
 ZIPPY_PROXY = 'https://payments-alt-solitude-proxy.allizom.org/proxy/provider'
 ZIPPY_CONFIGURATION = {
     'reference': {
-        'url': 'https://zippy.paas.allizom.org'
+        'url': 'https://zippy-dev.allizom.org'
     },
     'boku': {
         'url': base.BOKU_API_DOMAIN
