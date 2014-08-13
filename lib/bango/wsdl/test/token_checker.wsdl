@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://mozilla.bango.net/" xmlns:s1="com.bango.webservices.directbilling" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://mozilla.bango.net/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="https://mozilla.bango.net/" xmlns:s1="com.bango.webservices.directbilling" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" targetNamespace="https://mozilla.bango.net/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
-    <s:schema elementFormDefault="qualified" targetNamespace="http://mozilla.bango.net/">
+    <s:schema elementFormDefault="qualified" targetNamespace="https://mozilla.bango.net/">
       <s:import namespace="com.bango.webservices.directbilling" />
       <s:element name="CheckToken">
         <s:complexType>
@@ -57,7 +57,7 @@
   <wsdl:binding name="TokenCheckerSoap" type="tns:TokenCheckerSoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="CheckToken">
-      <soap:operation soapAction="http://mozilla.bango.net/CheckToken" style="document" />
+      <soap:operation soapAction="https://mozilla.bango.net/CheckToken" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -69,7 +69,7 @@
   <wsdl:binding name="TokenCheckerSoap12" type="tns:TokenCheckerSoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="CheckToken">
-      <soap12:operation soapAction="http://mozilla.bango.net/CheckToken" style="document" />
+      <soap12:operation soapAction="https://mozilla.bango.net/CheckToken" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
