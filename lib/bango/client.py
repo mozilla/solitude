@@ -11,12 +11,15 @@ from django_statsd.clients import statsd
 from mock import Mock
 from requests import post
 from suds import client as sudsclient
+from suds.cache import DocumentCache
+from suds.sax.parser import Parser
 from suds.transport import Reply
 from suds.transport.http import HttpTransport
 
 from solitude.logger import getLogger
 from .constants import (ACCESS_DENIED, HEADERS_SERVICE, HEADERS_WHITELIST,
-                        INTERNAL_ERROR, SERVICE_UNAVAILABLE)
+                        INTERNAL_ERROR, SERVICE_UNAVAILABLE, WSDL_MAP,
+                        WSDL_MAP_MANGLED)
 from .errors import AuthError, BangoError, BangoFormError, ProxyError
 from solitude.logger import getLogger
 
@@ -75,17 +78,10 @@ def name_map():
 # Map the name of the WSDL into a file. Do this dynamically so that tests
 # can mess with this as they need to.
 def get_wsdl(name):
-    root = os.path.join(settings.ROOT, 'lib/bango/wsdl', settings.BANGO_ENV)
-    wsdl = {
-        'exporter': 'mozilla_exporter.wsdl',
-        'billing': 'billing_configuration.wsdl',
-        'direct': 'direct_billing.wsdl',
-        'token_checker': 'token_checker.wsdl',
-    }
     if settings.BANGO_BILLING_CONFIG_V2:
-        wsdl['billing'] = 'billing_configuration_v2_0.wsdl'
+        name = 'billing_v2'
 
-    return os.path.join('file://' + os.path.join(root, wsdl[name]))
+    return WSDL_MAP[settings.BANGO_ENV][name]['url']
 
 
 # Turn the method into the appropriate name. If the Bango WSDL diverges this
@@ -105,6 +101,38 @@ def get_result(name):
 log = getLogger('s.bango')
 
 
+class ReadOnlyCache(DocumentCache):
+    """
+    This is a read only cache. It's populated from the refresh_wsdl
+    command and checked into github. This cache makes suds look everything
+    up here first before accessing remote URLs.
+    """
+
+    def put(self, *args, **kwargs):
+        """Override this to prevent attempted changes."""
+        return
+
+    def putf(self, *args, **kwargs):
+        """Override this to prevent attempted changes."""
+        return
+
+    def get(self, mangled):
+        """Override this to prevent attempted purges."""
+        fp = self.getf(mangled)
+        if fp is None:
+            return None
+        p = Parser()
+        return p.parse(fp)
+
+    def getf(self, mangled):
+        """Override this to prevent swallowing exceptions silently."""
+        # Find the file in the correct directory.
+        root = os.path.join(settings.ROOT, 'lib/bango/wsdl',
+                            settings.BANGO_ENV)
+        filename = WSDL_MAP_MANGLED[settings.BANGO_ENV][mangled]
+        return open(os.path.join(root, filename))
+
+
 class Client(object):
 
     def __getattr__(self, attr):
@@ -120,6 +148,7 @@ class Client(object):
         log.info('Bango client call: {0}, wsdl: {1}, package: {2}'
                  .format(name, wsdl, data.get('packageId', '<none>')))
         client = self.client(wsdl)
+
         package = client.factory.create(get_request(name))
         for k, v in data.iteritems():
             setattr(package, k, v)
@@ -136,7 +165,7 @@ class Client(object):
     def client(self, name):
         # By default, WSDL files are cached but we use local files so we don't
         # need that.
-        return sudsclient.Client(get_wsdl(name), cache=None)
+        return sudsclient.Client(get_wsdl(name), cache=ReadOnlyCache())
 
     def is_error(self, code, message):
         # Count the numbers of responses we get.
@@ -181,7 +210,8 @@ class Proxy(HttpTransport):
 class ClientProxy(Client):
 
     def client(self, name):
-        return sudsclient.Client(get_wsdl(name), transport=Proxy())
+        return sudsclient.Client(get_wsdl(name), transport=Proxy(),
+                                 cache=ReadOnlyCache())
 
 
 # Add in your mock method data here. If the method only returns a

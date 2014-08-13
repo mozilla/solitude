@@ -1,6 +1,9 @@
 # -*- coding: utf8 -*-
 import re
 
+from suds.options import Options
+from suds.reader import Reader
+
 from solitude.base import invert
 
 STATUS_UNKNOWN = 0
@@ -118,3 +121,95 @@ def match(status, constant):
     if isinstance(constant, basestring):
         return status, constant
     return constant.match(status)
+
+
+# This is a map of Bango WSDLs. They are divided into prod and test.
+# Each file has a nickname (eg: exporter) followed by the URL and file.
+WSDL_MAP = {
+    'prod': {
+        'exporter': {
+            'url': 'https://webservices.bango.com/mozillaexporter/?WSDL',
+            'file': 'mozilla_exporter.wsdl'
+        },
+        'billing': {
+            'url': 'https://webservices.bango.com/billingconfiguration/?WSDL',
+            'file': 'billing_configuration.wsdl'
+        },
+        'billing_v2': {
+            'url': 'https://webservices.bango.com'
+                   '/billingconfiguration_v2_0/?WSDL',
+            'file': 'billing_configuration_v2_0.wsdl'
+        },
+        'billing_service': {
+            'url': 'https://webservices.bango.com'
+                   '/billingconfiguration_v2_0/Service.svc?xsd=xsd0',
+            'file': 'billing_configuration_service.wsdl'
+        },
+        'direct': {
+            'url': 'https://webservices.bango.com/directbilling_v3_1/?wsdl',
+            'file': 'direct_billing.wsdl'
+        },
+        'token': {
+            'url': 'https://mozilla.bango.net/_/ws/tokenchecker.asmx?wsdl',
+            'file': 'token_checker.wsdl'
+        }
+    },
+    'test': {
+        'exporter': {
+            'url': 'https://webservices.test.bango.org/mozillaexporter/?WSDL',
+            'file': 'mozilla_exporter.wsdl'
+        },
+        'billing': {
+            'url': 'https://webservices.test.bango.org'
+                   '/billingconfiguration/?WSDL',
+            'file': 'billing_configuration.wsdl'
+        },
+        'billing_v2': {
+            'url': 'https://webservices.test.bango.org'
+                   '/billingconfiguration_v2_0/?WSDL',
+            'file': 'billing_configuration_v2_0.wsdl'
+        },
+        'billing_service': {
+            'url': 'https://webservices.test.bango.org'
+                   '/billingconfiguration_v2_0/Service.svc?xsd=xsd0',
+            'file': 'billing_configuration_service.wsdl'
+        },
+        'direct': {
+            'url': 'https://webservices.test.bango.org'
+                   '/directbilling_v3_1/?wsdl',
+            'file': 'direct_billing.wsdl'
+        },
+        'token': {
+            'url': 'https://mozilla.test.bango.org'
+                   '/_/ws/tokenchecker.asmx?wsdl',
+            'file': 'token_checker.wsdl'
+        }
+    }
+}
+
+
+def key(mapping):
+    """
+    Suds can ask for the URL, or the mangled cache. This mapping
+    ensures that if suds asks for a:
+    * URL
+    * wsdl file that's been saved to the cache
+    * document file that's been saved to the cache
+    ... we've got a valid response.
+    """
+    res = {}
+
+    def mangle(url, typ):
+        return Reader(Options()).mangle(url, typ)
+
+    for k, v in mapping.items():
+        res[v['url']] = v['file']
+        res[mangle(v['url'], 'document')] = v['file']
+        res[mangle(v['url'], 'wsdl')] = v['file']
+    return res
+
+
+WSDL_MAP_MANGLED = {
+    'prod': key(WSDL_MAP['prod']),
+    'test': key(WSDL_MAP['test'])
+}

@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
+import os
+
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 import mock
 import test_utils
 from nose.tools import eq_, raises
+from suds.options import Options
+from suds.reader import Reader
 
 import samples
 from ..client import (Client, ClientMock, ClientProxy, dict_to_mock,
-                      get_client, get_request, get_wsdl, Proxy,
+                      get_client, get_request, get_wsdl, Proxy, ReadOnlyCache,
                       response_to_dict)
-from ..constants import OK, ACCESS_DENIED
+from ..constants import OK, ACCESS_DENIED, WSDL_MAP
 from ..errors import AuthError, BangoError, ProxyError
 
 
@@ -149,7 +154,43 @@ class TestRequest(test_utils.TestCase):
                 'InnerCreateBillingConfigurationRequest')
 
     def test_file(self):
-        assert get_wsdl('billing').endswith('billing_configuration.wsdl')
+        assert get_wsdl('billing').endswith('billingconfiguration/?WSDL')
         with self.settings(BANGO_BILLING_CONFIG_V2=True):
             assert (get_wsdl('billing')
-                    .endswith('billing_configuration_v2_0.wsdl'))
+                    .endswith('billingconfiguration_v2_0/?WSDL'))
+
+
+class TestReadOnlyCache(test_utils.TestCase):
+
+    def setUp(self):
+        self.cache = ReadOnlyCache()
+        self.url = WSDL_MAP['prod']['billing']['url']
+        self.cached = os.path.join(
+            settings.ROOT,
+            'lib/bango/wsdl/prod/billing_configuration.wsdl')
+
+    def test_getf_url(self):
+        with self.assertRaises(KeyError):
+            self.cache.getf(self.url)
+
+    def getf(self, name):
+        with self.settings(BANGO_ENV='prod'):
+            filename = self.cache.getf(name).name
+            assert filename == self.cached, filename
+
+    def test_getf_url(self):
+        self.getf(self.url)
+
+    def test_getf_mangled(self):
+        mangled = Reader(Options()).mangle(self.url, 'document')
+        self.getf(mangled)
+
+
+class TestBangoWSDL(test_utils.TestCase):
+
+    def test_wsdl_loading(self):
+        cli = get_client()
+        for env, mapping in WSDL_MAP.iteritems():
+            with self.settings(BANGO_ENV=env):
+                for wsdl_name in mapping.keys():
+                    cli.client(wsdl_name)
