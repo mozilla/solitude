@@ -63,3 +63,5 @@ ZIPPY_CONFIGURATION = {
         'url': base.BOKU_API_DOMAIN,
     }
 }
+
+NOSE_PLUGINS = []

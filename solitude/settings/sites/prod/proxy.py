@@ -53,3 +53,5 @@ PAYPAL_USE_SANDBOX = True
 
 BANGO_ENV = 'prod'
 BANGO_AUTH = private.BANGO_AUTH
+
+NOSE_PLUGINS = []

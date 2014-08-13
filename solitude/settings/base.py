@@ -319,6 +319,20 @@ SESSION_COOKIE_SECURE = True
 # Set this for OAuth.
 SITE_URL = host
 
+# Configure our test runner for some nice test output.
+NOSE_PLUGINS = [
+    'nosenicedots.NiceDots',
+    'blockage.plugins.NoseBlockage',
+]
+
+NOSE_ARGS = [
+    '--logging-clear-handlers',
+    '--logging-filter=xsd',
+    '--with-nicedots',
+    '--with-blockage',
+    '--http-whitelist=""',
+]
+
 # Below is configuration of payment providers.
 
 ###############################################################################

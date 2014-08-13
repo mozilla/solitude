@@ -61,3 +61,5 @@ BANGO_ENV = 'prod'
 BANGO_PROXY = private.BANGO_PROXY
 BANGO_NOTIFICATION_URL = (
     'https://marketplace.firefox.com/mozpay/bango/notification')
+
+NOSE_PLUGINS = []
