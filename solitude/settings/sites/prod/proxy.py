@@ -33,6 +33,8 @@ STATSD_PREFIX = private.STATSD_PREFIX
 SYSLOG_TAG = 'http_app_payments'
 TEMPLATE_DEBUG = DEBUG
 
+NOSE_PLUGINS = []
+
 # Solitude specific settings.
 AES_KEYS = {}
 
@@ -51,7 +53,6 @@ PAYPAL_CHAINS = private.PAYPAL_CHAINS
 PAYPAL_URL_WHITELIST = ('https://marketplace.firefox.com',)
 PAYPAL_USE_SANDBOX = True
 
-BANGO_ENV = 'prod'
 BANGO_AUTH = private.BANGO_AUTH
-
-NOSE_PLUGINS = []
+BANGO_BILLING_CONFIG_V2 = True
+BANGO_ENV = 'prod'
