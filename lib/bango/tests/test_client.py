@@ -159,6 +159,9 @@ class TestRequest(test_utils.TestCase):
             assert (get_wsdl('billing')
                     .endswith('billingconfiguration_v2_0/?WSDL'))
 
+    def test_get_wsdl(self):
+        assert get_wsdl('exporter').endswith('mozillaexporter/?WSDL')
+
 
 class TestReadOnlyCache(test_utils.TestCase):
 
