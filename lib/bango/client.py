@@ -78,7 +78,7 @@ def name_map():
 # Map the name of the WSDL into a file. Do this dynamically so that tests
 # can mess with this as they need to.
 def get_wsdl(name):
-    if settings.BANGO_BILLING_CONFIG_V2:
+    if settings.BANGO_BILLING_CONFIG_V2 and name == 'billing':
         name = 'billing_v2'
 
     return WSDL_MAP[settings.BANGO_ENV][name]['url']
