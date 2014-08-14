@@ -149,7 +149,7 @@ WSDL_MAP = {
             'url': 'https://webservices.bango.com/directbilling_v3_1/?wsdl',
             'file': 'direct_billing.wsdl'
         },
-        'token': {
+        'token_checker': {
             'url': 'https://mozilla.bango.net/_/ws/tokenchecker.asmx?wsdl',
             'file': 'token_checker.wsdl'
         }
@@ -179,7 +179,7 @@ WSDL_MAP = {
                    '/directbilling_v3_1/?wsdl',
             'file': 'direct_billing.wsdl'
         },
-        'token': {
+        'token_checker': {
             'url': 'https://mozilla.test.bango.org'
                    '/_/ws/tokenchecker.asmx?wsdl',
             'file': 'token_checker.wsdl'
