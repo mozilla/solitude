@@ -419,7 +419,9 @@ ZIPPY_MOCK = False
 # Override this to configure some zippy backends.
 ZIPPY_CONFIGURATION = {
     'reference': {
-        'url': 'https://zippy.paas.allizom.org',  # No trailing slash.
+        # No trailing slash.
+        'url': os.environ.get('ZIPPY_BASE_URL',
+                              'https://zippy.paas.allizom.org'),
         'auth': {
             'key': 'zippy-on-paas',
             'secret': 'sjahgfjdrtgdargalrgadlfghadfjgadrgarfgnadfgdfagadflhdafg',
