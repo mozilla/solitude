@@ -1,3 +1,5 @@
+import os
+
 from django.conf.urls import include, patterns, url
 
 from tastypie.api import Api
@@ -39,7 +41,7 @@ services_patterns = patterns('lib.services.resources',
         name='services.failures.statuses'),
 )
 
-urlpatterns = patterns('',
+urls = [
     url(r'^proxy/', include('lib.proxy.urls')),
     url(r'^', include(api.urls)),
     url(r'^', include(paypal.urls)),
@@ -49,7 +51,12 @@ urlpatterns = patterns('',
     url(r'^provider/', include('lib.provider.urls')),
     url(r'^$', 'solitude.views.home', name='home'),
     url(r'^services/', include(services_patterns))
-)
+]
+
+if os.getenv('IS_DOCKER'):
+    urls.append(url(r'^solitude/services/', include(services_patterns)))
+
+urlpatterns = patterns('', *urls)
 
 handler500 = 'solitude.views.error'
 handler404 = 'solitude.views.error_404'
