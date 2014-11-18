@@ -2,8 +2,9 @@
 # Marketplace development environment.
 
 # NOTE: this is not provided for production usage.
-
 FROM mozillamarketplace/centos-mysql-mkt:0.2
+
+ENV IS_DOCKER 1
 
 RUN mkdir -p /pip/{cache,build}
 ADD requirements /pip/requirements
