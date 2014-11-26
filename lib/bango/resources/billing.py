@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from django.conf import settings
 
 from cached import Resource
@@ -128,7 +126,8 @@ class CreateBillingConfigurationResource(Resource):
         user_uuid = data.pop('user_uuid')
         if settings.SEND_USER_ID_TO_BANGO:
             configs['MOZ_USER_ID'] = user_uuid
-            log.info('Sending MOZ_USER_ID: {0}'.format(user_uuid))
+            log.info('Sending MOZ_USER_ID {uuid} for transaction {tr}'
+                     .format(uuid=user_uuid, tr=data['externalTransactionId']))
         if settings.BANGO_ICON_URLS:
             icon_url = data.pop('icon_url', None)
             if icon_url:
