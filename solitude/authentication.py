@@ -128,6 +128,10 @@ def initialize_oauth_server_request(request):
         raise ValueError('SITE_URL cannot be blank')
 
     url = urljoin(settings.SITE_URL, request.path)
+    check = request.build_absolute_uri()
+    if check != url:
+        log.warning('SITE_URL: {0} does not match request: {1} '
+                    'This may cause OAuth failures.'.format(check, url))
 
     # Note: we are only signing using the QUERY STRING. We are not signing the
     # body yet. According to the spec we should be including an oauth_body_hash
@@ -148,6 +152,7 @@ def initialize_oauth_server_request(request):
     oauth_server = oauth2.Server(signature_methods={
         'HMAC-SHA1': oauth2.SignatureMethod_HMAC_SHA1()
         })
+
     return oauth_server, oauth_request
 
 
