@@ -62,7 +62,6 @@ SITE_URL = 'http://localhost/'
 SEND_USER_ID_TO_BANGO = True
 CHECK_BANGO_TOKEN = True
 
-REQUIRE_OAUTH = False
 
 # Suds keeps a cache of the WSDL around, so after completing the test run,
 # lets remove that so it doesn't affect the next test run.

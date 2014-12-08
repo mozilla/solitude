@@ -8,7 +8,7 @@ import dj_database_url
 
 from funfactory.settings_base import *
 
-host = os.environ.get('SOLITUDE_URL', 'http://localhost:2602')
+host = os.environ.get('SOLITUDE_URL', 'http://localhost')
 
 ####################################################
 # Django settings.
@@ -205,10 +205,7 @@ CLEANSED_SETTINGS_ACCESS = False
 
 # A mapping of the keys and secrets that will be used to sign OAuth
 # for any server talking to this server. Is not used if REQUIRE_OAUTH is False.
-CLIENT_OAUTH_KEYS = {
-    'marketplace': 'please change this',
-    'webpay': 'please change this',
-}
+CLIENT_OAUTH_KEYS = {}
 
 # Paranoia levels.
 DJANGO_PARANOIA_REPORTERS = [
@@ -237,7 +234,7 @@ PROJECT_MODULE = 'solitude'
 
 # If this flag is set, any communication will require OAuth signing of the
 # request. Without this, OAuth is optional. This should be True for production.
-REQUIRE_OAUTH = True
+REQUIRE_OAUTH = False
 
 # URLs that should not require oauth autentication, for example Nagios checks.
 SKIP_OAUTH = (reverse_lazy('services.status'),)

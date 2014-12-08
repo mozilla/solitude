@@ -20,9 +20,4 @@ def validate_settings():
     for key, value in settings.AES_KEYS.items():
         if value == 'solitude/settings/sample.key':
             raise ImproperlyConfigured('AES_KEY {0} must be changed from '
-                                       'default'.format(key))
-
-    for key, value in settings.CLIENT_OAUTH_KEYS.items():
-        if value == 'please change this':
-            raise ImproperlyConfigured('CLIENT_OAUTH_KEY {0} must be changed '
-                                       'from default'.format(key))
+                                      'default'.format(key))
