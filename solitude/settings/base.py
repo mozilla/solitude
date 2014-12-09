@@ -144,6 +144,11 @@ LOGGING = {
         },
         'newrelic': {
             'level': 'ERROR'
+        },
+        # With no-one monitoring this, it really has become pretty useless,
+        # so lets leave the code there, but not fill up our logs.
+        'paranoia': {
+            'level': 'ERROR'
         }
     }
 }
