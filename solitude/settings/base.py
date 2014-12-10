@@ -115,6 +115,9 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True
         },
+        's.auth': {
+            'level': 'INFO',
+        },
         's.services': {
             'handlers': ['unicodesyslog'],
             'level': 'ERROR',

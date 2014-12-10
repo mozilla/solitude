@@ -95,8 +95,11 @@ class RestOAuthAuthentication(BaseAuthentication):
             oauth_server.verify_request(oauth_request, Consumer(key), None)
             request.OAUTH_KEY = key
             set_oauth_key(key)
-            log.info(u'Access granted for: {0}, to: {1}'
-                     .format(key, request.path))
+            # Logging all the nagios hits to /services/request/ is noisy.
+            log_level = (log.debug if request.path == '/services/request/'
+                         else log.info)
+            log_level(u'Access granted for: {0}, to: {1}'
+                      .format(key, request.path))
             return (DummyUser(), None)
 
         except KeyError:
