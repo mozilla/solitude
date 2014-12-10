@@ -146,8 +146,16 @@ WSDL_MAP = {
             'file': 'billing_configuration_service.wsdl'
         },
         'direct': {
-            'url': 'https://webservices.bango.com/directbilling_v3_1/?wsdl',
+            'url': 'https://webservices.bango.com/directbilling_v4_1/?wsdl',
             'file': 'direct_billing.wsdl'
+        },
+        # This XSD is requested by the above document, so we'll download
+        # it and ensure that suds doesn't try and request it from Bango
+        # each time.
+        'direct-xsd': {
+            'url': 'https://webservices.bango.com/DirectBilling_v4_1'
+                   '/Service.svc?xsd=xsd0',
+            'file': 'direct_billing_service.xsd'
         },
         'token_checker': {
             'url': 'https://mozilla.bango.net/_/ws/tokenchecker.asmx?wsdl',
@@ -176,8 +184,13 @@ WSDL_MAP = {
         },
         'direct': {
             'url': 'https://webservices.test.bango.org'
-                   '/directbilling_v3_1/?wsdl',
+                   '/directbilling_v4_1/?wsdl',
             'file': 'direct_billing.wsdl'
+        },
+        'direct-xsd': {
+            'url': 'https://webservices.test.bango.org/DirectBilling_v4_1'
+                   '/Service.svc?xsd=xsd0',
+            'file': 'direct_billing_service.xsd'
         },
         'token_checker': {
             'url': 'https://mozilla.test.bango.org'
