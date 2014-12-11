@@ -21,13 +21,3 @@ def validate_settings():
         if value == 'solitude/settings/sample.key':
             raise ImproperlyConfigured('AES_KEY {0} must be changed from '
                                        'default'.format(key))
-
-    if not settings.SOLITUDE_PROXY:
-        for key, value in settings.CLIENT_OAUTH_KEYS.items():
-            if value == 'please change this':
-                raise ImproperlyConfigured('CLIENT_OAUTH_KEYS {0} must be '
-                                           'changed from default'.format(key))
-
-    if settings.SOLITUDE_PROXY and settings.REQUIRE_OAUTH:
-        raise ImproperlyConfigured('SOLITUDE_PROXY and REQUIRE_OAUTH should '
-                                   'not be on at the same time')
