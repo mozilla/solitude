@@ -40,6 +40,9 @@ CLEANSED_SETTINGS_ACCESS = True
 CLIENT_JWT_KEYS = private.CLIENT_JWT_KEYS
 
 NEWRELIC_INI = '/etc/newrelic.d/payments-proxy-dev.allizom.org.ini'
+NOSE_PLUGINS = []
+
+REQUIRE_OAUTH = False
 
 # Below is configuration of payment providers.
 
@@ -64,4 +67,3 @@ ZIPPY_CONFIGURATION = {
     }
 }
 
-NOSE_PLUGINS = []

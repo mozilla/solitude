@@ -40,6 +40,9 @@ CLEANSED_SETTINGS_ACCESS = True
 CLIENT_JWT_KEYS = private.CLIENT_JWT_KEYS
 
 NEWRELIC_INI = '/etc/newrelic.d/payments-proxy.allizom.org.ini'
+NOSE_PLUGINS = []
+
+REQUIRE_OAUTH = False
 
 # Below is configuration of payment providers.
 
@@ -54,5 +57,3 @@ ZIPPY_CONFIGURATION = {}
 BANGO_ENV = 'prod'
 BANGO_AUTH = private.BANGO_AUTH
 BANGO_BILLING_CONFIG_V2 = True
-
-NOSE_PLUGINS = []

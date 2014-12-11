@@ -40,6 +40,9 @@ CLEANSED_SETTINGS_ACCESS = True
 CLIENT_JWT_KEYS = private.CLIENT_JWT_KEYS
 
 NEWRELIC_INI = None
+NOSE_PLUGINS = []
+
+REQUIRE_OAUTH = False
 
 # Below is configuration of payment providers.
 
@@ -63,5 +66,3 @@ ZIPPY_CONFIGURATION = {
         'url': base.BOKU_API_DOMAIN,
     }
 }
-
-NOSE_PLUGINS = []
