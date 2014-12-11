@@ -40,7 +40,9 @@ CLEANSED_SETTINGS_ACCESS = True
 CLIENT_JWT_KEYS = private.CLIENT_JWT_KEYS
 
 NEWRELIC_INI = '/etc/newrelic.d/payments-alt-proxy.allizom.org.ini'
+NOSE_PLUGINS = []
 
+REQUIRE_OAUTH = False
 SITE_URL = 'https://payments-alt-solitude-proxy.allizom.org'
 
 # Below is configuration of payment providers.
@@ -69,5 +71,3 @@ ZIPPY_CONFIGURATION = {
 
 BOKU_MERCHANT_ID = private.BOKU_MERCHANT_ID
 BOKU_SECRET_KEY = private.BOKU_SECRET_KEY
-
-NOSE_PLUGINS = []

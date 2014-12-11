@@ -33,14 +33,15 @@ STATSD_PREFIX = private.STATSD_PREFIX
 SYSLOG_TAG = 'http_app_payments'
 TEMPLATE_DEBUG = DEBUG
 
-NOSE_PLUGINS = []
 
 # Solitude specific settings.
 AES_KEYS = {}
 
 CLEANSED_SETTINGS_ACCESS = True
 CLIENT_JWT_KEYS = private.CLIENT_JWT_KEYS
+NOSE_PLUGINS = []
 
+REQUIRE_OAUTH = False
 SITE_URL = 'https://payments-proxy.firefox.com'
 
 # Below is configuration of payment providers.

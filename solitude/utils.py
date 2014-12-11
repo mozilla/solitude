@@ -24,5 +24,5 @@ def validate_settings():
 
     for key, value in settings.CLIENT_OAUTH_KEYS.items():
         if value == 'please change this':
-            raise ImproperlyConfigured('CLIENT_OAUTH_KEY {0} must be changed '
+            raise ImproperlyConfigured('CLIENT_OAUTH_KEYS {0} must be changed '
                                        'from default'.format(key))
