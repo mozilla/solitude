@@ -132,10 +132,6 @@ WSDL_MAP = {
             'file': 'mozilla_exporter.wsdl'
         },
         'billing': {
-            'url': 'https://webservices.bango.com/billingconfiguration/?WSDL',
-            'file': 'billing_configuration.wsdl'
-        },
-        'billing_v2': {
             'url': 'https://webservices.bango.com'
                    '/billingconfiguration_v2_0/?WSDL',
             'file': 'billing_configuration_v2_0.wsdl'
@@ -168,11 +164,6 @@ WSDL_MAP = {
             'file': 'mozilla_exporter.wsdl'
         },
         'billing': {
-            'url': 'https://webservices.test.bango.org'
-                   '/billingconfiguration/?WSDL',
-            'file': 'billing_configuration.wsdl'
-        },
-        'billing_v2': {
             'url': 'https://webservices.test.bango.org'
                    '/billingconfiguration_v2_0/?WSDL',
             'file': 'billing_configuration_v2_0.wsdl'

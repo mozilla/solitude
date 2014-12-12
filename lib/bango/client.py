@@ -64,27 +64,19 @@ FATAL_PROXY_STATUS_CODES = (404, 500,)
 # Most of the names in the WSDL map easily, for example: Foo to FooRequest,
 # FooResponse etc. Some do not, this is a map of the exceptions.
 def name_map():
-    names =  {
+    return  {
         'request': {
             # Changed with the upgrade to DirectBilling v4_1
             'DoRefund': 'InnerDoRefundRequest',
             'GetRefundStatus': 'InnerGetRefundStatusRequest',
-        }
-    }
-
-    if settings.BANGO_BILLING_CONFIG_V2:
-        names['request'].update({
             'CreateBillingConfiguration':
             'InnerCreateBillingConfigurationRequest',
-        })
-    return names
+        }
+    }
 
 # Map the name of the WSDL into a file. Do this dynamically so that tests
 # can mess with this as they need to.
 def get_wsdl(name):
-    if settings.BANGO_BILLING_CONFIG_V2 and name == 'billing':
-        name = 'billing_v2'
-
     return WSDL_MAP[settings.BANGO_ENV][name]['url']
 
 

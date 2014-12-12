@@ -54,7 +54,6 @@ PAYPAL_URL_WHITELIST = ('https://payments-alt.allizom.org',)
 PAYPAL_USE_SANDBOX = True
 
 BANGO_AUTH = private.BANGO_AUTH
-BANGO_BILLING_CONFIG_V2 = False
 BANGO_ENV = 'prod'
 
 ZIPPY_CONFIGURATION = {

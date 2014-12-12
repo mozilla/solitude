@@ -414,10 +414,6 @@ BANGO_BASIC_AUTH = {'USER': '', 'PASSWORD': ''}
 # notification URL will not be set.
 BANGO_NOTIFICATION_URL = ''
 
-# Flip to the new billing configuration for Bango. This is temporary and once
-# we are on the new config, we can probably remove it.
-BANGO_BILLING_CONFIG_V2 = False
-
 # End Bango settings.
 ###############################################################################
 
