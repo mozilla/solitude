@@ -1,5 +1,6 @@
+from django.test import TestCase
+
 from nose.tools import eq_, ok_
-from test_utils import TestCase
 
 from ..client import get_client, Client, ClientProxy
 

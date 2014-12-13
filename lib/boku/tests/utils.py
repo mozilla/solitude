@@ -1,8 +1,7 @@
 import uuid
 
+from django import test
 from django.core.urlresolvers import reverse
-
-import test_utils
 
 from lib.boku import constants
 from lib.sellers.models import Seller, SellerBoku, SellerProduct
@@ -82,7 +81,7 @@ class EventTest(SellerBokuTest):
         }
 
 
-class BokuTransactionTest(test_utils.TestCase):
+class BokuTransactionTest(test.TestCase):
 
     def setUp(self):
         self.transaction_uuid = str(uuid.uuid4())
@@ -106,7 +105,7 @@ class BokuTransactionTest(test_utils.TestCase):
         }
 
 
-class BokuVerifyServiceTest(test_utils.TestCase):
+class BokuVerifyServiceTest(test.TestCase):
 
     def setUp(self):
         self.post_data = {'service_id': 'abc'}

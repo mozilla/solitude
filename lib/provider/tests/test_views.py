@@ -1,12 +1,12 @@
 import json
 
 from django.http import HttpResponse
+from django.test import RequestFactory, TestCase
 
-from curling.lib import HttpClientError
 import mock
 from nose.tools import eq_, ok_
-from test_utils import RequestFactory, TestCase
 
+from curling.lib import HttpClientError
 from ..views import ProxyView, NoReference
 
 

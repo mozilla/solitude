@@ -37,7 +37,7 @@ from tastypie.resources import (ModelResource as TastyPieModelResource,
                                 convert_post_to_patch)
 from tastypie.utils import dict_strip_unicode_keys
 from tastypie.validation import FormValidation
-import test_utils
+from django import test
 
 from solitude.authentication import OAuthAuthentication
 from solitude.logger import getLogger
@@ -154,7 +154,7 @@ class APIClient(Client):
                                           **self._process(kwargs))
 
 
-class APITest(test_utils.TestCase):
+class APITest(test.TestCase):
     client_class = APIClient
 
     def _pre_setup(self):
@@ -477,7 +477,7 @@ class TastypieBaseResource(object):
         bundle = self.alter_detail_data_to_serialize(request, bundle)
 
         # Now update the bundle in-place.
-        deserialized = self.deserialize(request, request.raw_post_data,
+        deserialized = self.deserialize(request, request.body,
             format=request.META.get('CONTENT_TYPE', 'application/json'))
 
         # In case of a patch modification, we need to store
@@ -490,7 +490,7 @@ class TastypieBaseResource(object):
         # Trying to standardize on JSON in the body for most things if we
         # can. Similar to elastic search. Retaining query string for tastypie
         # record filtering.
-        data = request.raw_post_data
+        data = request.body
         if not data:
             # Don't raise an error if the body is empty.
             return {}

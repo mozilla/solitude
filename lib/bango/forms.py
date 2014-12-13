@@ -4,10 +4,8 @@ from datetime import datetime, timedelta
 from django import forms
 from django.conf import settings
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
 
 import mobile_codes
-
 from django_statsd.clients import statsd
 from lxml import etree
 
@@ -22,8 +20,7 @@ from lib.transactions.constants import (PROVIDER_BANGO, STATUS_COMPLETED,
                                         TYPE_REFUNDS)
 from lib.transactions.forms import check_status
 from lib.transactions.models import Transaction
-
-from solitude.base import log_cef
+from solitude.base import get_object_or_404, log_cef
 from solitude.constants import PAYMENT_METHOD_CHOICES
 from solitude.fields import ListField, URLField
 from solitude.logger import getLogger
@@ -238,7 +235,10 @@ class CreateBillingConfigurationForm(SellerProductForm):
             result = PriceForm(price)
             try:
                 if not result.is_valid():
-                    raise forms.ValidationError(result.errors)
+                    errors = []
+                    for error in result.errors.values():
+                        errors.extend(error)
+                    raise forms.ValidationError(errors)
             except AttributeError:
                 raise forms.ValidationError('Invalid JSON.')
             results.append(result)

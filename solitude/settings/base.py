@@ -6,7 +6,6 @@ from django.core.urlresolvers import reverse_lazy
 import cef
 import dj_database_url
 
-from funfactory.settings_base import *
 
 host = os.environ.get('SOLITUDE_URL', 'http://localhost:2602')
 
@@ -56,7 +55,6 @@ HMAC_KEYS = {
 
 INSTALLED_APPS = (
     'aesfield',
-    'funfactory',
     'django_extensions',
     'django_nose',
     'django_statsd',
@@ -157,6 +155,7 @@ LOGGING = {
 }
 LOGGING_CONFIG = 'django.utils.log.dictConfig'
 
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 ROOT_URLCONF = 'solitude.urls'
 
 SECRET_KEY = 'please change this'
@@ -168,7 +167,7 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
 )
 
-TEST_RUNNER = 'test_utils.runner.RadicalTestSuiteRunner'
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 USE_I18N = False
 USE_L10N = False
@@ -329,6 +328,9 @@ SESSION_COOKIE_SECURE = True
 
 # Set this for OAuth.
 SITE_URL = host
+
+# This is overridden on servers to ensure it goes to the right place.
+SYSLOG_TAG = 'solitude'
 
 # Configure our test runner for some nice test output.
 NOSE_PLUGINS = [

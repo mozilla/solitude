@@ -2,11 +2,12 @@ import json
 from hashlib import md5
 
 from django import forms
+from django import test
 
 import mock
 from nose.tools import eq_, raises
 from tastypie.exceptions import ImmediateHttpResponse, InvalidFilterError
-import test_utils
+from django import test
 
 from lib.buyers.models import Buyer
 from lib.paypal.errors import PaypalError
@@ -16,10 +17,10 @@ from solitude.base import APITest, Resource, etag_func
 from solitude.fields import URLField
 
 
-class TestError(test_utils.TestCase):
+class TestError(test.TestCase):
 
     def setUp(self):
-        self.request = test_utils.RequestFactory().get('/')
+        self.request = test.RequestFactory().get('/')
         self.resource = Resource()
 
     def test_error(self):
@@ -45,10 +46,10 @@ class TestError(test_utils.TestCase):
         eq_(data['error_message'], 'wat?')
 
 
-class TestBase(test_utils.TestCase):
+class TestBase(test.TestCase):
 
     def setUp(self):
-        self.request = test_utils.RequestFactory().get('/',
+        self.request = test.RequestFactory().get('/',
             CONTENT_TYPE='application/json')
         self.resource = Resource()
 
@@ -167,7 +168,7 @@ class TestHeaders(APITest):
         eq_(res.status_code, 202)
 
 
-class TestURLField(test_utils.TestCase):
+class TestURLField(test.TestCase):
 
     def test_valid(self):
         self.field = URLField(to='lib.sellers.resources.SellerResource')
@@ -209,7 +210,7 @@ class TestURLField(test_utils.TestCase):
         self.field.clean('/generic/seller/{0}/'.format(obj.pk))
 
 
-class TestModel(test_utils.TestCase):
+class TestModel(test.TestCase):
 
     def test_safer_get_or_create(self):
         data = dict(uuid='some-unique-value')

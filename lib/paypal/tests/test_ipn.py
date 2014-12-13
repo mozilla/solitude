@@ -1,11 +1,11 @@
-from decimal import Decimal
 import json
 import urllib
+from decimal import Decimal
+
+from django import test
 
 from mock import Mock, patch
 from nose.tools import eq_
-
-import test_utils
 
 from lib.paypal import constants
 from lib.paypal.ipn import IPN
@@ -18,7 +18,7 @@ from solitude.base import APITest
 
 
 @patch('lib.paypal.client.requests.post')
-class TestValid(test_utils.TestCase):
+class TestValid(test.TestCase):
 
     def test_empty(self, post):
         eq_(IPN('').is_valid(), False)
@@ -42,7 +42,7 @@ class TestValid(test_utils.TestCase):
         eq_(IPN('status=completed').is_valid(), True)
 
 
-class TestParse(test_utils.TestCase):
+class TestParse(test.TestCase):
 
     def create(self, data):
         ipn = IPN(data)
@@ -83,7 +83,7 @@ class TestParse(test_utils.TestCase):
 
 
 @patch('lib.paypal.client.requests.post')
-class TestProcess(test_utils.TestCase):
+class TestProcess(test.TestCase):
 
     def test_invalid(self, post):
         ipn = IPN('')

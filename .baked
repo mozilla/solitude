@@ -39,9 +39,8 @@
             "mock", "mozpay", "nose", "oauth2", "oauth2client",
             "oauthlib", "requests", "slumber", "suds",
             "tastypie", "tastypie_services",
-            "test_utils", "rest_framework",
-            "django_paranoia", "django_filters", "commonware.log", "chardet",
-            "cache_nuggets"
+            "rest_framework", "django_paranoia", "django_filters",
+            "commonware.log", "chardet", "cache_nuggets", "mobile_codes"
         ],
         "relative" : [""],
         "django": ["django"]

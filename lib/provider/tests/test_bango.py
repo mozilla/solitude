@@ -3,10 +3,9 @@ from django.core.urlresolvers import reverse
 from mock import patch
 from nose.tools import eq_
 
-from lib.bango.constants import OK
 from lib.bango.client import ClientMock
+from lib.bango.constants import OK
 from lib.bango.tests import samples, utils
-
 from solitude.base import APITest
 
 class TestNope(APITest):

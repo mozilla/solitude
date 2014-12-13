@@ -7,11 +7,11 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 
 import requests
-from curling.lib import sign_request
 from django_statsd.clients import statsd
 from lxml import etree
 from slumber import url_join
 
+from curling.lib import sign_request
 from lib.bango.constants import HEADERS_SERVICE_GET, HEADERS_WHITELIST_INVERTED
 from lib.boku.client import get_boku_request_signature
 from lib.paypal.client import get_client as paypal_client
@@ -48,7 +48,7 @@ class Proxy(object):
     def pre(self, request):
         """Do any processing of the incoming request."""
         self.method = request.META['REQUEST_METHOD'].lower()
-        self.body = str(request.raw_post_data)
+        self.body = str(request.body)
         try:
             self.service = request.META[HEADERS_URL_GET]
         except KeyError:
@@ -159,7 +159,7 @@ class BangoProxy(Proxy):
 
         # Alter the XML to include the username and password from the config.
         # Perhaps this can be done quicker with XPath.
-        root = etree.fromstring(request.raw_post_data)
+        root = etree.fromstring(request.body)
         username = self.tags('username')
         password = self.tags('password')
         changed_username = False
@@ -197,7 +197,7 @@ class ProviderProxy(Proxy):
             'Content-Type': request.META.get('CONTENT_TYPE'),
             'Accept': request.META.get('HTTP_ACCEPT')
         }
-        self.body = str(request.raw_post_data)
+        self.body = str(request.body)
         self.method = request.META['REQUEST_METHOD'].lower()
         # The URL is made up of the defined scheme and host plus the trailing
         # URL after the proxy in urls.py.

@@ -1,6 +1,7 @@
+from django.test import TestCase
+
 import mock
 from nose.tools import assert_raises, eq_, ok_
-from test_utils import TestCase
 
 from lib.boku.errors import BokuException
 from lib.boku.forms import (BokuForm, BokuServiceForm,

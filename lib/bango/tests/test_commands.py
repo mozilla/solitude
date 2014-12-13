@@ -1,15 +1,15 @@
 from datetime import date, timedelta
 
+from django import test
 from django.core.management import call_command
 
 from nose.tools import eq_
 
-import test_utils
 import utils
 from lib.bango.models import Status
 
 
-class TestCleanStatusesCommand(test_utils.TestCase):
+class TestCleanStatusesCommand(test.TestCase):
 
     def setUp(self):
         """

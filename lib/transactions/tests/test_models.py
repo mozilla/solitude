@@ -1,7 +1,7 @@
+from django.core.exceptions import ValidationError
+
 from mock import ANY, patch
 from nose.tools import eq_, ok_
-
-from django.core.exceptions import ValidationError
 
 from lib.sellers.models import Seller, SellerPaypal, SellerProduct
 from lib.transactions import constants
