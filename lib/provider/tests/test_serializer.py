@@ -1,6 +1,5 @@
-from rest_framework import serializers
-
 from nose.tools import eq_
+from rest_framework import serializers
 
 from lib.provider.serializers import (Remote, SellerReferenceSerializer,
                                       SellerProductReferenceSerializer)

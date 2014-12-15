@@ -1,7 +1,8 @@
 from decimal import Decimal
 
+from django import test
+
 from nose.tools import eq_
-import test_utils
 
 from lib.sellers.models import Seller, SellerPaypal, SellerProduct
 from lib.transactions import constants
@@ -9,7 +10,7 @@ from lib.transactions.models import Transaction
 from lib.transactions.utils import completed, refunded, reversal
 
 
-class TestIPN(test_utils.TestCase):
+class TestIPN(test.TestCase):
 
     def setUp(self):
         self.transaction_uuid = 'transaction:uid'

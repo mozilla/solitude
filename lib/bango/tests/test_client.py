@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
 
+from django import test
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 import mock
-import test_utils
 from nose.tools import eq_, raises
 from suds.options import Options
 from suds.reader import Reader
@@ -18,7 +18,7 @@ from ..constants import OK, ACCESS_DENIED, WSDL_MAP
 from ..errors import AuthError, BangoError, ProxyError
 
 
-class TestClient(test_utils.TestCase):
+class TestClient(test.TestCase):
 
     def setUp(self):
         self.client = get_client()
@@ -57,7 +57,7 @@ class TestClient(test_utils.TestCase):
         eq_(res.responseCode, OK)
 
 
-class TestRightClient(test_utils.TestCase):
+class TestRightClient(test.TestCase):
 
     def test_no_proxy(self):
         with self.settings(BANGO_PROXY=None, SOLITUDE_PROXY=False):
@@ -81,7 +81,7 @@ class TestRightClient(test_utils.TestCase):
             get_client()
 
 
-class TestProxy(test_utils.TestCase):
+class TestProxy(test.TestCase):
 
     def setUp(self):
         self.bango = ClientProxy()
@@ -143,7 +143,7 @@ def test_callable():
     assert not callable(dict_to_mock(data, callables=True).foo)
 
 
-class TestRequest(test_utils.TestCase):
+class TestRequest(test.TestCase):
 
     def test_mapping(self):
         eq_(get_request('foo'), 'fooRequest')
@@ -155,7 +155,7 @@ class TestRequest(test_utils.TestCase):
         assert get_wsdl('exporter').endswith('mozillaexporter/?WSDL')
 
 
-class TestReadOnlyCache(test_utils.TestCase):
+class TestReadOnlyCache(test.TestCase):
 
     def setUp(self):
         self.cache = ReadOnlyCache()
@@ -181,7 +181,7 @@ class TestReadOnlyCache(test_utils.TestCase):
         self.getf(mangled)
 
 
-class TestBangoWSDL(test_utils.TestCase):
+class TestBangoWSDL(test.TestCase):
 
     def test_wsdl_loading(self):
         cli = get_client()

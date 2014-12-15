@@ -2,16 +2,17 @@ import csv
 from datetime import datetime
 from tempfile import NamedTemporaryFile
 
+from django import test
+
 from nose.tools import eq_, raises
-import test_utils
 
-from lib.transactions import constants
-from lib.transactions.models import Transaction
-from lib.transactions.management.commands.log import generate_log
 from lib.sellers.tests.utils import make_seller_paypal
+from lib.transactions import constants
+from lib.transactions.management.commands.log import generate_log
+from lib.transactions.models import Transaction
 
 
-class TestLog(test_utils.TestCase):
+class TestLog(test.TestCase):
 
     def setUp(self):
         self.name = NamedTemporaryFile().name

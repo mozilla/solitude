@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.test import RequestFactory
 
-import test_utils
+from django import test
 from curling.lib import sign_request
 from mock import patch
 from nose.tools import eq_, ok_
@@ -15,7 +15,7 @@ keys_dict = {'key': 'foo', 'secret': 'bar'}
 
 
 @patch.object(settings, 'CLIENT_OAUTH_KEYS', keys)
-class TestAuthentication(test_utils.TestCase):
+class TestAuthentication(test.TestCase):
 
     def setUp(self):
         self.authentication = OAuthAuthentication('api')
@@ -66,7 +66,7 @@ class TestAuthentication(test_utils.TestCase):
 
 
 @patch.object(settings, 'CLIENT_OAUTH_KEYS', keys)
-class TestDRFAuthentication(test_utils.TestCase):
+class TestDRFAuthentication(test.TestCase):
 
     def setUp(self):
         self.authentication = RestOAuthAuthentication()

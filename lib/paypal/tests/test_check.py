@@ -1,6 +1,7 @@
-from decimal import Decimal
 import json
+from decimal import Decimal
 
+from django import test
 from django.conf import settings
 
 from mock import Mock, patch
@@ -9,14 +10,11 @@ from nose.tools import eq_
 from ..check import Check
 from ..client import Client
 from ..errors import PaypalError
-
 from lib.sellers.models import Seller, SellerPaypal
 from solitude.base import APITest
 
-import test_utils
 
-
-class TestCheck(test_utils.TestCase):
+class TestCheck(test.TestCase):
 
     def setUp(self):
         self.paypal_id = 'foo@bar.com'

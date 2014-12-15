@@ -1,7 +1,6 @@
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 
 from nose.tools import eq_
-from test_utils import RequestFactory
 
 from solitude.logger import get_oauth_key, get_transaction_id
 from solitude.middleware import LoggerMiddleware

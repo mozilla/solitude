@@ -1,10 +1,10 @@
 import time
 import urlparse
 
+from django import test
 from django.core.exceptions import ImproperlyConfigured
 
 import mock
-import test_utils
 from nose.tools import assert_raises, eq_, ok_, raises
 
 from lib.boku.client import (get_boku_request_signature, get_client,
@@ -13,7 +13,7 @@ from lib.boku.client import (get_boku_request_signature, get_client,
 from lib.boku.tests import sample_xml
 
 
-class BokuClientTests(test_utils.TestCase):
+class BokuClientTests(test.TestCase):
 
     def setUp(self):
         self.merchant_id = 'merchant_id'
@@ -244,7 +244,7 @@ class BokuClientTests(test_utils.TestCase):
         eq_(transaction, {'amount': amount, 'paid': amount})
 
 
-class TestClient(test_utils.TestCase):
+class TestClient(test.TestCase):
 
     def test_mock(self):
         assert isinstance(get_client('', ''), MockClient)
@@ -265,7 +265,7 @@ class TestClient(test_utils.TestCase):
             get_client('', '')
 
 
-class TestProxy(test_utils.TestCase):
+class TestProxy(test.TestCase):
 
     def setUp(self):
         self.merchant_id = 'merchant_id'

@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
+import urlparse
 from datetime import datetime, timedelta
 from decimal import Decimal
-import urlparse
 
+from django import test
 from django.conf import settings
 
-import test_utils
 import mock
 from nose.tools import eq_
 
-from ..constants import HEADERS_URL, HEADERS_TOKEN
 from ..client import get_client, Client, ClientProxy, ClientMock
+from ..constants import HEADERS_URL, HEADERS_TOKEN
 from ..errors import AuthError, CurrencyError, PaypalDataError, PaypalError
 
 good_token = {'token': 'foo', 'secret': 'bar'}
 
 
-class BaseCase(test_utils.TestCase):
+class BaseCase(test.TestCase):
 
     def setUp(self):
         self.paypal = Client()
@@ -526,7 +526,7 @@ class TestVerified(BaseCase):
             self.paypal.get_verified('nope')
 
 
-class TestRightClient(test_utils.TestCase):
+class TestRightClient(test.TestCase):
 
     def test_no_proxy(self):
         with self.settings(PAYPAL_PROXY=None, SOLITUDE_PROXY=False):
@@ -547,7 +547,7 @@ class TestRightClient(test_utils.TestCase):
             assert get_client().check_personal_email is False
 
 
-class TestMock(test_utils.TestCase):
+class TestMock(test.TestCase):
 
     def setUp(self):
         self.paypal = ClientMock()
@@ -578,7 +578,7 @@ class TestMock(test_utils.TestCase):
         assert res['token'].startswith(self.url)
 
 
-class TestProxy(test_utils.TestCase):
+class TestProxy(test.TestCase):
 
     def setUp(self):
         self.paypal = ClientProxy()

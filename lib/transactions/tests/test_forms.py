@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 
-from mock import ANY, Mock, patch
-
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import RequestFactory
+
+from mock import ANY, Mock, patch
 
 from lib.transactions import constants
 from lib.transactions.forms import check_status, UpdateForm

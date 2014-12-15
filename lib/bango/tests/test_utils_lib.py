@@ -1,13 +1,14 @@
 import os
 import tempfile
 
+from django import test
+
 from nose.tools import raises
-import test_utils
 
 from lib.bango.utils import sign, terms, terms_directory, verify_sig
 
 
-class TestSigning(test_utils.TestCase):
+class TestSigning(test.TestCase):
 
     def test_sign(self):
         sig = sign('123')
@@ -31,7 +32,7 @@ class TestSigning(test_utils.TestCase):
         assert not verify_sig(sig, '123')
 
 
-class TestTerms(test_utils.TestCase):
+class TestTerms(test.TestCase):
 
     def setUp(self):
         self.fr = os.path.join(terms_directory, 'fr.html')

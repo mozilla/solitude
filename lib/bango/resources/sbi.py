@@ -59,7 +59,7 @@ class SBIResource(SimpleResource):
         if kwargs['pk'] != 'agreement':
             raise ImmediateHttpResponse(response=HttpNotFound())
 
-        data = self.deserialize(request, request.raw_post_data,
+        data = self.deserialize(request, request.body,
                                 format='application/json')
         form = SBIForm(data)
         if not form.is_valid():

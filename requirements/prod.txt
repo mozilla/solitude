@@ -2,7 +2,7 @@
 # needed to run the site, it belongs in requirements/prod.txt. If it's a
 # package for developers (testing, docs, etc.), it goes in this file.
 
-Django==1.5.9
+Django==1.7.1
 PyJWT-mozilla==0.1.4.2
 amqplib==1.0.2
 anyjson==0.3.3
@@ -16,14 +16,12 @@ django-aesfield==0.1.2
 django-extensions==0.9
 django-filter==0.6
 django-multidb-router==0.5
-django-nose==1.1
+django-nose==1.3
 django-paranoia==0.1.7
 django-raven-metlog==0.1
 django-sha2==0.4
 django-statsd-mozilla==0.3.8.3
-django-tastypie==0.9.11
 djangorestframework==2.3.9
-funfactory==2.1.1
 gunicorn==0.17.2
 httplib2==0.7.6
 lxml==2.2.6
@@ -50,5 +48,5 @@ suds==0.4
 tower==0.3.4
 
 # not on pypi
+git+https://github.com/andymckay/django-tastypie.git@c8241e8#egg=django-tastypie
 git+https://github.com/mozilla/nuggets.git@96e80a64aa4bfcfef4f43fc3ab6966450ccd7325#egg=nuggets
-git+https://github.com/andymckay/test-utils.git@6c4acfc57dcb98eea13eb1f0cf3372d3465b9e78#egg=test-utils

@@ -1,5 +1,6 @@
+from django import test
+
 from nose.tools import eq_
-import test_utils
 
 from lib.buyers.models import Buyer, BuyerPaypal
 from lib.paypal.forms import AccountCheck, GetPersonal, PayValidation
@@ -7,7 +8,7 @@ from lib.sellers.models import Seller, SellerPaypal
 from lib.transactions.models import Transaction
 
 
-class TestValidation(test_utils.TestCase):
+class TestValidation(test.TestCase):
 
     def setUp(self):
         self.uuid = 'sample:uid'
@@ -92,7 +93,7 @@ class TestValidation(test_utils.TestCase):
         assert not form.is_valid(), form.errors
 
 
-class TestKeyValidation(test_utils.TestCase):
+class TestKeyValidation(test.TestCase):
 
     def setUp(self):
         self.uuid = 'sample:uid'
@@ -117,7 +118,7 @@ class TestKeyValidation(test_utils.TestCase):
         assert form.is_valid()
 
 
-class TestValidation(test_utils.TestCase):
+class TestValidation(test.TestCase):
 
     def setUp(self):
         self.uuid = 'sample:uid'

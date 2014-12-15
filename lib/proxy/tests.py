@@ -1,22 +1,21 @@
 from urlparse import urlparse, parse_qs
 
+from django import test
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 
 import mock
 import requests
-import test_utils
 from nose.tools import eq_
 
 from lib.bango.constants import HEADERS_SERVICE_GET
 from lib.bango.tests import samples
-
 from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
 from lib.paypal.map import urls
 
 
-class Proxy(test_utils.TestCase):
+class Proxy(test.TestCase):
 
     def setUp(self):
         request = mock.patch('lib.proxy.views.requests', name='test.proxy')
