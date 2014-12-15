@@ -148,18 +148,10 @@ class TestRequest(test_utils.TestCase):
     def test_mapping(self):
         eq_(get_request('foo'), 'fooRequest')
         eq_(get_request('CreateBillingConfiguration'),
-            'CreateBillingConfigurationRequest')
-        with self.settings(BANGO_BILLING_CONFIG_V2=True):
-            eq_(get_request('CreateBillingConfiguration'),
-                'InnerCreateBillingConfigurationRequest')
+            'InnerCreateBillingConfigurationRequest')
 
-    def test_file(self):
-        assert get_wsdl('billing').endswith('billingconfiguration/?WSDL')
-        with self.settings(BANGO_BILLING_CONFIG_V2=True):
-            assert (get_wsdl('billing')
-                    .endswith('billingconfiguration_v2_0/?WSDL'))
-
-    def test_get_wsdl(self):
+    def test_wsdl(self):
+        assert get_wsdl('billing').endswith('billingconfiguration_v2_0/?WSDL')
         assert get_wsdl('exporter').endswith('mozillaexporter/?WSDL')
 
 
@@ -170,7 +162,7 @@ class TestReadOnlyCache(test_utils.TestCase):
         self.url = WSDL_MAP['prod']['billing']['url']
         self.cached = os.path.join(
             settings.ROOT,
-            'lib/bango/wsdl/prod/billing_configuration.wsdl')
+            'lib/bango/wsdl/prod/billing_configuration_v2_0.wsdl')
 
     def test_getf_url(self):
         with self.assertRaises(KeyError):
