@@ -5,7 +5,7 @@ import sys
 # Edit this if necessary or override the variable in your environment.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'solitude.settings')
 if sys.argv[1] == 'test':
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'settings_test'
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'solitude.settings.test'
 
 # This constant moved in Django 1.5 but it is used by Tastypie. When that
 # gets updated we can remove this.
