@@ -83,7 +83,7 @@ class BokuTransactionForm(BokuClientMixin, forms.Form):
     transaction_uuid = forms.CharField()
     price = forms.DecimalField()
     seller_uuid = forms.ModelChoiceField(
-        queryset=Seller.objects.filter(boku__isnull=False),
+        queryset=Seller.objects.none(),
         to_field_name='uuid'
     )
     user_uuid = forms.CharField()
@@ -92,6 +92,15 @@ class BokuTransactionForm(BokuClientMixin, forms.Form):
         'This price was not found in the available price tiers.'
     )
     ERROR_BOKU_API = _('There was an error communicating with Boku.')
+
+    def __init__(self, *args, **kw):
+        super(BokuTransactionForm, self).__init__(*args, **kw)
+        # In Django 1.7, this was causing a lookup problem because the
+        # Boku model wasn't loaded in the proxy. This is a quick fix to solve
+        # the 1.7 problem.
+        self.fields['seller_uuid'].queryset = (
+            Seller.objects.filter(boku__isnull=False)
+        )
 
     def clean(self):
         cleaned_data = super(BokuTransactionForm, self).clean()
