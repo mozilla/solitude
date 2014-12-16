@@ -12,7 +12,5 @@ site.addsitedir(os.path.abspath(os.path.join(wsgidir, '../')))
 # manage adds /apps, /lib, and /vendor to the Python path.
 import manage
 
-import django.core.handlers.wsgi
-application = django.core.handlers.wsgi.WSGIHandler()
-
-# vim: ft=python
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
