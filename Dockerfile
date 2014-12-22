@@ -15,4 +15,4 @@ EXPOSE 2602
 
 ENV SOLITUDE_DATABASE mysql://root:@mysql:3306/solitude
 ENV SOLITUDE_URL http://solitude:2602
-ENV MEMCACHE_URL memcache:11211
+ENV MEMCACHE_URL memcached:11211
