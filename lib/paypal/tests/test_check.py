@@ -89,9 +89,9 @@ class TestCheck(test.TestCase):
         eq_(self.check.errors,
             ['Failed to make a test transaction in USD.'])
 
-    @patch.object(settings, 'PAYPAL_URL_WHITELIST', ())
+    @patch.object(settings, 'PAYPAL_URLS_ALLOWED', ())
     @patch.object(Client, 'get_pay_key')
-    def test_whitelist_fails(self, get_pay_key):
+    def test_approved_list_fails(self, get_pay_key):
         with self.assertRaises(IndexError):
             self.check.check_currencies()
 

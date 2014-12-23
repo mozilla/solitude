@@ -56,7 +56,7 @@ NEWRELIC_INI = '/etc/newrelic.d/payments.allizom.org.ini'
 ZIPPY_CONFIGURATION = {}
 
 PAYPAL_PROXY = private.PAYPAL_PROXY
-PAYPAL_URL_WHITELIST = ('https://marketplace.allizom.org',)
+PAYPAL_URLS_ALLOWED = ('https://marketplace.allizom.org',)
 
 BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
 BANGO_ENV = 'prod'

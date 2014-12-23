@@ -121,9 +121,9 @@ class Check(object):
         currency: valid paypal currency, defaults to USD (optional)
         """
         try:
-            fake_url = settings.PAYPAL_URL_WHITELIST[0]
+            fake_url = settings.PAYPAL_URLS_ALLOWED[0]
         except IndexError:
-            log.error('PAYPAL_URL_WHITELIST must contain a URL.')
+            log.error('PAYPAL_URLS_ALLOWED must contain a URL.')
             raise
         return self.paypal.get_pay_key(data['email'], data['amount'],
                                        fake_url, fake_url, fake_url,

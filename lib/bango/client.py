@@ -17,14 +17,14 @@ from suds.transport import Reply
 from suds.transport.http import HttpTransport
 
 from solitude.logger import getLogger
-from .constants import (ACCESS_DENIED, HEADERS_SERVICE, HEADERS_WHITELIST,
+from .constants import (ACCESS_DENIED, HEADERS_SERVICE, HEADERS_ALLOWED,
                         INTERNAL_ERROR, SERVICE_UNAVAILABLE, WSDL_MAP,
                         WSDL_MAP_MANGLED)
 from .errors import AuthError, BangoError, BangoFormError, ProxyError
 from solitude.logger import getLogger
 
 
-# Add in the whitelist of supported methods here.
+# Add in the list of allowed methods here.
 exporter = [
     'AcceptSBIAgreement',
     'CreateBangoNumber',
@@ -184,7 +184,7 @@ class Proxy(HttpTransport):
 
     def get_headers(self, url, headers):
         filtered = {HEADERS_SERVICE: url}
-        for k, v in HEADERS_WHITELIST.items():
+        for k, v in HEADERS_ALLOWED.items():
             if k in headers:
                 filtered[v] = headers[k]
         return filtered
