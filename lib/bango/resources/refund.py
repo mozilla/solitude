@@ -171,4 +171,13 @@ class RefundResource(SimpleResource):
         # Turn the object back into a bundle so that we get the new transaction
         # in the response.
         bundle.obj = RefundResponse(res.responseCode, obj)
+        # Tastypie will dehydrate the object and data passed in. After it
+        # dehydrates the object, tastypie applies the old uuid over the top.
+        #
+        # That is not an unreasonable thing to do and what we should probably
+        # do is move the new transaction data into a "refund" namespace in
+        # the result instead of overwriting everything. For the moment,
+        # we'll just set the uuid in the data, so it overwrites with the
+        # correct value.
+        bundle.data['uuid'] = obj.uuid
         return bundle
