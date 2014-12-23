@@ -780,6 +780,7 @@ class TestRefund(APITest):
         eq_(res.status_code, 201, res.content)
         res_data = json.loads(res.content)
         eq_(res_data['status'], their_status)
+        assert res_data['uuid'] != self.uuid
 
         eq_(len(Transaction.objects.all()), 2)
         trans = Transaction.objects.get(pk=res_data['resource_pk'])
