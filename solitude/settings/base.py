@@ -1,5 +1,6 @@
 import logging.handlers
 import os
+from urlparse import urlparse
 
 from django.core.urlresolvers import reverse_lazy
 
@@ -24,20 +25,27 @@ if os.environ.get('MEMCACHE_URL'):
         }
     }
 
-db_env = ''
-envs = ['SOLITUDE_DATABASE', 'DATABASE_URL']
-for env in envs:
-    if os.environ.get(env):
-        db_env = env
-        break
+SOLITUDE_PROXY = os.environ.get('SOLITUDE_PROXY', 'disabled') == 'enabled'
 
-# Solitude will use the first environment variable it can find.
-DATABASES = {
-    'default': dj_database_url.config(
-        default='mysql://root:@localhost:3306/solitude',
-        env=db_env)
-}
-if 'mysql' in DATABASES['default']['ENGINE']:
+if SOLITUDE_PROXY:
+    DATABASES = {'default': {}}
+else:
+    db_env = ''
+    envs = ['SOLITUDE_DATABASE', 'DATABASE_URL']
+    for env in envs:
+        if os.environ.get(env):
+            db_env = env
+            break
+
+
+    # Solitude will use the first environment variable it can find.
+    DATABASES = {
+        'default': dj_database_url.config(
+            default='mysql://root:@localhost:3306/solitude',
+            env=db_env)
+    }
+
+if 'mysql' in DATABASES['default'].get('ENGINE', ''):
     opt = DATABASES['default'].get('OPTIONS', {})
     opt['init_command'] = 'SET storage_engine=InnoDB'
     opt['charset'] = 'utf8'
@@ -249,7 +257,6 @@ REQUIRE_OAUTH = True
 # URLs that should not require oauth autentication, for example Nagios checks.
 SKIP_OAUTH = (reverse_lazy('services.status'),)
 
-SOLITUDE_PROXY = os.environ.get('SOLITUDE_PROXY', 'disabled') == 'enabled'
 if SOLITUDE_PROXY:
     # The proxy runs with no database access. And just a couple of libraries.
     INSTALLED_APPS += (
@@ -402,7 +409,7 @@ BANGO_ENV = 'test'
 
 # If you'd like to use the internal Solitude proxy for Bango, set this to
 # the value of the Solitude proxy instance.
-BANGO_PROXY = ''
+BANGO_PROXY = os.getenv('SOLITUDE_BANGO_PROXY', '')
 
 # Set this to a string if you'd like to insert data into the vendor
 # and company name when a package is created.
@@ -425,22 +432,23 @@ BANGO_NOTIFICATION_URL = ''
 # Mock out Zippy, because we are sharing zippy.paas configuration.
 ZIPPY_MOCK = False
 
+url = os.environ.get('ZIPPY_BASE_URL', 'https://zippy.paas.allizom.org')
+
 # Override this to configure some zippy backends.
 ZIPPY_CONFIGURATION = {
     'reference': {
         # No trailing slash.
-        'url': os.environ.get('ZIPPY_BASE_URL',
-                              'https://zippy.paas.allizom.org'),
+        'url': url,
         'auth': {
             'key': 'zippy-on-paas',
             'secret': 'sjahgfjdrtgdargalrgadlfghadfjgadrgarfgnadfgdfagadflhdafg',
-            'realm': 'zippy.paas.allizom.org'
+            'realm': urlparse(url).netloc
         },
     },
 }
 
 # The URL for a solitude proxy to zippy.
-ZIPPY_PROXY = ''
+ZIPPY_PROXY = os.getenv('SOLITUDE_ZIPPY_PROXY', '')
 
 # End Zippy settings.
 ###############################################################################
@@ -461,7 +469,7 @@ BOKU_MERCHANT_ID = ''
 BOKU_API_DOMAIN = 'https://api2.boku.com'
 
 # If you'd like to use the proxy for Boku, set this to ZIPPY_PROXY.
-BOKU_PROXY = ''
+BOKU_PROXY = os.getenv('SOLITUDE_BOKU_PROXY', '')
 
 # End Bango settings.
 ###############################################################################

@@ -11,7 +11,7 @@ ADD requirements /pip/requirements
 WORKDIR /pip
 RUN pip install -b /pip/build --download-cache /pip/cache --no-deps -r /pip/requirements/dev.txt
 
-EXPOSE 2602
+EXPOSE 2602 2603
 
 ENV SOLITUDE_DATABASE mysql://root:@mysql:3306/solitude
 ENV SOLITUDE_URL http://solitude:2602
