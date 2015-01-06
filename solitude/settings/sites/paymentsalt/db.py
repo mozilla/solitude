@@ -53,7 +53,7 @@ REQUIRE_OAUTH = True
 
 # Below is configuration of payment providers.
 PAYPAL_PROXY = private.PAYPAL_PROXY
-PAYPAL_URL_WHITELIST = ('https://payments-alt.allizom.org',)
+PAYPAL_URLS_ALLOWED = ('https://payments-alt.allizom.org',)
 
 BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
 BANGO_ENV = 'prod'

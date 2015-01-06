@@ -36,18 +36,18 @@ class Client(object):
 
     check_personal_email = True
 
-    def whitelist(self, urls, whitelist=None):
+    def approved_list(self, urls, approved_list=None):
         """
         Ensure that URLs that are sent through to to PayPal are in our
-        whitelist and not some nasty site.
+        approved list and not some nasty site.
         TODO: move this is up to the form.
         """
-        whitelist = whitelist or settings.PAYPAL_URL_WHITELIST
-        if not whitelist:
-            raise ValueError('URL white list is required.')
+        approved_list = approved_list or settings.PAYPAL_URLS_ALLOWED
+        if not approved_list:
+            raise ValueError('URL approved list is required.')
         for url in urls:
-            if not url.startswith(whitelist):
-                raise ValueError('URL not in the white list: %s' % url)
+            if not url.startswith(approved_list):
+                raise ValueError('URL not in the approved list: %s' % url)
         return True
 
     def nvp(self, data):
@@ -199,7 +199,7 @@ class Client(object):
         this PayPal account. Returns URL on PayPal site to visit.
         Documentation: http://bit.ly/zlhXlT
         """
-        assert self.whitelist([url])
+        assert self.approved_list([url])
         res = self.call('request-permission',
                         {'scope': scope, 'callback': url})
         return {'token': urls['grant-permission'] + res['token']}
@@ -234,7 +234,7 @@ class Client(object):
         per payment and period.
         Documentation: http://bit.ly/Kj6AGQ
         """
-        assert self.whitelist([return_url, cancel_url])
+        assert self.approved_list([return_url, cancel_url])
         data = {
             'cancelUrl': cancel_url,
             'currencyCode': 'USD',
@@ -260,7 +260,7 @@ class Client(object):
         Gets a payment key, or processes payments with preapproval.
         Documentation: http://bit.ly/vWV525
         """
-        assert self.whitelist([return_url, cancel_url, ipn_url])
+        assert self.approved_list([return_url, cancel_url, ipn_url])
         uuid = uuid or get_uuid()
 
         data = {

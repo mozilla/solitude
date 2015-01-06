@@ -115,11 +115,11 @@ Currently `PAYPAL_APP_ID` is specific to our sandbox. Ask someone in the
 marketplace team for the sandbox version.
 
 Solitude creates redirects through PayPal. To make sure Solitude doesn't do
-a redirect to some nasty site, we whitelist URLs. On the dev server at Mozilla
+a redirect to some nasty site, we filter URLs. On the dev server at Mozilla
 it's set to the following. You'll want to set these URLs to match whatever
 front end site is using Solitude::
 
-    PAYPAL_URL_WHITELIST = ('https://marketplace-dev.allizom.org',)
+    PAYPAL_URLS_ALLOWED = ('https://marketplace-dev.allizom.org',)
 
 Bango settings
 ~~~~~~~~~~~~~~

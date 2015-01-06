@@ -22,24 +22,35 @@ class BaseCase(test.TestCase):
         self.paypal = Client()
 
 
-@mock.patch.object(settings, 'PAYPAL_URL_WHITELIST', ('http://foo'))
+@mock.patch.object(settings, 'PAYPAL_URLS_ALLOWED', ('http://foo'))
 class TestClient(BaseCase):
 
     def test_nvp(self):
         eq_(self.paypal.nvp({'foo': 'bar'}), 'foo=bar')
         eq_(self.paypal.nvp({'foo': 'ba r'}), 'foo=ba%20r')
-        eq_(self.paypal.nvp({'foo': 'bar', 'bar': 'foo'}),
-                                  'bar=foo&foo=bar')
-        eq_(self.paypal.nvp({'foo': ['bar', 'baa']}),
-                                  'foo(0)=bar&foo(1)=baa')
+        eq_(self.paypal.nvp(
+            {'foo': 'bar', 'bar': 'foo'}),
+            'bar=foo&foo=bar'
+        )
+        eq_(self.paypal.nvp(
+            {'foo': ['bar', 'baa']}),
+            'foo(0)=bar&foo(1)=baa'
+        )
 
-    def test_whitelist(self):
-        assert self.paypal.whitelist(['http://foo.bar.com'],
-                                     whitelist=('http://foo',))
-        assert self.paypal.whitelist(['http://foo.ba'],
-                                     whitelist=('http://foo', 'http://bar'))
+    def test_approved_list(self):
+        assert self.paypal.approved_list(
+            ['http://foo.bar.com'],
+            approved_list=('http://foo',)
+        )
+        assert self.paypal.approved_list(
+            ['http://foo.ba'],
+            approved_list=('http://foo', 'http://bar')
+        )
         with self.assertRaises(ValueError):
-            self.paypal.whitelist(['http://foo.com'], whitelist=('http://bar'))
+            self.paypal.approved_list(
+                ['http://foo.com'],
+                approved_list=('http://bar')
+            )
 
     def test_split(self):
         res = self.paypal.receivers('a@a.com', Decimal('1.99'), '123',
@@ -88,7 +99,7 @@ class TestClient(BaseCase):
 
 
 @mock.patch.object(Client, 'call')
-@mock.patch.object(settings, 'PAYPAL_URL_WHITELIST', ('http://foo'))
+@mock.patch.object(settings, 'PAYPAL_URLS_ALLOWED', ('http://foo'))
 class TestRefundPermissions(BaseCase):
 
     args = ['http://foo.com', 'foo']
@@ -150,20 +161,20 @@ class TestPreApproval(BaseCase):
         return [datetime.today(), datetime.today() + timedelta(days=365),
                 'http://foo/return', 'http://foo/cancel']
 
-    @mock.patch.object(settings, 'PAYPAL_URL_WHITELIST', ('http://foo'))
+    @mock.patch.object(settings, 'PAYPAL_URLS_ALLOWED', ('http://foo'))
     def test_preapproval_works(self, call):
         call.return_value = good_preapproval_string
         res = self.paypal.get_preapproval_key(*self.get_data())
         eq_(res['key'], 'PA-2L635945UC9045439')
 
-    @mock.patch.object(settings, 'PAYPAL_URL_WHITELIST', ('http://foo'))
+    @mock.patch.object(settings, 'PAYPAL_URLS_ALLOWED', ('http://foo'))
     def test_preapproval_amount(self, call):
         call.return_value = good_preapproval_string
         data = self.get_data()
         self.paypal.get_preapproval_key(*data)
         eq_(call.call_args[0][1]['maxTotalAmountOfAllPayments'], '2000')
 
-    @mock.patch.object(settings, 'PAYPAL_URL_WHITELIST', ('http://foo'))
+    @mock.patch.object(settings, 'PAYPAL_URLS_ALLOWED', ('http://foo'))
     @mock.patch.object(settings, 'PAYPAL_LIMIT_PREAPPROVAL', True)
     def test_preapproval_limits(self, call):
         call.return_value = good_preapproval_string
@@ -173,7 +184,7 @@ class TestPreApproval(BaseCase):
         eq_(call.call_args[0][1]['maxAmountPerPayment'], 15)
         eq_(call.call_args[0][1]['maxNumberOfPaymentsPerPeriod'], 15)
 
-    @mock.patch.object(settings, 'PAYPAL_URL_WHITELIST', ('http://foo'))
+    @mock.patch.object(settings, 'PAYPAL_URLS_ALLOWED', ('http://foo'))
     @mock.patch.object(settings, 'PAYPAL_LIMIT_PREAPPROVAL', False)
     def test_preapproval_not_limits(self, call):
         call.return_value = good_preapproval_string
@@ -183,7 +194,7 @@ class TestPreApproval(BaseCase):
                     'maxNumberOfPaymentsPerPeriod']:
             assert arg not in call.call_args[0][1]
 
-    @mock.patch.object(settings, 'PAYPAL_URL_WHITELIST', ('http://bar'))
+    @mock.patch.object(settings, 'PAYPAL_URLS_ALLOWED', ('http://bar'))
     def test_naughty(self, call):
         with self.assertRaises(ValueError):
             data = self.get_data()
@@ -200,7 +211,7 @@ auth_error = ('error(0).errorId=520003'
             'credentials+are+incorrect.')
 
 
-@mock.patch.object(settings, 'PAYPAL_URL_WHITELIST', ('http://foo'))
+@mock.patch.object(settings, 'PAYPAL_URLS_ALLOWED', ('http://foo'))
 class TestPayKey(BaseCase):
 
     def setUp(self):

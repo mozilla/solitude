@@ -100,8 +100,8 @@ Fields:
 * `uuid` (optional): the transaction id for PayPal, we'll create one if you
   don't specify it.
 
-URLs are whitelisted in solitude so make sure those URLs are in configured in
-your settings file with `PAYPAL_URL_WHITELIST`.
+URLs are filtered in solitude so make sure those URLs are configured in
+your settings file with `PAYPAL_URLS_ALLOWED`.
 
 If there is no pre-approval, then you'll get back the pay key:
 
@@ -147,8 +147,8 @@ Fields:
 * `return_url`: the URL on your site that PayPal will return you to if
   successful.
 
-URLs are whitelisted in solitude so make sure those URLs are in configured in
-your settings file with `PAYPAL_URL_WHITELIST`.
+URLs are approved in solitude so make sure those URLs are in configured in
+your settings file with `PAYPAL_URLS_ALLOWED`.
 
 This will return the pre-approval key that you will then pass on to PayPal.
 This key should not be stored anywhere. Returns:

@@ -32,7 +32,7 @@ class EventForm(BokuForm):
     """
     A form to process the data from Boku.
 
-    This filters out the data by whitelisting out the fields we want.
+    This filters out the data by filtering out the fields we want.
     """
     action = forms.ChoiceField(choices=(['billingresult', 'billingresult'],))
     amount = forms.DecimalField()

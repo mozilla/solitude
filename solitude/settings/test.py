@@ -25,7 +25,7 @@ if os.environ.get('SOLITUDE_PROXY', 'disabled') == 'enabled':
                      '"enabled", this breaks the tests, aborting.')
 
 PAYPAL_PROXY = False
-PAYPAL_URL_WHITELIST = ('https://marketplace-dev.allizom.org',)
+PAYPAL_URLS_ALLOWED = ('https://marketplace-dev.allizom.org',)
 
 # How tastypie processes error depends upon these settings.
 DEBUG = True

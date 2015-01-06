@@ -365,7 +365,7 @@ PAYPAL_CHAINS = ()
 PAYPAL_LIMIT_PREAPPROVAL = True
 PAYPAL_MOCK = False
 PAYPAL_PROXY = ''
-PAYPAL_URL_WHITELIST = ()
+PAYPAL_URLS_ALLOWED = ()
 PAYPAL_USE_SANDBOX = True
 
 ###############################################################################

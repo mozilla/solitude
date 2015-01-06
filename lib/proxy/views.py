@@ -12,7 +12,7 @@ from lxml import etree
 from slumber import url_join
 
 from curling.lib import sign_request
-from lib.bango.constants import HEADERS_SERVICE_GET, HEADERS_WHITELIST_INVERTED
+from lib.bango.constants import HEADERS_SERVICE_GET, HEADERS_ALLOWED_INVERTED
 from lib.boku.client import get_boku_request_signature
 from lib.paypal.client import get_client as paypal_client
 from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
@@ -146,7 +146,7 @@ class BangoProxy(Proxy):
         self.headers = {'Content-Type': 'text/xml; charset=utf-8'}
 
         # Add in any headers we need to pass through,
-        for k, v in HEADERS_WHITELIST_INVERTED.items():
+        for k, v in HEADERS_ALLOWED_INVERTED.items():
             # Transform the key from the settings into the appropriate
             # format from Django request.
             k = 'HTTP_' + k.upper().replace('-', '_')

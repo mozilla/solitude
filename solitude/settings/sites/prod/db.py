@@ -54,7 +54,7 @@ S3_BUCKET = private.S3_BUCKET
 ZIPPY_CONFIGURATION = {}
 
 PAYPAL_PROXY = private.PAYPAL_PROXY
-PAYPAL_URL_WHITELIST = ('https://marketplace.firefox.com',)
+PAYPAL_URLS_ALLOWED = ('https://marketplace.firefox.com',)
 
 BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
 BANGO_ENV = 'prod'
