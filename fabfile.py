@@ -49,7 +49,7 @@ def update_assets():
 
 
 @task
-def update_db():
+def update_db(run_dir=SOLITUDE):
     """Update the database schema, if necessary.
 
     Uses schematic by default. Change to south if you need to.
@@ -57,9 +57,8 @@ def update_db():
     """
     if IS_PROXY:
         return
-    with lcd(SOLITUDE):
-        local("%s %s/bin/schematic migrations" %
-              (PYTHON, VIRTUALENV))
+    with lcd(run_dir):
+        local("../venv/bin/python ../venv/bin/schematic migrations")
 
 
 @task
@@ -110,6 +109,39 @@ def pre_update(ref):
     execute(disable_cron)
     execute(helpers.git_update, SOLITUDE, ref)
     execute(update_info)
+
+
+@task
+def build():
+    execute(update_info)
+    create_virtualenv()
+
+
+@task
+def deploy_jenkins():
+    package_dirs = ['solitude', 'venv']
+    if os.path.isdir(os.path.join(ROOT, 'aeskeys')):
+        package_dirs.append('aeskeys')
+
+    r = helpers.build_rpm(name='solitude',
+                          env=settings.ENV,
+                          cluster=settings.CLUSTER,
+                          domain=settings.DOMAIN,
+                          root=ROOT,
+                          package_dirs=package_dirs)
+
+    r.local_install()
+    install_path = os.path.join(r.install_to, 'solitude')
+
+    update_db(install_path)
+
+    r.remote_install(['web'])
+
+    helpers.restart_uwsgi(getattr(settings, 'UWSGI', []))
+
+    execute(install_cron, r.install_to)
+    with lcd(install_path):
+        local('../venv/bin/python manage.py statsd_ping --key=update')
 
 
 @task
