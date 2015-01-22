@@ -4,6 +4,8 @@
 # NOTE: this is not provided for production usage.
 FROM mozillamarketplace/centos-mysql-mkt:0.2
 
+RUN yum install -y supervisor
+
 ENV IS_DOCKER 1
 
 RUN mkdir -p /pip/{cache,build}
