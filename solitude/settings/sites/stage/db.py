@@ -53,7 +53,13 @@ NEWRELIC_INI = '/etc/newrelic.d/payments.allizom.org.ini'
 
 # Below is configuration of payment providers.
 
-ZIPPY_CONFIGURATION = {}
+ZIPPY_CONFIGURATION = {
+    'boku': {
+        'url': base.BOKU_API_DOMAIN
+    }
+}
+
+BOKU_PROXY = 'https://payments-proxy.allizom.org/proxy/provider'
 
 PAYPAL_PROXY = private.PAYPAL_PROXY
 PAYPAL_URLS_ALLOWED = ('https://marketplace.allizom.org',)
