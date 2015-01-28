@@ -52,7 +52,14 @@ PAYPAL_CHAINS = private.PAYPAL_CHAINS
 PAYPAL_URLS_ALLOWED = ('https://marketplace.allizom.org',)
 PAYPAL_USE_SANDBOX = True
 
-ZIPPY_CONFIGURATION = {}
-
 BANGO_ENV = 'prod'
 BANGO_AUTH = private.BANGO_AUTH
+
+ZIPPY_CONFIGURATION = {
+    'boku': {
+        'url': base.BOKU_API_DOMAIN,
+    }
+}
+
+BOKU_MERCHANT_ID = private.BOKU_MERCHANT_ID
+BOKU_SECRET_KEY = private.BOKU_SECRET_KEY
