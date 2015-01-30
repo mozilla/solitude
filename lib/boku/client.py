@@ -176,6 +176,12 @@ class BokuClient(object):
             price_amount = int(price_row['price-inc-salestax'])
             price_decimal = Decimal(price_amount) / (10**decimal_places)
             price_rows[price_decimal] = row_num + 1
+            log.info('Boku price {price} is row {row}; currency={cur}; '
+                     'country={country}; status={status}'
+                     .format(price=price_decimal,
+                             row=price_rows[price_decimal],
+                             cur=currency, country=country,
+                             status=price_row['status']))
         return price_rows
 
     def get_service_pricing(self, service_id):
