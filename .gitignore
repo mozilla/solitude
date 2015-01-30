@@ -19,4 +19,5 @@ tmp/*
 *.mo
 *.keys
 docs/_build
-logs/*.log
+logs/*
+supervisord.pid
