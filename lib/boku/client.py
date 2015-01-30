@@ -171,15 +171,16 @@ class BokuClient(object):
         pricing = self.get_pricing(country, currency=currency)
         price_rows = {}
 
-        for row_num, price_row in enumerate(pricing):
+        for row_ref, price_row in enumerate(pricing):
             decimal_places = int(price_row['currency-decimal-places'])
             price_amount = int(price_row['price-inc-salestax'])
             price_decimal = Decimal(price_amount) / (10**decimal_places)
-            price_rows[price_decimal] = row_num + 1
-            log.info('Boku price {price} is row {row}; currency={cur}; '
-                     'country={country}; status={status}'
+            # Row-ref numbers are 0-based.
+            price_rows[price_decimal] = row_ref
+            log.info('Boku price {price} is row-ref {row_ref}; '
+                     'currency={cur}; country={country}; status={status}'
                      .format(price=price_decimal,
-                             row=price_rows[price_decimal],
+                             row_ref=price_rows[price_decimal],
                              cur=currency, country=country,
                              status=price_row['status']))
         return price_rows

@@ -1,5 +1,6 @@
 import time
 import urlparse
+from decimal import Decimal
 
 from django import test
 from django.core.exceptions import ImproperlyConfigured
@@ -163,6 +164,15 @@ class BokuClientTests(test.TestCase):
                 'number-billed-messages': '1'
             }]
         )
+
+    def test_client_get_price_rows_returns_row_ref(self):
+        response = mock.Mock()
+        response.status_code = 200
+        response.content = sample_xml.pricing_request
+        self.mock_get.return_value = response
+
+        price_rows = self.client.get_price_rows('CA')
+        eq_(price_rows[Decimal('15.00')], 0)
 
     def test_client_start_transaction_calls_api_with_correct_params(self):
         service_id = 'service id'
