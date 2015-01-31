@@ -1,4 +1,4 @@
-from urlparse import urljoin
+from urlparse import urljoin, urlparse, urlunparse
 
 from django.conf import settings
 import oauth2
@@ -127,8 +127,11 @@ def initialize_oauth_server_request(request):
     if not settings.SITE_URL:
         raise ValueError('SITE_URL cannot be blank')
 
+    # Do this check on a combination of protocol, domain and path ignoring
+    # querystrings.
     url = urljoin(settings.SITE_URL, request.path)
-    check = request.build_absolute_uri()
+    parsed = list(urlparse(request.build_absolute_uri()))
+    check = urlunparse(parsed[:3] + ['', '', ''])
     if check != url:
         log.warning('SITE_URL: {0} does not match request: {1} '
                     'This may cause OAuth failures.'.format(check, url))
