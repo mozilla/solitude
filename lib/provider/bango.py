@@ -53,10 +53,14 @@ class ProductView(BaseAPIView, BangoResource):
 
         # Make it premium.
         data = request.DATA.copy()
-        data['seller_product_bango'] = reverse('api_dispatch_detail',
-                kwargs={'resource_name': 'product',
-                        'api_name': 'generic',
-                        'pk': product.pk})
+        data['seller_product_bango'] = reverse(
+            'api_dispatch_detail',
+            kwargs={
+                'resource_name': 'product',
+                'api_name': 'generic',
+                'pk': product.pk
+            }
+        )
         data['price'] = '0.99'
         data['currencyIso'] = 'USD'
 

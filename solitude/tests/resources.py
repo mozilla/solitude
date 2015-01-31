@@ -22,5 +22,3 @@ class FakeResource(Resource):
 
     def get_resource_uri(self, bundle):
         return '/'
-
-

@@ -47,13 +47,15 @@ class MissingModelField(forms.ModelChoiceField):
 
 class PayValidation(ArgForm):
     seller_product = forms.ModelChoiceField(
-                            queryset=SellerProduct.objects.all(),
-                            to_field_name='seller__uuid')
-    buyer = MissingModelField(queryset=Buyer.objects.all(),
-                              to_field_name='uuid', required=False)
+        queryset=SellerProduct.objects.all(),
+        to_field_name='seller__uuid')
+    buyer = MissingModelField(
+        queryset=Buyer.objects.all(),
+        to_field_name='uuid', required=False)
     # Note these amounts apply to all currencies.
-    amount = forms.DecimalField(min_value=Decimal('0.1'),
-                                max_value=Decimal('5000'))
+    amount = forms.DecimalField(
+        min_value=Decimal('0.1'),
+        max_value=Decimal('5000'))
     return_url = forms.URLField()
     cancel_url = forms.URLField()
     ipn_url = forms.URLField()

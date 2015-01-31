@@ -150,8 +150,8 @@ def initialize_oauth_server_request(request):
     # Or time to move to a better OAuth implementation.
     method = getattr(request, 'signed_method', request.method)
     oauth_request = oauth2.Request.from_request(
-            method, url, headers=auth_header,
-            query_string=request.META['QUERY_STRING'])
+        method, url, headers=auth_header,
+        query_string=request.META['QUERY_STRING'])
     oauth_server = oauth2.Server(signature_methods={
         'HMAC-SHA1': oauth2.SignatureMethod_HMAC_SHA1()
         })
@@ -165,6 +165,7 @@ def get_oauth_consumer_key_from_header(auth_header_value):
     # Process Auth Header
     if not auth_header_value:
         return None
+
     # Check that the authorization header is OAuth.
     if auth_header_value[:6] == 'OAuth ':
         auth_header = auth_header_value[6:]
@@ -174,6 +175,6 @@ def get_oauth_consumer_key_from_header(auth_header_value):
             if 'oauth_consumer_key' in header_params:
                 key = header_params['oauth_consumer_key']
         except:
-            raise OAuthError('Unable to parse OAuth parameters from '
-                    'Authorization header.')
+            raise OAuthError('Unable to parse OAuth from Authorization header')
+
     return key

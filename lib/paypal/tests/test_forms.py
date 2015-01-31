@@ -118,7 +118,7 @@ class TestKeyValidation(test.TestCase):
         assert form.is_valid()
 
 
-class TestValidation(test.TestCase):
+class TestValidationAgain(test.TestCase):
 
     def setUp(self):
         self.uuid = 'sample:uid'

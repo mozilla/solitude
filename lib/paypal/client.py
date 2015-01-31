@@ -144,11 +144,12 @@ class Client(object):
         }
 
         if auth_token:
-            ts, sig = get_auth_header(auth['USER'], auth['PASSWORD'],
-                    auth_token['token'], auth_token['secret'], 'POST', url)
+            ts, sig = get_auth_header(
+                auth['USER'], auth['PASSWORD'],
+                auth_token['token'], auth_token['secret'], 'POST', url)
             headers['X-PAYPAL-AUTHORIZATION'] = (
-                    'timestamp=%s,token=%s,signature=%s' %
-                    (ts, auth_token['token'], sig))
+                'timestamp=%s,token=%s,signature=%s' %
+                (ts, auth_token['token'], sig))
 
         else:
             headers.update({
@@ -376,7 +377,7 @@ class Client(object):
 
         if res != 'VERIFIED':
             log.info('Verification failed.')
-            #TODO(andym): CEF logging here.
+            # TODO(andym): CEF logging here.
             return False
         return True
 
@@ -445,9 +446,12 @@ class ClientMock(Client):
 
     def get_permission_url(self, url, scope):
         """As with get_preapproval_key, skip PayPal."""
-        return {'token': url +
-                    '&request_token=get-permission-url:%s' % get_uuid() +
-                    '&verification_code=get-permission-url:%s' % get_uuid()}
+        return {
+            'token':
+                url +
+                '&request_token=get-permission-url:%s' % get_uuid() +
+                '&verification_code=get-permission-url:%s' % get_uuid()
+        }
 
     def get_pay_key(self, seller_email, amount, ipn_url, cancel_url,
                     return_url, currency='USD', preapproval=None, memo='',

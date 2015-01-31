@@ -30,10 +30,16 @@ def generate_log(day, filename, log_type):
             writer.writerow(row.for_log())
 
     if log_type == 'revenue':
-        transactions = (transactions
-            .filter(status__in=(constants.STATUS_COMPLETED,
-                                constants.STATUS_CHECKED))
-            .exclude(log__type=constants.LOG_REVENUE))
+        transactions = (
+            transactions
+            .filter(
+                status__in=(
+                    constants.STATUS_COMPLETED,
+                    constants.STATUS_CHECKED
+                )
+            )
+            .exclude(log__type=constants.LOG_REVENUE)
+        )
 
         for row in transactions:
             obj, created = row.log.get_or_create(type=constants.LOG_REVENUE)

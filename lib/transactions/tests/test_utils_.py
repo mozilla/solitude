@@ -16,8 +16,9 @@ class TestIPN(test.TestCase):
         self.transaction_uuid = 'transaction:uid'
         self.seller = Seller.objects.create(uuid='seller:uid')
         self.product = SellerProduct.objects.create(seller=self.seller)
-        self.paypal = SellerPaypal.objects.create(seller=self.seller,
-                                                 paypal_id='foo@bar.com')
+        self.paypal = SellerPaypal.objects.create(
+            seller=self.seller,
+            paypal_id='foo@bar.com')
         self.transaction = Transaction.objects.create(
             type=constants.TYPE_PAYMENT,
             status=constants.STATUS_PENDING,

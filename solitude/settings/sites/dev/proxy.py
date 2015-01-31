@@ -66,4 +66,3 @@ ZIPPY_CONFIGURATION = {
         'url': base.BOKU_API_DOMAIN,
     }
 }
-

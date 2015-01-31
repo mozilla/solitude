@@ -100,8 +100,8 @@ class DebugViewSet(ViewSet):
         serializer = DebugSerializer(data=request.DATA)
         if serializer.is_valid():
             obj = serializer.object['seller_product_bango']
-            result = {'bango':
-                {
+            result = {
+                'bango': {
                     'environment': settings.BANGO_ENV,
                     'bango_id': obj.bango_id,
                     'package_id': obj.seller_bango.package_id,
@@ -124,8 +124,8 @@ class DebugViewSet(ViewSet):
 
             # Show the last transaction if present.
             try:
-                latest = obj.seller_product.transaction_set.filter(
-                            provider=PROVIDER_BANGO).latest()
+                latest = (obj.seller_product.transaction_set.filter(
+                    provider=PROVIDER_BANGO).latest())
                 result['bango']['last_transaction'] = {
                     'status': latest.status,
                     'url': reverse('api_dispatch_detail',

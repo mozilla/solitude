@@ -17,7 +17,8 @@ class TestLog(test.TestCase):
     def setUp(self):
         self.name = NamedTemporaryFile().name
         seller, paypal, self.product = make_seller_paypal('some:other:uuid')
-        self.first = Transaction.objects.create(provider=1,
+        self.first = Transaction.objects.create(
+            provider=1,
             seller_product=self.product, uuid='uuid')
 
     def results(self):
@@ -30,7 +31,7 @@ class TestLog(test.TestCase):
         eq_(next(output)[1], 'uuid')
 
     @raises(StopIteration)
-    def test_stats_log(self):
+    def test_stats_log_stops(self):
         generate_log(datetime.today(), self.name, 'revenue')
         output = self.results()
         eq_(next(output)[0], 'version')

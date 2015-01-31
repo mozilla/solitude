@@ -21,8 +21,6 @@ from .constants import (ACCESS_DENIED, HEADERS_SERVICE, HEADERS_ALLOWED,
                         INTERNAL_ERROR, SERVICE_UNAVAILABLE, WSDL_MAP,
                         WSDL_MAP_MANGLED)
 from .errors import AuthError, BangoError, BangoFormError, ProxyError
-from solitude.logger import getLogger
-
 
 # Add in the list of allowed methods here.
 exporter = [
@@ -61,10 +59,11 @@ token_checker = [
 # Status codes from the proxy that raise an error and stop processing.
 FATAL_PROXY_STATUS_CODES = (404, 500,)
 
+
 # Most of the names in the WSDL map easily, for example: Foo to FooRequest,
 # FooResponse etc. Some do not, this is a map of the exceptions.
 def name_map():
-    return  {
+    return {
         'request': {
             # Changed with the upgrade to DirectBilling v4_1
             'DoRefund': 'InnerDoRefundRequest',
@@ -73,6 +72,7 @@ def name_map():
             'InnerCreateBillingConfigurationRequest',
         }
     }
+
 
 # Map the name of the WSDL into a file. Do this dynamically so that tests
 # can mess with this as they need to.

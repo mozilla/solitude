@@ -1,8 +1,7 @@
 from nose.tools import eq_
 from rest_framework import serializers
 
-from lib.provider.serializers import (Remote, SellerReferenceSerializer,
-                                      SellerProductReferenceSerializer)
+from lib.provider.serializers import Remote
 from lib.sellers.models import Seller
 from lib.sellers.tests.utils import SellerTest
 

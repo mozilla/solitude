@@ -13,8 +13,7 @@ PAYPAL_PERSONAL = {
     'state': 'http://axschema.org/contact/state/home',
     'phone': 'http://axschema.org/contact/phone/default'
 }
-PAYPAL_PERSONAL_LOOKUP = dict([(v, k) for k, v
-                                      in PAYPAL_PERSONAL.iteritems()])
+PAYPAL_PERSONAL_LOOKUP = dict([(v, k) for k, v in PAYPAL_PERSONAL.iteritems()])
 
 PAYPAL_CURRENCIES = {
     'AUD': 'Australian Dollar',

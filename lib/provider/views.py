@@ -1,5 +1,3 @@
-import json
-
 from django.core.urlresolvers import reverse
 
 from django_statsd.clients import statsd
@@ -31,7 +29,7 @@ class ProxyView(BaseAPIView):
         super(ProxyView, self).initial(request, *args, **kwargs)
         self.reference_name = kwargs.pop('reference_name')
         self.proxy = self.client(*args, **kwargs)
-        self.kwargs = kwargs # Store this incase we need to recreate it later.
+        self.kwargs = kwargs  # Store this incase we need to recreate it later.
 
     def client(self, *args, **kwargs):
         api = client.get_client(self.reference_name).api

@@ -37,7 +37,6 @@ else:
             db_env = env
             break
 
-
     # Solitude will use the first environment variable it can find.
     DATABASES = {
         'default': dj_database_url.config(
@@ -441,7 +440,8 @@ ZIPPY_CONFIGURATION = {
         'url': url,
         'auth': {
             'key': 'zippy-on-paas',
-            'secret': 'sjahgfjdrtgdargalrgadlfghadfjgadrgarfgnadfgdfagadflhdafg',
+            'secret':
+                'sjahgfjdrtgdargalrgadlfghadfjgadrgarfgnadfgdfagadflhdafg',
             'realm': urlparse(url).netloc
         },
     },

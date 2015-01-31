@@ -34,5 +34,3 @@ def call(root, url, method, data):
         return data
 
     print
-
-

@@ -27,7 +27,8 @@ api.register(TransactionResource())
 paypal.register(BuyerPaypalResource())
 paypal.register(SellerPaypalResource())
 
-services_patterns = patterns('lib.services.resources',
+services_patterns = patterns(
+    'lib.services.resources',
     url(r'^settings/$', 'settings_list', name='services.settings'),
     url(r'^settings/(?P<setting>[^/<>]+)/$', 'settings_view',
         name='services.setting'),

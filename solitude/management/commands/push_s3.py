@@ -14,7 +14,7 @@ log = getLogger('s.s3')
 
 
 def push(source):
-    if not all(settings.S3_AUTH.values() + [settings.S3_BUCKET,]):
+    if not all(settings.S3_AUTH.values() + [settings.S3_BUCKET, ]):
         print 'Settings incomplete, cannot push to S3.'
         sys.exit(1)
 
