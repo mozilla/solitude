@@ -90,7 +90,7 @@ class TestPackage(APITest):
     def test_no_auth(self, clean):
         form = PackageForm(good_address)
         ok_(form.is_valid())
-        ok_(not 'eventNotificationURL' in form.bango_data)
+        ok_('eventNotificationURL' not in form.bango_data)
 
     def test_auth(self, clean):
         with self.settings(BANGO_NOTIFICATION_URL='http://f.com',

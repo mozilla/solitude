@@ -164,7 +164,7 @@ class TestReadOnlyCache(test.TestCase):
             settings.ROOT,
             'lib/bango/wsdl/prod/billing_configuration_v2_0.wsdl')
 
-    def test_getf_url(self):
+    def test_getf_url_error(self):
         with self.assertRaises(KeyError):
             self.cache.getf(self.url)
 

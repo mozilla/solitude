@@ -20,8 +20,9 @@ class Remote(BaseSerializer):
 
     def restore_object(self, attrs, instance=None):
         """Limit restoring an object to local values only."""
-        new_attrs = dict([k, v] for k, v  in attrs.items()
-                         if k not in self.Meta.remote)
+        new_attrs = dict(
+            [k, v] for k, v in attrs.items() if k not in self.Meta.remote
+        )
         return (super(Remote, self)
                 .restore_object(new_attrs, instance=instance))
 

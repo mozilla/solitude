@@ -32,7 +32,8 @@ bango_drf = SimpleRouter()
 bango_drf.register('status', StatusViewSet)
 bango_drf.register('debug', DebugViewSet, base_name='debug')
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^login/', login, name='bango.login'),
     url(r'^', include(bango_drf.urls)),
 )

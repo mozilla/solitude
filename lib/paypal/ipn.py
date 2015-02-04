@@ -76,7 +76,7 @@ class IPN(object):
             # transaction. But from our point of view, it's actually
             # only one transaction and we can safely ignore the rest.
             if (len(self.details.keys()) > 1 and
-                detail.get('is_primary_receiver', 'true') != 'true'):
+                    detail.get('is_primary_receiver', 'true') != 'true'):
                 continue
 
             method, result = methods[status]

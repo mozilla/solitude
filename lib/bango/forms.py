@@ -323,11 +323,12 @@ class NotificationForm(forms.Form):
         if trans and sig:
             # Both fields were non-empty so check the signature.
             if not verify_sig(sig, trans.uuid):
-                log.info('Signature failed: %s'
-                         % cleaned_data.get('billing_config_id'))
+                log.info(
+                    'Signature failed: %s'
+                    % cleaned_data.get('billing_config_id'))
                 raise forms.ValidationError(
-                        'Signature did not match: %s for %s'
-                        % (sig, trans.uuid))
+                    'Signature did not match: %s for %s'
+                    % (sig, trans.uuid))
 
         tok = cleaned_data.get('bango_token')
         if settings.CHECK_BANGO_TOKEN and tok:
@@ -376,9 +377,9 @@ class NotificationForm(forms.Form):
                          .format(true_data=true_data))
                 # Completely reject the form since it was tampered with.
                 raise forms.ValidationError(
-                        'Form field {0} has been tampered with. '
-                        'True: {1}; fake: {2}'.format(
-                                        form_fld, true_val, form_val))
+                    'Form field {0} has been tampered with. '
+                    'True: {1}; fake: {2}'.format(
+                        form_fld, true_val, form_val))
 
     def clean_network(self):
         network = self.cleaned_data['network']
@@ -398,7 +399,6 @@ class NotificationForm(forms.Form):
         self.cleaned_data['carrier'] = carrier
         self.cleaned_data['region'] = region
         return network
-
 
     def clean_moz_transaction(self):
         uuid = self.cleaned_data['moz_transaction']
@@ -435,7 +435,7 @@ class EventForm(forms.Form):
         username = self.cleaned_data.get('username', '')
         password = self.cleaned_data.get('password', '')
         if (username != settings.BANGO_BASIC_AUTH['USER'] or
-            password != settings.BANGO_BASIC_AUTH['PASSWORD']):
+                password != settings.BANGO_BASIC_AUTH['PASSWORD']):
             raise forms.ValidationError('Auth incorrect')
         return self.cleaned_data
 
@@ -466,7 +466,7 @@ class EventForm(forms.Form):
             # Easier to work with a dictionary than etree.
             data = dict([c.values() for c in elem.getchildren()])
             if (not data.get('externalCPTransId') and
-                not data.get('transId')):
+                    not data.get('transId')):
                 raise forms.ValidationError('externalCPTransId or transId'
                                             'required')
 
@@ -547,7 +547,8 @@ class RefundForm(forms.Form):
     manual = forms.BooleanField(required=False)
 
     def clean_uuid(self):
-        transaction = get_object_or_404(Transaction,
+        transaction = get_object_or_404(
+            Transaction,
             uuid=self.cleaned_data['uuid'])
 
         if transaction.provider != PROVIDER_BANGO:

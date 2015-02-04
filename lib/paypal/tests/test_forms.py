@@ -4,7 +4,8 @@ from nose.tools import eq_
 
 from lib.buyers.models import Buyer, BuyerPaypal
 from lib.paypal.forms import AccountCheck, GetPersonal, PayValidation
-from lib.sellers.models import Seller, SellerPaypal
+from lib.sellers.models import Seller, SellerPaypal, SellerProduct
+from lib.transactions.constants import PROVIDER_PAYPAL
 from lib.transactions.models import Transaction
 
 
@@ -15,6 +16,8 @@ class TestValidation(test.TestCase):
         self.seller = Seller.objects.create(uuid=self.uuid)
         self.paypal = SellerPaypal.objects.create(seller=self.seller,
                                                   paypal_id='foo@bar.com')
+        self.product = SellerProduct.objects.create(seller=self.seller,
+                                                    external_id='xyz')
 
     def get_data(self):
         return {'amount': '5',
@@ -24,7 +27,7 @@ class TestValidation(test.TestCase):
                 'cancel_url': 'http://foo.com/cancel.url',
                 'memo': 'Some memo',
                 'use_preapproval': True,
-                'seller': self.uuid}
+                'seller_product': self.product.seller.uuid}
 
     def test_seller(self):
         form = PayValidation(self.get_data())
@@ -42,7 +45,7 @@ class TestValidation(test.TestCase):
 
     def test_no_seller(self):
         data = self.get_data()
-        data['seller'] = 'foo'
+        data['seller_product'] = 'foo'
         assert not PayValidation(data).is_valid()
 
     def test_buyer(self):
@@ -85,8 +88,12 @@ class TestValidation(test.TestCase):
         eq_(form.cleaned_data['currency'], 'USD')
 
     def test_duplicate_uuid(self):
-        Transaction.objects.create(seller=self.paypal, amount=5,
-                                   uuid='sample:uuid')
+        Transaction.objects.create(
+            seller=self.seller,
+            amount=5,
+            uuid='sample:uuid',
+            provider=PROVIDER_PAYPAL,
+            seller_product=self.product)
         data = self.get_data()
         data['uuid'] = 'sample:uuid'
         form = PayValidation(data)
@@ -118,7 +125,7 @@ class TestKeyValidation(test.TestCase):
         assert form.is_valid()
 
 
-class TestValidation(test.TestCase):
+class TestAccountValidation(test.TestCase):
 
     def setUp(self):
         self.uuid = 'sample:uid'

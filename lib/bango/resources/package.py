@@ -48,8 +48,11 @@ class PackageResource(ModelResource, BangoResource):
     def dehydrate_full(self, bundle):
         if getattr(bundle, 'full', False):
             return response_to_dict(
-                self.client('GetPackage',
-                    {'packageId': bundle.obj.package_id}))
+                self.client(
+                    'GetPackage',
+                    {'packageId': bundle.obj.package_id}
+                )
+            )
         return {}
 
     def obj_create(self, bundle, request, **kw):

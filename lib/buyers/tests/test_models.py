@@ -97,13 +97,15 @@ class TestLockout(TestCase):
         assert not self.buyer.pin_was_locked_out
 
     def test_under_timeout(self):
-        self.buyer.pin_locked_out = (datetime.now() -
+        self.buyer.pin_locked_out = (
+            datetime.now() -
             timedelta(seconds=settings.PIN_FAILURE_LENGTH - 60))
         self.buyer.save()
         assert self.buyer.locked_out
 
     def test_over_timeout(self):
-        self.buyer.pin_locked_out = (datetime.now() -
+        self.buyer.pin_locked_out = (
+            datetime.now() -
             timedelta(seconds=settings.PIN_FAILURE_LENGTH + 60))
         self.buyer.save()
         assert not self.buyer.locked_out

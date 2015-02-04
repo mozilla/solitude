@@ -76,13 +76,21 @@ print 'Getting reference product for:', seller_uid
 res = call(reference_product_uri, 'get', {})
 
 print 'Retrieving seller terms.'
-res = call('/provider/reference/terms/{0}/'.format(reference_seller_id), 'get', {})
+res = call(
+    '/provider/reference/terms/{0}/'.format(reference_seller_id),
+    'get',
+    {}
+)
 assert res['reference']['text'] == 'Terms for seller: John'
 
 print 'Updating the created seller.'
 seller['name'] = 'Jack'
 seller['agreement'] = '2010-01-01'
-res = call('/provider/reference/sellers/{0}/'.format(reference_seller_id), 'put', seller)
+res = call(
+    '/provider/reference/sellers/{0}/'.format(reference_seller_id),
+    'put',
+    seller
+)
 assert res['reference']['name'] == 'Jack'
 
 print 'Get reference seller for:', seller_uid
@@ -93,8 +101,12 @@ res = call('/generic/product/?public_id={0}'.format(product_id), 'get', {})
 assert res['objects'][0]['seller_uuids']['reference'], seller_uid
 
 print 'Checking that given a seller_id and external_id we can get product'
-res = call('/provider/reference/products?seller_product___seller={0}&seller_product__external_id={1}'
-           .format(seller_pk, external_id), 'get', {})
+res = call(
+    '/provider/reference/products?seller_product___seller={0}'
+    '&seller_product__external_id={1}'.format(seller_pk, external_id),
+    'get',
+    {}
+)
 print res
 
 print 'Creating product transaction with product_id: ' + product_id

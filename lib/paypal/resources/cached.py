@@ -12,10 +12,13 @@ class Resource(TastypieBaseResource):
         object_class = Cached
 
     def get_resource_uri(self, bundle):
-        return reverse('api_dispatch_detail',
-                        kwargs={'api_name': 'paypal',
-                                'resource_name': self._meta.resource_name,
-                                'pk': bundle.obj.pk})
+        return reverse(
+            'api_dispatch_detail',
+            kwargs={
+                'api_name': 'paypal',
+                'resource_name': self._meta.resource_name,
+                'pk': bundle.obj.pk
+            })
 
     def obj(self, pk=None):
         return self._meta.object_class(prefix=self._meta.resource_name, pk=pk)

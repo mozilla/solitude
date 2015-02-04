@@ -107,6 +107,7 @@ def json_parse(fn):
     @functools.wraps(fn)
     def wrapper(*args, **kw):
         response = fn(*args, **kw)
+
         def _json(self):
             """Will return parsed JSON on response if there is any."""
             if self.content and 'application/json' in self['Content-Type']:
@@ -122,7 +123,7 @@ def json_parse(fn):
 class APIClient(Client):
 
     def _process(self, kwargs):
-        if not 'content_type' in kwargs:
+        if 'content_type' not in kwargs:
             kwargs['content_type'] = 'application/json'
         if 'data' in kwargs and kwargs['content_type'] == 'application/json':
             kwargs['data'] = json.dumps(kwargs['data'])
@@ -191,7 +192,7 @@ class APITest(test.TestCase):
                 continue
             res = getattr(self.client, verb)(url)
             assert res.status_code in (401, 405), (
-                   '%s: %s not 401 or 405' % (verb.upper(), res.status_code))
+                '%s: %s not 401 or 405' % (verb.upper(), res.status_code))
 
     def get_errors(self, content, field):
         return json.loads(content)[field]
@@ -217,15 +218,17 @@ def get_object_or_404(cls, **filters):
 def log_cef(msg, request, **kw):
     g = functools.partial(getattr, settings)
     severity = kw.pop('severity', g('CEF_DEFAULT_SEVERITY', 5))
-    cef_kw = {'msg': msg, 'signature': request.get_full_path(),
-              'config': {
-                  'cef.product': 'Solitude',
-                  'cef.vendor': g('CEF_VENDOR', 'Mozilla'),
-                  'cef.version': g('CEF_VERSION', '0'),
-                  'cef.device_version': g('CEF_DEVICE_VERSION', '0'),
-                  'cef.file': g('CEF_FILE', 'syslog'),
-              }
+    cef_kw = {
+        'msg': msg,
+        'signature': request.get_full_path(),
+        'config': {
+            'cef.product': 'Solitude',
+            'cef.vendor': g('CEF_VENDOR', 'Mozilla'),
+            'cef.version': g('CEF_VERSION', '0'),
+            'cef.device_version': g('CEF_DEVICE_VERSION', '0'),
+            'cef.file': g('CEF_FILE', 'syslog'),
         }
+    }
 
     if severity > 2:
         # Only send more severe logging to syslog. Messages lower than that
@@ -244,11 +247,15 @@ def log_cef(msg, request, **kw):
 def handle_500(request, exception):
     # Print some nice 500 errors back to the clients if not in debug mode.
     tb = traceback.format_tb(sys.exc_traceback)
-    tasty_log.error('%s: %s %s\n%s' % (request.path,
-                        exception.__class__.__name__, exception,
-                        '\n'.join(tb)),
-                    extra={'status_code': 500, 'request': request},
-                    exc_info=sys.exc_info())
+    tasty_log.error(
+        '%s: %s %s\n%s' % (
+            request.path,
+            exception.__class__.__name__, exception,
+            '\n'.join(tb)
+        ),
+        extra={'status_code': 500, 'request': request},
+        exc_info=sys.exc_info()
+    )
     data = {
         'error_message': str(exception),
         'error_code': getattr(exception, 'id',
@@ -257,8 +264,10 @@ def handle_500(request, exception):
     }
     # We'll also cef log any errors.
     log_cef(str(exception), request, severity=3)
-    return http.HttpApplicationError(content=json.dumps(data),
-                content_type='application/json; charset=utf-8')
+    return http.HttpApplicationError(
+        content=json.dumps(data),
+        content_type='application/json; charset=utf-8'
+    )
 
 
 def format_form_errors(forms):
@@ -392,7 +401,7 @@ class TastypieBaseResource(object):
             field_name = filter_bits.pop(0)
             filter_type = 'exact'
 
-            if not field_name in self.fields:
+            if field_name not in self.fields:
                 # Don't just ignore this. Tell the world. Shame I have to
                 # override all this, just to do this.
                 raise InvalidFilterError('Not a valid filtering field: %s'
@@ -452,9 +461,8 @@ class TastypieBaseResource(object):
     @method_decorator(etag(etag_func))
     def create_response(self, request, data, response_class=HttpResponse,
                         **response_kwargs):
-        return super(TastypieBaseResource, self).create_response(request, data,
-                                                         response_class,
-                                                         **response_kwargs)
+        return super(TastypieBaseResource, self).create_response(
+            request, data, response_class, **response_kwargs)
 
     @method_decorator(etag(etag_func))
     def create_patch_response(self, request, original_bundle, new_data):
@@ -464,8 +472,8 @@ class TastypieBaseResource(object):
     def patch_detail(self, request, **kwargs):
         request = convert_post_to_patch(request)
         try:
-            obj = self.cached_obj_get(request=request,
-                **self.remove_api_resource_names(kwargs))
+            obj = self.cached_obj_get(
+                request=request, **self.remove_api_resource_names(kwargs))
         except ObjectDoesNotExist:
             return http.HttpNotFound()
         except MultipleObjectsReturned:
@@ -477,7 +485,8 @@ class TastypieBaseResource(object):
         bundle = self.alter_detail_data_to_serialize(request, bundle)
 
         # Now update the bundle in-place.
-        deserialized = self.deserialize(request, request.body,
+        deserialized = self.deserialize(
+            request, request.body,
             format=request.META.get('CONTENT_TYPE', 'application/json'))
 
         # In case of a patch modification, we need to store
@@ -692,8 +701,9 @@ class ListModelMixin(object):
         if not self.allow_empty and not self.object_list:
             warnings.warn(
                 'The `allow_empty` parameter is due to be deprecated. '
-                'To use `allow_empty=False` style behavior, You should override '
-                '`get_queryset()` and explicitly raise a 404 on empty querysets.',
+                'To use `allow_empty=False` style behavior, You should '
+                'override `get_queryset()` and explicitly raise a 404 on '
+                'empty querysets.',
                 PendingDeprecationWarning
             )
             class_name = self.__class__.__name__

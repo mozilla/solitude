@@ -90,7 +90,8 @@ class RefundResource(SimpleResource):
         is_manual = obj.type == TYPE_REFUND_MANUAL
 
         try:
-            res = self.client('GetRefundStatus',
+            res = self.client(
+                'GetRefundStatus',
                 {'refundTransactionId': obj.uid_pay},
                 raise_on=(PENDING, CANT_REFUND, NOT_SUPPORTED),
                 client=self.get_client(data, fake=is_manual)
@@ -133,7 +134,8 @@ class RefundResource(SimpleResource):
         external_uuid = str(uuid.uuid4())
 
         try:
-            res = self.client('DoRefund', {
+            res = self.client(
+                'DoRefund', {
                     'bango': obj.seller_product.product.bango_id,
                     'externalTransactionId': external_uuid,
                     'refundType': 'OPERATOR',
@@ -148,9 +150,10 @@ class RefundResource(SimpleResource):
             # this.
             res = BangoResponse(exc.id, exc.message, 'todo')
 
-
-        status = {OK: STATUS_COMPLETED,
-                  PENDING: STATUS_PENDING}
+        status = {
+            OK: STATUS_COMPLETED,
+            PENDING: STATUS_PENDING
+        }
 
         # If that succeeded, create a new transaction for the refund.
         obj = Transaction.objects.create(

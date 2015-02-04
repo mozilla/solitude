@@ -9,10 +9,13 @@ log = getLogger('s.transactions')
 def completed(detail, item):
     log.info('Completing transaction.')
     try:
-        record = (Transaction.objects
-                                   .get(uuid=detail.get('tracking_id'),
-                                        status__in=(constants.STATUS_PENDING,
-                                                    constants.STATUS_CHECKED)))
+        record = Transaction.objects.get(
+            uuid=detail.get('tracking_id'),
+            status__in=(
+                constants.STATUS_PENDING,
+                constants.STATUS_CHECKED
+            )
+        )
     except Transaction.DoesNotExist:
         return False
 
@@ -48,18 +51,18 @@ def refund(detail, item, type_):
         pass
 
     Transaction.objects.create(
-            type=type_,
-            uid_support=detail.get('correlation_id', ''),
-            # The correlation id does not seem to be present on IPN. But if
-            # they change their mind, I'll take it.
-            uid_pay=detail['pay_key'],
-            seller_product=record.seller_product,
-            amount=-item['amount']['amount'],
-            currency=item['amount']['currency'],
-            provider=constants.PROVIDER_PAYPAL,
-            # TODO(andym): hey what?
-            uuid=detail['tracking_id'] + ':refund',
-            related=record)
+        type=type_,
+        uid_support=detail.get('correlation_id', ''),
+        # The correlation id does not seem to be present on IPN. But if
+        # they change their mind, I'll take it.
+        uid_pay=detail['pay_key'],
+        seller_product=record.seller_product,
+        amount=-item['amount']['amount'],
+        currency=item['amount']['currency'],
+        provider=constants.PROVIDER_PAYPAL,
+        # TODO(andym): hey what?
+        uuid=detail['tracking_id'] + ':refund',
+        related=record)
 
     # TODO(andym): some CEF logging.
     return True

@@ -7,7 +7,6 @@ from django import test
 import mock
 from nose.tools import eq_, raises
 from tastypie.exceptions import ImmediateHttpResponse, InvalidFilterError
-from django import test
 
 from lib.buyers.models import Buyer
 from lib.paypal.errors import PaypalError
@@ -49,7 +48,8 @@ class TestError(test.TestCase):
 class TestBase(test.TestCase):
 
     def setUp(self):
-        self.request = test.RequestFactory().get('/',
+        self.request = test.RequestFactory().get(
+            '/',
             CONTENT_TYPE='application/json')
         self.resource = Resource()
 

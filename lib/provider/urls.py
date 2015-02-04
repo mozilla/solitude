@@ -7,7 +7,8 @@ from .boku import Event
 from .reference import SellerProductReference, SellerReference, Terms
 from .views import NotImplementedView, ProxyView
 
-bango_overrides = patterns('',
+bango_overrides = patterns(
+    '',
     url(r'^product/$', ProductView.as_view(), name='provider.bango.product'),
     url(r'', NotImplementedView.as_view(), name='provider.bango.nope')
 )
@@ -20,7 +21,8 @@ reference.register('sellers', SellerReference, base_name='sellers')
 reference.register('products', SellerProductReference, base_name='products')
 reference.register('terms', Terms, base_name='terms')
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^bango/', include(bango_overrides)),
     url(r'^boku/', include(boku.urls)),
     url(r'^reference/', include(reference.urls, namespace='reference')),

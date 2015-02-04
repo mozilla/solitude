@@ -28,14 +28,8 @@ class TestClient(BaseCase):
     def test_nvp(self):
         eq_(self.paypal.nvp({'foo': 'bar'}), 'foo=bar')
         eq_(self.paypal.nvp({'foo': 'ba r'}), 'foo=ba%20r')
-        eq_(self.paypal.nvp(
-            {'foo': 'bar', 'bar': 'foo'}),
-            'bar=foo&foo=bar'
-        )
-        eq_(self.paypal.nvp(
-            {'foo': ['bar', 'baa']}),
-            'foo(0)=bar&foo(1)=baa'
-        )
+        eq_(self.paypal.nvp({'foo': 'bar', 'bar': 'foo'}), 'bar=foo&foo=bar')
+        eq_(self.paypal.nvp({'foo': ['bar', 'baa']}), 'foo(0)=bar&foo(1)=baa')
 
     def test_approved_list(self):
         assert self.paypal.approved_list(
@@ -200,15 +194,17 @@ class TestPreApproval(BaseCase):
             data = self.get_data()
             self.paypal.get_preapproval_key(*data)
 
-good_response = ('responseEnvelope.timestamp='
-            '2011-01-28T06%3A16%3A33.259-08%3A00&responseEnvelope.ack=Success'
-            '&responseEnvelope.correlationId=7377e6ae1263c'
-            '&responseEnvelope.build=1655692'
-            '&payKey=AP-9GD76073HJ780401K&paymentExecStatus=CREATED')
+good_response = (
+    'responseEnvelope.timestamp='
+    '2011-01-28T06%3A16%3A33.259-08%3A00&responseEnvelope.ack=Success'
+    '&responseEnvelope.correlationId=7377e6ae1263c'
+    '&responseEnvelope.build=1655692'
+    '&payKey=AP-9GD76073HJ780401K&paymentExecStatus=CREATED')
 
-auth_error = ('error(0).errorId=520003'
-            '&error(0).message=Authentication+failed.+API+'
-            'credentials+are+incorrect.')
+auth_error = (
+    'error(0).errorId=520003'
+    '&error(0).message=Authentication+failed.+API+'
+    'credentials+are+incorrect.')
 
 
 @mock.patch.object(settings, 'PAYPAL_URLS_ALLOWED', ('http://foo'))
@@ -372,23 +368,23 @@ class TestPurchase(BaseCase):
             self.paypal.check_purchase('some-paykey')
 
 good_personal_basic = {
-        'response.personalData(0).personalDataKey':
-            'http://axschema.org/contact/country/home',
-        'response.personalData(0).personalDataValue': 'US',
-        'response.personalData(1).personalDataValue': 'batman@gmail.com',
-        'response.personalData(1).personalDataKey':
-            'http://axschema.org/contact/email',
-        'response.personalData(2).personalDataValue': 'man'}
+    'response.personalData(0).personalDataKey':
+        'http://axschema.org/contact/country/home',
+    'response.personalData(0).personalDataValue': 'US',
+    'response.personalData(1).personalDataValue': 'batman@gmail.com',
+    'response.personalData(1).personalDataKey':
+        'http://axschema.org/contact/email',
+    'response.personalData(2).personalDataValue': 'man'}
 
 good_personal_advanced = {
-        'response.personalData(0).personalDataKey':
-            'http://schema.openid.net/contact/street1',
-        'response.personalData(0).personalDataValue': '1 Main St',
-        'response.personalData(1).personalDataKey':
-            'http://schema.openid.net/contact/street2',
-        'response.personalData(2).personalDataValue': 'San Jose',
-        'response.personalData(2).personalDataKey':
-            'http://axschema.org/contact/city/home'}
+    'response.personalData(0).personalDataKey':
+        'http://schema.openid.net/contact/street1',
+    'response.personalData(0).personalDataValue': '1 Main St',
+    'response.personalData(1).personalDataKey':
+        'http://schema.openid.net/contact/street2',
+    'response.personalData(2).personalDataValue': 'San Jose',
+    'response.personalData(2).personalDataKey':
+        'http://axschema.org/contact/city/home'}
 
 
 @mock.patch.object(Client, 'call')

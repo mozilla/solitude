@@ -10,7 +10,6 @@ from nose.tools import eq_
 from lib.paypal import constants
 from lib.paypal.ipn import IPN
 from lib.paypal.tests import samples
-from lib.sellers.models import Seller, SellerPaypal
 from lib.sellers.tests.utils import make_seller_paypal
 from lib.transactions import constants as transaction_constants
 from lib.transactions.models import Transaction
@@ -152,9 +151,11 @@ class TestIPNResource(APITest):
         self.uuid = 'sample:uid'
         self.list_url = self.get_list_url('ipn')
         self.seller, self.paypal, self.product = make_seller_paypal(self.uuid)
-        self.transaction = Transaction.objects.create(uuid='5678',
+        self.transaction = Transaction.objects.create(
+            uuid='5678',
             provider=transaction_constants.PROVIDER_PAYPAL,
-            seller_product=self.product, amount='10', uid_support='123')
+            seller_product=self.product, amount='10', uid_support='123'
+        )
 
     def test_nope(self, post):
         res = self.client.post(self.list_url, data={})
@@ -168,8 +169,10 @@ class TestIPNResource(APITest):
     def test_purchase(self, post):
         post.return_value.text = 'VERIFIED'
         post.return_value.status_code = 200
-        res = self.client.post(self.list_url, data={'data':
-                urllib.urlencode(samples.sample_purchase)})
+        res = self.client.post(
+            self.list_url, data={
+                'data': urllib.urlencode(samples.sample_purchase)
+            })
         eq_(res.status_code, 201)
         data = json.loads(res.content)
         eq_(data['status'], 'OK')
@@ -182,8 +185,10 @@ class TestIPNResource(APITest):
         post.return_value.status_code = 200
         self.transaction.status = transaction_constants.STATUS_COMPLETED
         self.transaction.save()
-        res = self.client.post(self.list_url, data={'data':
-                urllib.urlencode(samples.sample_refund)})
+        res = self.client.post(
+            self.list_url, data={
+                'data': urllib.urlencode(samples.sample_refund)
+            })
         eq_(res.status_code, 201)
         data = json.loads(res.content)
         eq_(data['status'], 'OK')

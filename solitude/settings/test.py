@@ -4,7 +4,7 @@ import os
 import shutil
 from tempfile import gettempdir
 
-from solitude.settings.base import *
+from solitude.settings.base import *  # flake8: noqa
 
 filename = os.path.join(os.path.dirname(__file__), 'sample.key')
 

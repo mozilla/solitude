@@ -14,11 +14,13 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from commander.deploy import task, hostgroups, BadReturnCode
 import commander_settings as settings
 
+
 @task
 def create_virtualenv(ctx):
     venv = settings.VIRTUAL_ENV
     if not venv.startswith('/data'):
-        raise Exception('venv must start with /data') # this is just to avoid rm'ing /
+        # this is just to avoid rm'ing /
+        raise Exception('venv must start with /data')
 
     ctx.local('rm -rf %s' % venv)
 
@@ -26,12 +28,13 @@ def create_virtualenv(ctx):
         try:
             ctx.local("virtualenv --distribute --never-download %s" % venv)
         except BadReturnCode:
-            pass # if this is really broken, then the pip install should fail
+            # if this is really broken, then the pip install should fail
+            pass
 
         ctx.local("%s/bin/pip install --exists-action=w --no-deps --no-index "
                   "--download-cache=/tmp/pip-cache -f %s "
                   "-r %s/requirements/prod.txt" %
-                    (venv, settings.PYREPO, settings.SRC_DIR))
+                  (venv, settings.PYREPO, settings.SRC_DIR))
     finally:
         # make sure this always runs
         ctx.local("rm -f %s/lib/python2.6/no-global-site-packages.txt" % venv)
@@ -68,7 +71,8 @@ def update_assets(ctx):
     with ctx.lcd(settings.SRC_DIR):
         ctx.local("%s manage.py collectstatic --noinput" % settings.PYTHON)
         # LANG=en_US.UTF-8 is sometimes necessary for the YUICompressor.
-        ctx.local('LANG=en_US.UTF8 %s manage.py compress_assets' % settings.PYTHON)
+        ctx.local('LANG=en_US.UTF8 %s manage.py compress_assets'
+                  % settings.PYTHON)
 
 
 @task
@@ -83,13 +87,15 @@ def update_db(ctx):
             ctx.local("%s %s/bin/schematic migrations" %
                       (settings.PYTHON, settings.VIRTUAL_ENV))
 
+
 @task
 def checkin_changes(ctx):
     """Use the local, IT-written deploy script to check in changes."""
     ctx.local(settings.DEPLOY_SCRIPT)
 
 
-@hostgroups(settings.WEB_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
+@hostgroups(settings.WEB_HOSTGROUP,
+            remote_kwargs={'ssh_key': settings.SSH_KEY})
 def deploy_app(ctx):
     """Call the remote update script to push changes to webheads."""
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)

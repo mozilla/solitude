@@ -60,18 +60,20 @@ class StatusObject(object):
             # As a proxy, we should not have database access.
             for db in dbs.values():
                 engine = db.get('ENGINE', '')
-                if (db.get('ENGINE', '') not in ['',
-                        'django.db.backends.dummy']):
+                if (engine not in ['', 'django.db.backends.dummy']):
                     log.error('Proxy db set to: %s' % engine)
                     return False
 
             # There could be an issue if you share a proxy with the database
             # server, a local cache should be fine.
-            for cache in caches.values():
-                backend = cache.get('BACKEND', '')
-                if (backend not in ['',
-                        'django.core.cache.backends.dummy.DummyCache',
-                        'django.core.cache.backends.locmem.LocMemCache']):
+            for cache_ in caches.values():
+                backend = cache_.get('BACKEND', '')
+                valid = [
+                    '',
+                    'django.core.cache.backends.dummy.DummyCache',
+                    'django.core.cache.backends.locmem.LocMemCache'
+                ]
+                if backend not in valid:
                     log.error('Proxy cache set to: %s' % backend)
                     return False
 
@@ -127,9 +129,11 @@ def logs(request):
 
         for level_name in ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG']:
             try:
-                log_obj.log(getattr(logging, level_name),
+                log_obj.log(
+                    getattr(logging, level_name),
                     'Log at level: {0} to log: {1}.'
-                    .format(level_name, log_name))
+                    .format(level_name, log_name)
+                )
                 handlers['passed'].append([log_name, level_name])
             except:
                 handlers['failed'].append([log_name, level_name,
@@ -149,7 +153,7 @@ def status(request):
 
     if obj.is_proxy:
         if (obj.status['settings'] and not
-            (obj.status['db'] and obj.status['cache'])):
+                (obj.status['db'] and obj.status['cache'])):
             code = 200
         else:
             # The proxy should have good settings but not the db or cache.

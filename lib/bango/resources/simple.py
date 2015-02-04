@@ -47,8 +47,10 @@ class MakePremiumResource(SimpleResource):
 
     def obj_create(self, *args, **kwargs):
         try:
-            res = super(MakePremiumResource, self).obj_create(*args,
-                        raise_on=(BANGO_ALREADY_PREMIUM_ENABLED,), **kwargs)
+            res = super(MakePremiumResource, self).obj_create(
+                *args,
+                raise_on=(BANGO_ALREADY_PREMIUM_ENABLED,),
+                **kwargs)
         except BangoFormError, exc:
             # No need to fail if this is called twice, just catch and continue.
             if exc.id == BANGO_ALREADY_PREMIUM_ENABLED:

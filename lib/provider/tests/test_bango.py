@@ -8,6 +8,7 @@ from lib.bango.constants import OK
 from lib.bango.tests import samples, utils
 from solitude.base import APITest
 
+
 class TestNope(APITest):
 
     def test(self):
@@ -24,9 +25,11 @@ class TestProduct(APITest):
 
     def get_data(self):
         data = samples.good_bango_number
-        data['seller_product'] = self.get_detail_url('product',
+        data['seller_product'] = self.get_detail_url(
+            'product',
             self.objs.product.pk, api_name='generic')
-        data['seller_bango'] = self.get_detail_url('package',
+        data['seller_bango'] = self.get_detail_url(
+            'package',
             self.objs.bango.pk, api_name='bango')
         return data
 

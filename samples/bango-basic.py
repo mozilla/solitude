@@ -56,7 +56,8 @@ res = call('/bango/login/', 'post', {
     'packageId': str(package_id),
 })
 
-bango_url = ('http://mozilla.com.test.bango.org/login/al.aspx?%s' %
+bango_url = (
+    'http://mozilla.com.test.bango.org/login/al.aspx?%s' %
     urllib.urlencode({
         'packageId': package_id,
         'personId': res['person_id'],
