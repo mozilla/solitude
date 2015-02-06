@@ -100,6 +100,7 @@ class BokuTransactionTest(test.TestCase):
             'country': constants.COUNTRY_CHOICES[0][0],  # MX
             'transaction_uuid': self.transaction_uuid,
             'price': '15.00',
+            'currency': 'MXN',
             'seller_uuid': self.seller_uuid,
             'user_uuid': self.user_uuid,
         }
