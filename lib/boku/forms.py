@@ -4,8 +4,6 @@ from lib.boku.constants import CURRENCIES
 from lib.transactions.constants import (PROVIDER_BOKU, STATUS_COMPLETED)
 from lib.transactions.models import Transaction
 
-from django.utils.translation import ugettext_lazy as _
-
 from lib.boku import constants
 from lib.boku.client import BokuClientMixin
 from lib.boku.errors import BokuException
@@ -81,17 +79,13 @@ class BokuTransactionForm(BokuClientMixin, forms.Form):
     forward_url = forms.URLField()
     country = forms.ChoiceField(choices=constants.COUNTRY_CHOICES)
     transaction_uuid = forms.CharField()
+    currency = forms.ChoiceField(choices=constants.CURRENCIES.items())
     price = forms.DecimalField()
     seller_uuid = forms.ModelChoiceField(
         queryset=Seller.objects.none(),
         to_field_name='uuid'
     )
     user_uuid = forms.CharField()
-
-    ERROR_BAD_PRICE = _(
-        'This price was not found in the available price tiers.'
-    )
-    ERROR_BOKU_API = _('There was an error communicating with Boku.')
 
     def __init__(self, *args, **kw):
         super(BokuTransactionForm, self).__init__(*args, **kw)
@@ -101,41 +95,6 @@ class BokuTransactionForm(BokuClientMixin, forms.Form):
         self.fields['seller_uuid'].queryset = (
             Seller.objects.filter(boku__isnull=False)
         )
-
-    def clean(self):
-        cleaned_data = super(BokuTransactionForm, self).clean()
-
-        if not ('country' in cleaned_data and
-                'seller_uuid' in cleaned_data and
-                'price' in cleaned_data):
-            # Not all fields have validated correctly
-            # and we can not validate the price.
-            return cleaned_data
-
-        # Retrieve the available price tiers for the selected country.
-        try:
-            price_rows = self.boku_client.get_price_rows(
-                cleaned_data['country']
-            )
-        except BokuException, e:
-            log.error('Boku API error from get_price_rows: {error}'
-                      .format(error=e.message))
-            raise forms.ValidationError(
-                self.ERROR_BOKU_API.format(message=e.message)
-            )
-
-        if cleaned_data['price'] not in price_rows:
-            log.debug('Posted price {price} was not a valid Boku row '
-                      'for country {country}. Choices: {rows}'
-                      .format(price=cleaned_data['price'],
-                              rows=price_rows,
-                              country=cleaned_data['country']))
-            raise forms.ValidationError(self.ERROR_BAD_PRICE)
-
-        # Store the retrieved price row in cleaned_data.
-        cleaned_data['price_row'] = price_rows[cleaned_data['price']]
-
-        return cleaned_data
 
     def start_transaction(self):
         if not hasattr(self, 'cleaned_data'):
@@ -149,7 +108,8 @@ class BokuTransactionForm(BokuClientMixin, forms.Form):
             forward_url=self.cleaned_data['forward_url'],
             external_id=self.cleaned_data['transaction_uuid'],
             consumer_id=self.cleaned_data['user_uuid'],
-            price_row=self.cleaned_data['price_row'],
+            price=self.cleaned_data['price'],
+            currency=self.cleaned_data['currency'],
             service_id=self.cleaned_data['seller_uuid'].boku.service_id,
             country=self.cleaned_data['country'],
         )

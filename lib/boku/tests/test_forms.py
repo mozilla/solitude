@@ -86,11 +86,11 @@ class BokuTransactionFormTests(BokuTransactionTest):
         ok_(not form.is_valid(), form.errors)
         ok_('price' in form.errors)
 
-    def test_price_requires_an_existing_boku_price_tier(self):
-        self.post_data['price'] = '1.00'
+    def test_currency_must_be_valid(self):
+        self.post_data['currency'] = 'CDN'
         form = BokuTransactionForm(self.post_data)
         ok_(not form.is_valid(), form.errors)
-        ok_(form.ERROR_BAD_PRICE in form.errors['__all__'])
+        ok_('currency' in form.errors)
 
     def test_seller_uuid_requires_an_existing_seller(self):
         self.post_data['seller_uuid'] = 'foo'
