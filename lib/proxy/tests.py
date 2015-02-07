@@ -11,6 +11,7 @@ from nose.tools import eq_
 
 from lib.bango.constants import HEADERS_SERVICE_GET
 from lib.bango.tests import samples
+from lib.boku.client import get_boku_request_signature
 from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
 from lib.paypal.map import urls
 
@@ -162,10 +163,18 @@ class TestBoku(Proxy):
     def setUp(self):
         super(TestBoku, self).setUp()
         self.url = reverse('provider.proxy', kwargs={'reference_name': 'boku'})
-        self.url = self.url + '/billing/request?f=b'
+        self.billing = self.url + 'billing/request?f=b'
+        self.sig = self.url + 'check_sig?f=b&sig={0}'
 
     def test_call(self):
-        self.client.get(self.url)
+        self.client.get(self.billing)
 
         sig = parse_qs(urlparse(self.req.get.call_args[0][0]).query)['sig']
         assert sig, 'A sig parameter should have been added'
+
+    def test_good_sig(self):
+        sig = get_boku_request_signature(settings.BOKU_SECRET_KEY, {'f': 'b'})
+        eq_(self.client.get(self.sig.format(sig)).status_code, 204)
+
+    def test_bad_sig(self):
+        eq_(self.client.get(self.sig.format('bad')).status_code, 400)

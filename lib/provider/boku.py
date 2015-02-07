@@ -33,8 +33,8 @@ class Event(viewsets.ViewSet, BaseAPIView):
         cleaned = form.cleaned_data
         transaction = cleaned['param']
 
-        # Verify this against Boku, this will raise errors if there's
-        # an issue.
+        # Verify this transaction_id against Boku, this will raise errors
+        # if the tranasction_id was not sent by Boku.
         log.info('Verifying notification for Boku transaction id: {0}'
                  .format(transaction))
 

@@ -57,6 +57,8 @@ BANGO_MOCK = True
 ZIPPY_MOCK = True
 BOKU_MOCK = True
 
+BOKU_SECRET_KEY = 'for-testing-only'
+
 SITE_URL = 'http://localhost/'
 
 SEND_USER_ID_TO_BANGO = True

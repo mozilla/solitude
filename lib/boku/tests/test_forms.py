@@ -1,9 +1,10 @@
+from django.forms import ValidationError
 from django.test import TestCase
 
 import mock
 from nose.tools import assert_raises, eq_, ok_
 
-from lib.boku.errors import BokuException
+from lib.boku.errors import BokuException, SignatureError
 from lib.boku.forms import (BokuForm, BokuServiceForm,
                             BokuTransactionForm, EventForm)
 from lib.boku.tests.utils import (BokuTransactionTest, BokuVerifyServiceTest,
@@ -137,3 +138,23 @@ class BokuServiceFormTests(BokuVerifyServiceTest):
         ):
             form = BokuServiceForm(self.post_data)
             ok_(not form.is_valid(), form.errors)
+
+
+class TestBokuSignature(EventTest):
+
+    def get_form(self):
+        form = EventForm(self.sample())
+        form.boku_client = mock.MagicMock()
+        return form
+
+    def test_called(self):
+        form = self.get_form()
+        form.clean_sig()
+        assert form.boku_client.check_sig.is_called_with(self.sample)
+        assert form.is_valid()
+
+    def test_error(self):
+        form = self.get_form()
+        form.boku_client.check_sig.side_effect = SignatureError('sig error')
+        with self.assertRaises(ValidationError):
+            form.clean_sig()

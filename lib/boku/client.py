@@ -17,10 +17,9 @@ from django_statsd.clients import statsd
 from slumber import url_join
 
 from lib.boku import constants
-from lib.boku.errors import BokuException
+from lib.boku.errors import BokuException, SignatureError
 from lib.boku.tests import sample_xml
 from solitude.logger import getLogger
-
 
 log = getLogger('s.boku')
 
@@ -34,6 +33,9 @@ def get_boku_request_signature(secret_key, request_args):
     https://merchants.boku.com/white_label/boku
         /doclibrary/BOKU_SecurityImplementation.pdf
     """
+    if not secret_key:
+        raise ImproperlyConfigured('BOKU_SECRET_KEY not set')
+
     # Sort the pairs by their key name.
     sorted_pairs = sorted(request_args.items())
 
@@ -69,8 +71,8 @@ class BokuClient(object):
         params['sig'] = get_boku_request_signature(self.secret_key, params)
         return params
 
-    def api_call(self, path, params):
-        if 'timestamp' not in params:
+    def api_call(self, path, params, add_timestamp=True):
+        if add_timestamp and 'timestamp' not in params:
             params['timestamp'] = str(calendar.timegm(time.gmtime()))
 
         self._sign(params)
@@ -81,6 +83,12 @@ class BokuClient(object):
         )
 
         response = self._get(url)
+        if response.status_code == 204:
+            # No point in trying parse the body of 204 responses.
+            assert not response.content, (
+                'Response with status: 204, body must be empty')
+            log.warning('Not parsing empty body, status: 204')
+            return
 
         # Handle an http request failure.
         if response.status_code != 200:
@@ -89,9 +97,10 @@ class BokuClient(object):
                 status=response.status_code,
                 content=response.content,
             ))
-            raise BokuException('Request Failed: {status}'.format(
+            raise BokuException(
+                'Request Failed: {status}'.format(status=response.status_code),
                 status=response.status_code
-            ))
+            )
 
         # Handle an XML parse failure.
         try:
@@ -283,6 +292,12 @@ class BokuClient(object):
             'paid': Decimal(tree.find('paid').text),
         }
 
+    def check_sig(self, *args, **kw):
+        """
+        Not checking the signature unless you are in a proxy.
+        """
+        log.info('Not checking the Boku signature locally.')
+
 
 mocks = {
     'price': (200, sample_xml.pricing_request),
@@ -328,10 +343,25 @@ class ProxyClient(BokuClient):
         with statsd.timer('solitude.boku.api'):
             return requests.get(proxy)
 
+    def check_sig(self, data):
+        """
+        Check that a signature is valid. This check has to be done on the
+        proxy, because the solitude database does not have access to the
+        required BOKU_SECRET_KEY.
+        """
+        try:
+            self.api_call('/check_sig', data, add_timestamp=False)
+        except BokuException as e:
+            # If the signature check failed, a 400 is raised.
+            if e.status == 400:
+                raise SignatureError('sig verification failed')
+            # Re-raise any other error since we aren't sure what it is.
+            raise
+
 
 def get_client(*args):
     """
-    Use this to get the right client and communicate with Bango.
+    Use this to get the right client and communicate with Boku.
     """
     if settings.BOKU_MOCK:
         log.warning('Boku is using the mock client')

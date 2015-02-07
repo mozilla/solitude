@@ -1,14 +1,14 @@
 from django import forms
 
+from lib.boku import constants
+from lib.boku.client import BokuClientMixin
 from lib.boku.constants import CURRENCIES
+from lib.boku.errors import BokuException, SignatureError
+from lib.boku.utils import fix_price
+from lib.sellers.models import Seller
 from lib.transactions.constants import (PROVIDER_BOKU, STATUS_COMPLETED)
 from lib.transactions.models import Transaction
 
-from lib.boku import constants
-from lib.boku.client import BokuClientMixin
-from lib.boku.errors import BokuException
-from lib.boku.utils import fix_price
-from lib.sellers.models import Seller
 from solitude.logger import getLogger
 
 log = getLogger('s.boku')
@@ -26,7 +26,7 @@ class BokuForm(forms.Form):
         super(BokuForm, self).__init__(data=data, files=files, **kwargs)
 
 
-class EventForm(BokuForm):
+class EventForm(BokuForm, BokuClientMixin):
     """
     A form to process the data from Boku.
 
@@ -44,8 +44,7 @@ class EventForm(BokuForm):
 
     def clean(self):
         cleaned_data = super(EventForm, self).clean()
-        # TODO: before going any further check the sig and or verify
-        # that this is valid as per. bug 987846.
+
         try:
             cleaned_data['amount'] = fix_price(cleaned_data['amount'],
                                                cleaned_data['currency'])
@@ -54,6 +53,19 @@ class EventForm(BokuForm):
                                         .format(cleaned_data.get('amount'),
                                                 cleaned_data.get('currency')))
         return cleaned_data
+
+    def clean_sig(self):
+        # Check that the signature was from Boku. This will raise an error
+        # if the signature is incorrect but it does not check the
+        # transaction_id.
+        try:
+            # We must pass through all the data to generate a proper
+            # signature.
+            self.boku_client.check_sig(self.data)
+        except SignatureError:
+            log.warning('Signature verifcation failed: {0}'
+                        .format(self.data.get('trx_id')))
+            raise forms.ValidationError('Not a valid signature')
 
     def clean_param(self):
         # This takes the param, verifies that the transaction exists

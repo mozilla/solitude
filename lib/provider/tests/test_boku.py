@@ -38,7 +38,7 @@ class TestEvent(EventTest):
     @patch('lib.boku.client.mocks', {'verify-trx-id': (500, '')})
     def test_verify_fails(self):
         self.add_seller_boku()
-        eq_(self.client.post(self.url, data=self.sample()).status_code, 200)
+        self.client.post(self.url, data=self.sample())
 
     @patch('lib.boku.client.BokuClient.api_call')
     def test_trans_failure_from_error_code(self, api):
