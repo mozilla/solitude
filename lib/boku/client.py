@@ -16,6 +16,7 @@ import requests
 from django_statsd.clients import statsd
 from slumber import url_join
 
+from lib.boku import constants
 from lib.boku.errors import BokuException
 from lib.boku.tests import sample_xml
 from solitude.logger import getLogger
@@ -215,7 +216,7 @@ class BokuClient(object):
         return services
 
     def start_transaction(self, callback_url, consumer_id,
-                          external_id, price_row, service_id,
+                          external_id, price, currency, service_id,
                           forward_url, country):
         """
         Begin a transaction with Boku.
@@ -228,19 +229,25 @@ class BokuClient(object):
                             payment.
         :param consumer_id: A unique string identifier for the purchaser.
         :param external_id: A unique string identifier for the transaction.
-        :param price_row: The price row (integer) for a given amount
-                          can be found in get_pricing().
+        :param price: The price as a decimal such as Decimal('15.00').
+        :param currency: Abbreviated currency code such as MXN.
         :param service_id: The Boku ID (integer) for the service being sold.
         :param country: The ISO 3166-1-alpha-2 country code that they
                         buyer is in.
         """
+        if currency not in constants.DECIMAL_PLACES:
+            raise KeyError(
+                'No multiplier to figure out decimal places for currency {c}'
+                .format(c=currency))
+        price = int(price * constants.DECIMAL_PLACES[currency])
         tree = self.api_call('/billing/request', {
             'action': 'prepare',
             'callback-url': callback_url,
             'fwdurl': forward_url,
             'consumer-id': consumer_id,
             'param': external_id,
-            'row-ref': price_row,
+            'currency': currency,
+            'price-inc-salestax': price,
             'service-id': service_id,
             'country': country,
         })

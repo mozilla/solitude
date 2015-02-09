@@ -25,14 +25,15 @@ class BokuClientTests(test.TestCase):
         self.addCleanup(self.patched_get.stop)
 
     def start_transaction(self, service_id='service id',
-                          consumer_id='consumer', price_row=1,
-                          external_id='external id',
+                          consumer_id='consumer', price=Decimal('15.00'),
+                          external_id='external id', currency='MXN',
                           callback_url='http://test/',
                           forward_url='http://test/success',
                           country='MX'):
         return self.client.start_transaction(service_id=service_id,
                                              consumer_id=consumer_id,
-                                             price_row=price_row,
+                                             price=price,
+                                             currency=currency,
                                              external_id=external_id,
                                              callback_url=callback_url,
                                              forward_url=forward_url,
@@ -177,7 +178,8 @@ class BokuClientTests(test.TestCase):
     def test_client_start_transaction_calls_api_with_correct_params(self):
         service_id = 'service id'
         consumer_id = 'consumer'
-        price_row = 1
+        currency = 'MXN'
+        price = Decimal('15.00')
         external_id = 'external id'
         callback_url = 'http://test/'
         forward_url = 'http://test/success'
@@ -190,7 +192,8 @@ class BokuClientTests(test.TestCase):
                     forward_url=forward_url,
                     consumer_id=consumer_id,
                     external_id=external_id,
-                    price_row=price_row,
+                    currency=currency,
+                    price=price,
                     service_id=service_id,
                     country=country,
                 )
@@ -203,7 +206,8 @@ class BokuClientTests(test.TestCase):
                 'fwdurl': forward_url,
                 'consumer-id': consumer_id,
                 'param': external_id,
-                'row-ref': price_row,
+                'price-inc-salestax': 1500,
+                'currency': currency,
                 'service-id': service_id,
                 'country': country,
             })
