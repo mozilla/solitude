@@ -217,7 +217,7 @@ class BokuClient(object):
 
     def start_transaction(self, callback_url, consumer_id,
                           external_id, price, currency, service_id,
-                          forward_url, country):
+                          forward_url, country, product_name):
         """
         Begin a transaction with Boku.
 
@@ -234,18 +234,29 @@ class BokuClient(object):
         :param service_id: The Boku ID (integer) for the service being sold.
         :param country: The ISO 3166-1-alpha-2 country code that they
                         buyer is in.
+        :param product_name: The name of the item being purchased.
         """
         if currency not in constants.DECIMAL_PLACES:
             raise KeyError(
                 'No multiplier to figure out decimal places for currency {c}'
                 .format(c=currency))
         price = int(price * constants.DECIMAL_PLACES[currency])
+
+        if len(product_name) > 20:
+            log.warning('Boku will truncate this product name: {n}. '
+                        'Transaction: {t}'.format(n=product_name,
+                                                  t=external_id))
+
         tree = self.api_call('/billing/request', {
             'action': 'prepare',
             'callback-url': callback_url,
             'fwdurl': forward_url,
             'consumer-id': consumer_id,
             'param': external_id,
+            # This is the merchant name that will show up on the Boku form.
+            # It must be shorter than 15 characters.
+            'sub-merchant-name': 'Marketplace',
+            'desc': product_name,
             'currency': currency,
             'price-inc-salestax': price,
             'service-id': service_id,

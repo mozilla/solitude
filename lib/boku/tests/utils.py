@@ -99,6 +99,7 @@ class BokuTransactionTest(test.TestCase):
             'forward_url': 'http://testing.com/pay/success',
             'country': constants.COUNTRY_CHOICES[0][0],  # MX
             'transaction_uuid': self.transaction_uuid,
+            'product_name': 'Django Pony',
             'price': '15.00',
             'currency': 'MXN',
             'seller_uuid': self.seller_uuid,
