@@ -78,6 +78,7 @@ class BokuTransactionForm(BokuClientMixin, forms.Form):
     callback_url = forms.URLField()
     forward_url = forms.URLField()
     country = forms.ChoiceField(choices=constants.COUNTRY_CHOICES)
+    product_name = forms.CharField()
     transaction_uuid = forms.CharField()
     currency = forms.ChoiceField(choices=constants.CURRENCIES.items())
     price = forms.DecimalField()
@@ -108,6 +109,7 @@ class BokuTransactionForm(BokuClientMixin, forms.Form):
             forward_url=self.cleaned_data['forward_url'],
             external_id=self.cleaned_data['transaction_uuid'],
             consumer_id=self.cleaned_data['user_uuid'],
+            product_name=self.cleaned_data['product_name'],
             price=self.cleaned_data['price'],
             currency=self.cleaned_data['currency'],
             service_id=self.cleaned_data['seller_uuid'].boku.service_id,

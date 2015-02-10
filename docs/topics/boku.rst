@@ -44,6 +44,8 @@ Start a transaction with Boku.
                         after successful/failed payment.
     :param country: The `ISO 3166-1-alpha-2`_ country code of the purchaser.
     :param transaction_uuid: A unique identifier to track the transaction.
+    :param product_name: The name of the item being purchased.
+                         Names longer than 20 characters will be truncated.
     :param price: The purchase price in Decimal format (2 decimal places).
                   It must match one of the existing price points in Boku.
     :param seller_uuid: The UUID of the seller as it is stored in Solitude.
@@ -56,6 +58,7 @@ Start a transaction with Boku.
             "forward_url": "http://webpay.com/boku/pay/finished",
             "country": "CA",
             "transaction_uuid": "<transaction uuid>",
+            "product_name": "Magical Unicorn",
             "price": "15.00",
             "seller_uuid": "<seller uuid>",
             "user_uuid": "<user uuid>"

@@ -29,6 +29,7 @@ class BokuClientTests(test.TestCase):
                           external_id='external id', currency='MXN',
                           callback_url='http://test/',
                           forward_url='http://test/success',
+                          product_name='Django Pony',
                           country='MX'):
         return self.client.start_transaction(service_id=service_id,
                                              consumer_id=consumer_id,
@@ -37,6 +38,7 @@ class BokuClientTests(test.TestCase):
                                              external_id=external_id,
                                              callback_url=callback_url,
                                              forward_url=forward_url,
+                                             product_name=product_name,
                                              country=country)
 
     def test_client_uses_signed_request(self):
@@ -183,6 +185,7 @@ class BokuClientTests(test.TestCase):
         external_id = 'external id'
         callback_url = 'http://test/'
         forward_url = 'http://test/success'
+        product_name = 'Unicorn Dust'
         country = 'MX'
 
         with mock.patch('lib.boku.client.BokuClient.api_call') as mock_client:
@@ -194,6 +197,7 @@ class BokuClientTests(test.TestCase):
                     external_id=external_id,
                     currency=currency,
                     price=price,
+                    product_name=product_name,
                     service_id=service_id,
                     country=country,
                 )
@@ -206,11 +210,29 @@ class BokuClientTests(test.TestCase):
                 'fwdurl': forward_url,
                 'consumer-id': consumer_id,
                 'param': external_id,
+                'desc': product_name,
+                'sub-merchant-name': 'Marketplace',
                 'price-inc-salestax': 1500,
                 'currency': currency,
                 'service-id': service_id,
                 'country': country,
             })
+
+    def test_long_product_names(self):
+        product_name = 'Unicorn Dust From A Majestic Forest'
+
+        with mock.patch('lib.boku.client.BokuClient.api_call') as mock_client:
+            self.start_transaction(product_name=product_name)
+            # The name is not truncated by us but we issue some log warnings.
+            # This covers some code to make sure there are no exceptions.
+            eq_(mock_client.call_args[0][1]['desc'], product_name)
+
+    def test_non_ascii_names(self):
+        product_name = u'Ivan Krsti\u0107'
+
+        with mock.patch('lib.boku.client.BokuClient.api_call') as mock_client:
+            self.start_transaction(product_name=product_name)
+            eq_(mock_client.call_args[0][1]['desc'], product_name)
 
     def test_client_start_transaction_returns_start_transaction_json(self):
         transaction_id = 'abc123'
