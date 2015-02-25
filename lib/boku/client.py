@@ -243,9 +243,10 @@ class BokuClient(object):
         price = int(price * constants.DECIMAL_PLACES[currency])
 
         if len(product_name) > 20:
-            log.warning('Boku will truncate this product name: {n}. '
-                        'Transaction: {t}'.format(n=product_name,
-                                                  t=external_id))
+            log.warning(u'Truncating product name for Boku: {n}. '
+                        u'Transaction: {t}'.format(n=product_name,
+                                                   t=external_id))
+            product_name = product_name[0:20]
 
         tree = self.api_call('/billing/request', {
             'action': 'prepare',
