@@ -219,13 +219,13 @@ class BokuClientTests(test.TestCase):
             })
 
     def test_long_product_names(self):
-        product_name = 'Unicorn Dust From A Majestic Forest'
+        product_name = u'Unicorn Dust From A Majestic \u2603'
 
         with mock.patch('lib.boku.client.BokuClient.api_call') as mock_client:
             self.start_transaction(product_name=product_name)
             # The name is not truncated by us but we issue some log warnings.
             # This covers some code to make sure there are no exceptions.
-            eq_(mock_client.call_args[0][1]['desc'], product_name)
+            eq_(mock_client.call_args[0][1]['desc'], 'Unicorn Dust From A ')
 
     def test_non_ascii_names(self):
         product_name = u'Ivan Krsti\u0107'
