@@ -238,6 +238,22 @@ class BokuProxy(ProviderProxy):
                            query=urllib.urlencode(qs))
 
 
+def check_sig(request):
+    """
+    Override the check_sig call, Boku doesn't actually implement this,
+    the proxy does because it has access to that data. Rather than
+    send the data on, or try overriding the client, just grab this request,
+    parse it and send back a 204 or 400.
+    """
+    data = request.GET.copy()
+    external_sig = data.pop('sig')[0]
+    calculated_sig = get_boku_request_signature(settings.BOKU_SECRET_KEY, data)
+    is_valid = external_sig == calculated_sig
+
+    log.info('Boku check_sig: {0}'.format('PASS' if is_valid else 'FAIL'))
+    return http.HttpResponse(status=204 if is_valid else 400)
+
+
 def provider(request, reference_name):
     if reference_name == 'boku':
         return BokuProxy(reference_name)(request)

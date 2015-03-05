@@ -3,14 +3,15 @@ import urlparse
 from decimal import Decimal
 
 from django import test
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 import mock
 from nose.tools import assert_raises, eq_, ok_, raises
 
 from lib.boku.client import (get_boku_request_signature, get_client,
-                             BokuClient, BokuException, MockClient,
-                             ProxyClient)
+                             BokuClient, BokuException,
+                             MockClient, ProxyClient)
 from lib.boku.tests import sample_xml
 
 
@@ -40,6 +41,36 @@ class BokuClientTests(test.TestCase):
                                              forward_url=forward_url,
                                              product_name=product_name,
                                              country=country)
+
+    def test_doesnt_add_timestamp(self):
+        response = mock.Mock()
+        response.content = ''
+        response.status_code = 204
+        self.mock_get.return_value = response
+
+        self.client.api_call('/path', {})
+        assert 'timestamp' in self.mock_get.call_args[0][0]
+
+        self.client.api_call('/path', {}, add_timestamp=False)
+        assert 'timestamp' not in self.mock_get.call_args[0][0]
+
+    def test_doesnt_parse_204(self):
+        response = mock.Mock()
+        response.content = ''
+        response.status_code = 204
+        self.mock_get.return_value = response
+
+        # If the 204 check wasn't there to return None, this would fail.
+        assert not self.client.api_call('/path', {})
+
+    @raises(AssertionError)
+    def test_204_with_body_error(self):
+        response = mock.Mock()
+        response.content = 'wat'
+        response.status_code = 204
+        self.mock_get.return_value = response
+
+        self.client.api_call('/path', {})
 
     def test_client_uses_signed_request(self):
         params = {
@@ -343,3 +374,18 @@ class TestProxy(test.TestCase):
 
         url = urlparse.urlparse(self.mock_get.call_args_list[0][0][0])
         eq_(url.path, '/foo/boku/billing/request')
+
+    @raises(ImproperlyConfigured)
+    def test_no_key(self):
+        get_boku_request_signature('', {'f': 'b'})
+
+    def test_sig(self):
+        sig = get_boku_request_signature(settings.BOKU_SECRET_KEY, {'f': 'b'})
+        self.client.check_sig({'f': 'b', 'sig': sig})
+
+    @raises(BokuException)
+    def test_bad_sig(self):
+        response = mock.Mock()
+        response.status_code = 400
+        self.mock_get.return_value = response
+        self.client.check_sig({'f': 'b'})
