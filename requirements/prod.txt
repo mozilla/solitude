@@ -2,7 +2,7 @@
 # needed to run the site, it belongs in requirements/prod.txt. If it's a
 # package for developers (testing, docs, etc.), it goes in this file.
 
-Django==1.7.3
+Django==1.7.6
 PyJWT-mozilla==0.1.4.2
 amqplib==1.0.2
 anyjson==0.3.3
