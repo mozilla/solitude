@@ -471,5 +471,8 @@ BOKU_API_DOMAIN = 'https://api2.boku.com'
 # If you'd like to use the proxy for Boku, set this to ZIPPY_PROXY.
 BOKU_PROXY = os.getenv('SOLITUDE_BOKU_PROXY', '')
 
+# If we want to do md5 check of Boku signatures.
+BOKU_MD5_CHECK = True
+
 # End Bango settings.
 ###############################################################################
