@@ -168,6 +168,42 @@ Returns:
      "bluevia": null,
      "paypal": null}
 
+Product
+=======
+
+A product is a generic product that is being sold. To create a product specific
+payment provider, a generic product must first be created.
+
+To create a new product::
+
+    POST /generic/product/
+
+.. code-block:: json
+
+    {
+        'access': 1,
+        'external_id': 'external:5864962b-033e-4c7f-aabb-a3cd262e7042',
+        'public_id': 'product:279ae330-1c33-459d-b6ba-c22e5cba1c48',
+        'secret': 'some-secret',
+        'seller': u'/generic/seller/3/'
+    }
+
+Notes:
+
+* ``seller``: is a seller created with the generic seller endpoint.
+
+* ``external_id``: an id that corresponds to the sellers catalog.
+
+* ``public_id``: a publicly used id that will be used in the payment flow.
+
+* ``secret``: a generic back-end secret field, used for Paypal.
+
+* ``access``: one of:
+
+  * 1: ``purchase`` used for purchasing.
+
+  * 2: ``simulate`` can only be used for simulating payments.
+
 
 Transaction
 ===========
