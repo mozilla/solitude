@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 
 from lib.boku import constants
 from lib.boku.client import BokuClientMixin
@@ -58,6 +59,10 @@ class EventForm(BokuForm, BokuClientMixin):
         # Check that the signature was from Boku. This will raise an error
         # if the signature is incorrect but it does not check the
         # transaction_id.
+        if not settings.BOKU_MD5_CHECK:
+            log.warning('Not doing sig check because BOKU_MD5_CHECK is False')
+            return
+
         try:
             # We must pass through all the data to generate a proper
             # signature.

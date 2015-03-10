@@ -158,3 +158,9 @@ class TestBokuSignature(EventTest):
         form.boku_client.check_sig.side_effect = SignatureError('sig error')
         with self.assertRaises(ValidationError):
             form.clean_sig()
+
+    def test_ignored(self):
+        form = self.get_form()
+        with self.settings(BOKU_MD5_CHECK=False):
+            form.clean_sig()
+        assert not form.boku_client.check_sig.called
