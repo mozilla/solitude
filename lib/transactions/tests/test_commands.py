@@ -6,7 +6,7 @@ from django import test
 
 from nose.tools import eq_, raises
 
-from lib.sellers.tests.utils import make_seller_paypal
+from lib.sellers.models import Seller, SellerProduct
 from lib.transactions import constants
 from lib.transactions.management.commands.log import generate_log
 from lib.transactions.models import Transaction
@@ -16,7 +16,9 @@ class TestLog(test.TestCase):
 
     def setUp(self):
         self.name = NamedTemporaryFile().name
-        seller, paypal, self.product = make_seller_paypal('some:other:uuid')
+        seller = Seller.objects.create(uuid='uuid')
+        self.product = SellerProduct.objects.create(seller=seller,
+                                                    external_id='xyz')
         self.first = Transaction.objects.create(
             provider=1,
             seller_product=self.product, uuid='uuid')

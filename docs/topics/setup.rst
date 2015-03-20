@@ -73,54 +73,6 @@ few settings are configurable from the environment, they are:
 
     export SOLITUDE_PROXY=enabled
 
-PayPal settings
-~~~~~~~~~~~~~~~
-
-.. note:: PayPal is there in the code, but has not been used in production.
-
-Having solitude communicate with PayPal can be a slow and cumbersome. To speed
-it up you can just mock out all of PayPal::
-
-    PAYPAL_MOCK = True
-
-This assumes a happy path, where everything works. Most things are implemented
-for the mock.
-
-To actually talk to PayPal you'll need to setup the following settings. These
-are the settings for the Sandbox, meaning you can test Solitude without using
-real money::
-
-    PAYPAL_USE_SANDBOX = True
-    PAYPAL_APP_ID = 'the.app.id.from.paypal'
-    PAYPAL_AUTH = {'USER': 'the.paypal.user',
-                   'PASSWORD': 'the.paypal.password',
-                   'SIGNATURE': 'the.paypal.signature'}
-
-To do this you will need a PayPal developer account. Go to
-developer.paypal.com_ and create an account. This is your developer account,
-not the sandbox account.
-
-Once you are logged into developer.paypal.com_ go to `Test Accounts` > `Create
-a preconfigured account`. Make sure account type is `seller`. Remember your
-password (or set it something really easy). Click `Create Account`.
-
-Then click on `API and Payment Card Credentials`. You will see the `API
-Username`, `API Password` and `Signature` fields for that account. Enter those
-details into the `PAYPAL_AUTH` setting.
-
-You can repeat this process to create buyer and seller accounts. They must all
-be different.
-
-Currently `PAYPAL_APP_ID` is specific to our sandbox. Ask someone in the
-marketplace team for the sandbox version.
-
-Solitude creates redirects through PayPal. To make sure Solitude doesn't do
-a redirect to some nasty site, we filter URLs. On the dev server at Mozilla
-it's set to the following. You'll want to set these URLs to match whatever
-front end site is using Solitude::
-
-    PAYPAL_URLS_ALLOWED = ('https://marketplace-dev.allizom.org',)
-
 Bango settings
 ~~~~~~~~~~~~~~
 
@@ -299,5 +251,4 @@ on the client::
 
 .. _homebrew: http://mxcl.github.com/homebrew/
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
-.. _developer.paypal.com: https://developer.paypal.com
 .. _playdoh: http://playdoh.readthedocs.org/en/latest/getting-started/installation.html

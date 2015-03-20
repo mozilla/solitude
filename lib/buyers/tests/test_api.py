@@ -8,7 +8,7 @@ from django_paranoia.signals import warning
 from nose.tools import eq_
 
 from lib.buyers.constants import BUYER_UUID_ALREADY_EXISTS, FIELD_REQUIRED
-from lib.buyers.models import Buyer, BuyerPaypal
+from lib.buyers.models import Buyer
 from solitude.base import APITest
 
 
@@ -47,9 +47,6 @@ class TestBuyer(APITest):
         res = self.client.post(self.list_url, data={})
         eq_(res.status_code, 400)
         eq_(self.get_errors(res.content, 'uuid'), [FIELD_REQUIRED])
-
-    def test_list_allowed(self):
-        self.allowed_verbs(self.list_url, ['post', 'get', 'put'])
 
     def test_filter(self):
         self.client.post(self.list_url, data={'uuid': self.uuid})
@@ -164,85 +161,12 @@ class TestBuyer(APITest):
                                               'foo': 'something naughty'})
         assert mthd.called
 
-
-class TestBuyerPaypal(APITest):
-
-    def setUp(self):
-        self.api_name = 'paypal'
-        self.uuid = 'sample:uid'
-        self.buyer = Buyer.objects.create(uuid=self.uuid)
-        self.list_url = self.get_list_url('buyer')
-
-    def test_post(self):
-        res = self.client.post(self.list_url,
-                               data={'buyer':
-                                     '/paypal/buyer/%s/' % self.buyer.pk})
-        eq_(res.status_code, 201)
-        eq_(BuyerPaypal.objects.count(), 1)
-
-    def test_get(self):
-        obj = self.create()
-        url = self.get_detail_url('buyer', obj)
-        res = self.client.get(url)
-        eq_(res.status_code, 200)
-        eq_(json.loads(res.content)['key'], False)
-
-    def test_get_generic(self):
-        self.create()
-        url = self.get_detail_url('buyer', self.buyer, api_name='generic')
-        res = self.client.get(url)
-        eq_(res.status_code, 200)
-        eq_(json.loads(res.content)['paypal']['key'], False)
-
-    def create(self):
-        return BuyerPaypal.objects.create(buyer=self.buyer)
-
-    def test_boolean_key(self):
-        obj = self.create()
-        url = self.get_detail_url('buyer', obj)
-
-        res = self.client.get(url, data={'uuid': self.uuid})
-        eq_(json.loads(res.content)['key'], False)
-
-        obj.key = 'abc'
-        obj.save()
-
-        res = self.client.get(url, data={'uuid': self.uuid})
-        eq_(json.loads(res.content)['key'], True)
-
     def test_list_allowed(self):
         obj = self.create()
         url = self.get_detail_url('buyer', obj)
 
-        self.allowed_verbs(self.list_url, ['post'])
-        self.allowed_verbs(url, ['get', 'delete', 'patch'])
-
-    def test_delete(self):
-        obj = self.create()
-        url = self.get_detail_url('buyer', obj)
-        res = self.client.delete(url, data={'uuid': self.uuid})
-        eq_(res.status_code, 204)
-        eq_(BuyerPaypal.objects.count(), 0)
-
-    def test_patch(self):
-        obj = self.create()
-        obj.key = 'foofy'
-        obj.save()
-        url = self.get_detail_url('buyer', obj)
-        res = self.client.patch(url, data={'currency': 'BRL'})
-        eq_(res.status_code, 202)
-        res = BuyerPaypal.objects.all()
-        eq_(res.count(), 1)
-        eq_(res[0].currency, 'BRL')
-        eq_(res[0].key, 'foofy')  # Ensure key hasn't changed.
-
-    def test_patch_key(self):
-        obj = self.create()
-        url = self.get_detail_url('buyer', obj)
-        obj.key = 'foobar'
-        obj.save()
-        self.client.patch(url, data={'key': ''})
-        eq_(BuyerPaypal.objects.get(pk=obj.pk).key, None)
+        self.allowed_verbs(self.list_url, ['get', 'post'])
+        self.allowed_verbs(url, ['get', 'put', 'patch'])
 
 
 class TestBuyerVerifyPin(APITest):

@@ -9,7 +9,6 @@ from nose.tools import eq_, raises
 from tastypie.exceptions import ImmediateHttpResponse, InvalidFilterError
 
 from lib.buyers.models import Buyer
-from lib.paypal.errors import PaypalError
 from lib.sellers.models import Seller
 from lib.sellers.resources import SellerResource
 from solitude.base import APITest, Resource, etag_func
@@ -32,17 +31,6 @@ class TestError(test.TestCase):
         data = json.loads(res.content)
         eq_(data['error_code'], 'ZeroDivisionError')
         eq_(data['error_message'], 'integer division or modulo by zero')
-
-    def test_paypal_error(self):
-        res = None
-        try:
-            raise PaypalError(id=520003, message='wat?')
-        except Exception as error:
-            res = self.resource._handle_500(self.request, error)
-
-        data = json.loads(res.content)
-        eq_(data['error_code'], '520003')
-        eq_(data['error_message'], 'wat?')
 
 
 class TestBase(test.TestCase):

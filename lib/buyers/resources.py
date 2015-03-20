@@ -4,13 +4,10 @@ from tastypie.validation import FormValidation
 from solitude.base import get_object_or_404, log_cef, ModelResource, Resource
 
 from .forms import BuyerForm, BuyerFormValidation, PinForm
-from .models import Buyer, BuyerPaypal
+from .models import Buyer
 
 
 class BuyerResource(ModelResource):
-    paypal = fields.ToOneField('lib.buyers.resources.BuyerPaypalResource',
-                               'paypal', blank=True, full=True,
-                               null=True, readonly=True)
     pin_failures = fields.IntegerField(attribute='pin_failures', readonly=True)
     pin_is_locked_out = fields.BooleanField(attribute='locked_out',
                                             blank=True, null=True,
@@ -20,7 +17,7 @@ class BuyerResource(ModelResource):
         queryset = Buyer.objects.filter()
         fields = ['uuid', 'pin', 'active', 'new_pin', 'needs_pin_reset',
                   'email', 'pin_confirmed', 'pin_was_locked_out']
-        list_allowed_methods = ['get', 'post', 'put']
+        list_allowed_methods = ['get', 'post']
         allowed_methods = ['get', 'patch', 'put']
         resource_name = 'buyer'
         validation = BuyerFormValidation(form_class=BuyerForm)
@@ -34,19 +31,6 @@ class BuyerResource(ModelResource):
 
     def dehydrate_new_pin(self, bundle):
         return bool(bundle.obj.new_pin)
-
-
-class BuyerPaypalResource(ModelResource):
-    buyer = fields.ToOneField('lib.buyers.resources.BuyerResource',
-                              'buyer')
-    key = fields.BooleanField(attribute='key_exists')
-
-    class Meta(ModelResource.Meta):
-        queryset = BuyerPaypal.objects.filter()
-        fields = ['buyer', 'currency', 'expiry', 'key']
-        list_allowed_methods = ['post']
-        allowed_methods = ['get', 'delete', 'patch']
-        resource_name = 'buyer'
 
 
 class BuyerFakeObject(object):

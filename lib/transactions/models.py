@@ -5,10 +5,9 @@ from django_statsd.clients import statsd
 
 from lib.bango.signals import create as bango_create
 from lib.buyers.models import Buyer
-from lib.paypal.signals import create as paypal_create
 from lib.transactions import constants
 
-from solitude.base import get_object_or_404, Model
+from solitude.base import Model
 from solitude.logger import getLogger
 
 log = getLogger('s.transaction')
@@ -101,44 +100,6 @@ class Transaction(Model):
             self.carrier,
             self.region,
             self.provider)
-
-
-@receiver(paypal_create, dispatch_uid='transaction-create-paypal')
-def create_paypal_transaction(sender, **kwargs):
-    if sender.__class__._meta.resource_name != 'pay':
-        return
-
-    data = kwargs['bundle'].data
-    clean = kwargs['form']
-
-    transaction = Transaction.create(
-        amount=clean['amount'],
-        currency=clean['currency'],
-        provider=constants.PROVIDER_PAYPAL,
-        seller_product=clean['seller_product'],
-        source=clean.get('source', ''),
-        type=constants.TYPE_PAYMENT,
-        uid_pay=data['pay_key'],
-        uid_support=data['correlation_id'],
-        uuid=data['uuid'])
-    log.info('Transaction: %s, paypal status: %s'
-             % (transaction.pk, data['status']))
-
-
-@receiver(paypal_create, dispatch_uid='transaction-complete-paypal')
-def completed_paypal_transaction(sender, **kwargs):
-    if sender.__class__._meta.resource_name != 'pay-check':
-        return
-
-    data = kwargs['bundle'].data
-    transaction = get_object_or_404(Transaction, uid_pay=data['pay_key'])
-
-    if transaction.status == constants.STATUS_PENDING:
-        log.info('Transaction: %s, paypal status: %s'
-                 % (transaction.pk, data['status']))
-        if data['status'] == 'COMPLETED':
-            transaction.status = constants.STATUS_CHECKED
-            transaction.save()
 
 
 @receiver(bango_create, dispatch_uid='transaction-create-bango')

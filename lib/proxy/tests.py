@@ -12,8 +12,6 @@ from nose.tools import eq_
 from lib.bango.constants import HEADERS_SERVICE_GET
 from lib.bango.tests import samples
 from lib.boku.client import get_boku_request_signature
-from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
-from lib.paypal.map import urls
 
 
 class Proxy(test.TestCase):
@@ -24,49 +22,6 @@ class Proxy(test.TestCase):
         self.req.exceptions = requests.exceptions
         self.req.patcher = request
         self.addCleanup(request.stop)
-
-
-@mock.patch.object(settings, 'SOLITUDE_PROXY', True)
-class TestPaypal(Proxy):
-
-    def setUp(self):
-        super(TestPaypal, self).setUp()
-        self.url = reverse('paypal.proxy')
-
-    def test_proxy(self):
-        self.req.post.return_value.status_code = 200
-        self.req.post.return_value.text = 'some-text'
-        res = self.client.post(self.url, **{HEADERS_URL_GET: 'get-pay-key'})
-        eq_(self.req.post.call_args[0][0], urls['get-pay-key'])
-        eq_(res.status_code, 200)
-        eq_(res.content, 'some-text')
-
-    def test_not_present(self):
-        with self.assertRaises(KeyError):
-            self.client.post(self.url)
-
-    def test_proxy_auth(self):
-        self.req.get.return_value.status_code = 200
-        self.client.get(self.url, **{HEADERS_URL_GET: 'get-pay-key',
-                                     HEADERS_TOKEN_GET: 'token=b&secret=f'})
-        assert ('X-PAYPAL-AUTHORIZATION' in
-                self.req.post.call_args[1]['headers'])
-
-    def test_status_code(self):
-        self.req.post.return_value.status_code = 123
-        res = self.client.post(self.url, **{HEADERS_URL_GET: 'get-pay-key'})
-        eq_(res.status_code, 123)
-
-    def test_result(self):
-        self.req.post.side_effect = self.req.exceptions.RequestException()
-        with self.settings(DEBUG=False):
-            res = self.client.post(self.url,
-                                   **{HEADERS_URL_GET: 'get-pay-key'})
-            eq_(res.status_code, 500)
-
-    def test_not_enabled(self):
-        with self.settings(SOLITUDE_PROXY=False):
-            eq_(self.client.post(self.url).status_code, 404)
 
 
 @mock.patch.object(settings, 'SOLITUDE_PROXY', True)

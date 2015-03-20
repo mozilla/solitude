@@ -186,7 +186,6 @@ class APITest(test.TestCase):
         Otherwise the test will fail.
         """
         verbs = ['get', 'post', 'put', 'delete', 'patch']
-        # TODO(andym): get patch in here.
         for verb in verbs:
             if verb in allowed:
                 continue

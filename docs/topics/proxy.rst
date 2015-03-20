@@ -35,11 +35,6 @@ To run in proxy mode, make the following changes:
 * *database server* ensure you have not specified any sensitive provider
   settings.
 
-  * For PayPal set `PAYPAL_PROXY` to point to the *proxy server* referencing
-    the path `/proxy/paypal` for example::
-
-        PAYPAL_PROXY = 'https://some.server.local/proxy/paypal'
-
   * For Bango set `BANGO_PROXY` to point to the *proxy server* referencing
     the path `/proxy/bango` for example::
 

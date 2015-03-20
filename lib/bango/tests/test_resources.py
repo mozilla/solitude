@@ -13,9 +13,8 @@ from nose.tools import eq_, ok_
 from lib.buyers.models import Buyer
 from lib.sellers.models import (Seller, SellerBango, SellerProduct,
                                 SellerProductBango)
-from lib.sellers.tests.utils import make_seller_paypal
 from lib.transactions import constants
-from lib.transactions.constants import (PROVIDER_BANGO, PROVIDER_PAYPAL,
+from lib.transactions.constants import (PROVIDER_BANGO, PROVIDER_BOKU,
                                         STATUS_CANCELLED, STATUS_COMPLETED,
                                         STATUS_FAILED, STATUS_PENDING,
                                         TYPE_REFUND, TYPE_REFUND_MANUAL)
@@ -603,7 +602,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
     def test_create_trans_if_not_existing(self):
         data = self.good()
         data['transaction_uuid'] = '<some-new-trans-uuid>'
-        self.transaction.provider = constants.PROVIDER_PAYPAL
+        self.transaction.provider = PROVIDER_BOKU
         self.transaction.save()
         res = self.client.post(self.list_url, data=data)
         data = json.loads(res.content)
@@ -757,20 +756,15 @@ class TestRefund(APITest):
     def setUp(self):
         self.api_name = 'bango'
         self.uuid = 'sample:uid'
-        self.seller, self.paypal, self.product = (
-            make_seller_paypal('webpay:sample:uid'))
+        self.sellers = utils.make_sellers(self.uuid)
+        self.seller = self.sellers.seller
+        self.product = self.sellers.product
         self.trans = Transaction.objects.create(
             amount=5, seller_product=self.product,
             provider=constants.PROVIDER_BANGO, uuid=self.uuid,
             status=constants.STATUS_COMPLETED)
         self.url = self.get_list_url('refund')
-        self.seller_bango = SellerBango.objects.create(
-            seller=self.seller,
-            package_id=1, admin_person_id=3,
-            support_person_id=3, finance_person_id=4)
-        SellerProductBango.objects.create(seller_product=self.product,
-                                          seller_bango=self.seller_bango,
-                                          bango_id='1234')
+        self.seller_bango = self.sellers.bango
 
     def _status(self, their_status, our_status, data=None, typ=TYPE_REFUND):
         refund_data = {'uuid': self.uuid}
@@ -812,7 +806,7 @@ class TestRefund(APITest):
         eq_(res.status_code, 404)
 
     def test_not_bango(self):
-        self.trans.provider = PROVIDER_PAYPAL
+        self.trans.provider = PROVIDER_BOKU
         self.trans.save()
         self._fail()
 
@@ -873,8 +867,9 @@ class TestRefundStatus(APITest):
     def setUp(self):
         self.api_name = 'bango'
         self.refund_uuid = 'sample:refund'
-        self.seller, self.paypal, self.product = (
-            make_seller_paypal('webpay:sample:uid'))
+        self.sellers = utils.make_sellers('sample:uuid')
+        self.seller = self.sellers.seller
+        self.product = self.sellers.product
         self.refund = Transaction.objects.create(
             amount=5, seller_product=self.product,
             type=constants.TYPE_REFUND,
