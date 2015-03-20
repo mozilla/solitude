@@ -140,6 +140,7 @@ minutes. You can tell if a buyer is locked by checking the
 since the last time the PIN was changed or successfully verified will have the
 ``pin_was_locked_out`` property set to ``true``.
 
+.. _generic-seller:
 
 Sellers
 =======
@@ -150,7 +151,7 @@ prefixing the UUID, eg: `marketplace:<your-uuid>`
 
 Sellers are added to solitude by a `POST` call. The POST should contain a unique UUID::
 
-    POST /generic/seller/
+.. http:POST /generic/seller/
     {"uuid": "acb21517-df02-4734-8173-176ece310bc1"}
 
 You can else get the details of a seller::
@@ -168,6 +169,64 @@ Returns:
      "bluevia": null,
      "paypal": null}
 
+Product
+=======
+
+A product is a generic product that is being sold. To create a product specific
+payment provider, a generic product must first be created.
+
+.. http:post:: /generic/product/
+
+    Create a new product.
+
+    .. code-block:: json
+
+        {
+            "access": 1,
+            "external_id": "external:5864962b-033e-4c7f-aabb-a3cd262e7042",
+            "public_id": "product:279ae330-1c33-459d-b6ba-c22e5cba1c48",
+            "secret": "some-secret",
+            "seller": "/generic/seller/3/"
+        }
+
+    * ``seller``: is a seller created with the :ref:`generic seller endpoint <generic-seller>`.
+
+    * ``external_id``: an id that corresponds to the sellers catalog.
+
+    * ``public_id``: a publicly used id that will be used in the payment flow.
+
+    * ``secret``: a generic back-end secret field, used for Paypal.
+
+    * ``access``: either ``1`` seller will be used for purchasing or ``2``
+      seller can only be used for simulating payments.
+
+.. http:get: /generic/product/id:int/
+
+    Get an existing product.
+
+    .. code-block:: json
+
+        {
+            "access": 1,
+            "counter": "0",
+            "created": "2015-02-05T12:41:50",
+            "external_id": "external:5864962b-033e-4c7f-aabb-a3cd262e7042",
+            "modified": "2015-02-05T12:41:50",
+            "public_id": "product:279ae330-1c33-459d-b6ba-c22e5cba1c48",
+            "resource_pk": 1,
+            "resource_uri": "/generic/product/1/",
+            "secret": "some-secret",
+            "seller": "/generic/seller/3/",
+            "seller_uuids": {
+                "bango": null,
+                "boku": "a35ce575-cabf-4c49-af34-1e9ed43903ad",
+                "reference": null
+            }
+        }
+
+    * ``seller_uuids``: is a mapping of uuids for the specific payment
+      providers. In the example above, the seller has also had a Boku account
+      created for them.
 
 Transaction
 ===========
