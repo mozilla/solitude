@@ -150,7 +150,7 @@ class TestBokuSignature(EventTest):
     def test_called(self):
         form = self.get_form()
         form.clean_sig()
-        assert form.boku_client.check_sig.is_called_with(self.sample)
+        form.boku_client.check_sig.assert_called_with(self.sample())
         assert form.is_valid()
 
     def test_error(self):
