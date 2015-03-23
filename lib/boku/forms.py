@@ -23,6 +23,8 @@ class BokuForm(forms.Form):
     It does not check if that causes any conflicts.
     """
     def __init__(self, data=None, files=None, **kwargs):
+        # Keep the unmodified data around. Useful for signature checks.
+        self.unmodified_data = data
         data = dict((k.replace('-', '_'), v) for k, v in (data or {}).items())
         super(BokuForm, self).__init__(data=data, files=files, **kwargs)
 
@@ -66,7 +68,10 @@ class EventForm(BokuForm, BokuClientMixin):
         try:
             # We must pass through all the data to generate a proper
             # signature.
-            self.boku_client.check_sig(self.data)
+            #
+            # Use unmodified_data, to ensure that keys with a - in them are not
+            # converted to an _.
+            self.boku_client.check_sig(self.unmodified_data)
         except SignatureError:
             log.warning('Signature verifcation failed: {0}'
                         .format(self.data.get('trx_id')))

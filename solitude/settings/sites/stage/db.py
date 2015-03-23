@@ -60,7 +60,6 @@ ZIPPY_CONFIGURATION = {
 }
 
 BOKU_PROXY = 'https://payments-proxy.allizom.org/proxy/provider'
-BOKU_MD5_CHECK = False
 
 PAYPAL_PROXY = private.PAYPAL_PROXY
 PAYPAL_URLS_ALLOWED = ('https://marketplace.allizom.org',)
