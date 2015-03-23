@@ -3,8 +3,6 @@ from django.dispatch import receiver
 
 from django_statsd.clients import statsd
 
-from lib.bango.signals import create as bango_create
-from lib.buyers.models import Buyer
 from lib.transactions import constants
 
 from solitude.base import Model
@@ -100,48 +98,6 @@ class Transaction(Model):
             self.carrier,
             self.region,
             self.provider)
-
-
-@receiver(bango_create, dispatch_uid='transaction-create-bango')
-def create_bango_transaction(sender, **kwargs):
-    if sender.__class__._meta.resource_name != 'billing':
-        return
-
-    # Pull information from all the over the place.
-    bundle = kwargs['bundle'].data
-    data = kwargs['data']
-    form = kwargs['form']
-    buyer_uuid = form.cleaned_data['user_uuid']
-    buyer = Buyer.objects.get(uuid=buyer_uuid)
-    seller = form.cleaned_data['seller_product_bango'].seller_bango.seller
-    seller_product = form.cleaned_data['seller_product_bango'].seller_product
-
-    transaction, c = Transaction.objects.safer_get_or_create(
-        uuid=data['transaction_uuid'],
-        status=constants.STATUS_RECEIVED,
-        provider=constants.PROVIDER_BANGO,
-        seller_product=seller_product)
-
-    transaction.buyer = buyer
-    transaction.seller = seller
-    transaction.source = form.cleaned_data.get('source', '')
-    transaction.carrier = form.cleaned_data.get('carrier', '')
-    transaction.region = form.cleaned_data.get('region', '')
-    # uid_support will be set with the transaction id.
-    # uid_pay is the uid of the billingConfiguration request.
-    if 'billingConfigurationId' in bundle:
-        # Transactions that fail to create this will not have this.
-        transaction.uid_pay = bundle['billingConfigurationId']
-    transaction.status = kwargs.get('status', constants.STATUS_PENDING)
-    transaction.type = constants.TYPE_PAYMENT
-    transaction.save()
-
-    # This shows up in syslog:
-    log.info('Bango transaction: %s pending' % (transaction.pk,))
-    # This does not! FIXME. bug 888075
-    log.info('Created trans from Bango %s, uuid %s; pending'
-             % (transaction.pk, transaction.uuid))
-    statsd.incr('solitude.pending_transactions')
 
 
 @receiver(models.signals.post_save, dispatch_uid='time_status_change',

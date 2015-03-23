@@ -196,14 +196,3 @@ class TestURLField(test.TestCase):
         obj = Seller.objects.create()
         self.field = URLField(to='lib.sellers.resources.SellerResource')
         self.field.clean('/generic/seller/{0}/'.format(obj.pk))
-
-
-class TestModel(test.TestCase):
-
-    def test_safer_get_or_create(self):
-        data = dict(uuid='some-unique-value')
-        a, c = Seller.objects.safer_get_or_create(**data)
-        assert c
-        b, c = Seller.objects.safer_get_or_create(**data)
-        assert not c
-        eq_(a, b)

@@ -16,8 +16,8 @@ from lib.sellers.models import (Seller, SellerBango, SellerProduct,
 from lib.transactions import constants
 from lib.transactions.constants import (PROVIDER_BANGO, PROVIDER_BOKU,
                                         STATUS_CANCELLED, STATUS_COMPLETED,
-                                        STATUS_FAILED, STATUS_PENDING,
-                                        TYPE_REFUND, TYPE_REFUND_MANUAL)
+                                        STATUS_PENDING, TYPE_REFUND,
+                                        TYPE_REFUND_MANUAL)
 from lib.transactions.models import Transaction
 from solitude.base import APITest, Resource as TastypieBaseResource
 from solitude.constants import PAYMENT_METHOD_OPERATOR, PAYMENT_METHOD_ALL
@@ -540,25 +540,6 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         assert 'billingConfigurationId' in json.loads(res.content)
         assert 'application_size' not in json.loads(res.content)
 
-        transaction = Transaction.objects.get()
-        eq_(transaction.seller, self.seller)
-        eq_(transaction.buyer, self.buyer)
-
-    def test_twice(self):
-        data = self.good()
-        eq_(self.client.post(self.list_url, data=data).status_code, 201)
-        eq_(self.client.post(self.list_url, data=data).status_code, 400)
-
-    def test_twice_force_create(self):
-        data = self.good()
-        Transaction.objects.all().delete()
-        eq_(self.client.post(self.list_url, data=data).status_code, 201)
-        eq_(self.client.post(self.list_url, data=data).status_code, 400)
-        eq_(Transaction.objects.count(), 1)
-
-        transaction = Transaction.objects.get()
-        eq_(transaction.seller, self.seller)
-
     @mock.patch('lib.bango.resources.billing'
                 '.CreateBillingConfigurationResource.client')
     def test_micro_payment_cannot_use_card(self, cli):
@@ -599,28 +580,6 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         eq_(res.status_code, 201, res.content)
         assert 'billingConfigurationId' in json.loads(res.content)
 
-    def test_create_trans_if_not_existing(self):
-        data = self.good()
-        data['transaction_uuid'] = '<some-new-trans-uuid>'
-        self.transaction.provider = PROVIDER_BOKU
-        self.transaction.save()
-        res = self.client.post(self.list_url, data=data)
-        data = json.loads(res.content)
-        tr = Transaction.objects.get(uid_pay=data['billingConfigurationId'])
-        assert tr is not self.transaction
-        eq_(tr.seller, self.seller)
-
-    def test_changed(self):
-        res = self.client.post(self.list_url, data=self.good())
-        eq_(res.status_code, 201)
-        transactions = Transaction.objects.all()
-        eq_(len(transactions), 1)
-        transaction = transactions[0]
-        eq_(transaction.status, constants.STATUS_PENDING)
-        eq_(transaction.type, constants.TYPE_PAYMENT)
-        ok_(transaction.uid_pay)
-        eq_(transaction.uid_support, None)
-
     def test_missing(self):
         data = samples.good_billing_request.copy()
         del data['prices']
@@ -640,41 +599,12 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 400, res)
 
-    def test_transaction(self):
-        data = self.good()
-        res = self.client.post(self.list_url, data=data)
-        eq_(res.status_code, 201, res.content)
-        tran = Transaction.objects.get()
-        eq_(tran.provider, 1)
-
-    def test_transaction_bits(self):
-        data = self.good()
-        data['source'] = 'marketplace'
-        data['carrier'] = 't-mobile'
-        data['region'] = 'uk'
-        res = self.client.post(self.list_url, data=data)
-        eq_(res.status_code, 201, res.content)
-        tran = Transaction.objects.get()
-        eq_(tran.source, 'marketplace')
-        eq_(tran.carrier, 't-mobile')
-        eq_(tran.region, 'uk')
-
     def test_no_transaction(self):
         data = self.good()
         del data['transaction_uuid']
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 400, res)
         assert 'transaction_uuid' in json.loads(res.content)
-
-    @mock.patch.object(ClientMock, 'mock_results')
-    def test_bango_error(self, mock_results):
-        mock_results.return_value = {'responseCode': INTERNAL_ERROR,
-                                     'responseMessage': 'nope'}
-        data = self.good()
-        with self.assertRaises(BangoError):
-            self.client.post(self.list_url, data=data)
-        tran = Transaction.objects.get()
-        eq_(tran.status, STATUS_FAILED)
 
 
 class TestCreateBankConfiguration(BangoAPI):
