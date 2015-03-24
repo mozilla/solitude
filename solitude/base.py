@@ -10,7 +10,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.urlresolvers import resolve, reverse
-from django.db import models, transaction
+from django.db import models
 from django.db.models import F
 from django.db.models.query import QuerySet
 from django.db.models.sql.constants import LOOKUP_SEP, QUERY_TERMS
@@ -561,28 +561,10 @@ class Cached(object):
         cache.delete(self.prefixed)
 
 
-class ManagerBase(models.Manager):
-
-    def safer_get_or_create(self, defaults=None, **kw):
-        """
-        This is subjective, but I don't trust get_or_create until #13906
-        gets fixed. It's probably fine, but this makes me happy for the moment
-        and solved a get_or_create we've had in the past.
-        """
-        with transaction.commit_on_success():
-            try:
-                return self.get(**kw), False
-            except self.model.DoesNotExist:
-                if defaults is not None:
-                    kw.update(defaults)
-                return self.create(**kw), True
-
-
 class Model(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     counter = models.BigIntegerField(null=True, blank=True, default=0)
-    objects = ManagerBase()
 
     class Meta:
         abstract = True
