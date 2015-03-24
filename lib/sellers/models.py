@@ -16,38 +16,6 @@ class Seller(Model):
         db_table = 'seller'
 
 
-class SellerPaypal(Model):
-    paypal_id = AESField(blank=True, null=True, aes_key='sellerpaypal:id')
-    token = AESField(blank=True, null=True, aes_key='sellerpaypal:token')
-    secret = AESField(blank=True, null=True, aes_key='sellerpaypal:secret')
-    seller = models.OneToOneField(Seller, related_name='paypal')
-    # TODO: currencies.
-
-    # Sellers personal contact information.
-    first_name = models.CharField(max_length=255, blank=True)
-    last_name = models.CharField(max_length=255, blank=True)
-    full_name = models.CharField(max_length=255, blank=True)
-    business_name = models.CharField(max_length=255, blank=True)
-    country = models.CharField(max_length=64, blank=True)
-    address_one = models.CharField(max_length=255, blank=True)
-    address_two = models.CharField(max_length=255, blank=True)
-    post_code = models.CharField(max_length=128, blank=True)
-    city = models.CharField(max_length=128, blank=True)
-    state = models.CharField(max_length=64, blank=True)
-    phone = models.CharField(max_length=32, blank=True)
-
-    class Meta(Model.Meta):
-        db_table = 'seller_paypal'
-
-    @property
-    def secret_exists(self):
-        return bool(self.secret)
-
-    @property
-    def token_exists(self):
-        return bool(self.token)
-
-
 class SellerProduct(Model):
     """
     The key to a seller's generic product.

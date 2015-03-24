@@ -9,11 +9,7 @@ from solitude.settings.base import *  # flake8: noqa
 filename = os.path.join(os.path.dirname(__file__), 'sample.key')
 
 AES_KEYS = {
-    'buyerpaypal:key': filename,
     'buyeremail:key': filename,
-    'sellerpaypal:id': filename,
-    'sellerpaypal:token': filename,
-    'sellerpaypal:secret': filename,
     'sellerproduct:secret': filename,
     'bango:signature': filename,
 }

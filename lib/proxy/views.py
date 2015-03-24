@@ -14,9 +14,7 @@ from slumber import url_join
 from curling.lib import sign_request
 from lib.bango.constants import HEADERS_SERVICE_GET, HEADERS_ALLOWED_INVERTED
 from lib.boku.client import get_boku_request_signature
-from lib.paypal.client import get_client as paypal_client
-from lib.paypal.constants import HEADERS_URL_GET, HEADERS_TOKEN_GET
-from lib.paypal.map import urls
+from lib.proxy.constants import HEADERS_URL_GET
 from solitude.base import dump_request, dump_response
 from solitude.logger import getLogger
 
@@ -55,7 +53,6 @@ class Proxy(object):
             log.error('Missing header: %s',
                       ', '.join(sorted(request.META.keys())))
             raise
-        self.url = urls[self.service]
 
     def call(self):
         """Call the proxied service, return a response."""
@@ -104,26 +101,6 @@ class Proxy(object):
     def post(self, response):
         """Any post processing of the response here. Return the response."""
         return response
-
-
-class PaypalProxy(Proxy):
-    name = 'paypal'
-    setting_timeout = 'PAYPAL_TIMEOUT'
-
-    def pre(self, request):
-        """
-        Paypal does auth be special headers, so we'll need to process
-        those and add those to the request.
-        """
-        super(PaypalProxy, self).pre(request)
-        token = request.META.get(HEADERS_TOKEN_GET)
-        if token:
-            token = dict(urlparse.parse_qsl(token))
-
-        client = paypal_client()
-        self.headers = client.headers(self.url, auth_token=token)
-        # PayPal requires POST on its methods.
-        self.method = 'post'
 
 
 class BangoProxy(Proxy):
@@ -258,10 +235,6 @@ def provider(request, reference_name):
     if reference_name == 'boku':
         return BokuProxy(reference_name)(request)
     return ProviderProxy(reference_name)(request)
-
-
-def paypal(request):
-    return PaypalProxy()(request)
 
 
 def bango(request):

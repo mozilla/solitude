@@ -4,8 +4,8 @@ from django.core.urlresolvers import reverse
 
 from nose.tools import eq_
 
+from lib.bango.tests.utils import make_sellers
 from lib.buyers.models import Buyer
-from lib.sellers.tests.utils import make_seller_paypal
 from lib.transactions import constants
 from lib.transactions.models import Transaction
 from solitude.base import APITest
@@ -18,11 +18,11 @@ class TestTransaction(APITest):
         self.uuid = 'sample:uid'
         self.list_url = self.get_list_url('transaction')
         self.buyer = Buyer.objects.create(uuid='buyer_uuid')
-        self.seller, self.paypal, self.product = (
-            make_seller_paypal('paypal:%s' % self.uuid))
+        self.sellers = make_sellers('sample:uid')
+        self.product = self.sellers.product
         self.trans = Transaction.objects.create(
-            amount=5, seller_product=self.product,
-            provider=constants.PROVIDER_PAYPAL, uuid=self.uuid)
+            amount=5, seller_product=self.sellers.product,
+            provider=constants.PROVIDER_BANGO, uuid=self.uuid)
         self.detail_url = reverse('api_dispatch_detail',
                                   kwargs={'api_name': self.api_name,
                                           'resource_name': 'transaction',
@@ -48,7 +48,7 @@ class TestTransaction(APITest):
             'seller_product': '/generic/product/{product_id}/'.format(
                 product_id=self.product.pk),
             'seller': '/generic/seller/{seller_id}/'.format(
-                seller_id=self.seller.pk),
+                seller_id=self.sellers.seller.pk),
             'buyer': '/generic/buyer/{buyer_id}/'.format(
                 buyer_id=self.buyer.pk),
         }
@@ -62,12 +62,12 @@ class TestTransaction(APITest):
 
         eq_(transaction.buyer, self.buyer)
         eq_(transaction.provider, constants.PROVIDER_BANGO)
-        eq_(transaction.seller, self.seller)
+        eq_(transaction.seller, self.sellers.seller)
         eq_(transaction.seller_product, self.product)
 
     def test_provider(self):
         res = self.client.get(self.list_url, data={'provider':
-                                                   constants.PROVIDER_BANGO})
+                                                   constants.PROVIDER_BOKU})
         eq_(res.status_code, 200)
         eq_(json.loads(res.content)['meta']['total_count'], 0, res.content)
 
@@ -108,7 +108,7 @@ class TestTransaction(APITest):
     def test_relations(self):
         new_uuid = self.uuid + ':refund'
         new = Transaction.objects.create(amount=5, seller_product=self.product,
-                                         provider=constants.PROVIDER_PAYPAL,
+                                         provider=constants.PROVIDER_BANGO,
                                          related=self.trans, uuid=new_uuid,
                                          uid_pay='1')
 

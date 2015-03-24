@@ -25,24 +25,23 @@ a unique UUID as well as the PIN the buyer has chosen::
 Get Details
 -----------
 
-You can also get the details of a buyer::
+You can also get the details of a buyer:
 
-    GET /generic/buyer/64/
+.. http:get:: /generic/buyer/64/
 
-Returns:
+    .. code-block:: json
 
-.. code-block:: javascript
-
-    {"paypal": null,
-     "uuid": "93e33277-87f7-417b-8ed2-371672b5297e",
-     "resource_uri": "/generic/buyer/66/",
-     "pin": true,
-     "pin_confirmed": false,
-     "new_pin": false,
-     "active": true,
-     "needs_pin_reset": false,
-     "pin_failures": 0,
-     "pin_locked_out": false}
+        {
+            "uuid": "93e33277-87f7-417b-8ed2-371672b5297e",
+            "resource_uri": "/generic/buyer/66/",
+            "pin": true,
+            "pin_confirmed": false,
+            "new_pin": false,
+            "active": true,
+            "needs_pin_reset": false,
+            "pin_failures": 0,
+            "pin_locked_out": false
+        }
 
 
 Confirm PIN
@@ -125,7 +124,7 @@ This will return whether it was confirmed:
 
 If there were errors they'll appear like so:
 
-.. code-block:: javascript
+.. code-block:: json
 
     {"confirmed": false,
      "errors": {"uuid": ["Uuid does not exist."]}}
@@ -149,25 +148,28 @@ Sellers are identified by a UUID, which is a string (max 255 chars) that makes
 sense to the client. It must be unique within solitude, so we'd recommend
 prefixing the UUID, eg: `marketplace:<your-uuid>`
 
-Sellers are added to solitude by a `POST` call. The POST should contain a unique UUID::
+Sellers are added to solitude by a `POST` call. The POST should contain a unique UUID:
 
-.. http:POST /generic/seller/
-    {"uuid": "acb21517-df02-4734-8173-176ece310bc1"}
+.. http:post:: /generic/seller/
 
-You can else get the details of a seller::
+    .. code-block:: json
 
-    GET /generic/seller/9/
+        {
+            "uuid": "acb21517-df02-4734-8173-176ece310bc1"
+        }
 
-Returns:
+You can else get the details of a seller:
 
-.. code-block:: javascript
+.. http:get:: /generic/seller/9/
 
-    {"paypal": null,
-     "uuid": "acb21517-df02-4734-8173-176ece310bc1",
-     "resource_uri": "/generic/seller/9/"
-     "resource_key": 16,
-     "bluevia": null,
-     "paypal": null}
+    .. code-block:: json
+
+        {
+            "uuid": "acb21517-df02-4734-8173-176ece310bc1",
+            "resource_uri": "/generic/seller/9/"
+            "resource_key": 16,
+            "bluevia": null
+        }
 
 Product
 =======

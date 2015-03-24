@@ -185,11 +185,7 @@ USE_ETAGS = True
 #
 # These are the AES encryption keys for different fields.
 AES_KEYS = {
-    'buyerpaypal:key': 'solitude/settings/sample.key',
     'buyeremail:key': 'solitude/settings/sample.key',
-    'sellerpaypal:id': 'solitude/settings/sample.key',
-    'sellerpaypal:token': 'solitude/settings/sample.key',
-    'sellerpaypal:secret': 'solitude/settings/sample.key',
     'sellerproduct:secret': 'solitude/settings/sample.key',
     'bango:signature': 'solitude/settings/sample.key',
 }

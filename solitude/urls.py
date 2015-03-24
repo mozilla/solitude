@@ -5,12 +5,10 @@ from django.conf.urls import include, patterns, url
 from tastypie.api import Api
 
 from lib.bango.urls import bango
-from lib.buyers.resources import (BuyerConfirmPinResource, BuyerPaypalResource,
+from lib.buyers.resources import (BuyerConfirmPinResource,
                                   BuyerResetPinResource, BuyerResource,
                                   BuyerVerifyPinResource)
-from lib.paypal.urls import paypal
-from lib.sellers.resources import (SellerPaypalResource, SellerProductResource,
-                                   SellerResource)
+from lib.sellers.resources import SellerProductResource, SellerResource
 from lib.transactions.resources import TransactionResource
 
 # Generic APIs
@@ -22,10 +20,6 @@ api.register(BuyerResetPinResource())
 api.register(SellerResource())
 api.register(SellerProductResource())
 api.register(TransactionResource())
-
-# PayPal specific APIs
-paypal.register(BuyerPaypalResource())
-paypal.register(SellerPaypalResource())
 
 services_patterns = patterns(
     'lib.services.resources',
@@ -45,7 +39,6 @@ services_patterns = patterns(
 urls = [
     url(r'^proxy/', include('lib.proxy.urls')),
     url(r'^', include(api.urls)),
-    url(r'^', include(paypal.urls)),
     url(r'^', include(bango.urls)),
     url(r'^boku/', include('lib.boku.urls', namespace='boku')),
     url(r'^bango/', include('lib.bango.urls')),

@@ -14,29 +14,22 @@ The encryption uses AES to do this.
 
 Encrypted fields:
 
-For the buyer:
-
-* paypal pre-approval key
-
-For a seller:
-
-* generic secret
-* paypal paypal_id
-* paypal permissions token
-* paypal permissions secret
-* bluevia bluevia_id
+* buyers email
+* sellers secret
+* bango signature
 
 The keys per field are mapped in settings. See :ref:`setup.rst` for more.
 
 Hashed fields
 =============
 
-TODO: add notes on this.
+Fields are
+
+* buyers pin
+* buyers new pin
 
 Requests
 ========
 
 All requests use OAuth 1.1 which signs the header using a secret key. Requests
 must be signed with that key or be rejected.
-
-*TODO*: Wraithan to add notes here.

@@ -2,15 +2,8 @@ import uuid
 
 from django.core.urlresolvers import reverse
 
-from lib.sellers.models import Seller, SellerPaypal, SellerProduct
+from lib.sellers.models import Seller, SellerProduct
 from solitude.base import APITest
-
-
-def make_seller_paypal(uuid):
-    seller = Seller.objects.create(uuid=uuid)
-    product = SellerProduct.objects.create(seller=seller, external_id='xyz')
-    paypal = SellerPaypal.objects.create(seller=seller)
-    return seller, paypal, product
 
 
 class SellerTest(APITest):
