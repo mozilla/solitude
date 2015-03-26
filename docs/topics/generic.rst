@@ -292,6 +292,11 @@ Statuses:
 
 * 5: ``Cancelled`` - the transaction was cancelled explicitly by the user.
 
+* 6: ``Started`` - the calling application (e.g. webpay) has started preparing
+  this transaction.
+
+* 7: ``Errored`` - the calling application (e.g. webpay) was unable to
+  complete creating the transaction because of an error.
 
 To create a new transaction::
 

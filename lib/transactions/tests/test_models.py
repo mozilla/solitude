@@ -83,3 +83,8 @@ class TestModel(APITest):
         trans.status = constants.STATUS_COMPLETED
         trans.save()
         statsd.timing.assert_called_with('transaction.status.completed', ANY)
+
+    def test_no_provider(self):
+        data = self.get_data()
+        del data['provider']
+        Transaction.objects.create(**data)

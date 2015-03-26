@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from django import forms
 from django.conf import settings
 from django.db.models import Q
+from django.forms.models import model_to_dict
 
 import mobile_codes
 from django_statsd.clients import statsd
@@ -503,7 +504,8 @@ class EventForm(forms.Form):
             raise forms.ValidationError('Transaction not found, aborting.')
 
         data['new_status'] = {OK: STATUS_COMPLETED}[data['status']]
-        old = {'status': trans.status, 'created': trans.created}
+        old = model_to_dict(trans)
+        old['created'] = trans.created
         new = {'status': data['new_status']}
         try:
             check_status(old, new)

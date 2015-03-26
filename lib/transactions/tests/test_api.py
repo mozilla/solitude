@@ -23,10 +23,13 @@ class TestTransaction(APITest):
         self.trans = Transaction.objects.create(
             amount=5, seller_product=self.sellers.product,
             provider=constants.PROVIDER_BANGO, uuid=self.uuid)
-        self.detail_url = reverse('api_dispatch_detail',
-                                  kwargs={'api_name': self.api_name,
-                                          'resource_name': 'transaction',
-                                          'pk': self.trans.pk})
+        self.detail_url = self.get_detail_url(self.trans.pk)
+
+    def get_detail_url(self, pk):
+        return reverse('api_dispatch_detail',
+                       kwargs={'api_name': self.api_name,
+                               'resource_name': 'transaction',
+                               'pk': pk})
 
     def test_list_allowed(self):
         self.allowed_verbs(self.list_url, ['get', 'post'])
@@ -105,6 +108,13 @@ class TestTransaction(APITest):
                                 data={'status': constants.STATUS_COMPLETED})
         eq_(res.status_code, 400, res.content)
 
+    def test_patch_status_errored(self):
+        self.trans.status = constants.STATUS_ERRORED
+        self.trans.save()
+        res = self.client.patch(self.detail_url,
+                                data={'status': constants.STATUS_COMPLETED})
+        eq_(res.status_code, 400, res.content)
+
     def test_relations(self):
         new_uuid = self.uuid + ':refund'
         new = Transaction.objects.create(amount=5, seller_product=self.product,
@@ -126,3 +136,21 @@ class TestTransaction(APITest):
         eq_(data['objects'][0]['relations'], [])
         eq_(data['objects'][0]['related'],
             '/generic/transaction/%s/' % self.trans.pk)
+
+    def test_create_minimal(self):
+        res = self.client.post(self.list_url, data={})
+        eq_(res.status_code, 201)
+
+    def test_patch_minimal(self):
+        res = self.client.post(self.list_url, data={})
+        pk = json.loads(res.content)['resource_pk']
+        res = self.client.patch(self.get_detail_url(pk),
+                                data={'status': constants.STATUS_ERRORED})
+        eq_(res.status_code, 202, res.content)
+
+    def test_patch_minimal_fails(self):
+        res = self.client.post(self.list_url, data={})
+        pk = json.loads(res.content)['resource_pk']
+        res = self.client.patch(self.get_detail_url(pk),
+                                data={'status': constants.STATUS_COMPLETED})
+        eq_(res.status_code, 400, res.content)

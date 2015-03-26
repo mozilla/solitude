@@ -15,6 +15,9 @@ log = getLogger('s.transaction')
 
 
 def check_status(old, new):
+    if old['status'] == constants.STATUS_ERRORED:
+        raise forms.ValidationError('Transaction errored')
+
     if ((old['created'] + timedelta(seconds=settings.TRANSACTION_LOCKDOWN)) <
             datetime.now()):
         raise forms.ValidationError('Transaction locked down')
@@ -36,6 +39,14 @@ def check_status(old, new):
                .format(old['status'], new['status']))
         log.error(msg)
         raise forms.ValidationError(msg)
+
+    if new.get('status', None) not in [constants.STATUS_STARTED,
+                                       constants.STATUS_ERRORED]:
+        if not new.get('provider', old.get('provider')):
+            raise forms.ValidationError('Provider must be set')
+
+        if not new.get('seller_product', old.get('seller_product')):
+            raise forms.ValidationError('Seller product must be set')
 
 
 class UpdateForm(ParanoidForm):
