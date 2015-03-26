@@ -4,7 +4,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Set up playdoh.
-import manage  # flake8: noqa
+import manage  # noqa
 from django.conf import settings
 
 config = settings.DATABASES['default']

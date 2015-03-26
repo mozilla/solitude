@@ -188,7 +188,7 @@ event_notification = """\xef\xbb\xbf<?xml version="1.0" encoding="utf-8"?>
                 </data>
             </event>
         </eventList>
-    </bangoEvents>"""  # flake8: noqa
+    </bangoEvents>"""  # noqa
 
 event_notification_no_action = """\xef\xbb\xbf<?xml version="1.0" encoding="utf-8"?>
     <bangoEvents xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -214,7 +214,7 @@ event_notification_no_action = """\xef\xbb\xbf<?xml version="1.0" encoding="utf-
                 </data>
             </event>
         </eventList>
-    </bangoEvents>"""  # flake8: noqa
+    </bangoEvents>"""  # noqa
 
 event_notification_cp_trans_id = """\xef\xbb\xbf<?xml version="1.0" encoding="utf-8"?>
     <bangoEvents xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -227,7 +227,7 @@ event_notification_cp_trans_id = """\xef\xbb\xbf<?xml version="1.0" encoding="ut
                 </data>
             </event>
         </eventList>
-    </bangoEvents>"""  # flake8: noqa
+    </bangoEvents>"""  # noqa
 
 event_notification_no_data = """\xef\xbb\xbf<?xml version="1.0" encoding="utf-8"?>
     <bangoEvents xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -243,5 +243,4 @@ event_notification_no_data = """\xef\xbb\xbf<?xml version="1.0" encoding="utf-8"
                 <action>PAYMENT</action>
             </event>
         </eventList>
-    </bangoEvents>"""  # flake8: noqa
-
+    </bangoEvents>"""  # noqa

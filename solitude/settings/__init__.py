@@ -1,5 +1,5 @@
-from .base import *  # flake8: noqa
+from .base import *  # noqa
 try:
-    from .local import *  # flake8: noqa
+    from .local import *  # noqa
 except ImportError:
     print 'No local.py imported, skipping.'
