@@ -26,7 +26,6 @@ STATUSES = {
 }
 STATUSES_INVERTED = dict((v, k) for k, v in STATUSES.items())
 
-
 TYPE_PAYMENT = 0
 TYPE_REFUND = 1
 TYPE_REVERSAL = 2
