@@ -63,9 +63,6 @@ ZIPPY_CONFIGURATION = {
     }
 }
 
-PAYPAL_PROXY = private.PAYPAL_PROXY
-PAYPAL_URLS_ALLOWED = ('https://marketplace-dev.allizom.org',)
-
 BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
 BANGO_FAKE_REFUNDS = True
 BANGO_PROXY = private.BANGO_PROXY

@@ -52,9 +52,6 @@ NEWRELIC_INI = '/etc/newrelic.d/payments-alt.allizom.org.ini'
 REQUIRE_OAUTH = True
 
 # Below is configuration of payment providers.
-PAYPAL_PROXY = private.PAYPAL_PROXY
-PAYPAL_URLS_ALLOWED = ('https://payments-alt.allizom.org',)
-
 BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
 BANGO_ENV = 'prod'
 BANGO_INSERT_STAGE = 'FROM STAGE '
