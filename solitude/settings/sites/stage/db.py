@@ -61,9 +61,6 @@ ZIPPY_CONFIGURATION = {
 
 BOKU_PROXY = 'https://payments-proxy.allizom.org/proxy/provider'
 
-PAYPAL_PROXY = private.PAYPAL_PROXY
-PAYPAL_URLS_ALLOWED = ('https://marketplace.allizom.org',)
-
 BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
 BANGO_ENV = 'prod'
 BANGO_FAKE_REFUNDS = False

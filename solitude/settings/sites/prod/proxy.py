@@ -45,14 +45,7 @@ REQUIRE_OAUTH = False
 SITE_URL = 'https://payments-proxy.firefox.com'
 
 # Below is configuration of payment providers.
-
 ZIPPY_CONFIGURATION = {}
-
-PAYPAL_APP_ID = private.PAYPAL_APP_ID
-PAYPAL_AUTH = private.PAYPAL_AUTH
-PAYPAL_CHAINS = private.PAYPAL_CHAINS
-PAYPAL_URLS_ALLOWED = ('https://marketplace.firefox.com',)
-PAYPAL_USE_SANDBOX = True
 
 BANGO_AUTH = private.BANGO_AUTH
 BANGO_ENV = 'prod'
