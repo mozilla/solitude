@@ -3,7 +3,6 @@
 # package for developers (testing, docs, etc.), it goes in this file.
 
 Django==1.7.7
-PyJWT-mozilla==0.1.4.2
 amqplib==1.0.2
 anyjson==0.3.3
 billiard==2.7.3.17
