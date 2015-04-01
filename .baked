@@ -35,7 +35,7 @@
             "M2Crypto", "MySQLdb", "aesfield",
             "apiclient", "cef",
             "celery", "celery_tasktree", "celeryutils", "commonware",
-            "csp", "dateutil", "django_statsd", "jwt", "lxml",
+            "csp", "dateutil", "django_statsd", "lxml",
             "mock", "mozpay", "nose", "oauth2", "oauth2client",
             "oauthlib", "requests", "slumber", "suds",
             "tastypie", "tastypie_services",
