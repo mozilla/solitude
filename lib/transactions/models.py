@@ -23,15 +23,17 @@ class Transaction(Model):
     carrier = models.CharField(max_length=255, blank=True, null=True,
                                db_index=True)
     currency = models.CharField(max_length=3, blank=True)
-    provider = models.PositiveIntegerField(choices=constants.PROVIDERS_CHOICES)
+    provider = models.PositiveIntegerField(
+        choices=constants.PROVIDERS_CHOICES, blank=True, null=True)
     # The region of the purchase.
     region = models.CharField(max_length=255, blank=True, null=True,
                               db_index=True)
     related = models.ForeignKey('self', blank=True, null=True,
                                 on_delete=models.PROTECT,
                                 related_name='relations')
-    # This is the generic seller product which is linked to a payment provider.
-    seller_product = models.ForeignKey('sellers.SellerProduct', db_index=True)
+    # This is the generic seller product which is linked to a payment provider
+    seller_product = models.ForeignKey(
+        'sellers.SellerProduct', db_index=True, blank=True, null=True)
     # This is the generic seller which is linked to the
     # "payment account setup" info. This seller may be different
     # than the one linked to via seller_product.
@@ -39,6 +41,12 @@ class Transaction(Model):
                                blank=True, null=True)
     status = models.PositiveIntegerField(default=constants.STATUS_DEFAULT,
                                          choices=constants.STATUSES_CHOICES)
+    # Simple string for the reason of the status, if any further explanation
+    # is needed. These are strings, so the solitude clients can use any string
+    # they would like. Recommend keeping it short and something easy to grep
+    # in your source.
+    status_reason = models.CharField(max_length=255, blank=True, null=True)
+
     source = models.CharField(max_length=255, blank=True, null=True,
                               db_index=True)
     type = models.PositiveIntegerField(default=constants.TYPE_DEFAULT,
@@ -85,13 +93,14 @@ class Transaction(Model):
 
     def for_log(self):
         return (
-            'v4',  # Version.
+            'v5',  # Version.
             self.uuid,
             self.created.isoformat(),
             self.modified.isoformat(),
             self.amount,
             self.currency,
             self.status,
+            self.status_reason,
             self.buyer.uuid if self.buyer else None,
             self.seller_product.seller.uuid,
             self.source,

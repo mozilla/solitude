@@ -7,8 +7,12 @@ STATUS_CHECKED = 2
 STATUS_RECEIVED = 3
 STATUS_FAILED = 4
 STATUS_CANCELLED = 5
+# These are statuses that reflect the transactions state in solitude
+# as it is configured by the client.
+STATUS_STARTED = 6
+STATUS_ERRORED = 7
 
-STATUS_DEFAULT = STATUS_PENDING
+STATUS_DEFAULT = STATUS_STARTED
 
 STATUSES = {
     'cancelled': STATUS_CANCELLED,
@@ -17,9 +21,10 @@ STATUSES = {
     'failed': STATUS_FAILED,
     'pending': STATUS_PENDING,
     'received': STATUS_RECEIVED,
+    'started': STATUS_STARTED,
+    'errored': STATUS_ERRORED
 }
 STATUSES_INVERTED = dict((v, k) for k, v in STATUSES.items())
-
 
 TYPE_PAYMENT = 0
 TYPE_REFUND = 1

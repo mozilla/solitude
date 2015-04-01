@@ -22,7 +22,7 @@ def check_status(old, new):
     elif old['status'] == constants.STATUS_PENDING:
         return
 
-    elif old['status'] in [constants.STATUS_FAILED, constants.STATUS_CANCELLED,
+    elif old['status'] in [constants.STATUS_FAILED, constants.STATUS_ERRORED,
                            constants.STATUS_CANCELLED]:
         msg = 'Cannot change state: {0}'.format(old['status'])
         log.error(msg)
@@ -37,13 +37,24 @@ def check_status(old, new):
         log.error(msg)
         raise forms.ValidationError(msg)
 
+    if new.get('status', None) not in [constants.STATUS_STARTED,
+                                       constants.STATUS_ERRORED]:
+        if not new.get('provider', old.get('provider')):
+            raise forms.ValidationError('Provider must be set')
+
+        if not new.get('seller_product', old.get('seller_product')):
+            raise forms.ValidationError('Seller product must be set')
+
 
 class UpdateForm(ParanoidForm):
     notes = forms.CharField(required=False)
     status = forms.ChoiceField(choices=[(v, v) for v in STATUSES.values()],
                                required=False)
+    status_reason = forms.CharField(required=False)
     uid_pay = forms.CharField(required=False)
     pay_url = forms.URLField(required=False)
+    provider = forms.ChoiceField(choices=constants.PROVIDERS_CHOICES,
+                                 required=False)
 
     def __init__(self, *args, **kw):
         self.request = kw.pop('request')  # Storing request for CEF logs.
@@ -51,7 +62,12 @@ class UpdateForm(ParanoidForm):
         super(UpdateForm, self).__init__(*args, **kw)
 
     def clean(self):
-        keys = set(self.data.keys()).difference(set(self.fields.keys()))
+        fields = self.fields.keys()
+        # If the provider is already set, don't allow it to be changed.
+        if self.old.get('provider'):
+            del fields[fields.index('provider')]
+
+        keys = set(self.data.keys()).difference(set(fields))
         if keys:
             raise forms.ValidationError(
                 'Cannot alter fields: {0}'.format(', '.join(keys)))

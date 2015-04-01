@@ -202,7 +202,7 @@ payment provider, a generic product must first be created.
     * ``access``: either ``1`` seller will be used for purchasing or ``2``
       seller can only be used for simulating payments.
 
-.. http:get: /generic/product/id:int/
+.. http:get:: /generic/product/id:int/
 
     Get an existing product.
 
@@ -236,17 +236,15 @@ Transaction
 A transaction is created at the start of a payment through solitude. Its
 status is altered as the transaction is completed or cancelled as appropriate.
 
-To iterate over the list of transactions::
+To iterate over the list of transactions:
 
-    GET /generic/transaction/
+.. http:get:: /generic/transaction/
 
-To get an individual transaction::
+To get an individual transaction:
 
-    GET /generic/transaction/9/
+.. http:get:: /generic/transaction/id:int/
 
-Example response:
-
-.. code-block:: json
+    .. code-block:: json
 
         {
             "amount": "0.62",
@@ -292,24 +290,72 @@ Statuses:
 
 * 5: ``Cancelled`` - the transaction was cancelled explicitly by the user.
 
+* 6: ``Started`` - the calling application (e.g. webpay) has started preparing
+  this transaction.
 
-To create a new transaction::
+* 7: ``Errored`` - the calling application (e.g. webpay) was unable to
+  complete creating the transaction because of an error.
 
-    POST /generic/transaction/
+To create a new transaction:
 
-    {
-        "amount": "0.62",
-        "buyer": null,
-        "currency": "GBP",
-        "notes": "",
-        "pay_url": "https://provider.com/pay?transaction=1234",
-        "provider": 1,
-        "seller": "/generic/seller/385/",
-        "seller_product": "/generic/product/449/",
-        "source": "bango",
-        "status": 5,
-        "type": 0,
-        "uid_pay": "230450",
-        "uid_support": "0",
-        "uuid": "webpay:d8d143f3-d484-4903-bd29-bae3d280c5b3"
-    }
+.. http:post:: /generic/transaction/
+
+    .. code-block:: json
+
+        {
+            "amount": "0.62",
+            "buyer": null,
+            "currency": "GBP",
+            "notes": "",
+            "pay_url": "https://provider.com/pay?transaction=1234",
+            "provider": 1,
+            "seller": "/generic/seller/385/",
+            "seller_product": "/generic/product/449/",
+            "source": "bango",
+            "status": 5,
+            "type": 0,
+            "uid_pay": "230450",
+            "uid_support": "0",
+            "uuid": "webpay:d8d143f3-d484-4903-bd29-bae3d280c5b3"
+        }
+
+
+.. http:get:: /generic/transaction/id:int/
+
+    Update an existing transaction.
+
+    .. code-block:: json
+
+        {
+            "status_reason": "PROVIDER_LOOKUP_FAILURE"
+        }
+
+    **Note:** not all fields can updated all the time, the ability to update
+    a transaction is based upon logic within the transaction.
+
+    Only the following fields can be altered without limitation.
+
+    * ``notes``
+
+    * ``pay_url``
+
+    * ``status_reason``
+
+    * ``uid_pay``
+
+    Fields that can altered with limitation:
+
+    * ``provider``: can be set, only if it is not set.
+
+    * ``status``: see status notes below.
+
+    Status changes are limited in the following way:
+
+    * if a transaction was created before ``settings.TRANSACTION_LOCKDOWN``
+      then it cannot be altered.
+
+    * if a transaction is ``Failed``, ``Cancelled`` or ``Errored`` its
+      status cannot be altered.
+
+    * if a transaction is in ``Checked`` or ``Received`` it can only be moved
+      to ``Completed`` or ``Failed``.
