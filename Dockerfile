@@ -11,7 +11,7 @@ ENV IS_DOCKER 1
 RUN mkdir -p /pip/{cache,build}
 ADD requirements /pip/requirements
 WORKDIR /pip
-RUN pip install -b /pip/build --download-cache /pip/cache --no-deps -r /pip/requirements/dev.txt
+RUN pip install -b /pip/build --download-cache /pip/cache --no-deps -r /pip/requirements/dev.txt --find-links https://pyrepo.addons.mozilla.org/
 
 # Technically this should be in supervisor.conf, if the value is placed there,
 # when you enter a bash prompt on the container this value is unset. Meaning
