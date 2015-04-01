@@ -209,9 +209,6 @@ class CreateBillingConfigurationForm(SellerProductForm):
     user_uuid = forms.CharField()
     icon_url = forms.URLField(required=False)
     application_size = forms.IntegerField(required=False)  # In bytes.
-    source = forms.CharField(required=False)
-    carrier = forms.CharField(required=False)
-    region = forms.CharField(required=False)
 
     @property
     def bango_data(self):
@@ -221,8 +218,7 @@ class CreateBillingConfigurationForm(SellerProductForm):
         application_size = data.get('application_size', 1) or 1
         application_size = long(application_size) / 1024 or 1
         data['application_size'] = int(application_size)
-        # Things that we should not pass on to Bango.
-        for k in ['prices', 'source', 'carrier', 'region']:
+        for k in ['prices']:
             del data[k]
 
         return data

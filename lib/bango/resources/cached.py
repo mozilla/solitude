@@ -1,9 +1,8 @@
 from django.core.urlresolvers import reverse
 
 from solitude.base import Cached, Resource as TastypieBaseResource
-from ..client import format_client_error, get_client, response_to_dict
+from ..client import format_client_error, get_client
 from ..errors import BangoFormError
-from ..signals import create
 
 
 class BangoResource(object):
@@ -73,8 +72,6 @@ class SimpleResource(Resource):
         if not form.is_valid():
             raise self.form_errors(form)
 
-        resp = self.client(self._meta.simple_api, form.bango_data,
-                           raise_on=raise_on)
-        create.send(sender=self, bundle=bundle,
-                    data=response_to_dict(resp), form=form)
+        self.client(self._meta.simple_api, form.bango_data,
+                    raise_on=raise_on)
         return bundle
