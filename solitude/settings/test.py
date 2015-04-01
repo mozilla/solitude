@@ -4,7 +4,7 @@ import os
 import shutil
 from tempfile import gettempdir
 
-from solitude.settings.base import *  # flake8: noqa
+from solitude.settings.base import *  # noqa
 
 filename = os.path.join(os.path.dirname(__file__), 'sample.key')
 
@@ -61,6 +61,7 @@ SEND_USER_ID_TO_BANGO = True
 CHECK_BANGO_TOKEN = True
 
 REQUIRE_OAUTH = False
+
 
 # Suds keeps a cache of the WSDL around, so after completing the test run,
 # lets remove that so it doesn't affect the next test run.

@@ -10,7 +10,7 @@ wsgidir = os.path.dirname(__file__)
 site.addsitedir(os.path.abspath(os.path.join(wsgidir, '../')))
 
 # manage adds /apps, /lib, and /vendor to the Python path.
-import manage  # flake8: noqa
+import manage  # noqa
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
