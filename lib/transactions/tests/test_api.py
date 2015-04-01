@@ -60,7 +60,7 @@ class TestTransaction(APITest):
                 seller_id=self.sellers.seller.pk),
             'buyer': '/generic/buyer/{buyer_id}/'.format(
                 buyer_id=self.buyer.pk),
-            'status_reason': 'ALL_COOL'
+            'status_reason': 'ALL_COOL',
         }
         res = self.client.post(self.list_url, data=data)
 
@@ -156,6 +156,7 @@ class TestTransaction(APITest):
     def test_create_minimal(self):
         res = self.client.post(self.list_url, data={})
         eq_(res.status_code, 201)
+        eq_(json.loads(res.content)['status'], constants.STATUS_STARTED)
 
     def test_patch_minimal(self):
         res = self.client.post(self.list_url, data={})

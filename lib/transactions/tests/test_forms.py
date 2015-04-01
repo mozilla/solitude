@@ -60,11 +60,25 @@ class TestForm(APITest):
                           'status': constants.STATUS_STARTED},
                          {'status': constants.STATUS_COMPLETED})
 
+    def test_seller_product_needed(self):
         with self.assertRaises(ValidationError):
             check_status({'status': constants.STATUS_STARTED,
                           'provider': constants.PROVIDER_BOKU,
                           'created': datetime.now()},
                          {'status': constants.STATUS_COMPLETED})
+
+    def test_provide_set_twice(self):
+        form = UpdateForm(
+            {'status': constants.STATUS_CHECKED,
+             'provider': constants.PROVIDER_BOKU},
+            original_data={
+                'created': datetime.now(),
+                'status': constants.STATUS_COMPLETED,
+                'provider': constants.PROVIDER_BANGO,
+                'seller_product': 1,
+                },
+            request=self.req)
+        assert not form.is_valid()
 
     @patch('solitude.base._log_cef')
     def test_cef_ok(self, _log_cef):
