@@ -5,13 +5,16 @@ Authentication
 
 Most API requests can enforce zero-legged OAuth by having a shared key and
 secret on the servers. This allows solitude to check the client sending
-requests is allowed to do so. By default, this is `False`.
-
-To enable `REQUIRE_OAUTH` to `True` and enter the keys that are required,
-for example::
+requests is allowed to do so. By default, this is `True`::
 
     REQUIRE_OAUTH = True
-    CLIENT_OAUTH_KEYS = {'webpay': 'some-big-secret'}
+    CLIENT_OAUTH_KEYS = {
+        'marketplace': 'please change this',
+        'webpay': 'please change this',
+    }
+
+In development, you might want to connect with curl and other tools. For that
+alter the `REQUIRE_OAUTH` setting to `False`.
 
 .. note::
 

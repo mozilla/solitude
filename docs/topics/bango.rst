@@ -3,6 +3,8 @@
 Bango
 #####
 
+For more information on the specific Bango APIs see: https://wiki.mozilla.org/Marketplace/BangoPayments
+
 Sellers
 =======
 
@@ -23,8 +25,6 @@ need to create a Bango "package" by doing a POST call:
 
 Packages
 ========
-
-TODO: insert more notes about packages.
 
 A `GET` on a package will query the local solitude database about that package:
 
@@ -147,7 +147,9 @@ The refund API gives access to two Bango calls: "DoRefund" and
 
     .. code-block:: json
 
-        {"uuid": "uuid-of-the-payment-transaction"}
+        {
+            "uuid": "uuid-of-the-payment-transaction"
+        }
 
     **Response**
 
@@ -190,7 +192,9 @@ The refund API gives access to two Bango calls: "DoRefund" and
 
     .. code-block:: json
 
-        {"uuid": "sample:uid"}
+        {
+            "uuid": "sample:uid"
+        }
 
     **Response**
 

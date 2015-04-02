@@ -12,122 +12,229 @@ Buyers are identified by a UUID, which is a string (max 255 chars) that makes
 sense to the client. It must be unique within solitude, so we'd recommend
 prefixing the UUID, eg: `marketplace:<your-uuid>`
 
+*Note*: after `spartacus was merged <https://github.com/mozilla/spartacus/>`_
+some of these fields and features were no longer needed but remain in service.
+
 Create
 ------
 
 Buyers are added to solitude by an HTTP `POST` call. The POST should contain
-a unique UUID as well as the PIN the buyer has chosen::
+a unique UUID as well as the PIN the buyer has chosen:
 
-    POST /generic/buyer/
-    {"uuid": "93e33277-87f7-417b-8ed2-371672b5297e",
-     "pin": "8472"}
+.. http:post:: /generic/buyer/
 
-Get Details
------------
-
-You can also get the details of a buyer:
-
-.. http:get:: /generic/buyer/64/
+    **Request**
 
     .. code-block:: json
 
         {
             "uuid": "93e33277-87f7-417b-8ed2-371672b5297e",
-            "resource_uri": "/generic/buyer/66/",
-            "pin": true,
-            "pin_confirmed": false,
-            "new_pin": false,
-            "active": true,
-            "needs_pin_reset": false,
-            "pin_failures": 0,
-            "pin_locked_out": false
+            "pin": "8472"
         }
 
+    **Response**
+
+    .. code-block:: json
+
+        {
+            "active": false,
+            "counter": null,
+            "email": "",
+            "needs_pin_reset": false,
+            "new_pin": false,
+            "pin": false,
+            "pin_confirmed": false,
+            "pin_failures": 0,
+            "pin_is_locked_out": false,
+            "pin_was_locked_out": false,
+            "resource_pk": 4,
+            "resource_uri": "/generic/buyer/4/",
+            "uuid": "93e33277-87f7-417b-8ed2-371672b5297e"
+        }
+
+    :status 201: successfully processed.
+
+You can also get the details of a buyer:
+
+.. http:get:: /generic/buyer/int:id/
+
+    **Response**
+
+    .. code-block:: json
+
+        {
+            "active": false,
+            "counter": null,
+            "email": "",
+            "needs_pin_reset": false,
+            "new_pin": false,
+            "pin": false,
+            "pin_confirmed": false,
+            "pin_failures": 0,
+            "pin_is_locked_out": false,
+            "pin_was_locked_out": false,
+            "resource_pk": 4,
+            "resource_uri": "/generic/buyer/4/",
+            "uuid": "93e33277-87f7-417b-8ed2-371672b5297e"
+        }
+
+    :param email: users email address.
+    :param type: string
+    :param pin: in a POST a PIN is a string, but in responses, the PIN is never
+    returned. It returns a boolean, `true` if a PIN is present, `false` if not.
+    :param type: boolean
+    :param pin_confirmed: if the pin has been confirmed.
+    :param type: boolean
+    :param new_pin: a `new_pin` so that a confirmation can be made.
+    :param type: boolean
+    :param active: if the buyer is currently active or not, defaults to `true`
+    :param type: boolean
+    :param pin_locked_out: if the PIN is currently locked out.
+    :param type: boolean
+    :param pin_failures: the number of failed PIN entries. Reset to 0 on
+    successful entry. When a threshold is reached defined by `PIN_FAILURES` in
+    settings.
+    :param type: int
 
 Confirm PIN
 -----------
 
 Once you have created a buyer with a PIN, you'll need to have the buyer confirm
 their PIN. Once you've received their confirmed PIN you can POST to the
-``confirm_pin`` endpoint like so::
+``confirm_pin`` endpoint like so:
 
-    POST /generic/confirm_pin/
-    {"uuid": "93e33277-87f7-417b-8ed2-371672b5297e",
-     "pin": "8472"}
+.. http:post:: /generic/confirm_pin/
 
-Which will return whether it succeeded or not:
+    **Request**
 
-.. code-block:: javascript
+    .. code-block:: json
 
-    {"confirmed": true}
+        {
+            "uuid": "93e33277-87f7-417b-8ed2-371672b5297e",
+            "pin": "8472"
+        }
 
-If there were errors they'll appear like so:
+    **Response**
 
-.. code-block:: javascript
+    .. code-block:: json
 
-    {"confirmed": false,
-     "errors": {"uuid": ["Uuid does not exist."]}}
+        {
+            "confirmed": false,
+            "resource_pk": "confirm_pin",
+            "resource_uri": "no_uri",
+            "uuid": "93e33277-87f7-417b-8ed2-371672b5297e"
+        }
 
+    :status 200: uuid found and PIN processed, check `confirmed` in the result
+    :status 404: uuid not found.
+
+    :param confirmed: if `true` the PIN matched, if `false` the PIN did not
+    match.
+    :type confirmed: boolean
 
 Verify PIN
 ----------
 
 Once you have a buyer with a confirmed pin, the next time they go to purchase
-something you can simply verify their PIN using the ``verify_pin`` endpoint::
+something you can simply verify their PIN using the ``verify_pin`` endpoint:
 
-    POST /generic/verify_pin/
-    {"uuid": "93e33277-87f7-417b-8ed2-371672b5297e",
-     "pin": "8472"}
+.. http:post:: /generic/verify_pin/
 
-Which has a return value that looks like:
+    **Request**
 
-.. code-block:: javascript
+    .. code-block:: json
 
-    {"valid": true,
-     "locked": false}
+        {
+            "pin": "1224",
+            "uuid": "93e33277-87f7-417b-8ed2-371672b5297e"
+        }
+
+    **Response**
+
+    .. code-block:: json
+
+        {
+            "locked": false,
+            "pin": "1224",
+            "resource_pk": "verify_pin",
+            "resource_uri": "no_uri",
+            "uuid": "93e33277-87f7-417b-8ed2-371672b5297e",
+            "valid": false
+        }
 
 Errors are handled much in the same way as ``confirm_pin``. Calling this
 endpoint 5 times with the wrong PIN will lock the buyer. See `Locked State`_
 for more information.
 
+This change in state is the reason there is no `GET` endpoint for this API.
+
 Reset
 -----
 
 To start the reset flow, set the ``needs_pin_reset`` attribute on the buyer by
-patching the buyer::
+patching the buyer:
 
-    PATCH /generic/buyer/66/
-    {"needs_pin_reset": true}
+.. http:patch:: /generic/buyer/int:id/
 
-Which returns nothing if it worked. It will 404 if the buyer does not exist.
+    **Request**
 
-Next you get the buyer's new pin and patch the buyer again::
+    .. code-block:: json
 
-    PATCH /generic/buyer/66/
-    {"new_pin": "8259"}
+        {
+            "needs_pin_reset": true
+        }
 
-Which again returns nothing if it worked and 404 if the buyer does not exist.
+    **Response**
+
+    :status 202: response processed.
+    :status 404: buyer not found.
+
+Next you get the buyer's new pin and patch the buyer again:
+
+.. http:patch:: /generic/buyer/int:id/
+
+    **Request**
+
+    .. code-block:: json
+
+        {
+            "new_pin": "8259"
+        }
+
+    **Response**
+
+    :status 202: response processed.
+    :status 404: buyer not found.
 
 After these two steps you will use the ``reset_confirm_pin`` endpoint. It works
 the same way as the ``confirm_pin`` endpoint but instead checks against the
-buyer's ``new_pin`` rather than their ``pin``::
+buyer's ``new_pin`` rather than their ``pin``:
 
-    POST /generic/reset_confirm_pin/
-    {"uuid": "93e33277-87f7-417b-8ed2-371672b5297e",
-     "pin": "8259"}
+.. htp:post::: /generic/reset_confirm_pin/
 
-This will return whether it was confirmed:
+    **Request**
 
-.. code-block:: javascript
+    .. code-block:: json
 
-    {"confirmed": true}
+        {
+            "uuid": "93e33277-87f7-417b-8ed2-371672b5297e",
+            "pin": "8259"
+        }
 
-If there were errors they'll appear like so:
+    **Response**
 
-.. code-block:: json
+    .. code-block:: json
 
-    {"confirmed": false,
-     "errors": {"uuid": ["Uuid does not exist."]}}
+        {
+            "confirmed": false,
+            "resource_pk": "reset_confirm_pin",
+            "resource_uri": "no_uri",
+            "uuid": "93e33277-87f7-417b-8ed2-371672b5297e"
+        }
+
+
+    :status 200: uuid found and PIN processed, check `confirmed` in the result
+    :status 404: uuid not found.
 
 Locked State
 ------------

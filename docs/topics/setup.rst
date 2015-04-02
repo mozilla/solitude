@@ -3,13 +3,8 @@
 Setup
 #####
 
-This is a standard Django or Playdoh project so the setup should be pretty
-straight forward. Requirements:
-
-* MySQL
-* Python 2.7
-
-For more information see the playdoh_ installation docs.
+The recommended way to run solitude is in Docker. For running solitude in the
+marketplace environment, we recommend using Docker and reading the `marketplace docs <https://marketplace.readthedocs.org/en/latest/topics/backend.html>`_
 
 Requirements
 ------------
@@ -52,26 +47,6 @@ Create an empty settings::
 
     cd solitude/settings
     echo "from . import base" > local.py
-
-Environment settings
-~~~~~~~~~~~~~~~~~~~~
-
-Out of the box, zamboni should work without any need for settings changes. A
-few settings are configurable from the environment, they are:
-
-* ``DATABASE``: from the ``SOLITUDE_DATABASE`` environment variable, configured
-  using https://github.com/kennethreitz/dj-database-url. Example and default::
-
-    export ZAMBONI_DATABASE=mysql://root:@localhostyy:3306/zamboni
-
-* ``MEMCACHE_URL``: from the ``MEMCACHE_URL`` environment variable, example::
-
-    export MEMCACHE_URL=localhost:11211
-
-* ``SOLITUDE_PROXY``: from the ``SOLITUDE_PROXY`` environment variable. Set
-  this to 'enabled' to turn on the solitude proxy. Example::
-
-    export SOLITUDE_PROXY=enabled
 
 Bango settings
 ~~~~~~~~~~~~~~
@@ -128,42 +103,6 @@ than paas, then alter `ZIPPY_CONFIGURATION`, for example::
 * `url`: the location of the zippy server.
 * `auth`: the key, secret and realm used for calculating the oAuth. Zippy must
   have the same configuration.
-
-Running Locally
-~~~~~~~~~~~~~~~
-
-Create the database using the same name from settings::
-
-    mysql -u root -e 'create database solitude'
-
-Then run::
-
-    schematic migrations
-
-This should set up your database.
-
-Now you can generate previously configured `.key` files::
-
-    python manage.py generate_aes_keys
-
-If you can run the server by doing the following::
-
-    python manage.py runserver localhost:9000
-
-And then::
-
-    curl http://localhost:9000/services/status/
-
-You should get a response similar to this:
-
-.. code-block:: javascript
-
-    {
-        "cache": true,
-        "proxies": true,
-        "db": true,
-        "settings": true
-    }
 
 Optional settings
 -----------------

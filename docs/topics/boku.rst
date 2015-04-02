@@ -5,7 +5,7 @@ Boku
 
 For information on how to integrate with Boku see the Boku technical
 documentation. Unfortunately this is not public documentation and is available
-on the Mozilla mana server, which is only available to Mozilla employees.
+on the Mozilla mana server, which is only available to Mozilla employees at: https://mana.mozilla.org/wiki/display/MARKET/Boku
 
 Verify Service ID
 =================
