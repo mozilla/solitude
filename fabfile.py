@@ -143,6 +143,8 @@ def deploy_jenkins():
     with lcd(install_path):
         local('../venv/bin/python manage.py statsd_ping --key=update')
 
+    r.clean()
+
 
 @task
 def update():
