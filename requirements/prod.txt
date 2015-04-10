@@ -2,50 +2,128 @@
 # needed to run the site, it belongs in requirements/prod.txt. If it's a
 # package for developers (testing, docs, etc.), it goes in this file.
 
+# sha256: 7sV9MhlQHsbmhWRoJvLrjndoepP-N0p-aZRJBSDbCT4
 Django==1.7.7
-amqplib==1.0.2
-anyjson==0.3.3
-billiard==2.7.3.17
-boto==2.9.0
-braintree==3.12.0
-cef==0.5
-commonware==0.4.0
-curling==0.3.9
-dj-database-url==0.2.1
-django-aesfield==0.1.2
-django-extensions==0.9
-django-filter==0.6
-django-multidb-router==0.5
-django-nose==1.3
-django-paranoia==0.1.7
-django-raven-metlog==0.1
-django-sha2==0.4
-django-statsd-mozilla==0.3.8.3
-djangorestframework==2.3.9
-gunicorn==0.17.2
-httplib2==0.7.6
-lxml==2.2.6
-m2secret==0.1.1
-metlog-cef==0.2
-metlog-py==0.9.8
-mimeparse==0.1.3
-mobile-codes==0.1.1
-mock==1.0b1
-mozilla-logger==0.2
-newrelic==2.4.0.4
-nose==1.2.1
-oauth2==1.5.211
-py-bcrypt==0.4
-python-dateutil==1.5
-python-memcached==1.48
-raven==4.2.3
-requests==0.14.1
-schematic==0.2
-six==1.2.0
-slumber==0.5.3
-statsd==1.0.0
-suds==0.4
-tower==0.3.4
 
-# not on pypi
-git+https://github.com/mozilla/nuggets.git@96e80a64aa4bfcfef4f43fc3ab6966450ccd7325#egg=nuggets
+# sha256: 6U5suTX9CqWjpE2PfrrFvc5pRRHDDa0QzFdAsFazDqo
+amqplib==1.0.2
+
+# sha256: Xb80vULSLAH8xIvkc1U46CBtbBQlOr0Z_Zj8Ctkgkto
+anyjson==0.3.3
+
+# sha256: S8R_pBVotR6tfi48s5CqOE-OHD--ydNdru1F8xvwbaQ
+billiard==2.7.3.17
+
+# sha256: MMk_eIkqYbLqUHZ0DJKjkgZgk7cMJCpjlWkxGMBzG7c
+boto==2.9.0
+
+# sha256: _j2iOsNV182HHtbm222XK1UwKhh4sixWgbfB_tl5leA
+braintree==3.12.0
+
+# sha256: aslNS1_ZFqPoFu5Zt30n-tyaC4b1y2HvjiL1vIxiPWI
+cef==0.5
+
+# sha256: ejwKYfWGOWPr5AtQ2oV1-JehGauNUN_RoJ6k7TF3Zjs
+curling==0.3.9
+
+# sha256: 7xusMj0aOk6u-VWdrainRc9AHCrqAsBeUGtsjTV2bdg
+dj-database-url==0.2.1
+
+# sha256: zgcxFXKqBfPqq-Egf7aEwuAbG0x5LKyuGoBMEC6JRa4
+django-aesfield==0.1.2
+
+# sha256: W_3046UzsQJxVOY3LGuR_O08UYMjvbEjRa49NPE1068
+django-extensions==0.9
+
+# sha256: kPs9bBzEbsLYZj7yp-wVQbQcquwXIIDvWyVnneHzsYw
+django-filter==0.6
+
+# sha256: 2MEGgefE5lPOIWyiWT_w_XS1ReLPxsNqZwAsvIAQglU
+django-multidb-router==0.5
+
+# sha256: NmfSakH-wwNkoO9yWAgyylMogC1VP21ucq9awhyzY2U
+django-nose==1.3
+
+# sha256: cb3z7hjFvAiXPiErR44j0g4AtSYxKigUJjUgpivH4z0
+django-paranoia==0.1.7
+
+# sha256: dfOC_U-4qYir_57r0vmCMu9gHUq0XmiDWyOHIcn1TbY
+django-raven-metlog==0.1
+
+# sha256: tC9vJeRYl_vyGby4H7krr6isginsmMKzjDuVGDU5RRU
+django-sha2==0.4
+
+# sha256: sX9GqC8t7h_IAOgAGe2eeHXOSvB6iQXv3W2mahluvEI
+django-statsd-mozilla==0.3.8.3
+
+# sha256: PehzkdnTm9Y03nglKPpF904DmHsrkUuwjxSooCSyogY
+djangorestframework==2.3.9
+
+# sha256: y9ffmfgXbpBtZkH_9qbMm6y68dVyCUTR6hYkLbf42Ew
+httplib2==0.7.6
+
+# sha256: f9NuSlY2DNXXMZ41ewSpDixrg26iIMiPlFHDAK4zzF4
+lxml==2.2.6
+
+# sha256: 4OAGEkrerWRjjMZsPNaTcSLfSgMZ7Yobb7whczHm3JY
+m2secret==0.1.1
+
+# sha256: KH8HLHL9eM7zHBSdv9TToFf1Ow5O8LUI7Gzl6g-TCWo
+metlog-cef==0.2
+
+# sha256: Vxz8EHYjsnTLoIjDu7vxSik45DuJBZmNuD3TsQXYVC4
+metlog-py==0.9.8
+
+# sha256: QrdhBWKjMuTyPu_vamhQjDcp7REkkbrEAncUcA4I-9g
+mimeparse==0.1.3
+
+# sha256: JPhqhcyYr64umRMHsVQUxocNuD2zXZh46knGyUVxenE
+mobile-codes==0.7
+
+# sha256: uDndLZwRfHAUMMFJlWkYpCOphjtIsJyQ4wpgE-fS9E8
+mock==1.0.1
+
+# sha256: Uv7_deGY27Jry3KPknbXbVvy5QIjYHEEQlwoIG1TXPw
+mozilla-logger==0.2
+
+# sha256: RP1SkpqNeercGRth-qbzzkBvnJYu168x324dWc3Mrb0
+newrelic==2.4.0.4
+
+# sha256: BJydMWAgmmYq7UgQsErz5T_QrYbqSwnM5tQXo7KVN5o
+nose==1.2.1
+
+# sha256: tTHG7k3bZ2ptsZ6BS9FwT5KJ5Wwfro7UF9brdg5SuCY
+oauth2==1.5.211
+
+# sha256: X6E7zlUUaDUNZsSINpSFBXDz2ijWhmu2OLpE_l6r2ng
+py-bcrypt==0.4
+
+# sha256: aFwGTOdTFr29NSNqh8a_kNNJvdW6ReHLWaaHs6A1DcY
+python-dateutil==1.5
+
+# sha256: U4bPZaMRffDUrzOfG5lZvG4ekTP6MvZZRDGLGDA-sQM
+python-memcached==1.48
+
+# sha256: OcbbmgjccdxTa9lJXDey3ixLhAb8KfO4RAcWcQtoHjI
+raven==4.2.3
+
+# sha256: Eglk19nvf06cYtFUCZ-hzSJgYgCpm9ZAoEL7w-TkuhY
+requests==0.14.1
+
+# sha256: WoTrFvK4EaYngC6XxylRCL5gGTGwc4mQRRjf1dNNWWw
+schematic==0.2
+
+# sha256: XbLJWpVhQcN0SJvN4lLWAgqy8nXz3wHx_SO7UBBwkPQ
+six==1.2.0
+
+# sha256: iByfRMNL3GUyURtqPCtmxf46kYvihh6d7Se829SY0DI
+slumber==0.5.3
+
+# sha256: b8m-K1ABAiDJeSylsFis9DvyJelR0Jb6WnZcjdAeCR4
+statsd==1.0.0
+
+# sha256: vUQ2H2itUMJHUcwWZTXBaOgh4fvShjhmEtv00J9EsQU
+suds==0.4
+
+# sha256: J_0grgihZer3ZVUQAI1cqb7wFOvEaZqAsjQC19_lJxc
+tower==0.3.4
