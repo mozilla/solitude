@@ -25,12 +25,9 @@ class TestProduct(APITest):
 
     def get_data(self):
         data = samples.good_bango_number
-        data['seller_product'] = self.get_detail_url(
-            'product',
-            self.objs.product.pk, api_name='generic')
-        data['seller_bango'] = self.get_detail_url(
-            'package',
-            self.objs.bango.pk, api_name='bango')
+        data['seller_product'] = self.objs.product.get_uri()
+        data['seller_bango'] = reverse('bango:package-detail',
+                                       kwargs={'pk': self.objs.bango.pk})
         return data
 
     def test(self):

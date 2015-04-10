@@ -16,20 +16,14 @@ class TestTransaction(APITest):
     def setUp(self):
         self.api_name = 'generic'
         self.uuid = 'sample:uid'
-        self.list_url = self.get_list_url('transaction')
+        self.list_url = reverse('generic:transaction-list')
         self.buyer = Buyer.objects.create(uuid='buyer_uuid')
         self.sellers = make_sellers('sample:uid')
         self.product = self.sellers.product
         self.trans = Transaction.objects.create(
             amount=5, seller_product=self.sellers.product,
             provider=constants.PROVIDER_BANGO, uuid=self.uuid)
-        self.detail_url = self.get_detail_url(self.trans.pk)
-
-    def get_detail_url(self, pk):
-        return reverse('api_dispatch_detail',
-                       kwargs={'api_name': self.api_name,
-                               'resource_name': 'transaction',
-                               'pk': pk})
+        self.detail_url = self.trans.get_uri()
 
     def test_list_allowed(self):
         self.allowed_verbs(self.list_url, ['get', 'post'])
@@ -47,7 +41,7 @@ class TestTransaction(APITest):
 
     def test_status_reason(self):
         data = {'status_reason': 'OOPS'}
-        eq_(self.client.patch(self.detail_url, data=data).status_code, 202)
+        eq_(self.client.patch(self.detail_url, data=data).status_code, 200)
         res = self.client.get(self.detail_url)
         eq_(json.loads(res.content)['status_reason'], 'OOPS')
 
@@ -85,7 +79,7 @@ class TestTransaction(APITest):
         self.trans.save()
         res = self.client.patch(
             self.detail_url, data={'provider': constants.PROVIDER_BOKU})
-        eq_(res.status_code, 202, res.content)
+        eq_(res.status_code, 200, res.content)
         res = self.client.patch(
             self.detail_url, data={'provider': constants.PROVIDER_BANGO})
         eq_(res.status_code, 400, res.content)
@@ -93,7 +87,7 @@ class TestTransaction(APITest):
     def test_patch(self):
         res = self.client.patch(
             self.detail_url, data={'status': constants.STATUS_COMPLETED})
-        eq_(res.status_code, 202, res.content)
+        eq_(res.status_code, 200, res.content)
         eq_(Transaction.objects.get(pk=self.trans.pk).status,
             constants.STATUS_COMPLETED)
 
@@ -104,13 +98,13 @@ class TestTransaction(APITest):
 
     def test_patch_uid_pay(self):
         res = self.client.patch(self.detail_url, data={'uid_pay': 'xyz'})
-        eq_(res.status_code, 202)
+        eq_(res.status_code, 200)
         eq_(self.trans.reget().uid_pay, 'xyz')
 
     def test_patch_pay_url(self):
         pay_url = 'https://bango.com/pay'
         res = self.client.patch(self.detail_url, data={'pay_url': pay_url})
-        eq_(res.status_code, 202, res.content)
+        eq_(res.status_code, 200, res.content)
         eq_(self.trans.reget().pay_url, pay_url)
 
     def test_invalid_pay_url(self):
@@ -160,14 +154,12 @@ class TestTransaction(APITest):
 
     def test_patch_minimal(self):
         res = self.client.post(self.list_url, data={})
-        pk = json.loads(res.content)['resource_pk']
-        res = self.client.patch(self.get_detail_url(pk),
+        res = self.client.patch(json.loads(res.content)['resource_uri'],
                                 data={'status': constants.STATUS_ERRORED})
-        eq_(res.status_code, 202, res.content)
+        eq_(res.status_code, 200, res.content)
 
     def test_patch_minimal_fails(self):
         res = self.client.post(self.list_url, data={})
-        pk = json.loads(res.content)['resource_pk']
-        res = self.client.patch(self.get_detail_url(pk),
+        res = self.client.patch(json.loads(res.content)['resource_uri'],
                                 data={'status': constants.STATUS_COMPLETED})
         eq_(res.status_code, 400, res.content)

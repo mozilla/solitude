@@ -8,34 +8,22 @@ from django.core.urlresolvers import reverse
 from rest_framework.exceptions import ParseError
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.response import Response
-from rest_framework.serializers import HyperlinkedModelSerializer, Serializer
 from rest_framework.viewsets import GenericViewSet, ViewSet
-from tastypie.exceptions import ImmediateHttpResponse
 
 from lib.bango.constants import STATUS_BAD, STATUS_GOOD
+from lib.bango.errors import BangoImmediateError
 from lib.bango.forms import CreateBillingConfigurationForm
 from lib.bango.models import Status
-from lib.bango.resources.billing import CreateBillingConfigurationResource
-from lib.sellers.models import SellerProductBango
+from lib.bango.serializers import SellerProductBangoOnly, StatusSerializer
+from lib.bango.views.base import BangoResource
+from lib.bango.views.billing import prepare
 from lib.transactions.constants import PROVIDER_BANGO
-from solitude.base import (CompatRelatedField, ListModelMixin,
-                           RetrieveModelMixin)
+from solitude.base import ListModelMixin, RetrieveModelMixin
 from solitude.constants import PAYMENT_METHOD_ALL
 from solitude.logger import getLogger
 
+
 log = getLogger('s.bango')
-
-
-class StatusSerializer(HyperlinkedModelSerializer):
-    seller_product_bango = CompatRelatedField(
-        source='seller_product_bango',
-        tastypie={'resource_name': 'product', 'api_name': 'bango'},
-        view_name='api_dispatch_detail',
-        queryset=SellerProductBango.objects.filter())
-
-    class Meta:
-        model = Status
-        read_only_fields = ('status', 'errors', 'created', 'modified')
 
 
 class StatusViewSet(CreateModelMixin, ListModelMixin,
@@ -50,6 +38,7 @@ class StatusViewSet(CreateModelMixin, ListModelMixin,
             self.check_bango(obj)
 
     def check_bango(self, obj):
+        view = BangoResource()
         pk = obj.seller_product_bango.pk
         form = CreateBillingConfigurationForm({
             'seller_product_bango': (
@@ -70,13 +59,12 @@ class StatusViewSet(CreateModelMixin, ListModelMixin,
             obj.save()
             raise ParseError
 
-        resource = CreateBillingConfigurationResource()
         try:
-            resource.call(form)
-        except ImmediateHttpResponse, exc:
-            log.info('Bango error: {0}'.format(pk))
+            data = prepare(form)
+            view.client('CreateBillingConfiguration', data)
+        except BangoImmediateError:
+            log.info('Bango error in check status: {0}'.format(pk))
             obj.status = STATUS_BAD
-            obj.errors = exc.response.content
             obj.save()
             return
 
@@ -85,18 +73,10 @@ class StatusViewSet(CreateModelMixin, ListModelMixin,
         obj.save()
 
 
-class DebugSerializer(Serializer):
-    seller_product_bango = CompatRelatedField(
-        source='seller_product_bango',
-        tastypie={'resource_name': 'product', 'api_name': 'bango'},
-        view_name='api_dispatch_detail',
-        queryset=SellerProductBango.objects.filter())
-
-
 class DebugViewSet(ViewSet):
 
     def list(self, request):
-        serializer = DebugSerializer(data=request.DATA)
+        serializer = SellerProductBangoOnly(data=request.DATA)
         if serializer.is_valid():
             obj = serializer.object['seller_product_bango']
             result = {
@@ -116,7 +96,8 @@ class DebugViewSet(ViewSet):
                 latest = obj.status.latest()
                 result['bango']['last_status'] = {
                     'status': latest.status,
-                    'url': reverse('status-detail', kwargs={'pk': latest.pk})
+                    'url': reverse('bango:status-detail',
+                                   kwargs={'pk': latest.pk})
                 }
             except ObjectDoesNotExist:
                 pass
@@ -127,10 +108,8 @@ class DebugViewSet(ViewSet):
                     provider=PROVIDER_BANGO).latest())
                 result['bango']['last_transaction'] = {
                     'status': latest.status,
-                    'url': reverse('api_dispatch_detail',
-                                   kwargs={'api_name': 'generic',
-                                           'resource_name': 'transaction',
-                                           'pk': latest.pk})
+                    'url': reverse('generic:transaction-detail',
+                                   kwargs={'pk': latest.pk})
                 }
             except ObjectDoesNotExist:
                 pass

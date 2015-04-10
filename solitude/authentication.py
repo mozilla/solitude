@@ -5,7 +5,6 @@ from django.conf import settings
 import oauth2
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
-from tastypie.authentication import Authentication
 
 from solitude.logger import getLogger
 from solitude.middleware import set_oauth_key
@@ -24,53 +23,6 @@ class OAuthError(RuntimeError):
 
     def __init__(self, message='OAuth error occured.'):
         self.message = message
-
-
-class OAuthAuthentication(Authentication):
-
-    """
-    This is based on https://github.com/amrox/django-tastypie-two-legged-oauth
-    with permission.
-    """
-
-    def __init__(self, realm='', consumer=None):
-        self.realm = realm
-        self.consumer = consumer
-
-    def _header(self, request):
-        return request.META.get('HTTP_AUTHORIZATION', None)
-
-    def is_authenticated(self, request, **kwargs):
-        if request.META['PATH_INFO'] in settings.SKIP_OAUTH:
-            log.debug('Skipping OAuth because of SKIP_OAUTH')
-            return True
-
-        auth_header_value = self._header(request)
-        request.OAUTH_KEY = None
-        oauth_server, oauth_request = initialize_oauth_server_request(request)
-        try:
-            key = get_oauth_consumer_key_from_header(auth_header_value)
-            if not key:
-                if settings.REQUIRE_OAUTH:
-                    log.error(u'No key to: {0}'.format(request.path))
-                    return False
-                return True
-            oauth_server.verify_request(oauth_request, Consumer(key), None)
-            request.OAUTH_KEY = key
-            set_oauth_key(key)
-            log.info(u'Access granted for: {0}, to: {1}'
-                     .format(key, request.path))
-            return True
-
-        except KeyError:
-            log.error(u'No key to: {0}'.format(request.path))
-            return False
-
-        except:
-            log.error(u'Access failed for: {0}, to: {1}'
-                      .format(key, request.path),
-                      exc_info=True)
-            return False
 
 
 class DummyUser(object):

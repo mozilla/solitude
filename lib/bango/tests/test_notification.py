@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import json
 from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from mock import Mock, patch
 from nose.tools import eq_, ok_
@@ -37,7 +37,7 @@ class TestNotification(APITest):
             uuid=self.trans_uuid,
             uid_pay='external-trans-uid'
         )
-        self.url = self.get_list_url('notification')
+        self.url = reverse('bango:notification')
         self.sig = sign(self.trans_uuid)
         p = patch('lib.bango.forms.get_client')
         self.addCleanup(p.stop)
@@ -81,12 +81,11 @@ class TestNotification(APITest):
             data.update(overrides)
         return data
 
-    def post(self, data, expected_status=201):
+    def post(self, data, expected_status=204):
         res = self.client.post(self.url, data=data)
-        eq_(res.status_code, expected_status, res.content)
-        return json.loads(res.content)
+        eq_(res.status_code, expected_status, (res.status_code, res.content))
 
-    @patch('solitude.base.log_cef')
+    @patch('lib.bango.views.notification.log_cef')
     def test_success(self, log_cef):
         self.setup_token()
         data = self.data()
@@ -232,10 +231,10 @@ class TestEvent(APITest):
             uuid=self.trans_uuid,
             uid_pay='bango-trans-uid'
         )
-        self.url = self.get_list_url('event')
+        self.url = reverse('bango:event')
 
     def post(self, data=None, notice=samples.event_notification,
-             expected=201):
+             expected=204):
         if data is None:
             data = {
                 'notification': notice,
@@ -243,13 +242,12 @@ class TestEvent(APITest):
                 'username': 'f'
             }
         res = self.client.post(self.url, data=data)
-        eq_(res.status_code, expected, res.content)
-        return json.loads(res.content)
+        eq_(res.status_code, expected, (res.status_code, res.content))
 
     def test_missing(self):
         self.post(data={}, expected=400)
 
-    @patch('solitude.base.log_cef')
+    @patch('lib.bango.views.event.log_cef')
     def test_good(self, log_cef):
         self.post()
         trans = self.trans.reget()

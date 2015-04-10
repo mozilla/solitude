@@ -192,17 +192,13 @@ def transactions_failures(request):
     for seller_product in SellerProduct.objects.filter(
             transaction__status=STATUS_FAILED):
         transaction = seller_product.transaction_set.latest('modified')
-        reverse_kwargs = {
-            'api_name': 'generic',
-            'resource_name': 'transaction',
-            'pk': transaction.pk,
-        }
         transactions.append({
             'id': transaction.id,
             'uid_support': transaction.uid_support,
             'uid_pay': transaction.uid_pay,
             'uuid': transaction.uuid,
-            'uri': reverse('api_dispatch_detail', kwargs=reverse_kwargs),
+            'uri': reverse('generic:transaction-detail',
+                           kwargs={'pk': transaction.id}),
             'product_id': seller_product.external_id,
         })
     return Response({'transactions': transactions})

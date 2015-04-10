@@ -18,6 +18,9 @@ from ..constants import (ALREADY_REFUNDED, BANGO_ALREADY_PREMIUM_ENABLED,
                          PAYMENT_TYPES, PENDING, SBI_ALREADY_ACCEPTED,
                          STATUS_BAD, STATUS_GOOD)
 from ..errors import BangoError
+from lib.bango.views.base import BangoResource
+from lib.bango.views.refund import RefundViewSet
+from lib.bango.views.status import Status, StatusSerializer
 from lib.buyers.models import Buyer
 from lib.sellers.models import (Seller, SellerBango, SellerProduct,
                                 SellerProductBango)
@@ -27,10 +30,7 @@ from lib.transactions.constants import (PROVIDER_BANGO, PROVIDER_BOKU,
                                         STATUS_PENDING, TYPE_REFUND,
                                         TYPE_REFUND_MANUAL)
 from lib.transactions.models import Transaction
-from ..resources.cached import BangoResource, SimpleResource
-from ..resources.refund import RefundResource
-from ..resources.status import DebugSerializer, Status, StatusSerializer
-from solitude.base import APITest, Resource as TastypieBaseResource
+from solitude.base import APITest
 from solitude.constants import PAYMENT_METHOD_ALL, PAYMENT_METHOD_OPERATOR
 
 
@@ -51,28 +51,16 @@ class BangoAPI(APITest):
         self.seller_product = self.sellers.product
         if without_product_bango:
             self.sellers.product_bango.delete()
-        self.seller_bango_uri = self.get_detail_url('package',
-                                                    self.seller_bango.pk)
-        self.seller_product_uri = self.get_detail_url('product',
-                                                      self.seller_product.pk,
-                                                      api_name='generic')
-        self.package_uri = self.get_detail_url('package', self.seller_bango.pk)
-
-
-class TestSimple(APITest):
-
-    def test_raises(self):
-        class Foo(SimpleResource):
-            pass
-
-        with self.assertRaises(ValueError):
-            Foo().check_meta()
+        self.seller_bango_uri = self.seller_bango.get_uri()
+        self.seller_product_uri = self.seller_product.get_uri()
+        # Not sure why this is the same as seller bango uri.
+        self.package_uri = self.seller_bango.get_uri()
 
 
 class TestError(APITest):
 
     def test_form_error(self):
-        class Foo(TastypieBaseResource, BangoResource):
+        class Foo(BangoResource):
             error_lookup = {'INVALID': 'name'}
 
         class Error(object):
@@ -83,11 +71,11 @@ class TestError(APITest):
 
         foo = Foo()
         # Got the lookup right.
-        eq_(foo.handle_form_error(Error('foo', 'bar')).errors,
+        eq_(foo.client_errors(Error('foo', 'bar')).errors,
             {'__all__': ['bar'], '__type__': 'bango', '__bango__': 'foo'})
 
         # Got the lookup wrong.
-        eq_(foo.handle_form_error(Error('INVALID', 'thing!')).errors,
+        eq_(foo.client_errors(Error('INVALID', 'thing!')).errors,
             {'name': ['thing!'], '__type__': 'bango', '__bango__': 'INVALID'})
 
 
@@ -95,7 +83,7 @@ class TestLoginResource(BangoAPI):
 
     def setUp(self):
         super(TestLoginResource, self).setUp()
-        self.login_url = reverse('bango.login')
+        self.login_url = reverse('bango:bango.login')
         self.overrides = {}
 
     def test_nodata(self):
@@ -158,7 +146,7 @@ class TestPackageResource(BangoAPI):
 
     def setUp(self):
         super(TestPackageResource, self).setUp()
-        self.list_url = self.get_list_url('package')
+        self.list_url = reverse('bango:package-list')
 
     def test_list_allowed(self):
         self.allowed_verbs(self.list_url, ['get', 'post'])
@@ -216,22 +204,9 @@ class TestPackageResource(BangoAPI):
         eq_(json.loads(res.content)['companyName'],
             ['This field is required.'])
 
-    # TODO: probably should inject this in a better way.
-    @mock.patch.object(ClientMock, 'mock_results')
-    @mock.patch.object(settings, 'DEBUG', False)
-    def test_bango_fail(self, mock_results):
-        post = samples.good_address.copy()
-        post['seller'] = ('/generic/seller/%s/' %
-                          Seller.objects.create(uuid=self.uuid).pk)
-        res = self.client.post(self.list_url, data=post)
-        mock_results.return_value = {'responseCode': 'FAIL'}
-        res = self.client.post(self.list_url, data=samples.good_address)
-        eq_(res.status_code, 500)
-
     def test_get_allowed(self):
         self.create()
-        url = self.get_detail_url('package', self.seller_bango.pk)
-        self.allowed_verbs(url, ['get', 'patch'])
+        self.allowed_verbs(self.seller_bango.get_uri(), ['get', 'patch'])
 
     def test_get(self):
         self.create()
@@ -242,8 +217,7 @@ class TestPackageResource(BangoAPI):
 
     def test_get_generic(self):
         self.create()
-        url = self.get_detail_url('seller', self.seller.pk, api_name='generic')
-        data = json.loads(self.client.get(url).content)
+        data = json.loads(self.client.get(self.seller.get_uri()).content)
         eq_(data['bango']['resource_pk'], self.seller_bango.pk)
 
     def patch_data(self):
@@ -271,7 +245,7 @@ class TestPackageResource(BangoAPI):
         old_finance = seller_bango.finance_person_id
 
         res = self.client.patch(self.package_uri, data=self.patch_data())
-        eq_(res.status_code, 202, res.content)
+        eq_(res.status_code, 201, res.content)
 
         seller_bango = seller_bango.reget()
         ok_(seller_bango.support_person_id != old_support)
@@ -294,7 +268,7 @@ class TestPackageResource(BangoAPI):
         old_finance = seller_bango.finance_person_id
 
         res = self.client.patch(self.package_uri, data=self.patch_data())
-        eq_(res.status_code, 202, res.content)
+        eq_(res.status_code, 201, (res.status_code, res.content))
 
         seller_bango = seller_bango.reget()
         eq_(seller_bango.support_person_id, old_support)
@@ -311,7 +285,7 @@ class TestPackageResource(BangoAPI):
         self.create()
 
         res = self.client.patch(self.package_uri, data=self.patch_data())
-        eq_(res.status_code, 202, res.content)
+        eq_(res.status_code, 201, res.content)
 
     @mock.patch.object(ClientMock, 'mock_results')
     def test_delete_vat(self, mock_results):
@@ -322,7 +296,7 @@ class TestPackageResource(BangoAPI):
         data['vatNumber'] = ''
         self.create()
         res = self.client.patch(self.package_uri, data=data)
-        eq_(res.status_code, 202, res.content)
+        eq_(res.status_code, 201, res.content)
         eq_([c[0][0] for c in mock_results.call_args_list],
             ['UpdateFinanceEmailAddress', 'UpdateSupportEmailAddress',
              'UpdateAddressDetails', 'DeleteVATNumber'])
@@ -332,14 +306,14 @@ class TestPackageResource(BangoAPI):
         mock_results.return_value = self.ok()
         self.create()
         res = self.client.patch(self.package_uri, data=self.patch_data())
-        eq_(res.status_code, 202, res.content)
+        eq_(res.status_code, 201, res.content)
         eq_([c[0][0] for c in mock_results.call_args_list],
             ['UpdateFinanceEmailAddress', 'UpdateSupportEmailAddress',
              'UpdateAddressDetails', 'SetVATNumber'])
 
     def test_get_full(self):
         self.create()
-        url = self.get_detail_url('package', self.seller_bango.pk)
+        url = self.seller_bango.get_uri()
         res = self.client.get_with_body(url, data={'full': True})
         data = json.loads(res.content)
         eq_(data['full']['countryIso'], 'BMU')
@@ -349,7 +323,7 @@ class TestBangoProduct(BangoAPI):
 
     def setUp(self):
         super(TestBangoProduct, self).setUp()
-        self.list_url = self.get_list_url('product')
+        self.list_url = reverse('bango:product-list')
 
     def test_list_allowed(self):
         self.allowed_verbs(self.list_url, ['post', 'get'])
@@ -414,12 +388,12 @@ class SellerProductBangoBase(BangoAPI):
 
 class TestBangoMarkPremium(SellerProductBangoBase):
 
-    def test_list_allowed(self):
-        self.allowed_verbs(self.list_url, ['post'])
-
     def setUp(self):
         super(TestBangoMarkPremium, self).setUp()
-        self.list_url = self.get_list_url('premium')
+        self.list_url = reverse('bango:premium')
+
+    def test_list_allowed(self):
+        self.allowed_verbs(self.list_url, ['post'])
 
     def create(self):
         super(TestBangoMarkPremium, self).create()
@@ -429,7 +403,7 @@ class TestBangoMarkPremium(SellerProductBangoBase):
 
     def test_mark(self):
         res = self.client.post(self.list_url, data=self.create())
-        eq_(res.status_code, 201)
+        eq_(res.status_code, 200)
 
     def test_fail(self):
         data = self.create()
@@ -472,14 +446,14 @@ class TestBangoUpdateRating(SellerProductBangoBase):
 
     def setUp(self):
         super(TestBangoUpdateRating, self).setUp()
-        self.list_url = self.get_list_url('rating')
+        self.list_url = reverse('bango:rating')
 
     def test_update(self):
         self.create()
         data = samples.good_update_rating.copy()
         data['seller_product_bango'] = self.seller_product_bango_uri
         res = self.client.post(self.list_url, data=data)
-        eq_(res.status_code, 201, res.content)
+        eq_(res.status_code, 200, res.content)
 
     def test_fail(self):
         self.create()
@@ -493,12 +467,11 @@ class TestBangoUpdateRating(SellerProductBangoBase):
         self.create()
         data = samples.good_update_rating.copy()
         data['seller_product_bango'] = self.seller_product_bango_uri
-
         self.seller_product_bango.bango_id = ''
         self.seller_product_bango.save()
 
         res = self.client.post(self.list_url, data=data)
-        eq_(res.status_code, 400)
+        eq_(res.status_code, 400, (res.status_code, res.content))
         eq_(self.get_errors(res.content, 'seller_product_bango'),
             [u'Empty bango_id for: %s' % self.seller_product_bango.pk])
 
@@ -507,7 +480,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
 
     def setUp(self):
         super(TestCreateBillingConfiguration, self).setUp()
-        self.list_url = self.get_list_url('billing')
+        self.list_url = reverse('bango:billing')
 
     def create(self):
         super(TestCreateBillingConfiguration, self).create()
@@ -534,12 +507,11 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
 
     def test_good(self):
         res = self.client.post(self.list_url, data=self.good())
-        eq_(res.status_code, 201, res.content)
+        eq_(res.status_code, 200, res.content)
         assert 'billingConfigurationId' in json.loads(res.content)
         assert 'application_size' not in json.loads(res.content)
 
-    @mock.patch('lib.bango.resources.billing'
-                '.CreateBillingConfigurationResource.client')
+    @mock.patch('lib.bango.views.base.BangoResource.client')
     def test_micro_payment_cannot_use_card(self, cli):
         data = self.good()
         data['prices'] = [
@@ -550,12 +522,11 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         ]
         with self.fake_client_response(cli):
             res = self.client.post(self.list_url, data=data)
-        eq_(res.status_code, 201, res.content)
+        eq_(res.status_code, 200, res.content)
         eq_(sorted(list(cli.call_args[0][1]['typeFilter'].string)),
             sorted(list(MICRO_PAYMENT_TYPES)))
 
-    @mock.patch('lib.bango.resources.billing'
-                '.CreateBillingConfigurationResource.client')
+    @mock.patch('lib.bango.views.base.BangoResource.client')
     def test_normal_payment_mixed(self, cli):
         data = self.good()
         data['prices'] = [
@@ -566,7 +537,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         ]
         with self.fake_client_response(cli):
             res = self.client.post(self.list_url, data=data)
-        eq_(res.status_code, 201, res.content)
+        eq_(res.status_code, 200, res.content)
         eq_(sorted(list(cli.call_args[0][1]['typeFilter'].string)),
             sorted(list(PAYMENT_TYPES)))
 
@@ -575,7 +546,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         data['icon_url'] = 'http://marketplace-cdn.com/icons/1.png'
         with self.settings(BANGO_ICON_URLS=True):
             res = self.client.post(self.list_url, data=data)
-        eq_(res.status_code, 201, res.content)
+        eq_(res.status_code, 200, res.content)
         assert 'billingConfigurationId' in json.loads(res.content)
 
     def test_missing(self):
@@ -609,21 +580,20 @@ class TestCreateBankConfiguration(BangoAPI):
 
     def setUp(self):
         super(TestCreateBankConfiguration, self).setUp()
-        self.list_url = self.get_list_url('bank')
+        self.list_url = reverse('bango:bank')
 
     def test_bank(self):
         self.create()
         data = samples.good_bank_details.copy()
         data['seller_bango'] = self.seller_bango_uri
         res = self.client.post(self.list_url, data=data)
-        eq_(res.status_code, 201)
+        eq_(res.status_code, 200, res.content)
 
 
 class TestGetSBI(BangoAPI):
 
     def setUp(self):
-        self.get_url = '/bango/sbi/agreement/'
-        self.list_url = '/bango/sbi/'
+        self.get_url = self.list_url = reverse('bango:sbi')
 
     def test_not_there(self):
         res = self.client.get_with_body(
@@ -653,10 +623,10 @@ class TestGetSBI(BangoAPI):
         res = self.client.post(
             self.list_url,
             data={'seller_bango': self.seller_bango_uri})
-        eq_(res.status_code, 201)
+        eq_(res.status_code, 200)
         data = json.loads(res.content)
-        eq_(data['accepted'], '2014-01-23')
-        eq_(data['expires'], '2013-01-23')
+        eq_(data['accepted'], '2013-01-23 00:00:00')
+        eq_(data['expires'], '2014-01-23 00:00:00')
         eq_(str(self.seller_bango.reget().sbi_expires), '2014-01-23 00:00:00')
 
     @mock.patch.object(ClientMock, 'mock_results')
@@ -691,7 +661,7 @@ class TestRefund(APITest):
             amount=5, seller_product=self.product,
             provider=constants.PROVIDER_BANGO, uuid=self.uuid,
             status=constants.STATUS_COMPLETED)
-        self.url = self.get_list_url('refund')
+        self.url = reverse('bango:refund-list')
         self.seller_bango = self.sellers.bango
 
     def _status(self, their_status, our_status, data=None, typ=TYPE_REFUND):
@@ -699,7 +669,7 @@ class TestRefund(APITest):
         if data:
             refund_data.update(data)
         res = self.client.post(self.url, data=refund_data)
-        eq_(res.status_code, 201, res.content)
+        eq_(res.status_code, 200, res.content)
         res_data = json.loads(res.content)
         eq_(res_data['status'], their_status)
         assert res_data['uuid'] != self.uuid
@@ -772,7 +742,7 @@ class TestRefund(APITest):
             data={
                 'uuid': self.uuid,
                 'fake_response': {'responseCode': OK}})
-        eq_(res.status_code, 201)
+        eq_(res.status_code, 200)
 
     @mock.patch.object(settings, 'BANGO_FAKE_REFUNDS', True)
     def test_fake_already(self):
@@ -787,7 +757,7 @@ class TestRefund(APITest):
     def test_fake_not_given(self):
         # No fake given, returning the default OK response
         res = self.client.post(self.url, data={'uuid': self.uuid})
-        eq_(res.status_code, 201)
+        eq_(res.status_code, 200)
 
 
 class TestRefundStatus(APITest):
@@ -804,7 +774,8 @@ class TestRefundStatus(APITest):
             provider=constants.PROVIDER_BANGO,
             uuid=self.refund_uuid, uid_pay='asd',
             status=constants.STATUS_COMPLETED)
-        self.url = '/bango/refund/status/'
+
+        self.url = reverse('bango:refund-list')
 
     def test_get(self):
         res = self.client.get_with_body(self.url,
@@ -827,7 +798,7 @@ class TestRefundStatus(APITest):
 
         res = self.client.get_with_body(self.url,
                                         data={'uuid': self.refund_uuid})
-        eq_(res.status_code, 400)
+        eq_(res.status_code, 400, (res.status_code, res.content))
         ok_(self.get_errors(res.content, 'uuid'))
 
     @mock.patch.object(ClientMock, 'mock_results')
@@ -924,7 +895,7 @@ class TestRefundStatus(APITest):
 class TestResource(test.TestCase):
 
     def setUp(self):
-        self.res = RefundResource()
+        self.res = RefundViewSet()
 
     @mock.patch.object(settings, 'BANGO_FAKE_REFUNDS', False)
     def test_not_faked(self):
@@ -945,7 +916,7 @@ class TestStatus(SellerProductBangoBase):
 
     def setUp(self):
         super(TestStatus, self).setUp()
-        self.url = reverse('status-list')
+        self.url = reverse('bango:status-list')
         self.create()
 
     def data(self, overrides=None):
@@ -1010,7 +981,7 @@ class TestStatus(SellerProductBangoBase):
         mock_results.return_value = {'responseCode': 'NOPE',
                                      'responseMessage': 'wat?'}
         res = self.client.post(self.url, data=self.data())
-        eq_(res.status_code, 201, res.content)
+        eq_(res.status_code, 201, (res.status_code, res.content))
         status = Status.objects.all()[0]
         eq_(status.status, STATUS_BAD)
 
@@ -1019,7 +990,7 @@ class TestDebug(SellerProductBangoBase):
 
     def setUp(self):
         super(TestDebug, self).setUp()
-        self.url = reverse('debug-list')
+        self.url = reverse('bango:debug-list')
         self.create()
 
     def data(self, overrides=None):
@@ -1027,10 +998,6 @@ class TestDebug(SellerProductBangoBase):
         if overrides:
             default.update(overrides)
         return default
-
-    def test_serializer(self):
-        serializer = DebugSerializer(data=self.data())
-        ok_(serializer.is_valid())
 
     def test_good(self):
         res = self.client.get_with_body(self.url, data=self.data())
@@ -1049,7 +1016,7 @@ class TestDebug(SellerProductBangoBase):
         eq_(res.status_code, 200, res.content)
         data = json.loads(res.content)
         eq_(data['bango']['last_status'],
-            {'status': STATUS_GOOD, 'url': reverse('status-detail',
+            {'status': STATUS_GOOD, 'url': reverse('bango:status-detail',
                                                    kwargs={'pk': status.pk})})
         eq_(data['bango']['last_transaction'],
             {'status': STATUS_PENDING,

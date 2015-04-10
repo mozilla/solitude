@@ -2,9 +2,8 @@ from django.core.urlresolvers import reverse
 
 from rest_framework import serializers
 
-from lib.sellers.models import (Seller, SellerProduct, SellerProductReference,
-                                SellerReference)
-from solitude.base import BaseSerializer, CompatRelatedField
+from lib.sellers.models import SellerProductReference, SellerReference
+from solitude.base import BaseSerializer
 from solitude.related_fields import PathRelatedField
 
 
@@ -29,12 +28,7 @@ class Remote(BaseSerializer):
 
 class SellerReferenceSerializer(Remote, serializers.ModelSerializer):
     agreement = serializers.CharField(max_length=10)
-    seller = CompatRelatedField(
-        source='seller',
-        tastypie={'resource_name': 'seller', 'api_name': 'generic'},
-        view_name='api_dispatch_detail',
-        queryset=Seller.objects.filter(),
-    )
+    seller = PathRelatedField(view_name='generic:seller-detail')
     uuid = serializers.CharField(max_length=100)
     name = serializers.CharField(max_length=100)
     email = serializers.EmailField()
@@ -53,12 +47,7 @@ class SellerReferenceSerializer(Remote, serializers.ModelSerializer):
 
 
 class SellerProductReferenceSerializer(Remote, serializers.ModelSerializer):
-    seller_product = CompatRelatedField(
-        source='seller_product',
-        tastypie={'resource_name': 'product', 'api_name': 'generic'},
-        view_name='api_dispatch_detail',
-        queryset=SellerProduct.objects.filter()
-    )
+    seller_product = PathRelatedField(view_name='generic:sellerproduct-detail')
     seller_reference = PathRelatedField(
         many=False,
         read_only=False,

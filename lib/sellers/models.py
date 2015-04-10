@@ -1,10 +1,10 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
 from django.db import models
 
 from aesfield.field import AESField
 
-from .constants import (ACCESS_CHOICES, ACCESS_PURCHASE,
-                        EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE)
+from .constants import ACCESS_CHOICES, ACCESS_PURCHASE
 from solitude.base import Model
 
 
@@ -14,6 +14,9 @@ class Seller(Model):
 
     class Meta(Model.Meta):
         db_table = 'seller'
+
+    def get_uri(self):
+        return reverse('generic:seller-detail', kwargs={'pk': self.pk})
 
 
 class SellerProduct(Model):
@@ -36,8 +39,6 @@ class SellerProduct(Model):
     # The type of access this product key has.
     access = models.PositiveIntegerField(choices=ACCESS_CHOICES,
                                          default=ACCESS_PURCHASE)
-
-    unique_error_message = lambda *args: EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE
 
     class Meta(Model.Meta):
         db_table = 'seller_product'
@@ -67,6 +68,9 @@ class SellerProduct(Model):
 
         return providers
 
+    def get_uri(self):
+        return reverse('generic:sellerproduct-detail', kwargs={'pk': self.pk})
+
 
 class SellerBango(Model):
     seller = models.OneToOneField(Seller, related_name='bango')
@@ -81,6 +85,9 @@ class SellerBango(Model):
 
     class Meta(Model.Meta):
         db_table = 'seller_bango'
+
+    def get_uri(self):
+        return reverse('bango:package-detail', kwargs={'pk': self.pk})
 
 
 class SellerProductBango(Model):
