@@ -16,11 +16,11 @@ from suds.sax.parser import Parser
 from suds.transport import Reply
 from suds.transport.http import HttpTransport
 
-from solitude.logger import getLogger
-from .constants import (ACCESS_DENIED, HEADERS_SERVICE, HEADERS_ALLOWED,
+from .constants import (ACCESS_DENIED, HEADERS_ALLOWED, HEADERS_SERVICE,
                         INTERNAL_ERROR, SERVICE_UNAVAILABLE, WSDL_MAP,
                         WSDL_MAP_MANGLED)
 from .errors import AuthError, BangoError, BangoFormError, ProxyError
+from solitude.logger import getLogger
 
 # Add in the list of allowed methods here.
 exporter = [
@@ -98,6 +98,7 @@ log = getLogger('s.bango')
 
 
 class ReadOnlyCache(DocumentCache):
+
     """
     This is a read only cache. It's populated from the refresh_wsdl
     command and checked into github. This cache makes suds look everything
@@ -349,6 +350,7 @@ def get_client():
 
 
 class Form(object):
+
     """A fake form to reformat Bango errors into form errors."""
 
     def __init__(self, errors):

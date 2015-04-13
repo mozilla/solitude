@@ -1,12 +1,12 @@
+from django import test
 from django.conf import settings
 from django.test import RequestFactory
 
-from django import test
-from curling.lib import sign_request
 from mock import patch
 from nose.tools import eq_, ok_
 from rest_framework.exceptions import AuthenticationFailed
 
+from curling.lib import sign_request
 from solitude.authentication import (Consumer, OAuthAuthentication,
                                      RestOAuthAuthentication)
 

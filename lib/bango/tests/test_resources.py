@@ -10,6 +10,14 @@ from django.core.urlresolvers import reverse
 import mock
 from nose.tools import eq_, ok_
 
+import samples
+import utils
+from ..client import ClientMock
+from ..constants import (ALREADY_REFUNDED, BANGO_ALREADY_PREMIUM_ENABLED,
+                         CANT_REFUND, INTERNAL_ERROR, MICRO_PAYMENT_TYPES, OK,
+                         PAYMENT_TYPES, PENDING, SBI_ALREADY_ACCEPTED,
+                         STATUS_BAD, STATUS_GOOD)
+from ..errors import BangoError
 from lib.buyers.models import Buyer
 from lib.sellers.models import (Seller, SellerBango, SellerProduct,
                                 SellerProductBango)
@@ -19,21 +27,11 @@ from lib.transactions.constants import (PROVIDER_BANGO, PROVIDER_BOKU,
                                         STATUS_PENDING, TYPE_REFUND,
                                         TYPE_REFUND_MANUAL)
 from lib.transactions.models import Transaction
-from solitude.base import APITest, Resource as TastypieBaseResource
-from solitude.constants import PAYMENT_METHOD_OPERATOR, PAYMENT_METHOD_ALL
-
-from ..constants import (ALREADY_REFUNDED, BANGO_ALREADY_PREMIUM_ENABLED,
-                         CANT_REFUND, INTERNAL_ERROR, MICRO_PAYMENT_TYPES, OK,
-                         PAYMENT_TYPES, PENDING, SBI_ALREADY_ACCEPTED,
-                         STATUS_BAD, STATUS_GOOD)
-from ..client import ClientMock
-from ..errors import BangoError
-from ..resources.refund import RefundResource
 from ..resources.cached import BangoResource, SimpleResource
+from ..resources.refund import RefundResource
 from ..resources.status import DebugSerializer, Status, StatusSerializer
-
-import samples
-import utils
+from solitude.base import APITest, Resource as TastypieBaseResource
+from solitude.constants import PAYMENT_METHOD_ALL, PAYMENT_METHOD_OPERATOR
 
 
 class BangoAPI(APITest):

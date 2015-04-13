@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
-from solitude.base import CompatRelatedField
-from solitude.related_fields import PathRelatedField, PathIdentityField
 from lib.sellers.models import (Seller, SellerBoku,
                                 SellerProduct, SellerProductBoku)
+from solitude.base import CompatRelatedField
+from solitude.related_fields import PathIdentityField, PathRelatedField
 
 
 class SellerBokuSerializer(serializers.ModelSerializer):

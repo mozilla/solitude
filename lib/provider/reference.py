@@ -15,6 +15,7 @@ log = getLogger('s.provider')
 
 
 class MashupView(ProxyView):
+
     """
     Overrides the normal proxy view to first process the data locally
     and then remotely, storing data in reference_id fields on the
@@ -96,6 +97,7 @@ class MashupView(ProxyView):
 
 
 class MashupViewSet(viewsets.ModelViewSet):
+
     """
     Take a viewset and wrap it into a Mashup.
     """

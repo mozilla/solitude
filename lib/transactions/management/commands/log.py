@@ -4,12 +4,12 @@ import tempfile
 from datetime import datetime, timedelta
 from optparse import make_option
 
+from django.core.management.base import BaseCommand, CommandError
+
 from lib.transactions import constants
 from lib.transactions.models import Transaction
 from solitude.logger import getLogger
 from solitude.management.commands.push_s3 import push
-
-from django.core.management.base import BaseCommand, CommandError
 
 log = getLogger('s.transactions')
 
@@ -52,6 +52,7 @@ def generate_log(day, filename, log_type):
 
 
 class Command(BaseCommand):
+
     """
     Generate a stats log in CSV format, then uploads it to S3.
 

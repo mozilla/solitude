@@ -7,6 +7,7 @@ from tastypie.exceptions import NotFound
 
 
 class URLField(forms.CharField):
+
     """
     This is a tastypie like field that takes in a URL to a resource
     and then turns it into the object. Tastypie probably did this
@@ -36,7 +37,7 @@ class URLField(forms.CharField):
         chomped_uri = uri
 
         if prefix and chomped_uri.startswith(prefix):
-            chomped_uri = chomped_uri[len(prefix)-1:]
+            chomped_uri = chomped_uri[len(prefix) - 1:]
 
         try:
             view, args, kwargs = resolve(chomped_uri)

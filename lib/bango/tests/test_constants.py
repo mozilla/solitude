@@ -1,4 +1,4 @@
-from ..constants import match, OK, INVALID
+from ..constants import INVALID, match, OK
 
 
 def test_constants():

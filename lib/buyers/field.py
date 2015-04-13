@@ -1,5 +1,5 @@
-from django.contrib.auth.hashers import (make_password, check_password,
-                                         get_hasher)
+from django.contrib.auth.hashers import (check_password, get_hasher,
+                                         make_password)
 from django.db.models import CharField, SubfieldBase
 from django.forms import CharField as FormCharField
 
@@ -78,6 +78,7 @@ class FormHashField(FormCharField):
     # coerce True to 'True' and we wouldn't be able to tell the
     # difference between Tastypie being a pain or a user typing 'True'
     # into the PIN entry.
+
     def to_python(self, value):
         if value is None or isinstance(value, (str, unicode, bool)):
             return value

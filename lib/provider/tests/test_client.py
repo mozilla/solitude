@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from nose.tools import eq_, ok_
 
-from ..client import get_client, Client, ClientProxy
+from ..client import Client, ClientProxy, get_client
 
 
 class TestClientObj(TestCase):
@@ -16,8 +16,8 @@ class TestClientObj(TestCase):
             'bob': {
                 'url': 'http://f.com',
                 'auth': {'key': 'k', 'secret': 's'}
-                }
             }
+        }
 
         with self.settings(ZIPPY_CONFIGURATION=config):
             client = Client('bob')

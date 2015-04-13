@@ -32,6 +32,7 @@ def base_clean_pin(form, field_name='pin'):
 
 
 class PinMixin(object):
+
     def clean_pin(self):
         return base_clean_pin(self)
 
@@ -60,6 +61,7 @@ class PinForm(ParanoidForm, PinMixin):
 
 
 class BuyerFormValidation(FormValidation):
+
     def is_valid(self, bundle, request=None):
         data = bundle.data
         if data is None:

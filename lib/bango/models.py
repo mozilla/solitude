@@ -1,10 +1,8 @@
 from django.db import models
 
-from solitude.base import Model
-
-from lib.sellers.models import SellerProductBango
-
 from .constants import STATUS_CHOICES, STATUS_UNKNOWN
+from lib.sellers.models import SellerProductBango
+from solitude.base import Model
 
 
 class Status(Model):

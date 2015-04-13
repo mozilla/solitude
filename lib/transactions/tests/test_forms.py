@@ -76,7 +76,7 @@ class TestForm(APITest):
                 'status': constants.STATUS_COMPLETED,
                 'provider': constants.PROVIDER_BANGO,
                 'seller_product': 1,
-                },
+            },
             request=self.req)
         assert not form.is_valid()
 
@@ -89,7 +89,7 @@ class TestForm(APITest):
                 'status': constants.STATUS_COMPLETED,
                 'provider': constants.PROVIDER_BANGO,
                 'seller_product': 1,
-                },
+            },
             request=self.req)
         assert form.is_valid(), form.errors
         _log_cef.assert_called_with(

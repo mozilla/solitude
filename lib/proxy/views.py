@@ -12,7 +12,7 @@ from lxml import etree
 from slumber import url_join
 
 from curling.lib import sign_request
-from lib.bango.constants import HEADERS_SERVICE_GET, HEADERS_ALLOWED_INVERTED
+from lib.bango.constants import HEADERS_ALLOWED_INVERTED, HEADERS_SERVICE_GET
 from lib.boku.client import get_boku_request_signature
 from lib.proxy.constants import HEADERS_URL_GET
 from solitude.base import dump_request, dump_response
@@ -179,7 +179,7 @@ class ProviderProxy(Proxy):
         # The URL is made up of the defined scheme and host plus the trailing
         # URL after the proxy in urls.py.
         root = len(reverse('provider.proxy',
-                   kwargs={'reference_name': self.reference_name}))
+                           kwargs={'reference_name': self.reference_name}))
 
         self.url = url_join(self.config['url'],
                             request.META['PATH_INFO'][root:])

@@ -184,7 +184,7 @@ class BokuClient(object):
         for row_ref, price_row in enumerate(pricing):
             decimal_places = int(price_row['currency-decimal-places'])
             price_amount = int(price_row['price-inc-salestax'])
-            price_decimal = Decimal(price_amount) / (10**decimal_places)
+            price_decimal = Decimal(price_amount) / (10 ** decimal_places)
             # Row-ref numbers are 0-based.
             price_rows[price_decimal] = row_ref
             log.info('Boku price {price} is row-ref {row_ref}; '
@@ -308,6 +308,7 @@ mocks = {
 
 
 class MockClient(BokuClient):
+
     """
     A mock client that returns the value of mock, based on the
     action above.
@@ -321,6 +322,7 @@ class MockClient(BokuClient):
 
 
 class ProxyClient(BokuClient):
+
     """
     A client, that instead of speaking to Boku directly, sends requests to
     the solitude proxy. The solitude proxy will sign the actual request and

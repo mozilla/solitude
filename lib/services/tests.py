@@ -7,9 +7,8 @@ from django.core.urlresolvers import reverse
 from mock import patch
 from nose.tools import eq_
 
-
-from solitude.base import APITest
 from lib.services.resources import TestError
+from solitude.base import APITest
 
 
 @patch.object(settings, 'DEBUG', False)

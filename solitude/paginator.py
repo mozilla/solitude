@@ -1,9 +1,10 @@
-from rest_framework import serializers
 from rest_framework import pagination
+from rest_framework import serializers
 from rest_framework.templatetags.rest_framework import replace_query_param
 
 
 class NextPageField(serializers.Field):
+
     """Wrapper to remove absolute_uri."""
     page_field = 'page'
 
@@ -17,6 +18,7 @@ class NextPageField(serializers.Field):
 
 
 class PreviousPageField(serializers.Field):
+
     """Wrapper to remove absolute_uri."""
     page_field = 'page'
 

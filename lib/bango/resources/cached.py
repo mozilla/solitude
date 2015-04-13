@@ -1,8 +1,8 @@
 from django.core.urlresolvers import reverse
 
-from solitude.base import Cached, Resource as TastypieBaseResource
 from ..client import format_client_error, get_client
 from ..errors import BangoFormError
+from solitude.base import Cached, Resource as TastypieBaseResource
 
 
 class BangoResource(object):
@@ -48,6 +48,7 @@ class Resource(TastypieBaseResource, BangoResource):
 
 
 class SimpleResource(Resource):
+
     """
     A simple Bango base resource, for use with some of the simpler Bango APIs
     which just take data and pass it on as a POST and don't do much with the

@@ -6,6 +6,7 @@ import uuid
 import warnings
 from hashlib import md5
 
+from django import test
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
@@ -14,30 +15,28 @@ from django.db import models
 from django.db.models import F
 from django.db.models.query import QuerySet
 from django.db.models.sql.constants import LOOKUP_SEP, QUERY_TERMS
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 from django.test.client import Client
 from django.utils.decorators import method_decorator
 from django.views import debug
 from django.views.decorators.http import etag
 
 from cef import log_cef as _log_cef
-
-from rest_framework import serializers, status
 from rest_framework import mixins
+from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
-
 from tastypie import http
 from tastypie.authorization import Authorization
 from tastypie.exceptions import ImmediateHttpResponse, InvalidFilterError
 from tastypie.fields import ToOneField
-from tastypie.resources import (ModelResource as TastyPieModelResource,
-                                Resource as TastyPieResource,
-                                convert_post_to_patch)
+from tastypie.resources import (
+    convert_post_to_patch,
+    ModelResource as TastyPieModelResource,
+    Resource as TastyPieResource)
 from tastypie.utils import dict_strip_unicode_keys
 from tastypie.validation import FormValidation
-from django import test
 
 from solitude.authentication import OAuthAuthentication
 from solitude.logger import getLogger
@@ -326,6 +325,7 @@ def dump_response(response=None, **kw):
 
 
 class BaseSerializer(serializers.ModelSerializer):
+
     """
     Retains compatability between DRF and Tastypie.
     """
@@ -337,6 +337,7 @@ class BaseSerializer(serializers.ModelSerializer):
 
 
 class DRFBaseResource(object):
+
     """
     A TastypieBaseResource for DRF.
     """
@@ -346,6 +347,7 @@ class DRFBaseResource(object):
 
 
 class BaseAPIView(APIView):
+
     """
     A base APIView for DRF that we can subclass everything off of.
     """
@@ -362,6 +364,7 @@ class BaseAPIView(APIView):
 
 
 class TastypieBaseResource(object):
+
     """
     A TastypieBaseResource for Tastypie.
     """
@@ -592,6 +595,7 @@ def invert(data):
 
 
 class CompatRelatedField(PathRelatedField):
+
     """
     Compatible field for connecting Tastypie resources to
     django-rest-framework instances.
@@ -621,6 +625,7 @@ class CompatToOneField(ToOneField):
 
 
 class UpdateModelMixin(mixins.UpdateModelMixin):
+
     """
     Turns the django-rest-framework mixin into an etag-aware one.
     """
@@ -658,6 +663,7 @@ class UpdateModelMixin(mixins.UpdateModelMixin):
 
 
 class ListModelMixin(object):
+
     """
     Turns the django-rest-framework mixin into an etag-aware one.
     """
@@ -695,6 +701,7 @@ class ListModelMixin(object):
 
 
 class RetrieveModelMixin(object):
+
     """
     Turns the django-rest-framework mixin into an etag-aware one.
     """
@@ -715,6 +722,7 @@ class NonDeleteModelViewSet(
         UpdateModelMixin,
         ListModelMixin,
         GenericViewSet):
+
     """
     Same as the ModelViewSet, without the DeleteMixin. Uses our local mixins
     to give us ETag support.

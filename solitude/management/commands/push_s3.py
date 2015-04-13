@@ -7,7 +7,6 @@ from django.core.management.base import BaseCommand
 
 import boto
 from boto.s3.key import Key
-
 from solitude.logger import getLogger
 
 log = getLogger('s.s3')

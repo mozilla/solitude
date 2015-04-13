@@ -3,9 +3,9 @@ from django.db import models
 
 from aesfield.field import AESField
 
-from solitude.base import Model
 from .constants import (ACCESS_CHOICES, ACCESS_PURCHASE,
                         EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE)
+from solitude.base import Model
 
 
 class Seller(Model):
@@ -17,6 +17,7 @@ class Seller(Model):
 
 
 class SellerProduct(Model):
+
     """
     The key to a seller's generic product.
     """

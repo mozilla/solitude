@@ -1,4 +1,4 @@
-from urlparse import urlparse, parse_qs
+from urlparse import parse_qs, urlparse
 
 from django import test
 from django.conf import settings

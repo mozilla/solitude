@@ -2,7 +2,6 @@ from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.http import HttpNoContent
 
 from cached import SimpleResource
-
 from lib.bango.constants import BANGO_ALREADY_PREMIUM_ENABLED
 from lib.bango.errors import BangoFormError
 from lib.bango.forms import (CreateBankDetailsForm, MakePremiumForm,

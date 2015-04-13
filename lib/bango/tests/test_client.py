@@ -14,7 +14,7 @@ import samples
 from ..client import (Client, ClientMock, ClientProxy, dict_to_mock,
                       get_client, get_request, get_wsdl, Proxy, ReadOnlyCache,
                       response_to_dict)
-from ..constants import OK, ACCESS_DENIED, WSDL_MAP
+from ..constants import ACCESS_DENIED, OK, WSDL_MAP
 from ..errors import AuthError, BangoError, ProxyError
 
 

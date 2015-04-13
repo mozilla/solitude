@@ -2,9 +2,9 @@ from tastypie import fields
 from tastypie.constants import ALL_WITH_RELATIONS
 from tastypie.validation import FormValidation
 
-from solitude.base import ModelResource, ModelFormValidation
-from .forms import SellerValidation, SellerProductValidation
+from .forms import SellerProductValidation, SellerValidation
 from .models import Seller, SellerProduct
+from solitude.base import ModelFormValidation, ModelResource
 
 
 class SellerResource(ModelResource):

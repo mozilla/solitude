@@ -11,7 +11,7 @@ from tastypie.exceptions import ImmediateHttpResponse, InvalidFilterError
 from lib.buyers.models import Buyer
 from lib.sellers.models import Seller
 from lib.sellers.resources import SellerResource
-from solitude.base import APITest, Resource, etag_func
+from solitude.base import APITest, etag_func, Resource
 from solitude.fields import URLField
 
 

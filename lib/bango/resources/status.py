@@ -12,13 +12,12 @@ from rest_framework.serializers import HyperlinkedModelSerializer, Serializer
 from rest_framework.viewsets import GenericViewSet, ViewSet
 from tastypie.exceptions import ImmediateHttpResponse
 
-from lib.bango.models import Status
-from lib.bango.forms import CreateBillingConfigurationForm
 from lib.bango.constants import STATUS_BAD, STATUS_GOOD
+from lib.bango.forms import CreateBillingConfigurationForm
+from lib.bango.models import Status
 from lib.bango.resources.billing import CreateBillingConfigurationResource
 from lib.sellers.models import SellerProductBango
 from lib.transactions.constants import PROVIDER_BANGO
-
 from solitude.base import (CompatRelatedField, ListModelMixin,
                            RetrieveModelMixin)
 from solitude.constants import PAYMENT_METHOD_ALL

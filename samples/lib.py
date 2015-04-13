@@ -1,7 +1,8 @@
 import json
 import pprint
-import requests
 import sys
+
+import requests
 
 
 # TODO: rewrite this to use curling?

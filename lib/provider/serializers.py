@@ -2,8 +2,8 @@ from django.core.urlresolvers import reverse
 
 from rest_framework import serializers
 
-from lib.sellers.models import (Seller, SellerReference,
-                                SellerProduct, SellerProductReference)
+from lib.sellers.models import (Seller, SellerProduct, SellerProductReference,
+                                SellerReference)
 from solitude.base import BaseSerializer, CompatRelatedField
 from solitude.related_fields import PathRelatedField
 

@@ -8,17 +8,15 @@ from django.conf import settings
 from mock import Mock, patch
 from nose.tools import eq_, ok_
 
+import samples
+import utils
+from ..constants import CANCEL, OK
 from lib.sellers.models import Seller, SellerProduct
 from lib.transactions import constants
 from lib.transactions.constants import STATUS_COMPLETED
 from lib.transactions.models import Transaction
 from solitude.base import APITest
-
-from ..constants import CANCEL, OK
 from ..utils import sign
-
-import samples
-import utils
 
 
 class TestNotification(APITest):

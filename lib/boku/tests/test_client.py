@@ -9,8 +9,8 @@ from django.core.exceptions import ImproperlyConfigured
 import mock
 from nose.tools import assert_raises, eq_, ok_, raises
 
-from lib.boku.client import (get_boku_request_signature, get_client,
-                             BokuClient, BokuException,
+from lib.boku.client import (BokuClient, BokuException,
+                             get_boku_request_signature, get_client,
                              MockClient, ProxyClient)
 from lib.boku.tests import sample_xml
 

@@ -1,0 +1,3 @@
+find . -name '*.py' -exec baked -i {} \;
+find . -name '*.py' -exec autopep8 -i {} \;
+flake8 . --exclude=docs,solitude/settings/local.py

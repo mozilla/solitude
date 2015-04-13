@@ -1,15 +1,18 @@
 import json
 
 from django.conf import settings
+
 from raven.processors import Processor
 
 
 class JSONProcessor(Processor):
+
     """
     This is a sentry wrapper to process the JSON and remove anything from it
     that could be considered as leaking sensitive data. Sentry has some
     processor for doing this, but they don't work with JSON posted in the body.
     """
+
     def process(self, data, **kwargs):
         http = data.get('sentry.interfaces.Http', None)
         if not http:

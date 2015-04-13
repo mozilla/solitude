@@ -14,6 +14,7 @@ def getLogger(name=None):
 # need to do all this crap. However I've got no idea how to do that and I
 # wasted far too long on this.
 class SolitudeAdapter(logging.LoggerAdapter):
+
     """Adds OAuth user and transaction id to every logging message's kwargs."""
 
     def __init__(self, logger, extra=None):

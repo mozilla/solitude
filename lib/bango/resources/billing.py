@@ -1,12 +1,10 @@
 from django.conf import settings
 
 from cached import Resource
-
 from lib.bango.client import BangoError, get_client
 from lib.bango.constants import MICRO_PAYMENT_TYPES, PAYMENT_TYPES
 from lib.bango.forms import CreateBillingConfigurationForm
 from lib.bango.utils import sign
-
 from solitude.constants import PAYMENT_METHOD_OPERATOR
 from solitude.logger import getLogger
 
@@ -14,6 +12,7 @@ log = getLogger('s.bango')
 
 
 class CreateBillingConfigurationResource(Resource):
+
     """
     Call the Bango API to begin a payment transaction.
 

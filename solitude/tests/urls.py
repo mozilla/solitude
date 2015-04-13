@@ -1,7 +1,8 @@
 from django.conf.urls import include, patterns
-from solitude.tests.resources import FakeResource
 
 from tastypie.api import Api
+
+from solitude.tests.resources import FakeResource
 
 
 api = Api(api_name='test')

@@ -4,7 +4,6 @@ from django.dispatch import receiver
 from django_statsd.clients import statsd
 
 from lib.transactions import constants
-
 from solitude.base import Model
 from solitude.logger import getLogger
 

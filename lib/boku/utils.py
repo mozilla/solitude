@@ -2,10 +2,9 @@ from decimal import Decimal
 
 from django.conf import settings
 
-from lib.boku.constants import DECIMAL_PLACES
 from lib.boku.client import get_client
+from lib.boku.constants import DECIMAL_PLACES
 from lib.boku.errors import VerificationError
-
 from solitude.logger import getLogger
 
 log = getLogger('s.boku')

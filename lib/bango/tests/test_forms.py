@@ -7,17 +7,16 @@ from django.test import RequestFactory
 import mock
 from nose.tools import eq_, ok_, raises
 
+import samples
 from ..forms import (CreateBankDetailsForm, CreateBillingConfigurationForm,
                      CreateBillingConfigurationForm as BillingForm, EventForm,
                      NotificationForm, PackageForm, PriceForm, VatNumberForm)
-from .samples import (event_notification, good_address, good_bank_details,
-                      good_billing_request)
 from lib.sellers.models import Seller, SellerProduct
 from lib.transactions import constants
 from lib.transactions.models import Transaction
+from .samples import (event_notification, good_address, good_bank_details,
+                      good_billing_request)
 from solitude.base import APITest
-
-import samples
 
 
 @mock.patch('lib.bango.forms.URLField.clean')

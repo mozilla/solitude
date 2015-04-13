@@ -9,19 +9,20 @@ from lib.boku.utils import fix_price
 from lib.sellers.models import Seller
 from lib.transactions.constants import (PROVIDER_BOKU, STATUS_COMPLETED)
 from lib.transactions.models import Transaction
-
 from solitude.logger import getLogger
 
 log = getLogger('s.boku')
 
 
 class BokuForm(forms.Form):
+
     """
     Boku form fields all have - in them for the field names, which makes them
     hard to process in a Django form. This converts all the - to _.
 
     It does not check if that causes any conflicts.
     """
+
     def __init__(self, data=None, files=None, **kwargs):
         # Keep the unmodified data around. Useful for signature checks.
         self.unmodified_data = data
@@ -30,6 +31,7 @@ class BokuForm(forms.Form):
 
 
 class EventForm(BokuForm, BokuClientMixin):
+
     """
     A form to process the data from Boku.
 

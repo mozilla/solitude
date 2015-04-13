@@ -17,6 +17,7 @@ class NotImplementedView(BaseAPIView):
 
 
 class ProxyView(BaseAPIView):
+
     """
     This view does very little except pass the incoming API call
     straight onto the provider backend that it is a proxy too.

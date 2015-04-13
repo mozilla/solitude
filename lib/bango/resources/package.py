@@ -1,9 +1,6 @@
 from tastypie import fields
 from tastypie.constants import ALL_WITH_RELATIONS
 
-from lib.sellers.models import SellerBango, SellerProductBango
-from solitude.base import ModelFormValidation, ModelResource
-
 from cached import BangoResource
 from ..client import response_to_dict
 from ..constants import INVALID_PERSON, VAT_NUMBER_DOES_NOT_EXIST
@@ -11,6 +8,8 @@ from ..errors import BangoFormError
 from ..forms import (CreateBangoNumberForm, FinanceEmailForm, PackageForm,
                      ProductForm, SupportEmailForm, UpdateAddressForm,
                      VatNumberForm)
+from lib.sellers.models import SellerBango, SellerProductBango
+from solitude.base import ModelFormValidation, ModelResource
 
 
 class PackageResource(ModelResource, BangoResource):

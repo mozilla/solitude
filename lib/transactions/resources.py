@@ -2,10 +2,9 @@ import uuid
 
 from tastypie import fields
 
+from .forms import UpdateForm
 from lib.transactions.models import Transaction
 from solitude.base import ModelResource
-
-from .forms import UpdateForm
 
 
 class TransactionResource(ModelResource):

@@ -9,8 +9,10 @@ class BokuException(Exception):
 
 
 class VerificationError(BokuException):
+
     """Boku failed to verify the transaction."""
 
 
 class SignatureError(BokuException):
+
     """Boku failed to provide a valid signature."""

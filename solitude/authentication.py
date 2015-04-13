@@ -1,8 +1,8 @@
 from urlparse import urljoin, urlparse, urlunparse
 
 from django.conf import settings
-import oauth2
 
+import oauth2
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from tastypie.authentication import Authentication
@@ -21,11 +21,13 @@ class Consumer(object):
 
 
 class OAuthError(RuntimeError):
+
     def __init__(self, message='OAuth error occured.'):
         self.message = message
 
 
 class OAuthAuthentication(Authentication):
+
     """
     This is based on https://github.com/amrox/django-tastypie-two-legged-oauth
     with permission.
@@ -154,7 +156,7 @@ def initialize_oauth_server_request(request):
         query_string=request.META['QUERY_STRING'])
     oauth_server = oauth2.Server(signature_methods={
         'HMAC-SHA1': oauth2.SignatureMethod_HMAC_SHA1()
-        })
+    })
 
     return oauth_server, oauth_request
 

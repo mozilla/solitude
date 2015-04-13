@@ -1,9 +1,10 @@
 from django.core.urlresolvers import reverse
+
 from nose.tools import eq_
 
+from lib.sellers.models import SellerBoku, SellerProductBoku
 from ..serializers import SellerBokuSerializer, SellerProductBokuSerializer
 from .utils import SellerBokuTest, SellerProductBokuTest
-from lib.sellers.models import SellerBoku, SellerProductBoku
 
 
 class SellerBokuSerializerTests(SellerBokuTest):

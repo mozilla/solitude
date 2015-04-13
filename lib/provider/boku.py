@@ -4,10 +4,9 @@ from rest_framework import viewsets
 
 from lib.boku.constants import TRANS_STATUS_FROM_VERIFY_CODE
 from lib.boku.errors import BokuException
-from lib.boku.utils import verify
 from lib.boku.forms import EventForm
+from lib.boku.utils import verify
 from lib.transactions.constants import (STATUS_COMPLETED, STATUSES_INVERTED)
-
 from solitude.base import BaseAPIView, log_cef
 from solitude.logger import getLogger
 
@@ -15,6 +14,7 @@ log = getLogger('s.boku')
 
 
 class Event(viewsets.ViewSet, BaseAPIView):
+
     """
     Process a Boku server to server notification.
 

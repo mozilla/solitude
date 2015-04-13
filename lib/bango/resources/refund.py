@@ -17,7 +17,6 @@ from lib.transactions.constants import (STATUS_COMPLETED, STATUS_FAILED,
                                         TYPE_REFUND_MANUAL)
 from lib.transactions.models import Transaction
 from lib.transactions.resources import TransactionResource
-
 from solitude.logger import getLogger
 
 
@@ -41,6 +40,7 @@ class BangoResponse(object):
 
 
 class RefundResource(SimpleResource):
+
     """
     A specific resource for creating refunds and then checking the state of
     that refund against Bango. Since a transaction is created, you can examine

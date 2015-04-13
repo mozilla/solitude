@@ -7,7 +7,7 @@ import mock
 from nose.tools import eq_, ok_
 
 from curling.lib import HttpClientError
-from ..views import ProxyView, NoReference
+from ..views import NoReference, ProxyView
 
 
 class FakeView(ProxyView):

@@ -1,9 +1,8 @@
-from tastypie.exceptions import ImmediateHttpResponse
 from tastypie import fields
+from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.http import HttpNotFound
 
 from cached import SimpleResource
-
 from lib.bango.constants import SBI_ALREADY_ACCEPTED
 from lib.bango.errors import BangoFormError
 from lib.bango.forms import SBIForm

@@ -1,10 +1,9 @@
 from tastypie import fields
 from tastypie.validation import FormValidation
 
-from solitude.base import get_object_or_404, log_cef, ModelResource, Resource
-
 from .forms import BuyerForm, BuyerFormValidation, PinForm
 from .models import Buyer
+from solitude.base import get_object_or_404, log_cef, ModelResource, Resource
 
 
 class BuyerResource(ModelResource):

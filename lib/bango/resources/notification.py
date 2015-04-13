@@ -5,7 +5,6 @@ from lib.bango.constants import CANCEL, OK
 from lib.bango.forms import EventForm, NotificationForm
 from lib.transactions.constants import (STATUS_CANCELLED, STATUS_COMPLETED,
                                         STATUS_FAILED, STATUSES_INVERTED)
-
 from solitude.base import log_cef
 from solitude.logger import getLogger
 
@@ -13,6 +12,7 @@ log = getLogger('s.bango')
 
 
 class NotificationResource(Resource):
+
     """
     Process a Bango notification.
 

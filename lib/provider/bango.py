@@ -2,11 +2,10 @@ from django.core.urlresolvers import reverse
 
 from rest_framework.response import Response
 
-from lib.bango.resources.cached import BangoResource
 from lib.bango.forms import (CreateBangoNumberForm, MakePremiumForm,
                              UpdateRatingForm)
+from lib.bango.resources.cached import BangoResource
 from lib.sellers.models import SellerBango, SellerProduct, SellerProductBango
-
 from solitude.base import BaseAPIView, BaseSerializer, CompatRelatedField
 
 
@@ -34,6 +33,7 @@ class SellerProductBangoSerializer(BaseSerializer):
 
 
 class ProductView(BaseAPIView, BangoResource):
+
     """
     Override creating a product.
     """

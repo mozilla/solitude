@@ -5,9 +5,9 @@ from django.db import models
 
 from aesfield.field import AESField
 
-from solitude.base import Model
 from .constants import BUYER_UUID_ALREADY_EXISTS
 from .field import HashField
+from solitude.base import Model
 
 
 class Buyer(Model):

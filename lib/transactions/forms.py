@@ -7,7 +7,6 @@ from django_paranoia.forms import ParanoidForm
 
 from lib.transactions import constants
 from lib.transactions.constants import STATUSES
-
 from solitude.base import log_cef
 from solitude.logger import getLogger
 

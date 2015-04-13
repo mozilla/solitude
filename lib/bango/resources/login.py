@@ -1,10 +1,9 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from lib.bango.client import format_client_error, get_client
 from lib.bango.errors import BangoError
 from lib.bango.forms import GetEmailAddressesForm, GetLoginTokenForm
-from lib.bango.client import format_client_error, get_client
-
 from solitude.base import DRFBaseResource
 
 
