@@ -83,6 +83,23 @@ You can fake out Boku for some tasks if you'd like::
 
     BOKU_MOCK = True
 
+Braintree settings
+~~~~~~~~~~~~~~~~~~
+
+To process payments for Braintree, you will need to get a Braintree account.
+For development, use a
+`Braintree sandbox account <https://sandbox.braintreegateway.com/login>`_.
+
+Then go to Account > My User > API Keys. Alter your configration to read::
+
+    BRAINTREE_MERCHANT_ID = 'your-merchant-id'
+    BRAINTREE_PUBLIC_KEY = 'your-public-key'
+    BRAINTREE_PRIVATE_KEY = 'your-private-key'
+
+What server is connected to is controlled by::
+
+    BRAINTREE_ENVIRONMENT = 'sandbox'
+
 Zippy settings
 ~~~~~~~~~~~~~~
 
