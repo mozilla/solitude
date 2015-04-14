@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<customer>
+  <id>full</id>
+  <merchant-id>...</merchant-id>
+  <first-name>Charity</first-name>
+  <last-name>Smith</last-name>
+  <company nil="true"/>
+  <email nil="true"/>
+  <phone nil="true"/>
+  <fax nil="true"/>
+  <website nil="true"/>
+  <created-at type="datetime">2015-04-03T15:24:31Z</created-at>
+  <updated-at type="datetime">2015-04-03T15:24:32Z</updated-at>
+  <custom-fields/>
+  <credit-cards type="array">
+    <credit-card>
+      <bin>411111</bin>
+      <card-type>Visa</card-type>
+      <cardholder-name nil="true"/>
+      <commercial>Unknown</commercial>
+      <country-of-issuance>Unknown</country-of-issuance>
+      <created-at type="datetime">2015-04-03T15:24:32Z</created-at>
+      <customer-id>82238589</customer-id>
+      <customer-location>US</customer-location>
+      <debit>Unknown</debit>
+      <default type="boolean">true</default>
+      <durbin-regulated>Unknown</durbin-regulated>
+      <expiration-month>10</expiration-month>
+      <expiration-year>2020</expiration-year>
+      <expired type="boolean">false</expired>
+      <healthcare>Unknown</healthcare>
+      <image-url>https://assets.braintreegateway.com/payment_method_logo/visa.png?environment=sandbox</image-url>
+      <issuing-bank>Unknown</issuing-bank>
+      <last-4>1111</last-4>
+      <payroll>Unknown</payroll>
+      <prepaid>Unknown</prepaid>
+      <subscriptions type="array">
+        <subscription>
+          <add-ons type="array"/>
+          <balance>0.00</balance>
+          <billing-day-of-month type="integer">3</billing-day-of-month>
+          <billing-period-end-date type="date">2015-05-02</billing-period-end-date>
+          <billing-period-start-date type="date">2015-04-03</billing-period-start-date>
+          <created-at type="datetime">2015-04-03T15:24:34Z</created-at>
+          <updated-at type="datetime">2015-04-03T15:24:34Z</updated-at>
+          <current-billing-cycle type="integer">1</current-billing-cycle>
+          <days-past-due nil="true"/>
+          <discounts type="array"/>
+          <failure-count type="integer">0</failure-count>
+          <first-billing-date type="date">2015-04-03</first-billing-date>
+          <id>7gf8db</id>
+          <merchant-account-id>v2dbvygzr9zcrqmg</merchant-account-id>
+          <never-expires type="boolean">true</never-expires>
+          <next-bill-amount>10.00</next-bill-amount>
+          <next-billing-period-amount>10.00</next-billing-period-amount>
+          <next-billing-date type="date">2015-05-03</next-billing-date>
+          <number-of-billing-cycles nil="true"/>
+          <paid-through-date type="date">2015-05-02</paid-through-date>
+          <payment-method-token>j692z6</payment-method-token>
+          <plan-id>concrete-brick</plan-id>
+          <price>10.00</price>
+          <status>Active</status>
+          <trial-duration nil="true"/>
+          <trial-duration-unit>day</trial-duration-unit>
+          <trial-period type="boolean">false</trial-period>
+          <descriptor>
+            <name nil="true"/>
+            <phone nil="true"/>
+            <url nil="true"/>
+          </descriptor>
+          <transactions type="array">
+            <transaction>
+              <id>fsy878</id>
+              <status>settled</status>
+              <type>sale</type>
+              <currency-iso-code>USD</currency-iso-code>
+              <amount>10.00</amount>
+              <merchant-account-id>v2dbvygzr9zcrqmg</merchant-account-id>
+              <order-id nil="true"/>
+              <created-at type="datetime">2015-04-03T15:24:34Z</created-at>
+              <updated-at type="datetime">2015-04-03T15:24:34Z</updated-at>
+              <customer>
+                <id>82238589</id>
+                <first-name>Charity</first-name>
+                <last-name>Smith</last-name>
+                <company nil="true"/>
+                <email nil="true"/>
+                <website nil="true"/>
+                <phone nil="true"/>
+                <fax nil="true"/>
+              </customer>
+              <billing>
+                <id nil="true"/>
+                <first-name nil="true"/>
+                <last-name nil="true"/>
+                <company nil="true"/>
+                <street-address nil="true"/>
+                <extended-address nil="true"/>
+                <locality nil="true"/>
+                <region nil="true"/>
+                <postal-code nil="true"/>
+                <country-name nil="true"/>
+                <country-code-alpha2 nil="true"/>
+                <country-code-alpha3 nil="true"/>
+                <country-code-numeric nil="true"/>
+              </billing>
+              <refund-id nil="true"/>
+              <refund-ids type="array"/>
+              <refunded-transaction-id nil="true"/>
+              <settlement-batch-id>2015-04-03_v2dbvygzr9zcrqmg</settlement-batch-id>
+              <shipping>
+                <id nil="true"/>
+                <first-name nil="true"/>
+                <last-name nil="true"/>
+                <company nil="true"/>
+                <street-address nil="true"/>
+                <extended-address nil="true"/>
+                <locality nil="true"/>
+                <region nil="true"/>
+                <postal-code nil="true"/>
+                <country-name nil="true"/>
+                <country-code-alpha2 nil="true"/>
+                <country-code-alpha3 nil="true"/>
+                <country-code-numeric nil="true"/>
+              </shipping>
+              <custom-fields/>
+              <avs-error-response-code nil="true"/>
+              <avs-postal-code-response-code>I</avs-postal-code-response-code>
+              <avs-street-address-response-code>I</avs-street-address-response-code>
+              <cvv-response-code>I</cvv-response-code>
+              <gateway-rejection-reason nil="true"/>
+              <processor-authorization-code>WNBF90</processor-authorization-code>
+              <processor-response-code>1000</processor-response-code>
+              <processor-response-text>Approved</processor-response-text>
+              <additional-processor-response nil="true"/>
+              <voice-referral-number nil="true"/>
+              <purchase-order-number nil="true"/>
+              <tax-amount nil="true"/>
+              <tax-exempt type="boolean">false</tax-exempt>
+              <credit-card>
+                <token>j692z6</token>
+                <bin>411111</bin>
+                <last-4>1111</last-4>
+                <card-type>Visa</card-type>
+                <expiration-month>10</expiration-month>
+                <expiration-year>2020</expiration-year>
+                <customer-location>US</customer-location>
+                <cardholder-name nil="true"/>
+                <image-url>https://assets.braintreegateway.com/payment_method_logo/visa.png?environment=sandbox</image-url>
+                <unique-number-identifier>21ee4272998b10107aeee9d50d6fe1ae</unique-number-identifier>
+                <prepaid>Unknown</prepaid>
+                <healthcare>Unknown</healthcare>
+                <debit>Unknown</debit>
+                <durbin-regulated>Unknown</durbin-regulated>
+                <commercial>Unknown</commercial>
+                <payroll>Unknown</payroll>
+                <issuing-bank>Unknown</issuing-bank>
+                <country-of-issuance>Unknown</country-of-issuance>
+                <product-id>Unknown</product-id>
+                <venmo-sdk type="boolean">false</venmo-sdk>
+              </credit-card>
+              <status-history type="array">
+                <status-event>
+                  <timestamp type="datetime">2015-04-03T15:24:34Z</timestamp>
+                  <status>authorized</status>
+                  <amount>10.00</amount>
+                  <user>andymckay</user>
+                  <transaction-source>recurring</transaction-source>
+                </status-event>
+                <status-event>
+                  <timestamp type="datetime">2015-04-03T15:24:34Z</timestamp>
+                  <status>submitted_for_settlement</status>
+                  <amount>10.00</amount>
+                  <user>andymckay</user>
+                  <transaction-source>recurring</transaction-source>
+                </status-event>
+                <status-event>
+                  <timestamp type="datetime">2015-04-03T23:10:43Z</timestamp>
+                  <status>settled</status>
+                  <amount>10.00</amount>
+                  <user nil="true"/>
+                  <transaction-source></transaction-source>
+                </status-event>
+              </status-history>
+              <plan-id>concrete-brick</plan-id>
+              <subscription-id>7gf8db</subscription-id>
+              <subscription>
+                <billing-period-end-date type="date">2015-05-02</billing-period-end-date>
+                <billing-period-start-date type="date">2015-04-03</billing-period-start-date>
+              </subscription>
+              <add-ons type="array"/>
+              <discounts type="array"/>
+              <descriptor>
+                <name nil="true"/>
+                <phone nil="true"/>
+                <url nil="true"/>
+              </descriptor>
+              <recurring type="boolean">true</recurring>
+              <channel nil="true"/>
+              <service-fee-amount nil="true"/>
+              <escrow-status nil="true"/>
+              <disbursement-details>
+                <disbursement-date type="date">2015-04-04</disbursement-date>
+                <settlement-amount>10.00</settlement-amount>
+                <settlement-currency-iso-code>USD</settlement-currency-iso-code>
+                <settlement-currency-exchange-rate>1</settlement-currency-exchange-rate>
+                <funds-held type="boolean">false</funds-held>
+                <success type="boolean">true</success>
+              </disbursement-details>
+              <disputes type="array"/>
+              <payment-instrument-type>credit_card</payment-instrument-type>
+              <processor-settlement-response-code></processor-settlement-response-code>
+              <processor-settlement-response-text></processor-settlement-response-text>
+            </transaction>
+          </transactions>
+          <status-history type="array">
+            <status-event>
+              <timestamp type="datetime">2015-04-03T15:24:34Z</timestamp>
+              <status>Active</status>
+              <user>andymckay</user>
+              <subscription-source>api</subscription-source>
+              <balance>0.00</balance>
+              <price>10.00</price>
+            </status-event>
+          </status-history>
+        </subscription>
+      </subscriptions>
+      <token>j692z6</token>
+      <unique-number-identifier>21ee4272998b10107aeee9d50d6fe1ae</unique-number-identifier>
+      <updated-at type="datetime">2015-04-03T15:24:32Z</updated-at>
+      <venmo-sdk type="boolean">false</venmo-sdk>
+      <verifications type="array"/>
+    </credit-card>
+  </credit-cards>
+  <addresses type="array"/>
+</customer>

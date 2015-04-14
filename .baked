@@ -40,7 +40,8 @@
             "oauthlib", "requests", "slumber", "suds",
             "tastypie", "tastypie_services",
             "rest_framework", "django_paranoia", "django_filters",
-            "commonware.log", "chardet", "cache_nuggets", "mobile_codes"
+            "commonware.log", "chardet", "cache_nuggets", "mobile_codes",
+            "braintree"
         ],
         "relative" : [""],
         "django": ["django"]

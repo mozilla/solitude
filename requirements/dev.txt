@@ -6,4 +6,4 @@
 -r compiled.txt
 
 autopep8==1.1.1
-baked==0.2.4
+baked==0.2.5

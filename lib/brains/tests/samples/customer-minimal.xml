@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<customer>
+  <id>minimal</id>
+  <merchant-id>...</merchant-id>
+  <first-name>Charity</first-name>
+  <last-name>Smith</last-name>
+  <company nil="true"/>
+  <email nil="true"/>
+  <phone nil="true"/>
+  <fax nil="true"/>
+  <website nil="true"/>
+  <created-at type="datetime">2015-04-03T15:20:04Z</created-at>
+  <updated-at type="datetime">2015-04-03T15:20:04Z</updated-at>
+  <custom-fields/>
+  <credit-cards type="array"/>
+  <addresses type="array"/>
+</customer>

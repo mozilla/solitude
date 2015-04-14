@@ -489,3 +489,6 @@ BRAINTREE_PRIVATE_KEY = os.getenv('BRAINTREE_PRIVATE_KEY', '')
 
 # See lib.brains.client for the options.
 BRAINTREE_ENVIRONMENT = 'sandbox'
+
+# Mock out Braintree. Overrides environment.
+BRAINTREE_MOCK = False
