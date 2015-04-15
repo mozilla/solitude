@@ -242,9 +242,9 @@ class TestSellerProductBokuViews(SellerProductBokuTest):
                     kwargs={'pk': seller_product_boku.pk})
         )
         eq_(response.status_code, 204, response.content)
-        ok_(not SellerProduct.objects
-                             .filter(pk=seller_product_boku.pk)
-                             .exists())
+        ok_(not SellerProductBoku.objects
+                                 .filter(pk=seller_product_boku.pk)
+                                 .exists())
 
 
 class TestBokuTransactionView(BokuTransactionTest):
