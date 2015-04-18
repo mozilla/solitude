@@ -53,6 +53,9 @@ class HashedData(object):
     def check(self, other):
         if self.value == '':
             return False
+        if self.value and not other:
+            # We can be pretty sure these wont match, exit quickly.
+            return False
         return check_password(other, self.value)
 
     def __eq__(self, other):
