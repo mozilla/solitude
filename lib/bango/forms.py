@@ -5,6 +5,7 @@ from django import forms
 from django.conf import settings
 from django.db.models import Q
 from django.forms.models import model_to_dict
+from django.shortcuts import get_object_or_404
 
 import mobile_codes
 from django_statsd.clients import statsd
@@ -15,29 +16,23 @@ from lib.bango.constants import (COUNTRIES, CURRENCIES, INVALID_PERSON, OK,
                                  RATINGS, RATINGS_SCHEME,
                                  VAT_NUMBER_DOES_NOT_EXIST)
 from lib.bango.utils import verify_sig
-from lib.sellers.models import SellerProductBango
 from lib.transactions.constants import (PROVIDER_BANGO, STATUS_COMPLETED,
                                         STATUS_RECEIVED, TYPE_PAYMENT,
                                         TYPE_REFUNDS)
 from lib.transactions.forms import check_status
 from lib.transactions.models import Transaction
-from solitude.base import get_object_or_404, log_cef
+from solitude.base import log_cef
 from solitude.constants import PAYMENT_METHOD_CHOICES
-from solitude.fields import ListField, URLField
+from solitude.fields import ListField
 from solitude.logger import getLogger
 
 log = getLogger('s.bango')
 
-
-class ProductForm(forms.ModelForm):
-    seller_bango = URLField(to='lib.bango.resources.package.PackageResource')
-    seller_product = URLField(to='lib.sellers.resources.SellerProductResource')
-    name = forms.CharField()
-    packageId = forms.IntegerField()
-
-    class Meta:
-        model = SellerProductBango
-        fields = ('seller_bango', 'seller_product', 'name', 'packageId')
+# Forms are (mostly) for just Bango specific data. This is when we call
+# Bango, we validate the data.
+#
+# If you want to process data related to solitude objects, then please
+# look at serializers.py.
 
 
 class PackageForm(forms.Form):
@@ -59,8 +54,6 @@ class PackageForm(forms.Form):
     currencyIso = forms.CharField()
     homePageURL = forms.CharField(required=False)
 
-    seller = URLField(to='lib.sellers.resources.SellerResource')
-
     @property
     def bango_data(self):
         result = self.cleaned_data.copy()
@@ -69,7 +62,6 @@ class PackageForm(forms.Form):
             result['vendorName'] = insert + result['vendorName']
             result['companyName'] = insert + result['companyName']
 
-        del result['seller']
         if settings.BANGO_NOTIFICATION_URL:
             result.update({
                 'eventNotificationURL': settings.BANGO_NOTIFICATION_URL,
@@ -155,53 +147,22 @@ class UpdateAddressForm(forms.Form):
 
 
 class CreateBangoNumberForm(forms.Form):
-    seller_bango = URLField(to='lib.bango.resources.package.PackageResource')
-    seller_product = URLField(to='lib.sellers.resources.SellerProductResource')
     name = forms.CharField(max_length=100)
-    # TODO: Expand this bug 814492.
     categoryId = forms.IntegerField()
 
-    @property
-    def bango_data(self):
-        result = self.cleaned_data.copy()
-        result['packageId'] = result['seller_bango'].package_id
-        del result['seller_bango']
-        del result['seller_product']
-        return result
 
-
-class SellerProductForm(forms.Form):
-    # Base class for a form that interacts using the
-    # seller_product_bango resource.
-    seller_product_bango = URLField(
-        to='lib.bango.resources.package.BangoProductResource')
-
-    @property
-    def bango_data(self):
-        result = self.cleaned_data.copy()
-        result['bango'] = result['seller_product_bango'].bango_id
-        del result['seller_product_bango']
-        return result
-
-    def clean_seller_product_bango(self):
-        res = self.cleaned_data['seller_product_bango']
-        if not res.bango_id:
-            raise forms.ValidationError('Empty bango_id for: %s' % res.pk)
-        return res
-
-
-class MakePremiumForm(SellerProductForm):
+class MakePremiumForm(forms.Form):
     currencyIso = forms.ChoiceField(choices=([r, r] for r
                                              in CURRENCIES.keys()))
     price = forms.DecimalField()
 
 
-class UpdateRatingForm(SellerProductForm):
+class UpdateRatingForm(forms.Form):
     ratingScheme = forms.ChoiceField(choices=([r, r] for r in RATINGS_SCHEME))
     rating = forms.ChoiceField(choices=([r, r] for r in RATINGS))
 
 
-class CreateBillingConfigurationForm(SellerProductForm):
+class CreateBillingConfigurationForm(forms.Form):
     pageTitle = forms.CharField()
     prices = ListField()
     redirect_url_onerror = forms.URLField()
@@ -213,7 +174,7 @@ class CreateBillingConfigurationForm(SellerProductForm):
 
     @property
     def bango_data(self):
-        data = super(CreateBillingConfigurationForm, self).bango_data
+        data = self.cleaned_data.copy()
         data['externalTransactionId'] = data.pop('transaction_uuid')
         # Converting the application size in rounded kilobytes (default = 1).
         application_size = data.get('application_size', 1) or 1
@@ -262,7 +223,6 @@ class PriceForm(forms.Form):
 
 
 class CreateBankDetailsForm(forms.Form):
-    seller_bango = URLField(to='lib.bango.resources.package.PackageResource')
     bankAccountPayeeName = forms.CharField(max_length=50)
     bankAccountNumber = forms.CharField(max_length=20, required=False)
     bankAccountCode = forms.CharField(max_length=20)
@@ -517,17 +477,6 @@ class EventForm(forms.Form):
         # Instead of having to get the Transaction again save it.
         self.cleaned_data['transaction'] = trans
         return data
-
-
-class SBIForm(forms.Form):
-    seller_bango = URLField(to='lib.bango.resources.package.PackageResource')
-
-    @property
-    def bango_data(self):
-        result = self.cleaned_data.copy()
-        result['packageId'] = result['seller_bango'].package_id
-        del result['seller_bango']
-        return result
 
 
 class GetLoginTokenForm(forms.Form):

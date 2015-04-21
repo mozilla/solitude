@@ -47,5 +47,4 @@ suds==0.4
 tower==0.3.4
 
 # not on pypi
-git+https://github.com/andymckay/django-tastypie.git@c8241e8#egg=django-tastypie
 git+https://github.com/mozilla/nuggets.git@96e80a64aa4bfcfef4f43fc3ab6966450ccd7325#egg=nuggets

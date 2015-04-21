@@ -2,24 +2,6 @@ import os
 
 from django.conf.urls import include, patterns, url
 
-from tastypie.api import Api
-
-from lib.bango.urls import bango
-from lib.buyers.resources import (BuyerConfirmPinResource,
-                                  BuyerResetPinResource, BuyerResource,
-                                  BuyerVerifyPinResource)
-from lib.sellers.resources import SellerProductResource, SellerResource
-from lib.transactions.resources import TransactionResource
-
-# Generic APIs
-api = Api(api_name='generic')
-api.register(BuyerResource())
-api.register(BuyerConfirmPinResource())
-api.register(BuyerVerifyPinResource())
-api.register(BuyerResetPinResource())
-api.register(SellerResource())
-api.register(SellerProductResource())
-api.register(TransactionResource())
 
 services_patterns = patterns(
     'lib.services.resources',
@@ -36,14 +18,20 @@ services_patterns = patterns(
         name='services.failures.statuses'),
 )
 
+generic_urls = patterns(
+    '',
+    url('', include('lib.buyers.urls')),
+    url('', include('lib.sellers.urls')),
+    url('', include('lib.transactions.urls')),
+)
+
 urls = [
-    url(r'^proxy/', include('lib.proxy.urls')),
-    url(r'^', include(api.urls)),
-    url(r'^', include(bango.urls)),
-    url(r'^boku/', include('lib.boku.urls', namespace='boku')),
-    url(r'^bango/', include('lib.bango.urls')),
-    url(r'^provider/', include('lib.provider.urls')),
     url(r'^$', 'solitude.views.home', name='home'),
+    url(r'^generic/', include(generic_urls, namespace='generic')),
+    url(r'^proxy/', include('lib.proxy.urls')),
+    url(r'^boku/', include('lib.boku.urls', namespace='boku')),
+    url(r'^bango/', include('lib.bango.urls', namespace='bango')),
+    url(r'^provider/', include('lib.provider.urls')),
     url(r'^services/', include(services_patterns))
 ]
 

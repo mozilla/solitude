@@ -273,9 +273,8 @@ You can else get the details of a seller:
 
         {
             "uuid": "acb21517-df02-4734-8173-176ece310bc1",
-            "resource_uri": "/generic/seller/9/"
-            "resource_key": 16,
-            "bluevia": null
+            "resource_uri": "/generic/seller/9/",
+            "resource_pk": 16
         }
 
 Product

@@ -15,8 +15,7 @@ class TestSellerProductView(SellerTest):
     def setUp(self):
         self.seller = self.create_seller()
         self.data = {
-            'seller':
-                self.get_detail_url('seller', self.seller, api_name='generic'),
+            'seller': self.seller.get_uri(),
             'uuid': 'some:uid',
             'name': 'bob',
             'email': 'f@b.c',
@@ -53,9 +52,7 @@ class TestSellerProductReferenceView(SellerTest):
         self.ref = SellerReference.objects.create(seller=self.seller,
                                                   reference_id='ref:id')
         self.data = {
-            'seller_product':
-                self.get_detail_url('product', self.product,
-                                    api_name='generic'),
+            'seller_product': self.product.get_uri(),
             'seller_reference':
                 reverse('reference:sellers-detail', args=[self.ref.id]),
             'name': 'bob',

@@ -145,6 +145,7 @@ class TestSellerProductBokuViews(SellerProductBokuTest):
             reverse('boku:sellerproductboku-list'),
             data=self.seller_product_boku_data
         )
+
         eq_(response.status_code, 201, response.content)
         seller_product_boku_data = json.loads(response.content)
 
@@ -209,14 +210,8 @@ class TestSellerProductBokuViews(SellerProductBokuTest):
             public_id=str(uuid.uuid4()),
             external_id=str(uuid.uuid4()),
         )
-        new_seller_product_uri = reverse(
-            'api_dispatch_detail',
-            kwargs={
-                'api_name': 'generic',
-                'resource_name': 'product',
-                'pk': new_seller_product.pk,
-            }
-        )
+        new_seller_product_uri = new_seller_product.get_uri()
+
         seller_product_boku = SellerProductBoku.objects.create(
             seller_boku=self.seller_boku,
             seller_product=self.seller_product,

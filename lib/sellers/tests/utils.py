@@ -14,14 +14,7 @@ class SellerTest(APITest):
         return Seller.objects.create(**defaults)
 
     def get_seller_uri(self, seller):
-        return reverse(
-            'api_dispatch_detail',
-            kwargs={
-                'api_name': 'generic',
-                'resource_name': 'seller',
-                'pk': seller.pk,
-            }
-        )
+        return reverse('generic:seller-detail', kwargs={'pk': seller.pk})
 
     def create_seller_product(self, seller=None, **kwargs):
         defaults = {
@@ -34,11 +27,4 @@ class SellerTest(APITest):
         return SellerProduct.objects.create(**defaults)
 
     def get_seller_product_uri(self, seller_product):
-        return reverse(
-            'api_dispatch_detail',
-            kwargs={
-                'api_name': 'generic',
-                'resource_name': 'product',
-                'pk': seller_product.pk,
-            }
-        )
+        return seller_product.get_uri()

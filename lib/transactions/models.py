@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch import receiver
 
@@ -106,6 +107,10 @@ class Transaction(Model):
             self.carrier,
             self.region,
             self.provider)
+
+    def get_uri(self):
+        return reverse('generic:transaction-detail',
+                       kwargs={'pk': self.pk})
 
 
 @receiver(models.signals.post_save, dispatch_uid='time_status_change',

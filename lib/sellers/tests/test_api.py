@@ -1,5 +1,7 @@
 import json
 
+from django.core.urlresolvers import reverse
+
 from nose.tools import eq_
 
 from lib.sellers.constants import (ACCESS_PURCHASE, ACCESS_SIMULATE,
@@ -16,7 +18,7 @@ class TestSeller(APITest):
 
     def setUp(self):
         self.api_name = 'generic'
-        self.list_url = self.get_list_url('seller')
+        self.list_url = reverse('generic:seller-list')
 
     def test_add(self):
         res = self.client.post(self.list_url, data={'uuid': uuid})
@@ -48,7 +50,7 @@ class TestSeller(APITest):
 
     def test_get(self):
         obj = self.create()
-        res = self.client.get(self.get_detail_url('seller', obj))
+        res = self.client.get(obj.get_uri())
         eq_(res.status_code, 200)
         content = json.loads(res.content)
         eq_(content['uuid'], uuid)
@@ -60,8 +62,8 @@ class TestSellerProduct(APITest):
     def setUp(self):
         self.api_name = 'generic'
         self.seller = Seller.objects.create(uuid=uuid)
-        self.seller_url = self.get_detail_url('seller', self.seller.pk)
-        self.list_url = self.get_list_url('product')
+        self.seller_url = self.seller.get_uri()
+        self.list_url = reverse('generic:sellerproduct-list')
         self.public_id = 'public_id'
 
     def create(self, **kw):
@@ -92,8 +94,7 @@ class TestSellerProduct(APITest):
 
     def create_url(self):
         obj = self.create(public_id='%s-url' % uuid)
-        url = self.get_detail_url('product', obj)
-        return obj, url
+        return obj, obj.get_uri()
 
     def data(self, **kw):
         params = {'seller': self.seller_uri(),
@@ -105,7 +106,7 @@ class TestSellerProduct(APITest):
         return params
 
     def seller_uri(self):
-        return self.get_detail_url('seller', self.seller.pk)
+        return self.seller.get_uri()
 
     def test_get_miss(self):
         # A test that filtering on the wrong uuid returns zero.
@@ -166,7 +167,7 @@ class TestSellerProduct(APITest):
         res = self.client.post(self.list_url,
                                data=self.data(external_id='unique-id'))
         eq_(res.status_code, 400)
-        eq_(self.get_errors(res.content, '__all__'),
+        eq_(self.get_errors(res.content, 'external_id'),
             [EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE], res.content)
 
     def test_id_unique_for_seller_ok(self):
@@ -176,10 +177,11 @@ class TestSellerProduct(APITest):
 
         new_seller = Seller.objects.create(uuid='some-other-seller')
 
-        data = self.data(seller=self.get_detail_url('seller', new_seller.pk),
-                         external_id='unique-id', public_id='blah')
+        data = self.data(
+            seller=new_seller.get_uri(),
+            external_id='unique-id', public_id='blah')
         res = self.client.post(self.list_url, data=data)
-        eq_(res.status_code, 201)
+        eq_(res.status_code, 201, res.content)
 
     def test_list_allowed(self):
         obj, url = self.create_url()
@@ -192,7 +194,7 @@ class TestSellerProduct(APITest):
         res = self.client.patch(url, json.dumps({'seller': self.seller_url,
                                                  'external_id': 'xyz',
                                                  'secret': 'hush'}))
-        eq_(res.status_code, 202, res.content)
+        eq_(res.status_code, 200, res.content)
         res = self.client.get(url)
         data = json.loads(res.content)
         eq_(data['secret'], 'hush')
@@ -200,7 +202,7 @@ class TestSellerProduct(APITest):
     def test_patch_get_access(self):
         obj, url = self.create_url()
         res = self.client.patch(url, json.dumps({'access': ACCESS_SIMULATE}))
-        eq_(res.status_code, 202, res.content)
+        eq_(res.status_code, 200, res.content)
         res = self.client.get(url)
         data = json.loads(res.content)
         eq_(data['access'], ACCESS_SIMULATE)
@@ -209,7 +211,7 @@ class TestSellerProduct(APITest):
         obj, url = self.create_url()
         res = self.client.patch(url, json.dumps({'seller': self.seller_url,
                                                  'external_id': 'some-id'}))
-        eq_(res.status_code, 202)
+        eq_(res.status_code, 200)
         data = obj.reget()
         eq_(data.external_id, 'some-id')
 
@@ -220,7 +222,7 @@ class TestSellerProduct(APITest):
                                                'access': ACCESS_PURCHASE,
                                                'external_id': 'abc',
                                                'public_id': 'blah'}))
-        eq_(res.status_code, 202)
+        eq_(res.status_code, 200, res.content)
         data = obj.reget()
         eq_(data.secret, 'hush')
         eq_(data.external_id, 'abc')
@@ -230,7 +232,7 @@ class TestSellerProduct(APITest):
         obj, url = self.create_url()
         res = self.client.patch(url, json.dumps({'external_id': 'some-id'}))
         eq_(res.status_code, 400)
-        eq_(self.get_errors(res.content, '__all__'),
+        eq_(self.get_errors(res.content, 'external_id'),
             [EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE], res.content)
 
     def test_put_non_unique_ext_id(self):
@@ -241,7 +243,7 @@ class TestSellerProduct(APITest):
                                                'external_id': 'some-id',
                                                'public_id': 'blah'}))
         eq_(res.status_code, 400)
-        eq_(self.get_errors(res.content, '__all__'),
+        eq_(self.get_errors(res.content, 'external_id'),
             [EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE], res.content)
 
     def test_supported_providers_listed(self):
