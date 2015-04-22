@@ -46,6 +46,6 @@ class TransactionSerializer(BaseSerializer):
 
     def validate_uuid(self, attrs, source):
         # Provide a default uuid.
-        if not attrs.get('uuid'):
+        if not attrs.get('uuid') and not self.object:
             attrs['uuid'] = 'solitude:' + str(uuid.uuid4())
         return attrs
