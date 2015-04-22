@@ -23,6 +23,7 @@ class BangoAnticipatedError(BangoError):
     and handled appropriately.
     """
 
+
 class BangoUnanticipatedError(BangoError):
 
     """
@@ -33,6 +34,7 @@ class BangoUnanticipatedError(BangoError):
     will be NOT anticipated. This allows it to be caught
     and handled appropriately.
     """
+
 
 class BangoImmediateError(Exception):
 

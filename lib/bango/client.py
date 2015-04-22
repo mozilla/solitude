@@ -19,9 +19,8 @@ from suds.transport.http import HttpTransport
 from .constants import (ACCESS_DENIED, HEADERS_ALLOWED, HEADERS_SERVICE,
                         INTERNAL_ERROR, SERVICE_UNAVAILABLE, WSDL_MAP,
                         WSDL_MAP_MANGLED)
-from .errors import (
-    AuthError, BangoError, BangoAnticipatedError,
-    BangoUnanticipatedError, ProxyError)
+from .errors import (AuthError, BangoError,
+                     BangoUnanticipatedError, ProxyError)
 from solitude.logger import getLogger
 
 # Add in the list of allowed methods here.
