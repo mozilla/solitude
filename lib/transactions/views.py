@@ -13,7 +13,7 @@ class TransactionViewSet(NonDeleteModelViewSet):
 
     def update(self, request, *args, **kwargs):
         # Disallow PUT, but allow PATCH.
-        if not kwargs.pop('partial', False):
+        if not kwargs.get('partial', False):
             return Response(status=405)
 
         # We only allow very limited transaction changes.
