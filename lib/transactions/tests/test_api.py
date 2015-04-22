@@ -2,7 +2,7 @@ import json
 
 from django.core.urlresolvers import reverse
 
-from nose.tools import eq_
+from nose.tools import eq_, ok_
 
 from lib.bango.tests.utils import make_sellers
 from lib.buyers.models import Buyer
@@ -163,3 +163,13 @@ class TestTransaction(APITest):
         res = self.client.patch(json.loads(res.content)['resource_uri'],
                                 data={'status': constants.STATUS_COMPLETED})
         eq_(res.status_code, 400, res.content)
+
+    def test_post_no_uuid(self):
+        res = self.client.post(self.list_url)
+        ok_(json.loads(res.content)['uuid'].startswith('solitude:'))
+
+    def test_patch_no_uuid(self):
+        res = self.client.post(self.list_url, data={'uuid': 'test:uuid'})
+        res = self.client.patch(json.loads(res.content)['resource_uri'],
+                                data={'status': constants.STATUS_ERRORED})
+        eq_(json.loads(res.content)['uuid'], 'test:uuid')
