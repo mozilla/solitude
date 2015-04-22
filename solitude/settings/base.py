@@ -269,6 +269,7 @@ else:
         'lib.sellers',
         'lib.transactions',
         'lib.bango',
+        'lib.brains'
     )
     MIDDLEWARE_CLASSES = (
         'solitude.middleware.LoggerMiddleware',
@@ -474,3 +475,17 @@ BOKU_MD5_CHECK = True
 
 # End Bango settings.
 ###############################################################################
+
+###############################################################################
+# Start Braintree settings.
+
+# You'll find this in the Braintree account under:
+# Account > My User > API keys.
+#
+# To make it easier, we'll pull these from the env as well.
+BRAINTREE_MERCHANT_ID = os.getenv('BRAINTREE_MERCHANT_ID', '')
+BRAINTREE_PUBLIC_KEY = os.getenv('BRAINTREE_PUBLIC_KEY', '')
+BRAINTREE_PRIVATE_KEY = os.getenv('BRAINTREE_PRIVATE_KEY', '')
+
+# See lib.brains.client for the options.
+BRAINTREE_ENVIRONMENT = 'sandbox'
