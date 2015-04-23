@@ -68,3 +68,8 @@ class TestLog(test.TestCase):
         output = self.results()
         eq_(next(output)[0], 'version')
         eq_(next(output)[1], 'uuid')
+
+    def test_no_seller(self):
+        self.first.seller_product = None
+        self.first.save()
+        generate_log(datetime.today(), self.name, 'stats')
