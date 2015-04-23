@@ -102,7 +102,7 @@ class Transaction(Model):
             self.status,
             self.status_reason,
             self.buyer.uuid if self.buyer else None,
-            self.seller_product.seller.uuid,
+            self.seller_product.seller.uuid if self.seller_product else None,
             self.source,
             self.carrier,
             self.region,
