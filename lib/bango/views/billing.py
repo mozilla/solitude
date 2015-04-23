@@ -43,8 +43,8 @@ def prepare(form, bango):
                 log.info('Skipping %s:%s because we already have %s:%s'
                          % (price.currency, price.amount,
                             existing.currency, existing.amount))
-            append = False
-            break
+                append = False
+                break
 
         if append:
             price_list.Price.append(price)
