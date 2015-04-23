@@ -16,8 +16,10 @@ from solitude.logger import getLogger
 log = getLogger('s.bango')
 
 
-def prepare(form):
+def prepare(form, bango):
     data = form.bango_data
+    # Add in the Bango number from the serializer.
+    data['bango'] = bango
 
     # Used to create the approprate data structure.
     client = get_client()
@@ -123,9 +125,10 @@ def billing(request):
         return exc.response
 
     transaction_uuid = form.bango_data['externalTransactionId']
+    bango = serial.object['seller_product_bango'].bango_id
 
     try:
-        data = prepare(form)
+        data = prepare(form, bango)
         resp = view.client('CreateBillingConfiguration', data)
     except BangoError:
         log.error('Error on createBillingConfiguration, uuid: {0}'
