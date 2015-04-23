@@ -46,8 +46,8 @@ def prepare(form, bango):
             append = False
             break
 
-    if append:
-        price_list.Price.append(price)
+        if append:
+            price_list.Price.append(price)
 
     data['priceList'] = price_list
 
