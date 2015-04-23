@@ -23,6 +23,7 @@ def bank(request):
         return exc.response
 
     data = form.cleaned_data
+    data['packageId'] = serial.object['seller_bango'].package_id
 
     try:
         view.client('CreateBankDetails', data)

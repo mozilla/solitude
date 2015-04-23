@@ -242,13 +242,6 @@ class CreateBankDetailsForm(forms.Form):
                                         'or bankIban')
         return self.cleaned_data
 
-    @property
-    def bango_data(self):
-        result = self.cleaned_data.copy()
-        result['packageId'] = result['seller_bango'].package_id
-        del result['seller_bango']
-        return result
-
 
 class NotificationForm(forms.Form):
     # This is our own signature of the moz_transaction that we sent to
