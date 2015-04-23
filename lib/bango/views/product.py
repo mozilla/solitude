@@ -11,7 +11,9 @@ from solitude.base import NonDeleteModelViewSet
 class ProductViewSet(NonDeleteModelViewSet, BangoResource):
     queryset = SellerProductBango.objects.filter()
     serializer_class = SellerProductBangoSerializer
-    filter_fields = ('seller_product__seller', 'seller_product__external_id')
+    filter_fields = ('seller_product',
+                     'seller_product__seller',
+                     'seller_product__external_id')
 
     def create(self, request, *args, **kw):
         try:

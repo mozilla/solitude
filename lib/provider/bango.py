@@ -1,5 +1,3 @@
-from django.core.urlresolvers import reverse
-
 from rest_framework.response import Response
 
 from lib.bango.forms import (CreateBangoNumberForm, MakePremiumForm,
@@ -40,8 +38,7 @@ class ProductView(BaseAPIView):
 
         # Make it premium.
         data = request.DATA.copy()
-        data['seller_product_bango'] = reverse(
-            'bango:product-detail', kwargs={'pk': product.pk})
+        data['bango'] = resp.bango
         data['price'] = '0.99'
         data['currencyIso'] = 'USD'
 
@@ -50,8 +47,7 @@ class ProductView(BaseAPIView):
             return self.form_errors(form)
 
         data = form.cleaned_data
-        data['bango'] = serial.object.bango_id
-
+        data['bango'] = resp.bango
         view.client('MakePremiumPerAccess', data)
 
         for rating, scheme in (['UNIVERSAL', 'GLOBAL'],
@@ -62,6 +58,8 @@ class ProductView(BaseAPIView):
             if not form.is_valid():
                 return self.form_errors(form)
 
+            data = form.cleaned_data
+            data['bango'] = resp.bango
             view.client('UpdateRating', data)
 
         return Response(SellerProductBangoSerializer(product).data)

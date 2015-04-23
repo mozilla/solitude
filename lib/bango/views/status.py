@@ -60,7 +60,7 @@ class StatusViewSet(CreateModelMixin, ListModelMixin,
             raise ParseError
 
         try:
-            data = prepare(form)
+            data = prepare(form, obj.seller_product_bango.bango_id)
             view.client('CreateBillingConfiguration', data)
         except BangoImmediateError:
             log.info('Bango error in check status: {0}'.format(pk))
