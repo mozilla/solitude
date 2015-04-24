@@ -17,5 +17,10 @@ pep8==1.5.7
 # sha256: ic9r9P9kT_i5EuL6fiq7aNV6jn6Rjjk8coQNMNLrzws
 mccabe==0.3
 
+# sha256: Utw-E4etWsB_KruzYtWovPUmUW7UoFF6ay6EGr2O6rw
+# sha256: ku47hrXBkhwtnawhe--JkMX4Usi8TZAYyv4PPzuBzTo
 nosenicedots==0.5
+
+# sha256: Zf-5k0lWWuoQyYANEgM4TUhuwUp8gz31dVdsRfTp8Dk
+# sha256: c0XZOWs_PApljFy328eZw6lq-kgpnZbZeB6rprqwt7A
 nose-blockage==0.1.2

@@ -5,5 +5,8 @@
 -r test.txt
 -r compiled.txt
 
+# sha256: bpQ8fq1eguaZWQ5Uh551R1RA4bTk2gfsHkyiNCdT4bw
 autopep8==1.1.1
+
+# sha256: d8kqqvXXiwo6jDT-0cYikggqtS4mHE831h2S4MO3vy8
 baked==0.2.5

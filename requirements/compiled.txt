@@ -1,2 +1,5 @@
+# sha256: JblEmFBcLYAO5GXbDMGv8JexYVrcOsBCochc7KJk_Ao
 M2Crypto==0.21.1
+
+# sha256: gRBAtkfl1WhvhNtBXv1pfmJQAIsRK2kJunesBZ4UDHQ
 MySQL-python==1.2.5
