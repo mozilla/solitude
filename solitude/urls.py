@@ -31,6 +31,7 @@ urls = [
     url(r'^proxy/', include('lib.proxy.urls')),
     url(r'^boku/', include('lib.boku.urls', namespace='boku')),
     url(r'^bango/', include('lib.bango.urls', namespace='bango')),
+    url(r'^braintree/', include('lib.brains.urls', namespace='braintree')),
     url(r'^provider/', include('lib.provider.urls')),
     url(r'^services/', include(services_patterns))
 ]
