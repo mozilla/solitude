@@ -219,6 +219,7 @@ CLEANSED_SETTINGS_ACCESS = False
 CLIENT_OAUTH_KEYS = {
     'marketplace': 'please change this',
     'webpay': 'please change this',
+    'payments-service': 'please change this'
 }
 
 # Paranoia levels.
