@@ -1,5 +1,3 @@
-import json
-
 from django.core.urlresolvers import reverse
 
 from nose.tools import eq_, ok_
@@ -30,20 +28,20 @@ class TestTransaction(APITest):
         self.allowed_verbs(self.detail_url, ['get', 'patch'])
 
     def test_list(self):
-        res = self.client.get(self.list_url, data={'uuid': self.uuid})
+        res = self.client.get(self.list_url, {'uuid': self.uuid})
         eq_(res.status_code, 200)
-        eq_(json.loads(res.content)['objects'][0]['uuid'], self.uuid)
+        eq_(res.json['objects'][0]['uuid'], self.uuid)
 
     def test_get(self):
         res = self.client.get(self.detail_url)
         eq_(res.status_code, 200)
-        eq_(json.loads(res.content)['uuid'], self.uuid)
+        eq_(res.json['uuid'], self.uuid)
 
     def test_status_reason(self):
         data = {'status_reason': 'OOPS'}
         eq_(self.client.patch(self.detail_url, data=data).status_code, 200)
         res = self.client.get(self.detail_url)
-        eq_(json.loads(res.content)['status_reason'], 'OOPS')
+        eq_(res.json['status_reason'], 'OOPS')
 
     def test_post_uuid(self):
         data = {
@@ -60,7 +58,7 @@ class TestTransaction(APITest):
 
         eq_(res.status_code, 201)
 
-        json_data = json.loads(res.content)
+        json_data = res.json
         transaction = Transaction.objects.get(uuid=json_data['uuid'])
 
         eq_(transaction.buyer, self.buyer)
@@ -69,10 +67,10 @@ class TestTransaction(APITest):
         eq_(transaction.seller_product, self.product)
 
     def test_provider(self):
-        res = self.client.get(self.list_url, data={'provider':
-                                                   constants.PROVIDER_BOKU})
+        res = self.client.get(self.list_url,
+                              {'provider': constants.PROVIDER_BOKU})
         eq_(res.status_code, 200)
-        eq_(json.loads(res.content)['meta']['total_count'], 0, res.content)
+        eq_(res.json['meta']['total_count'], 0, res.content)
 
     def test_provider_patch(self):
         self.trans.provider = None
@@ -94,7 +92,7 @@ class TestTransaction(APITest):
     def test_patch_naughty(self):
         res = self.client.patch(self.detail_url, data={'uuid': 5})
         eq_(res.status_code, 400)
-        eq_(json.loads(res.content)['__all__'], ['Cannot alter fields: uuid'])
+        eq_(res.json['__all__'], ['Cannot alter fields: uuid'])
 
     def test_patch_uid_pay(self):
         res = self.client.patch(self.detail_url, data={'uid_pay': 'xyz'})
@@ -134,42 +132,40 @@ class TestTransaction(APITest):
 
         # The original transaction has nothing related to it and some
         # relations that are fully populated.
-        res = self.client.get(self.list_url, data={'uuid': self.uuid})
-        data = json.loads(res.content)
-        eq_(data['objects'][0]['related'], None)
-        eq_(data['objects'][0]['relations'][0]['resource_pk'], new.pk)
+        res = self.client.get(self.list_url, {'uuid': self.uuid})
+        eq_(res.json['objects'][0]['related'], None)
+        eq_(res.json['objects'][0]['relations'][0]['resource_pk'], new.pk)
 
         # The related transaction has no relations, but a pointer to the
         # related transaction.
-        res = self.client.get(self.list_url, data={'uuid': new_uuid})
-        data = json.loads(res.content)
-        eq_(data['objects'][0]['relations'], [])
-        eq_(data['objects'][0]['related'],
+        res = self.client.get(self.list_url, {'uuid': new_uuid})
+        eq_(res.json['objects'][0]['relations'], [])
+        eq_(res.json['objects'][0]['related'],
             '/generic/transaction/%s/' % self.trans.pk)
 
     def test_create_minimal(self):
         res = self.client.post(self.list_url, data={})
         eq_(res.status_code, 201)
-        eq_(json.loads(res.content)['status'], constants.STATUS_STARTED)
+        eq_(res.json['status'], constants.STATUS_STARTED)
 
     def test_patch_minimal(self):
         res = self.client.post(self.list_url, data={})
-        res = self.client.patch(json.loads(res.content)['resource_uri'],
+        res = self.client.patch(res.json['resource_uri'],
                                 data={'status': constants.STATUS_ERRORED})
         eq_(res.status_code, 200, res.content)
 
     def test_patch_minimal_fails(self):
         res = self.client.post(self.list_url, data={})
-        res = self.client.patch(json.loads(res.content)['resource_uri'],
+        res = self.client.patch(res.json['resource_uri'],
                                 data={'status': constants.STATUS_COMPLETED})
         eq_(res.status_code, 400, res.content)
 
     def test_post_no_uuid(self):
         res = self.client.post(self.list_url)
-        ok_(json.loads(res.content)['uuid'].startswith('solitude:'))
+        ok_(res.json['uuid'].startswith('solitude:'))
 
     def test_patch_no_uuid(self):
         res = self.client.post(self.list_url, data={'uuid': 'test:uuid'})
-        res = self.client.patch(json.loads(res.content)['resource_uri'],
+        res = self.client.patch(res.json['resource_uri'],
                                 data={'status': constants.STATUS_ERRORED})
-        eq_(json.loads(res.content)['uuid'], 'test:uuid')
+        eq_(res.json['uuid'], 'test:uuid')

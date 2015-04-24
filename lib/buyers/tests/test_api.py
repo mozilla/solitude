@@ -1,4 +1,3 @@
-import json
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -30,8 +29,7 @@ class TestBuyer(APITest):
         eq_(res.status_code, 201)
         buyer = Buyer.objects.get(uuid=self.uuid)
         eq_(buyer.email, self.email)
-        data = json.loads(res.content)
-        eq_(data['pin'], True)
+        eq_(res.json['pin'], True)
 
     def test_add_multiple(self):
         self.client.post(
@@ -58,9 +56,8 @@ class TestBuyer(APITest):
         self.client.post(self.list_url, data={'uuid': self.uuid})
         res = self.client.get(self.list_url + '?uuid=%s' % self.uuid)
         eq_(res.status_code, 200)
-        data = json.loads(res.content)
-        eq_(data['meta']['total_count'], 1)
-        eq_(data['objects'][0]['uuid'], self.uuid)
+        eq_(res.json['meta']['total_count'], 1)
+        eq_(res.json['objects'][0]['uuid'], self.uuid)
 
     def create(self, **kwargs):
         defaults = {'uuid': self.uuid, 'pin': self.pin, 'email': self.email}
@@ -71,7 +68,7 @@ class TestBuyer(APITest):
         obj = self.create()
         res = self.client.get(obj.get_uri())
         eq_(res.status_code, 200)
-        data = json.loads(res.content)
+        data = res.json
         eq_(data['uuid'], self.uuid)
         eq_(data['pin'], True)
         eq_(data['pin_failures'], 0)
@@ -85,7 +82,7 @@ class TestBuyer(APITest):
         obj.incr_lockout()
         res = self.client.get(obj.get_uri())
         eq_(res.status_code, 200)
-        data = json.loads(res.content)
+        data = res.json
         eq_(data['pin'], True)
         eq_(data['pin_failures'], 1)
         assert data['pin_is_locked_out']
@@ -101,16 +98,15 @@ class TestBuyer(APITest):
         obj = self.create()
         obj.active = False
         obj.save()
-        res = self.client.get(self.list_url, data={'active': True})
-        eq_(json.loads(res.content)['meta']['total_count'], 0)
+        res = self.client.get(self.list_url, {'active': True})
+        eq_(res.json['meta']['total_count'], 0)
 
     def test_get_without_pin(self):
         obj = self.create(pin=None)
         res = self.client.get(obj.get_uri())
         eq_(res.status_code, 200)
-        eq_(json.loads(res.content)['uuid'], self.uuid)
-        data = json.loads(res.content)
-        eq_(data['pin'], False)
+        eq_(res.json['uuid'], self.uuid)
+        eq_(res.json['pin'], False)
 
     def test_detail_allowed_verbs(self):
         obj = self.create()
@@ -123,8 +119,7 @@ class TestBuyer(APITest):
             obj.get_uri(),
             data={'uuid': obj.uuid, 'pin': new_pin})
         eq_(res.status_code, 200, res.content)
-        data = json.loads(res.content)
-        eq_(data['pin'], True)
+        eq_(res.json['pin'], True)
         assert obj.reget().pin.check(new_pin)
 
     def test_patch_pin(self):
@@ -192,17 +187,15 @@ class TestBuyerVerifyPin(APITest):
         res = self.client.post(self.list_url, data={'uuid': self.uuid,
                                                     'pin': self.pin})
         eq_(res.status_code, 200)
-        data = json.loads(res.content)
-        assert data['valid']
-        eq_(data['uuid'], self.uuid)
+        assert res.json['valid']
+        eq_(res.json['uuid'], self.uuid)
 
     def test_good_uuid_and_bad_pin(self):
         res = self.client.post(self.list_url, data={'uuid': self.uuid,
                                                     'pin': self.pin[::-1]})
         eq_(res.status_code, 200)
-        data = json.loads(res.content)
-        assert not data['valid']
-        eq_(data['uuid'], self.uuid)
+        assert not res.json['valid']
+        eq_(res.json['uuid'], self.uuid)
 
     def test_failure_counted(self):
         self.client.post(self.list_url, data={'uuid': self.uuid,
@@ -216,9 +209,8 @@ class TestBuyerVerifyPin(APITest):
                                                     'pin': self.pin[::-1]})
         assert self.buyer.reget().locked_out
         assert log_cef.called
-        data = json.loads(res.content)
-        assert not data.get('valid')
-        assert data.get('locked')
+        assert not res.json.get('valid')
+        assert res.json.get('locked')
 
     @mock.patch('lib.buyers.views.log_cef')
     def test_good_pin_but_locked_out(self, log_cef):
@@ -229,9 +221,8 @@ class TestBuyerVerifyPin(APITest):
                                                     'pin': self.pin})
         assert log_cef.called
         eq_(res.status_code, 200)
-        data = json.loads(res.content)
-        assert not data.get('valid')
-        assert data.get('locked')
+        assert not res.json.get('valid')
+        assert res.json.get('locked')
 
     def test_locked_out_over_time(self):
         self.buyer.pin_locked_out = (datetime.now() - timedelta(
@@ -241,9 +232,8 @@ class TestBuyerVerifyPin(APITest):
         res = self.client.post(self.list_url, data={'uuid': self.uuid,
                                                     'pin': self.pin})
         eq_(res.status_code, 200)
-        data = json.loads(res.content)
-        assert data['valid']
-        assert not data['locked']
+        assert res.json['valid']
+        assert not res.json['locked']
 
     def test_good_reset_failures(self):
         self.buyer.pin_failures = 1
@@ -260,9 +250,8 @@ class TestBuyerVerifyPin(APITest):
         res = self.client.post(self.list_url, data={'uuid': self.uuid,
                                                     'pin': self.pin})
         eq_(res.status_code, 200)
-        data = json.loads(res.content)
-        assert not data['valid']
-        eq_(data['uuid'], self.uuid)
+        assert not res.json['valid']
+        eq_(res.json['uuid'], self.uuid)
 
     def test_bad_uuid(self):
         res = self.client.post(self.list_url, data={'uuid': 'bad:uuid',
@@ -294,19 +283,17 @@ class TestBuyerConfirmPin(APITest):
         res = self.client.post(self.list_url, data={'uuid': self.uuid,
                                                     'pin': self.pin})
         eq_(res.status_code, 200)
-        data = json.loads(res.content)
-        assert data['confirmed']
+        assert res.json['confirmed']
         assert self.buyer.reget().pin_confirmed
-        eq_(data['uuid'], self.uuid)
+        eq_(res.json['uuid'], self.uuid)
 
     def test_good_uuid_and_bad_pin(self):
         res = self.client.post(self.list_url, data={'uuid': self.uuid,
                                                     'pin': '4321'})
         eq_(res.status_code, 200)
-        data = json.loads(res.content)
-        assert not data['confirmed']
+        assert not res.json['confirmed']
         assert not self.buyer.reget().pin_confirmed
-        eq_(data['uuid'], self.uuid)
+        eq_(res.json['uuid'], self.uuid)
 
     def test_bad_uuid(self):
         res = self.client.post(self.list_url, data={'uuid': 'bad:uuid',
@@ -335,25 +322,23 @@ class TestBuyerResetPin(APITest):
         res = self.client.post(self.list_url, data={'uuid': self.uuid,
                                                     'pin': self.new_pin})
         eq_(res.status_code, 200)
-        data = json.loads(res.content)
-        assert data.get('confirmed', False)
+        assert res.json.get('confirmed', False)
         buyer = self.buyer.reget()
         assert not buyer.needs_pin_reset
         assert buyer.pin_confirmed
         eq_(buyer.pin, self.new_pin)
-        eq_(data['uuid'], self.uuid)
+        eq_(res.json['uuid'], self.uuid)
         eq_(buyer.pin_was_locked_out, False)
 
     def test_good_uuid_and_bad_pin(self):
         res = self.client.post(self.list_url, data={'uuid': self.uuid,
                                                     'pin': self.pin})
         eq_(res.status_code, 200)
-        data = json.loads(res.content)
-        assert not data.get('confirmed', False)
+        assert not res.json.get('confirmed', False)
         buyer = self.buyer.reget()
         assert not buyer.pin == self.new_pin
         assert buyer.needs_pin_reset
-        eq_(data['uuid'], self.uuid)
+        eq_(res.json['uuid'], self.uuid)
         eq_(buyer.pin_was_locked_out, True)
 
     @mock.patch('lib.buyers.views.log_cef')
