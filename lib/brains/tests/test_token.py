@@ -1,5 +1,3 @@
-import json
-
 from solitude.base import APITest
 
 from nose.tools import eq_
@@ -13,4 +11,4 @@ class TestToken(APITest):
 
     def test_token(self):
         res = self.client.post(self.url)
-        eq_(json.loads(res.content)['token'], 'a-sample-token')
+        eq_(res.json['token'], 'a-sample-token')

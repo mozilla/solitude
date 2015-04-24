@@ -54,6 +54,7 @@ class TestAPIasProxy(TestCase):
         res = ProxyView().dispatch(req, reference_name='reference',
                                    resource_name=resource_name)
         res.render()  # Useful to access content later on.
+        res.json = json.loads(res.content)
         return res
 
     def test_proxy_get_params(self):
@@ -74,7 +75,7 @@ class TestAPIasProxy(TestCase):
         self.api.products.get.side_effect = exc
         res = self.request('get', '/reference/products?foo=bar', 'products')
         eq_(res.status_code, 404)
-        eq_(json.loads(res.content), {'error_message': 'something not found'})
+        eq_(res.json, {'error_message': 'something not found'})
 
     def test_unknown_error_responses(self):
         # Create a scenario where the proxied API raises an HTTP error.
@@ -88,7 +89,7 @@ class TestAPIasProxy(TestCase):
         self.api.products.get.side_effect = exc
         res = self.request('get', '/reference/products?foo=bar', 'products')
         eq_(res.status_code, 403)
-        eq_(json.loads(res.content), {
+        eq_(res.json, {
             u'error_message': {u'unknown_error': u'something went wrong'}
         })
 
@@ -123,8 +124,7 @@ class TestAPIasProxy(TestCase):
             'resource_pk': 'foo-bar',
         }
         res = self.request('get', '/reference/products/fake-pk', 'products')
-        eq_(json.loads(res.content)['resource_uri'],
-            '/provider/reference/products/foo-bar/')
+        eq_(res.json['resource_uri'], '/provider/reference/products/foo-bar/')
 
     def test_proxy_resource_id(self):
         self.api.products.get.return_value = {
@@ -133,5 +133,5 @@ class TestAPIasProxy(TestCase):
             'resource_pk': 'foo-bar',
         }
         res = self.request('get', '/reference/products/fake-pk', 'products')
-        ok_(not hasattr(json.loads(res.content), 'resource_pk'))
-        eq_(json.loads(res.content)['id'], 'foo-bar')
+        ok_(not hasattr(res.json, 'resource_pk'))
+        eq_(res.json['id'], 'foo-bar')

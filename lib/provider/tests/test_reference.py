@@ -102,8 +102,7 @@ class TestSellerProductReferenceView(SellerTest):
         self.create_provider_product()
 
         url = reverse('reference:sellers-list')
-        response = self.client.get(url,
-                                   data={'seller__uuid': self.seller.uuid})
+        response = self.client.get(url, {'seller__uuid': self.seller.uuid})
 
         eq_(response.status_code, 200, response.content)
         eq_(response.data['objects'][0]['id'], self.ref.pk)
@@ -118,7 +117,7 @@ class TestSellerProductReferenceView(SellerTest):
         decoy = self.create_provider_product(seller_product=decoy_prod)
 
         url = reverse('reference:products-list')
-        response = self.client.get(url, data={
+        response = self.client.get(url, {
             'seller_product__seller': decoy_sel.pk,
             'seller_product__external_id': ext_id})
 

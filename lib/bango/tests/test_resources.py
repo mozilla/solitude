@@ -89,7 +89,7 @@ class TestLoginResource(BangoAPI):
     def test_nodata(self):
         res = self.client.post(self.login_url, data={})
         eq_(res.status_code, 400, res.status_code)
-        eq_(json.loads(res.content),
+        eq_(res.json,
             {u'packageId': [u'This field is required.']})
 
     @mock.patch.object(ClientMock, 'mock_results')
@@ -136,7 +136,7 @@ class TestLoginResource(BangoAPI):
 
         res = self.client.post(self.login_url, data={'packageId': 1})
         eq_(res.status_code, 200, res.content)
-        data = json.loads(res.content)
+        data = res.json
         eq_(data[u'email_address'], u'admin@example.org')
         eq_(data[u'authentication_token'], u'foo')
         eq_(data[u'person_id'], 1234)
@@ -155,7 +155,7 @@ class TestPackageResource(BangoAPI):
         res = self.client.post(self.list_url, data=self.good_data())
         eq_(res.status_code, 201, res.content)
         seller_bango = SellerBango.objects.get()
-        eq_(json.loads(res.content)['resource_pk'], seller_bango.pk)
+        eq_(res.json['resource_pk'], seller_bango.pk)
 
     @mock.patch.object(ClientMock, 'call')
     def test_insert(self, call):
@@ -201,7 +201,7 @@ class TestPackageResource(BangoAPI):
                 'supportEmailAddress': 'support@place.com'}
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 400, res.content)
-        eq_(json.loads(res.content)['companyName'],
+        eq_(res.json['companyName'],
             ['This field is required.'])
 
     def test_get_allowed(self):
@@ -211,13 +211,13 @@ class TestPackageResource(BangoAPI):
     def test_get(self):
         self.create()
         seller_bango = SellerBango.objects.get()
-        data = json.loads(self.client.get(self.package_uri).content)
+        data = self.client.get(self.package_uri).json
         eq_(data['resource_pk'], seller_bango.pk)
         eq_(data['full'], {})
 
     def test_get_generic(self):
         self.create()
-        data = json.loads(self.client.get(self.seller.get_uri()).content)
+        data = self.client.get(self.seller.get_uri()).json
         eq_(data['bango']['resource_pk'], self.seller_bango.pk)
 
     def patch_data(self):
@@ -315,7 +315,7 @@ class TestPackageResource(BangoAPI):
         self.create()
         url = self.seller_bango.get_uri()
         res = self.client.get_with_body(url, data={'full': True})
-        data = json.loads(res.content)
+        data = res.json
         eq_(data['full']['countryIso'], 'BMU')
 
 
@@ -366,15 +366,14 @@ class TestBangoProduct(BangoAPI):
                                           bango_id='999999')
 
         # We should only fetch the product created in dynamic fixtures.
-        res = self.client.get(self.list_url, data=dict(
-            seller_product__seller=self.seller.pk,
-            seller_product__external_id=self.seller_product.external_id
-        ))
+        res = self.client.get(self.list_url, {
+            'seller_product__seller': self.seller.pk,
+            'seller_product__external_id': self.seller_product.external_id
+            })
 
         eq_(res.status_code, 200, res.content)
-        data = json.loads(res.content)
-        eq_(data['meta']['total_count'], 1, data)
-        eq_(data['objects'][0]['bango_id'], 'sample:bangoid')
+        eq_(res.json['meta']['total_count'], 1, res.json)
+        eq_(res.json['objects'][0]['bango_id'], 'sample:bangoid')
 
 
 class SellerProductBangoBase(BangoAPI):
@@ -508,8 +507,8 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
     def test_good(self):
         res = self.client.post(self.list_url, data=self.good())
         eq_(res.status_code, 200, res.content)
-        assert 'billingConfigurationId' in json.loads(res.content)
-        assert 'application_size' not in json.loads(res.content)
+        assert 'billingConfigurationId' in res.json
+        assert 'application_size' not in res.json
 
     @mock.patch('lib.bango.views.base.BangoResource.client')
     def test_micro_payment_cannot_use_card(self, cli):
@@ -547,14 +546,14 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         with self.settings(BANGO_ICON_URLS=True):
             res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 200, res.content)
-        assert 'billingConfigurationId' in json.loads(res.content)
+        assert 'billingConfigurationId' in res.json
 
     def test_missing(self):
         data = samples.good_billing_request.copy()
         del data['prices']
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 400)
-        assert 'prices' in json.loads(res.content)
+        assert 'prices' in res.json
 
     def test_missing_success_url(self):
         data = self.good()
@@ -573,7 +572,7 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         del data['transaction_uuid']
         res = self.client.post(self.list_url, data=data)
         eq_(res.status_code, 400, res)
-        assert 'transaction_uuid' in json.loads(res.content)
+        assert 'transaction_uuid' in res.json
 
 
 class TestCreateBankConfiguration(BangoAPI):
@@ -611,7 +610,7 @@ class TestGetSBI(BangoAPI):
             self.get_url,
             data={'seller_bango': self.seller_bango_uri})
         eq_(res.status_code, 200)
-        data = json.loads(res.content)
+        data = res.json
         # The SBI mock is there.
         ok_('Self-Billing' in data['text'])
         # The en-US terms are present.
@@ -624,7 +623,7 @@ class TestGetSBI(BangoAPI):
             self.list_url,
             data={'seller_bango': self.seller_bango_uri})
         eq_(res.status_code, 200)
-        data = json.loads(res.content)
+        data = res.json
         eq_(data['accepted'], '2013-01-23 00:00:00')
         eq_(data['expires'], '2014-01-23 00:00:00')
         eq_(str(self.seller_bango.reget().sbi_expires), '2014-01-23 00:00:00')
@@ -670,7 +669,7 @@ class TestRefund(APITest):
             refund_data.update(data)
         res = self.client.post(self.url, data=refund_data)
         eq_(res.status_code, 200, res.content)
-        res_data = json.loads(res.content)
+        res_data = res.json
         eq_(res_data['status'], their_status)
         assert res_data['uuid'] != self.uuid
 
@@ -780,7 +779,7 @@ class TestRefundStatus(APITest):
     def test_get(self):
         res = self.client.get_with_body(self.url,
                                         data={'uuid': self.refund_uuid})
-        data = json.loads(res.content)
+        data = res.json
         eq_(data['status'], OK)
 
     def test_get_manual(self):
@@ -789,7 +788,7 @@ class TestRefundStatus(APITest):
 
         res = self.client.get_with_body(self.url,
                                         data={'uuid': self.refund_uuid})
-        data = json.loads(res.content)
+        data = res.json
         eq_(data['status'], OK)
 
     def test_not_refund(self):
@@ -807,7 +806,7 @@ class TestRefundStatus(APITest):
                                      'responseMessage': 'patience padawan'}
         res = self.client.get_with_body(self.url,
                                         data={'uuid': self.refund.uuid})
-        data = json.loads(res.content)
+        data = res.json
         eq_(data['status'], PENDING)
         eq_(self.refund.reget().status, constants.STATUS_PENDING)
 
@@ -831,7 +830,7 @@ class TestRefundStatus(APITest):
                                      'responseMessage': 'denied padawan'}
         res = self.client.get_with_body(self.url,
                                         data={'uuid': self.refund.uuid})
-        data = json.loads(res.content)
+        data = res.json
         eq_(data['status'], CANT_REFUND)
         eq_(self.refund.reget().status, constants.STATUS_FAILED)
 
@@ -843,7 +842,7 @@ class TestRefundStatus(APITest):
                                      'responseMessage': ''}
         res = self.client.get_with_body(self.url,
                                         data={'uuid': self.refund.uuid})
-        data = json.loads(res.content)
+        data = res.json
         eq_(data['status'], OK)
         eq_(self.refund.reget().status, constants.STATUS_COMPLETED)
 
@@ -854,7 +853,7 @@ class TestRefundStatus(APITest):
         self.client.get_with_body(self.url,
                                   data={'uuid': self.refund.uuid})
         res = self.client.get(reverse('services.failures.transactions'))
-        data = json.loads(res.content)
+        data = res.json
         transaction = data['transactions'][0]
         eq_(transaction['product_id'], self.product.external_id)
         eq_(transaction['id'], self.refund.id)
@@ -865,10 +864,10 @@ class TestRefundStatus(APITest):
     @mock.patch.object(ClientMock, 'mock_results')
     def test_no_transactions_failures(self, mock_results):
         res = self.client.get(reverse('services.failures.transactions'))
-        data = json.loads(res.content)
+        data = res.json
         eq_(data['transactions'], [])
         res = self.client.get(reverse('services.failures.statuses'))
-        data = json.loads(res.content)
+        data = res.json
         eq_(data['statuses'], [])
 
     @mock.patch.object(settings, 'BANGO_FAKE_REFUNDS', True)
@@ -883,12 +882,12 @@ class TestRefundStatus(APITest):
 
     def test_fake_ok(self):
         res = self.fake(OK)
-        eq_(json.loads(res.content)['status'], OK)
+        eq_(res.json['status'], OK)
         eq_(self.refund.reget().status, constants.STATUS_COMPLETED)
 
     def test_fake_pending(self):
         res = self.fake(PENDING)
-        eq_(json.loads(res.content)['status'], PENDING)
+        eq_(res.json['status'], PENDING)
         eq_(self.refund.reget().status, constants.STATUS_PENDING)
 
 
@@ -963,7 +962,7 @@ class TestStatus(SellerProductBangoBase):
         self.client.post(self.url, data=self.data())
         status_instance = Status.objects.all()[0]
         res = self.client.get(reverse('services.failures.statuses'))
-        data = json.loads(res.content)
+        data = res.json
         status = data['statuses'][0]
         eq_(status['product_id'],
             status_instance.seller_product_bango.seller_product.external_id)
@@ -973,7 +972,7 @@ class TestStatus(SellerProductBangoBase):
     def test_no_statuses_failures(self):
         self.client.post(self.url, data=self.data())
         res = self.client.get(reverse('services.failures.statuses'))
-        data = json.loads(res.content)
+        data = res.json
         eq_(data['statuses'], [])
 
     @mock.patch.object(ClientMock, 'mock_results')
@@ -1002,7 +1001,7 @@ class TestDebug(SellerProductBangoBase):
     def test_good(self):
         res = self.client.get_with_body(self.url, data=self.data())
         eq_(res.status_code, 200, res.content)
-        data = json.loads(res.content)
+        data = res.json
         eq_(data['bango']['last_status'], {})
         eq_(data['bango']['last_transaction'], {})
         eq_(data['bango']['bango_id'], 'sample:bangoid')
@@ -1014,7 +1013,7 @@ class TestDebug(SellerProductBangoBase):
             status=STATUS_PENDING, provider=PROVIDER_BANGO)
         res = self.client.get_with_body(self.url, data=self.data())
         eq_(res.status_code, 200, res.content)
-        data = json.loads(res.content)
+        data = res.json
         eq_(data['bango']['last_status'],
             {'status': STATUS_GOOD, 'url': reverse('bango:status-detail',
                                                    kwargs={'pk': status.pk})})

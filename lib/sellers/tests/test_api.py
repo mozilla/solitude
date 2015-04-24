@@ -1,5 +1,3 @@
-import json
-
 from django.core.urlresolvers import reverse
 
 from nose.tools import eq_
@@ -52,9 +50,8 @@ class TestSeller(APITest):
         obj = self.create()
         res = self.client.get(obj.get_uri())
         eq_(res.status_code, 200)
-        content = json.loads(res.content)
-        eq_(content['uuid'], uuid)
-        eq_(content['resource_pk'], obj.pk)
+        eq_(res.json['uuid'], uuid)
+        eq_(res.json['resource_pk'], obj.pk)
 
 
 class TestSellerProduct(APITest):
@@ -111,28 +108,28 @@ class TestSellerProduct(APITest):
     def test_get_miss(self):
         # A test that filtering on the wrong uuid returns zero.
         self.create()
-        res = self.client.get(self.list_url, data={'seller__uuid': 'foo'})
-        eq_(json.loads(res.content)['meta']['total_count'], 0)
+        res = self.client.get(self.list_url, {'seller__uuid': 'foo'})
+        eq_(res.json['meta']['total_count'], 0)
 
     def test_get_all(self):
         # No filters at all still returns everything.
         self.create()
         res = self.client.get(self.list_url)
-        eq_(json.loads(res.content)['meta']['total_count'], 1)
+        eq_(res.json['meta']['total_count'], 1)
 
     def test_get_one(self):
         # Getting just one object just works.
         self.create()
-        res = self.client.get(self.list_url, data={'seller__uuid': uuid})
-        eq_(json.loads(res.content)['meta']['total_count'], 1)
+        res = self.client.get(self.list_url, {'seller__uuid': uuid})
+        eq_(res.json['meta']['total_count'], 1)
 
     def test_not_active(self):
         obj = self.create()
         obj.seller.active = False
         obj.seller.save()
-        res = self.client.get(self.list_url, data={'seller__uuid': uuid,
-                                                   'seller__active': True})
-        eq_(json.loads(res.content)['meta']['total_count'], 0)
+        res = self.client.get(self.list_url, {'seller__uuid': uuid,
+                                              'seller__active': True})
+        eq_(res.json['meta']['total_count'], 0)
 
     def test_post(self):
         res = self.client.post(self.list_url, data=self.data())
@@ -142,22 +139,20 @@ class TestSellerProduct(APITest):
 
     def test_get_by_external_id(self):
         prod = self.create(external_id='my-id')
-        res = self.client.get(self.list_url, data={'seller': self.seller.pk,
-                                                   'external_id': 'my-id'})
+        res = self.client.get(self.list_url, {'seller': self.seller.pk,
+                                              'external_id': 'my-id'})
         eq_(res.status_code, 200)
-        data = json.loads(res.content)
-        eq_(data['meta']['total_count'], 1)
-        eq_(data['objects'][0]['resource_pk'], prod.pk)
+        eq_(res.json['meta']['total_count'], 1)
+        eq_(res.json['objects'][0]['resource_pk'], prod.pk)
 
     def test_get_by_public_id(self):
         self.create(public_id='one', external_id='one')
         self.create(public_id='two', external_id='two')
-        res = self.client.get(self.list_url, data={'seller': self.seller.pk,
-                                                   'public_id': 'one'})
+        res = self.client.get(self.list_url, {'seller': self.seller.pk,
+                                              'public_id': 'one'})
         eq_(res.status_code, 200, res)
-        data = json.loads(res.content)
-        eq_(data['meta']['total_count'], 1)
-        eq_(data['objects'][0]['public_id'], 'one')
+        eq_(res.json['meta']['total_count'], 1)
+        eq_(res.json['objects'][0]['public_id'], 'one')
 
     def test_id_unique_for_seller_error(self):
         res = self.client.post(self.list_url,
@@ -191,37 +186,33 @@ class TestSellerProduct(APITest):
 
     def test_patch_get_secret(self):
         obj, url = self.create_url()
-        res = self.client.patch(url, json.dumps({'seller': self.seller_url,
-                                                 'external_id': 'xyz',
-                                                 'secret': 'hush'}))
+        res = self.client.patch(url, data={
+            'seller': self.seller_url, 'external_id': 'xyz', 'secret': 'hush'})
         eq_(res.status_code, 200, res.content)
         res = self.client.get(url)
-        data = json.loads(res.content)
-        eq_(data['secret'], 'hush')
+        eq_(res.json['secret'], 'hush')
 
     def test_patch_get_access(self):
         obj, url = self.create_url()
-        res = self.client.patch(url, json.dumps({'access': ACCESS_SIMULATE}))
+        res = self.client.patch(url, data={'access': ACCESS_SIMULATE})
         eq_(res.status_code, 200, res.content)
         res = self.client.get(url)
-        data = json.loads(res.content)
-        eq_(data['access'], ACCESS_SIMULATE)
+        eq_(res.json['access'], ACCESS_SIMULATE)
 
     def test_patch_get_ext_id(self):
         obj, url = self.create_url()
-        res = self.client.patch(url, json.dumps({'seller': self.seller_url,
-                                                 'external_id': 'some-id'}))
+        res = self.client.patch(url, data={
+            'seller': self.seller_url, 'external_id': 'some-id'})
         eq_(res.status_code, 200)
         data = obj.reget()
         eq_(data.external_id, 'some-id')
 
     def test_put_get(self):
         obj, url = self.create_url()
-        res = self.client.put(url, json.dumps({'seller': self.seller_url,
-                                               'secret': 'hush',
-                                               'access': ACCESS_PURCHASE,
-                                               'external_id': 'abc',
-                                               'public_id': 'blah'}))
+        res = self.client.put(url, data={
+            'seller': self.seller_url, 'secret': 'hush',
+            'access': ACCESS_PURCHASE, 'external_id': 'abc',
+            'public_id': 'blah'})
         eq_(res.status_code, 200, res.content)
         data = obj.reget()
         eq_(data.secret, 'hush')
@@ -230,7 +221,7 @@ class TestSellerProduct(APITest):
     def test_patch_non_unique_ext_id(self):
         self.create(external_id='some-id')
         obj, url = self.create_url()
-        res = self.client.patch(url, json.dumps({'external_id': 'some-id'}))
+        res = self.client.patch(url, data={'external_id': 'some-id'})
         eq_(res.status_code, 400)
         eq_(self.get_errors(res.content, 'external_id'),
             [EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE], res.content)
@@ -238,10 +229,9 @@ class TestSellerProduct(APITest):
     def test_put_non_unique_ext_id(self):
         self.create(external_id='some-id')
         obj, url = self.create_url()
-        res = self.client.put(url, json.dumps({'seller': self.seller_url,
-                                               'secret': 'hush',
-                                               'external_id': 'some-id',
-                                               'public_id': 'blah'}))
+        res = self.client.put(url, data={
+            'seller': self.seller_url, 'secret': 'hush',
+            'external_id': 'some-id', 'public_id': 'blah'})
         eq_(res.status_code, 400)
         eq_(self.get_errors(res.content, 'external_id'),
             [EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE], res.content)
@@ -251,24 +241,16 @@ class TestSellerProduct(APITest):
         self.create_boku_product(product)
         self.create_bango_product(product)
 
-        res = self.client.get(
-            self.list_url,
-            data={'public_id': self.public_id}
-        )
+        res = self.client.get(self.list_url, {'public_id': self.public_id})
         eq_(res.status_code, 200, res)
-        data = json.loads(res.content)
-        eq_(data['objects'][0]['seller_uuids']['bango'], uuid)
-        eq_(data['objects'][0]['seller_uuids']['boku'], uuid)
+        eq_(res.json['objects'][0]['seller_uuids']['bango'], uuid)
+        eq_(res.json['objects'][0]['seller_uuids']['boku'], uuid)
 
     def test_one_supported_provider_listed(self):
         product = self.create(public_id=self.public_id)
         self.create_boku_product(product)
 
-        res = self.client.get(
-            self.list_url,
-            data={'public_id': self.public_id}
-        )
+        res = self.client.get(self.list_url, {'public_id': self.public_id})
         eq_(res.status_code, 200, res)
-        data = json.loads(res.content)
-        eq_(data['objects'][0]['seller_uuids']['bango'], None)
-        eq_(data['objects'][0]['seller_uuids']['boku'], uuid)
+        eq_(res.json['objects'][0]['seller_uuids']['bango'], None)
+        eq_(res.json['objects'][0]['seller_uuids']['boku'], uuid)

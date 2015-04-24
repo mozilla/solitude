@@ -1,5 +1,3 @@
-import json
-
 from django.conf import settings
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
@@ -19,8 +17,7 @@ class TestStatus(APITest):
 
     def failed(self, res, on):
         eq_(res.status_code, 500)
-        data = json.loads(res.content)
-        assert False in data.values()
+        assert False in res.json.values()
 
     @patch.object(cache, 'get', lambda x: None)
     def test_failure_status(self):

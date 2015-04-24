@@ -50,22 +50,27 @@ def etag_func(request, data, *args, **kwargs):
     return md5(''.join(all_etags)).hexdigest()
 
 
-def json_parse(fn):
-    """Wrapper around responses to add additional info."""
-    @functools.wraps(fn)
-    def wrapper(*args, **kw):
-        response = fn(*args, **kw)
+class _JSONifiedResponse(object):
 
-        def _json(self):
-            """Will return parsed JSON on response if there is any."""
-            if self.content and 'application/json' in self['Content-Type']:
-                if not hasattr(self, '_content_json'):
-                    self._content_json = json.loads(self.content)
-                return self._content_json
+    def __init__(self, response):
+        self._orig_response = response
 
-        response.json = property(_json)
-        return response
-    return wrapper
+    def __getattr__(self, n):
+        return getattr(self._orig_response, n)
+
+    def __getitem__(self, n):
+        return self._orig_response[n]
+
+    def __iter__(self):
+        return iter(self._orig_response)
+
+    @property
+    def json(self):
+        """Will return parsed JSON on response if there is any."""
+        if self.content and 'application/json' in self['Content-Type']:
+            if not hasattr(self, '_content_json'):
+                self._content_json = json.loads(self.content)
+            return self._content_json
 
 
 class APIClient(Client):
@@ -77,30 +82,37 @@ class APIClient(Client):
             kwargs['data'] = json.dumps(kwargs['data'])
         return kwargs
 
-    @json_parse
-    def get(self, *args, **kwargs):
-        return super(APIClient, self).get(*args, **kwargs)
+    def _with_json(self, response):
+        if hasattr(response, 'json'):
+            return response
+        else:
+            return _JSONifiedResponse(response)
 
-    @json_parse
+    def get(self, *args, **kwargs):
+        return self._with_json(super(APIClient, self)
+                               .get(*args, **self._process(kwargs)))
+
     def get_with_body(self, *args, **kwargs):
         # The Django test client automatically serializes data, not allowing
         # you to do a GET with a body. We want to be able to do that in our
         # tests.
-        return super(APIClient, self).post(*args, REQUEST_METHOD='GET',
-                                           **self._process(kwargs))
+        return self._with_json(super(APIClient, self)
+                               .post(*args, REQUEST_METHOD='GET',
+                                     **self._process(kwargs)))
 
-    @json_parse
     def post(self, *args, **kwargs):
-        return super(APIClient, self).post(*args, **self._process(kwargs))
+        return self._with_json(super(APIClient, self)
+                               .post(*args, **self._process(kwargs)))
 
-    @json_parse
     def put(self, *args, **kwargs):
-        return super(APIClient, self).put(*args, **self._process(kwargs))
+        return self._with_json(super(APIClient, self)
+                               .put(*args, CONTENT_TYPE='application/json',
+                                    **self._process(kwargs)))
 
-    @json_parse
     def patch(self, *args, **kwargs):
-        return super(APIClient, self).put(*args, REQUEST_METHOD='PATCH',
-                                          **self._process(kwargs))
+        return self._with_json(super(APIClient, self)
+                               .put(*args, REQUEST_METHOD='PATCH',
+                                    **self._process(kwargs)))
 
 
 class APITest(test.TestCase):
