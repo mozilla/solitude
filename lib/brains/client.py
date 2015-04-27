@@ -10,14 +10,18 @@ from solitude.logger import getLogger
 
 log = getLogger('s.brains')
 
-# Note: between the double slash is where the BRAINTREE_MERCHANT_ID goes. In
-# tests this will be blank, hence the double slash.
-mocks = {
-    'POST /merchants//client_token': (200, get_sample('token')),
-    'GET /merchants//customers/does-not-exist': (404, ''),
-    'GET /merchants//customers/minimal': (200, get_sample('customer-minimal')),
-    'GET /merchants//customers/full': (200, get_sample('customer-full')),
-}
+# Call set_mocks in the tests to populate this value.
+mocks = {}
+
+
+def set_mocks(*args):
+    global mocks
+    mocks.clear()
+    for verb, url, status, filename in args:
+        # Between the double slash is where the BRAINTREE_MERCHANT_ID
+        # goes. In tests this will be blank, hence the double slash.
+        mocks['{0} /merchants//{1}'.format(verb, url)] = (
+            status, get_sample(filename) if filename else '')
 
 
 class Http(braintree.util.http.Http):
