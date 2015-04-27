@@ -15,6 +15,10 @@ WORKDIR /pip
 RUN pip install --no-deps --find-links https://pyrepo.addons.mozilla.org/ peep
 RUN peep install -b /pip/build --download-cache /pip/cache --no-deps -r /pip/requirements/dev.txt --find-links https://pyrepo.addons.mozilla.org/
 
+# Ship the source in the container, its up to docker-compose to override it
+# if it wants to.
+COPY . /srv/solitude
+
 # Technically this should be in supervisor.conf, if the value is placed there,
 # when you enter a bash prompt on the container this value is unset. Meaning
 # that tests, dbshell and other really useful commands fail.
