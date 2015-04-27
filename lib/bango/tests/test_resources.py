@@ -369,7 +369,7 @@ class TestBangoProduct(BangoAPI):
         res = self.client.get(self.list_url, {
             'seller_product__seller': self.seller.pk,
             'seller_product__external_id': self.seller_product.external_id
-            })
+        })
 
         eq_(res.status_code, 200, res.content)
         eq_(res.json['meta']['total_count'], 1, res.json)
