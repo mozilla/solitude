@@ -5,6 +5,8 @@ Generic
 
 The generic API can be used for buyers and sellers.
 
+.. _buyer-label:
+
 Buyers
 ======
 
