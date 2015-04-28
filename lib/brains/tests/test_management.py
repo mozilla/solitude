@@ -9,12 +9,12 @@ from lib.brains.tests.base import BraintreeTest
 class TestManagement(BraintreeTest):
 
     def test_created(self):
-        seller = config.get_or_create_seller('uuid:fxa')
-        same_seller = config.get_or_create_seller('uuid:fxa')
+        seller = config.get_or_create_seller('uuid:concrete')
+        same_seller = config.get_or_create_seller('uuid:concrete')
         eq_(seller, same_seller)
 
     def test_created_product(self):
-        seller = config.get_or_create_seller('uuid:fxa')
+        seller = config.get_or_create_seller('uuid:concrete')
         seller_product = config.get_or_create_seller_product(
             external_id='some:product:uuid:fxa',
             public_id='some:product',
