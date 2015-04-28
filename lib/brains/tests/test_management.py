@@ -6,6 +6,7 @@ from nose.tools import eq_, raises
 
 from lib.brains.management.commands import braintree_config as config
 from lib.brains.tests.base import BraintreeTest
+from lib.brains.client import get_client
 
 
 class TestManagement(BraintreeTest):
@@ -31,7 +32,7 @@ class TestManagement(BraintreeTest):
             Plan(None, {'id': 'mozilla-concrete-mortar', 'price': '1'}),
             Plan(None, {'id': 'mozilla-concrete-brick', 'price': '10'})
         ]
-        return config.get_plans()
+        return config.get_plans(get_client())
 
     def test_plans(self):
         eq_(self.get_plans().keys(),

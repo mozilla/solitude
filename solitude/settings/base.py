@@ -355,8 +355,17 @@ NOSE_ARGS = [
     '--logging-filter=xsd',
     '--with-nicedots',
     '--with-blockage',
-    '--http-whitelist=""',
 ]
+
+if not os.environ.get('LIVE_TESTS'):
+    NOSE_ARGS += [
+        '-a !live',
+        '--http-whitelist=']
+else:
+    NOSE_ARGS += [
+        '-a live',
+        '--http-whitelist=localhost,api.sandbox.braintreegateway.com'
+    ]
 
 # Below is configuration of payment providers.
 

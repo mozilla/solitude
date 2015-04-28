@@ -62,6 +62,11 @@ CHECK_BANGO_TOKEN = True
 
 REQUIRE_OAUTH = False
 
+# Live server tests require this, otherwise they will fail. There is no static
+# content on our site, so meh.
+STATIC_URL = '/'
+STATIC_ROOT = '/'
+
 
 # Suds keeps a cache of the WSDL around, so after completing the test run,
 # lets remove that so it doesn't affect the next test run.
