@@ -39,6 +39,7 @@ Contents
 
    topics/setup.rst
    topics/security.rst
+   topics/overall.rst
    topics/auth.rst
    topics/generic.rst
    topics/bango.rst
