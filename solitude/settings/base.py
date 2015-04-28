@@ -1,11 +1,11 @@
 import logging.handlers
 import os
+from decimal import Decimal
 from urlparse import urlparse
 
 from django.core.urlresolvers import reverse_lazy
 
 import cef
-
 import dj_database_url
 
 
@@ -118,6 +118,11 @@ LOGGING = {
     'loggers': {
         '': {
             'handlers': ['unicodesyslog', 'sentry'],
+            'level': 'INFO',
+            'propagate': True
+        },
+        's.brains.management': {
+            'handlers': ['unicodesyslog', 'console'],
             'level': 'INFO',
             'propagate': True
         },
@@ -481,7 +486,7 @@ BOKU_MD5_CHECK = True
 
 # You'll find this in the Braintree account under:
 # Account > My User > API keys.
-#
+
 # To make it easier, we'll pull these from the env as well.
 BRAINTREE_MERCHANT_ID = os.getenv('BRAINTREE_MERCHANT_ID', '')
 BRAINTREE_PUBLIC_KEY = os.getenv('BRAINTREE_PUBLIC_KEY', '')
@@ -492,3 +497,20 @@ BRAINTREE_ENVIRONMENT = 'sandbox'
 
 # Mock out Braintree. Overrides environment.
 BRAINTREE_MOCK = False
+
+# A definiton of Products for Payments for Firefox Accounts for Braintree.
+BRAINTREE_CONFIG = {
+    'concrete': {
+        'seller': 'mozilla-concrete',
+        'products': [
+            {
+                'name': 'brick',
+                'amount': Decimal('10')
+            },
+            {
+                'name': 'mortar',
+                'amount': Decimal('5')
+            }
+        ]
+    }
+}
