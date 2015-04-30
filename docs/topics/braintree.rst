@@ -3,6 +3,9 @@
 Braintree
 #########
 
+Make sure your :ref:`braintree-settings` are up to date so that
+Solitude can connect to the API.
+
 Generate a token
 ----------------
 
