@@ -1,5 +1,16 @@
 from rest_framework import serializers
 
+from lib.brains.models import BraintreeBuyer
+from solitude.related_fields import PathRelatedField
+
+
+class BraintreeBuyerSerializer(serializers.ModelSerializer):
+    buyer = PathRelatedField(view_name='braintree:buyer-detail')
+
+    class Meta:
+        model = BraintreeBuyer
+        read_only = ['braintree_id']
+
 
 class BraintreeSerializer(serializers.Serializer):
 

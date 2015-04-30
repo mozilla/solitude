@@ -4,8 +4,17 @@ from rest_framework.views import exception_handler
 from lib.bango.errors import BangoImmediateError
 from lib.brains.errors import BraintreeResultError
 
+from django.db.transaction import rollback
+
+from solitude.logger import getLogger
+
+log = getLogger('s')
+
 
 def custom_exception_handler(exc):
+    log.warning('Transaction rolled back due to error.')
+    rollback()
+
     if isinstance(exc, BraintreeResultError):
         res = {
             '__all__': [exc.result.message],

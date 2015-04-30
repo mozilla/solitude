@@ -52,7 +52,6 @@ DJANGO_PARANOIA_REPORTERS = []
 BANGO_MOCK = True
 ZIPPY_MOCK = True
 BOKU_MOCK = True
-BRAINTREE_MOCK = True
 
 BOKU_SECRET_KEY = 'for-testing-only'
 
