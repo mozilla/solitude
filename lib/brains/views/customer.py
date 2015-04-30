@@ -2,11 +2,11 @@ from braintree.exceptions.not_found_error import NotFoundError
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from lib.brains import serializers
 from lib.brains.client import get_client
 from lib.brains.errors import BraintreeResultError
 from lib.brains.forms import BuyerForm
 from lib.brains.models import BraintreeBuyer
-from lib.brains.serializers import CustomerSerializer
 from lib.buyers.models import Buyer
 from lib.buyers.serializers import BuyerSerializer
 from solitude.logger import getLogger
@@ -53,7 +53,7 @@ def create(request):
         customer = result.customer
 
     res = BuyerSerializer(instance=buyer).data
-    res.update({'braintree': CustomerSerializer(instance=customer).data})
+    res.update({'braintree': serializers.Customer(instance=customer).data})
     created = any([braintree_created, braintree_buyer_created, buyer_created])
     status = 201 if created else 200
     return Response(res, status)

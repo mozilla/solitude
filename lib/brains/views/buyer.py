@@ -1,13 +1,13 @@
 from rest_framework.response import Response
 
 from lib.brains.models import BraintreeBuyer
-from lib.brains.serializers import BraintreeBuyerSerializer
+from lib.brains.serializers import LocalBuyer
 from solitude.base import NonDeleteModelViewSet
 
 
 class BraintreeBuyerViewSet(NonDeleteModelViewSet):
     queryset = BraintreeBuyer.objects.all()
-    serializer_class = BraintreeBuyerSerializer
+    serializer_class = LocalBuyer
     filter_fields = ('buyer', 'active')
 
     def create(self, *args, **kw):

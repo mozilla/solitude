@@ -1,11 +1,10 @@
+from django.db.transaction import rollback
+
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
 from lib.bango.errors import BangoImmediateError
 from lib.brains.errors import BraintreeResultError
-
-from django.db.transaction import rollback
-
 from solitude.logger import getLogger
 
 log = getLogger('s')
