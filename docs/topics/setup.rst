@@ -83,6 +83,8 @@ You can fake out Boku for some tasks if you'd like::
 
     BOKU_MOCK = True
 
+.. _braintree-settings:
+
 Braintree settings
 ~~~~~~~~~~~~~~~~~~
 
@@ -96,7 +98,7 @@ Then go to Account > My User > API Keys. Alter your configration to read::
     BRAINTREE_PUBLIC_KEY = 'your-public-key'
     BRAINTREE_PRIVATE_KEY = 'your-private-key'
 
-What server is connected to is controlled by::
+The Braintree API server is configured by this setting::
 
     BRAINTREE_ENVIRONMENT = 'sandbox'
 
