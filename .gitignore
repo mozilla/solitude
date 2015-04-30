@@ -6,6 +6,7 @@ settings/local.py
 .coverage
 pip-log.txt
 docs/_gh-pages
+docker/*
 build.py
 build
 .DS_Store
