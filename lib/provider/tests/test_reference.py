@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from mock import patch
 from nose.tools import eq_
 
-from curling.lib import HttpServerError
+from slumber.exceptions import HttpServerError
 from lib.sellers.models import SellerProductReference, SellerReference
 from lib.sellers.tests.utils import SellerTest
 
