@@ -19,9 +19,9 @@ Calls braintree `ClientToken.generate <https://developers.braintreepayments.com/
 Create a customer
 -----------------
 
-Creates a customer in Braintree and the corresponding buyer in solitude. If the
-buyer exists in solitude already, it is not created. If the customer exists in
-Braintree already, it is not created.
+Creates a customer in Braintree and the corresponding buyer and Braintree buyer
+in solitude. If the buyer exists in solitude already, it is not created. If the
+customer exists in Braintree already, it is not created.
 
 .. http:post:: /braintree/customer/
 
@@ -55,5 +55,47 @@ Braintree already, it is not created.
     :>json string braintree created_at: created date and time.
     :>json string braintree updated_at: updated date and time.
 
-    :status 200: customer and buyer already exist.
-    :status 201: customer or buyer successfully created.
+    :status 200: customer, Braintree buyer and buyer already exist.
+    :status 201: customer, Braintree buyer or buyer successfully created.
+
+.. note:: If the creation fails at Braintree then the new buyer objects will
+          not be created.
+
+Braintree Buyer
+---------------
+
+Stores information about the Buyer in Braintree in solitude. It links a Buyer
+object and Braintree customer.
+
+.. note:: Because creation of Braintree buyer is tied to creating a Customer
+          in Braintree, creation of a Braintree buyer is not allowed through
+          a POST. You must use the "Create a Customer" API.
+
+.. http:get:: /braintree/buyer/<buyer id>/
+
+    .. code-block:: json
+
+        {
+            "active": true,
+            "braintree_id": "7",
+            "buyer": "/braintree/buyer/7/",
+            "counter": 0,
+            "created": "2015-04-30T11:42:09",
+            "modified": "2015-04-30T11:42:09",
+            "resource_pk": 1,
+            "resource_uri": "/braintree/buyer/1/"
+        }
+
+    :>json boolean active: if the buyer is currently active.
+    :>json string braintree_id: the id of the customer on Braintree. This field
+                                is read only.
+    :>json string buyer: URI to :ref:`a buyer object <buyer-label>`
+
+.. http:patch:: /braintree/buyer/<buyer id>/
+
+    :<json boolean active: if the buyer is currently active.
+
+.. http:get:: /braintree/buyer/
+
+    :query buyer: the primary key of the buyer.
+    :query active: the active status.
