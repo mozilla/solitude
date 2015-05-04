@@ -48,6 +48,20 @@ Create an empty settings::
     cd solitude/settings
     echo "from . import base" > local.py
 
+Running tests
+-------------
+
+To run unit tests::
+
+    python manage.py test
+
+Live server and Braintree integration tests can be run by::
+
+    LIVE_TESTS=yes python manage.py test
+
+For the Braintree tests to pass, you will need to have setup a Braintree
+sandbox account.
+
 Bango settings
 ~~~~~~~~~~~~~~
 
@@ -97,6 +111,8 @@ Then go to Account > My User > API Keys. Alter your configration to read::
     BRAINTREE_MERCHANT_ID = 'your-merchant-id'
     BRAINTREE_PUBLIC_KEY = 'your-public-key'
     BRAINTREE_PRIVATE_KEY = 'your-private-key'
+
+These values can also be set by environment variables.
 
 The Braintree API server is configured by this setting::
 

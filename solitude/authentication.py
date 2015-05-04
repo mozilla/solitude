@@ -44,7 +44,7 @@ class RestOAuthAuthentication(BaseAuthentication):
             if not key:
                 if settings.REQUIRE_OAUTH:
                     log.error(u'No key to: {0}'.format(request.path))
-                    return AuthenticationFailed
+                    raise AuthenticationFailed
                 return (DummyUser(), None)
             oauth_server.verify_request(oauth_request, Consumer(key), None)
             request.OAUTH_KEY = key
@@ -58,13 +58,13 @@ class RestOAuthAuthentication(BaseAuthentication):
 
         except KeyError:
             log.error(u'No key to: {0}'.format(request.path))
-            return AuthenticationFailed
+            raise AuthenticationFailed
 
         except:
             log.error(u'Access failed for: {0}, to: {1}'
                       .format(key, request.path),
                       exc_info=True)
-            return AuthenticationFailed
+            raise AuthenticationFailed
 
 
 def initialize_oauth_server_request(request):

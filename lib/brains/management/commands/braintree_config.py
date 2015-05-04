@@ -8,9 +8,7 @@ from lib.brains.client import get_client
 from lib.sellers.models import Seller, SellerProduct
 from solitude.logger import getLogger
 
-
 log = getLogger('s.brains.management')
-client = get_client()
 
 
 def get_or_create_seller(uuid):
@@ -63,7 +61,7 @@ def product_exists(plans, external_id, amount):
     log.info('Plan: {0} exists correctly on Braintree'.format(external_id))
 
 
-def get_plans():
+def get_plans(client):
     return dict((p.id, p) for p in client.Plan.all())
 
 
@@ -81,10 +79,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         config = settings.BRAINTREE_CONFIG
+        client = get_client()
         for name, item in config.items():
             log.info('Configuring: {0}'.format(name))
             seller = get_or_create_seller(item['seller'])
-            plans = get_plans()
+            plans = get_plans(client)
             # Iterate through each product checking they exist.
             for product in item['products']:
                 external_id = item['seller'] + '-' + product['name']
