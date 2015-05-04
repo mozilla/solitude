@@ -2,10 +2,10 @@ from django import test
 from django.conf import settings
 from django.test import RequestFactory
 
-from curling.lib import HttpClientError
 from mock import patch
 from nose.tools import eq_, ok_, raises
 from rest_framework.exceptions import AuthenticationFailed
+from slumber.exceptions import HttpClientError
 
 from solitude.authentication import Consumer, RestOAuthAuthentication
 from solitude.tests.live import LiveTestCase
