@@ -2,9 +2,9 @@ from django.core.urlresolvers import reverse
 
 from django_statsd.clients import statsd
 from rest_framework.response import Response
+from slumber.exceptions import HttpClientError
 
 import client
-from curling.lib import HttpClientError
 from errors import NoReference
 from solitude.base import BaseAPIView
 from solitude.logger import getLogger

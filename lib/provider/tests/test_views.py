@@ -5,8 +5,8 @@ from django.test import RequestFactory, TestCase
 
 import mock
 from nose.tools import eq_, ok_
+from slumber.exceptions import HttpClientError
 
-from curling.lib import HttpClientError
 from ..views import NoReference, ProxyView
 
 

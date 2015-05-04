@@ -75,8 +75,14 @@ class TestBango(Proxy):
 
 @mock.patch.object(settings, 'SOLITUDE_PROXY', True)
 @mock.patch.object(
-    settings, 'ZIPPY_CONFIGURATION',
-    {'f': {'url': 'http://f.c', 'auth': {'key': 'k', 'secret': 's'}}})
+    settings, 'ZIPPY_CONFIGURATION', {
+        'f': {
+            'url': 'http://f.c',
+            'auth': {
+                'key': 'k', 'secret': 's', 'realm': 'f'
+            }
+        }
+    })
 class TestProvider(Proxy):
 
     def setUp(self):
