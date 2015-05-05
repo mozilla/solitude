@@ -4,9 +4,9 @@ from braintree.plan import Plan
 from braintree.plan_gateway import PlanGateway
 from nose.tools import eq_, raises
 
+from lib.brains.client import get_client
 from lib.brains.management.commands import braintree_config as config
 from lib.brains.tests.base import BraintreeTest
-from lib.brains.client import get_client
 
 
 class TestManagement(BraintreeTest):

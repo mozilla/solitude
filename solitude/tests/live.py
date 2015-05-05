@@ -6,7 +6,6 @@ from django.test.utils import override_settings
 from nose.plugins.attrib import attr
 
 from curling import lib
-
 from solitude.base import getLogger
 
 log = getLogger('s.tests')
