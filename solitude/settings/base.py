@@ -19,14 +19,6 @@ host = os.environ.get('SOLITUDE_URL', 'http://localhost:2602')
 #
 ALLOWED_HOSTS = []
 
-if os.environ.get('MEMCACHE_URL'):
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-            'LOCATION': os.getenv('MEMCACHE_URL'),
-        }
-    }
-
 SOLITUDE_PROXY = os.environ.get('SOLITUDE_PROXY', 'disabled') == 'enabled'
 
 if SOLITUDE_PROXY:
