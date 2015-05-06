@@ -26,7 +26,6 @@ PAYPAL_URLS_ALLOWED = ('https://marketplace-dev.allizom.org',)
 # How tastypie processes error depends upon these settings.
 DEBUG = True
 DEBUG_PROPAGATE_EXCEPTIONS = DEBUG
-TASTYPIE_FULL_DEBUG = DEBUG
 
 DUMP_REQUESTS = False
 

@@ -247,7 +247,7 @@ def dump_response(response=None, **kw):
 class BaseSerializer(serializers.ModelSerializer):
 
     """
-    Retains compatability between DRF and Tastypie.
+    Standard base serializer for solitude objects.
     """
     resource_pk = serializers.CharField(source='pk', read_only=True)
     resource_uri = serializers.SerializerMethodField('get_resource_uri')

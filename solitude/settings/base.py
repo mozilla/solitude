@@ -277,7 +277,6 @@ else:
         'django.middleware.common.CommonMiddleware',
         'django.middleware.http.ConditionalGetMiddleware',
         'django_statsd.middleware.GraphiteMiddleware',
-        'django_statsd.middleware.TastyPieRequestTimingMiddleware',
         'django_paranoia.middleware.Middleware'
     )
 
