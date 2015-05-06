@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.db.transaction import rollback
 
+from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
@@ -10,9 +12,17 @@ from solitude.logger import getLogger
 log = getLogger('s')
 
 
+class InvalidQueryParams(ParseError):
+    status_code = 400
+    default_detail = 'Incorrect query parameters.'
+
+
 def custom_exception_handler(exc):
-    log.warning('Transaction rolled back due to error.')
-    rollback()
+    # We shouldn't be rolling back if we are inside a transaction test case
+    # until we figure out mozilla/solitude#388
+    if not settings.IN_TEST_SUITE:
+        log.warning('Transaction rolled back due to error.')
+        rollback()
 
     if isinstance(exc, BraintreeResultError):
         res = {

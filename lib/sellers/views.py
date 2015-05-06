@@ -13,5 +13,6 @@ class SellerProductViewSet(NonDeleteModelViewSet):
     queryset = SellerProduct.objects.all()
     serializer_class = SellerProductSerializer
     filter_fields = (
-        'external_id', 'public_id', 'seller__uuid', 'seller__active'
+        'external_id', 'public_id', 'seller__uuid', 'seller__active',
+        'seller'
     )

@@ -130,3 +130,9 @@ class TestBraintreeBuyerMethod(APITest):
         eq_(res.json['truncated_id'], 'some')
         eq_(res.json['type'], PAYMENT_METHOD_CARD)
         eq_(res.json['type_name'], 'visa')
+
+    def test_list(self):
+        # This is just a sanity check that the StrictQueryFilter is being
+        # applied to queries. It is tested independently elsewhere.
+        res = self.client.get(self.url, {'foo': 'bar'})
+        eq_(res.status_code, 400)
