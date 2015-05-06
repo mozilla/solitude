@@ -1,8 +1,11 @@
 import uuid
 
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+
 import mock
 from braintree.error_result import ErrorResult
-
+from nose.plugins.attrib import attr
 from lib.brains.errors import MockError
 from lib.brains.models import (
     BraintreeBuyer, BraintreePaymentMethod)
@@ -10,6 +13,7 @@ from lib.buyers.models import Buyer
 from lib.sellers.models import Seller, SellerProduct
 from solitude.base import APITest
 from solitude.constants import PAYMENT_METHOD_CARD
+from solitude.tests.live import LiveTestCase
 
 
 def create_braintree_buyer(braintree_id='sample:id'):
@@ -119,3 +123,16 @@ class BraintreeTest(APITest):
                 if not getattr(v, call).called:
                     raise MockError('{0}.{1} registered but not called.'
                                     .format(self.gateways[k].__name__, call))
+
+
+@attr('braintree')
+class BraintreeLiveTestCase(LiveTestCase):
+
+    def setUp(self):
+        for key in ['BRAINTREE_MERCHANT_ID',
+                    'BRAINTREE_PUBLIC_KEY',
+                    'BRAINTREE_PRIVATE_KEY']:
+            if not getattr(settings, key):
+                raise ImproperlyConfigured('{0} is empty'.format(key))
+
+        super(LiveTestCase, self).setUp()

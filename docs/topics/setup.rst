@@ -61,9 +61,13 @@ To run unit tests::
 
     python manage.py test
 
-Live server and Braintree integration tests can be run by::
+All live server and Braintree integration tests are not run by default. To run
+live server and Braintree integration tests::
 
-    LIVE_TESTS=yes python manage.py test
+    LIVE_TESTS=live,braintree python manage.py test
+
+The value of LIVE_TESTS is passed to the `nose args command
+<http://nose.readthedocs.org/en/latest/plugins/attrib.html#simple-syntax>`_.
 
 For the Braintree tests to pass, you will need to have setup a Braintree
 sandbox account.

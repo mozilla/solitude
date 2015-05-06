@@ -37,7 +37,8 @@ class TestDRFAuthentication(test.TestCase):
 class TestAuthentication(LiveTestCase):
 
     def test_valid_auth(self):
-        ok_(self.request.by_url('/generic/transaction/').get())
+        # If there was an error with auth, an assertion would be raised.
+        self.request.by_url('/generic/transaction/').get()
 
     def test_invalid_auth(self):
         with self.settings(CLIENT_OAUTH_KEYS={'f': 'b'}):

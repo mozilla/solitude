@@ -1,28 +1,38 @@
 import sys
 
-from django.shortcuts import render_to_response
+from django.http import HttpResponse, JsonResponse
 
-from solitude.base import handle_500
+from solitude.base import log_cef
 
 
 def home(request):
-    return render_to_response('home.html')
+    return response(request,
+                    data={'message': 'A home page in solitude.'},
+                    status=200)
 
 
-def error(request, status=500):
-    # If they posted JSON, return the error as JSON, assuming that accept
-    # is set correctly.
-    if request.META['CONTENT_TYPE'] == 'application/json':
-        return handle_500(request, sys.exc_info()[1])
+def response(request, status=500, data=None):
+    # If returning JSON, then we can't send back an empty body, unless we
+    # return a 204 - the client should be able to parse it.
+    message = data if data else {}
+    if 'application/json' in request.META.get('HTTP_ACCEPT'):
+        return JsonResponse(message, status=status)
 
-    response = render_to_response('error.html')
-    response.status_code = status
-    return response
+    # If you send back something flasy dictionary with HTTPResponse, it just
+    # returns an empty body.
+    return HttpResponse(message.values(), status=status)
+
+
+def error_500(request):
+    exception = sys.exc_info()[1]
+    log_cef(str(exception), request, severity=3)
+    return response(request, status=500,
+                    data={'error': exception.__class__.__name__})
 
 
 def error_403(request):
-    return error(request, status=403)
+    return response(request, status=403)
 
 
 def error_404(request):
-    return error(request, status=404)
+    return response(request, status=404)
