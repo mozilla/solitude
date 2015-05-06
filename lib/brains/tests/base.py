@@ -1,7 +1,18 @@
+import uuid
+
 import mock
 
 from lib.brains.errors import MockError
+from lib.brains.models import BraintreeBuyer
+from lib.buyers.models import Buyer
 from solitude.base import APITest
+
+
+def create_buyer():
+    buyer = Buyer.objects.create(uuid=str(uuid.uuid4()))
+    braintree_buyer = BraintreeBuyer.objects.create(
+        braintree_id='sample:id', buyer=buyer)
+    return buyer, braintree_buyer
 
 
 class BraintreeMock(mock.Mock):
@@ -53,7 +64,6 @@ class BraintreeTest(APITest):
 
         for key, gateway in self.gateways.items():
             name = gateway.__name__
-
             # Patch all the classes in the gateway.
             patch = mock.patch(
                 'braintree.braintree_gateway.' + name, name='gateway.' + name)
