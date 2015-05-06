@@ -5,14 +5,13 @@ from django.core.urlresolvers import reverse
 from braintree.customer import Customer
 from braintree.customer_gateway import CustomerGateway
 from braintree.error_result import ErrorResult
-from braintree.exceptions import NotFoundError
 from braintree.successful_result import SuccessfulResult
 from nose.tools import eq_
 
 from lib.brains.forms import BuyerForm
 from lib.brains.models import BraintreeBuyer
-from lib.brains.tests.base import BraintreeTest
-from lib.buyers.models import Buyer
+from lib.brains.tests.base import (
+    BraintreeTest, create_braintree_buyer, create_buyer)
 
 
 def customer(**kw):
@@ -40,49 +39,33 @@ class TestCustomer(BraintreeTest):
         super(TestCustomer, self).setUp()
         self.url = reverse('braintree:customer')
 
-    def test_solitude_buyer_exists(self):
-        self.mocks['customer'].find.side_effect = NotFoundError
+    def test_buyer_doesnt_exist(self):
+        res = self.client.post(self.url, data={'uuid': 'nope'})
+        eq_(res.status_code, 400)
+
+    def test_braintree_buyer_exists(self):
+        buyer, braintree_buyer = create_braintree_buyer()
+        res = self.client.post(self.url, data={'uuid': buyer.uuid})
+        eq_(res.status_code, 400)
+
+    def test_ok(self):
         self.mocks['customer'].create.return_value = successful_customer()
 
-        buyer = Buyer.objects.create(uuid='customer-id')
-        BraintreeBuyer.objects.create(buyer=buyer)
-        res = self.client.post(self.url, data={'uuid': 'customer-id'})
+        buyer = create_buyer()
+        res = self.client.post(self.url, data={'uuid': buyer.uuid})
         eq_(res.status_code, 201)
-        eq_(Buyer.objects.count(), 1)
-        eq_(BraintreeBuyer.objects.count(), 1)
-        eq_(res.json['resource_pk'], buyer.pk)
 
-    def test_solitude_buyer_doesnt_exist(self):
-        self.mocks['customer'].find.return_value = customer()
-
-        res = self.client.post(self.url, data={'uuid': 'customer-id'})
-        eq_(res.status_code, 201)
-        buyer = Buyer.objects.get()
-        eq_(buyer.uuid, 'customer-id')
         braintree_buyer = BraintreeBuyer.objects.get()
-        eq_(braintree_buyer.braintree_id, str(buyer.pk))
-
-    def test_braintree_buyer_does_exist(self):
-        self.mocks['customer'].find.return_value = customer()
-
-        res = self.client.post(self.url, data={'uuid': 'customer-id'})
-        eq_(res.status_code, 201)
+        eq_(res.json['mozilla']['resource_pk'], braintree_buyer.pk)
+        eq_(res.json['mozilla']['braintree_id'], 'customer-id')
         eq_(res.json['braintree']['id'], 'customer-id')
 
-    def test_both_exist(self):
-        self.mocks['customer'].find.return_value = customer()
+    def test_error(self):
+        self.mocks['customer'].create.return_value = error()
 
-        Buyer.objects.create(uuid='minimal')
-        res = self.client.post(self.url, data={'uuid': 'customer-id'})
-        eq_(res.status_code, 201)
-
-    def test_braintree_buyer_doesnt_exist(self):
-        self.mocks['customer'].find.side_effect = NotFoundError
-        self.mocks['customer'].create.return_value = successful_customer()
-
-        res = self.client.post(self.url, data={'uuid': 'customer-id'})
-        eq_(res.status_code, 201)
-        eq_(res.json['braintree']['id'], 'customer-id')
+        buyer = create_buyer()
+        res = self.client.post(self.url, data={'uuid': buyer.uuid})
+        eq_(res.status_code, 400)
 
     def test_no_uuid(self):
         res = self.client.post(self.url, data={})

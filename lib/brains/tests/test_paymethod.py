@@ -9,7 +9,7 @@ from braintree.successful_result import SuccessfulResult
 from nose.tools import eq_
 
 from lib.brains.models import BraintreePaymentMethod
-from lib.brains.tests.base import BraintreeTest, create_buyer
+from lib.brains.tests.base import BraintreeTest, create_braintree_buyer
 from solitude.base import APITest
 from solitude.constants import PAYMENT_METHOD_CARD, PAYMENT_METHOD_OPERATOR
 
@@ -48,12 +48,12 @@ class TestPaymentMethod(BraintreeTest):
     def test_ok(self):
         self.mocks['method'].create.return_value = successful_method()
 
-        buyer, braintree_buyer = create_buyer()
+        buyer, braintree_buyer = create_braintree_buyer()
         res = self.client.post(self.url,
                                data={'buyer_uuid': buyer.uuid, 'nonce': '123'}
                                )
         data = {
-            'customer_id': str(buyer.pk),
+            'customer_id': 'sample:id',
             'options': {'verify_card': True},
             'payment_method_nonce': u'123'
         }
@@ -71,7 +71,7 @@ class TestPaymentMethod(BraintreeTest):
         eq_(res.status_code, 400)
 
     def test_no_buyerbraintree(self):
-        buyer, braintree_buyer = create_buyer()
+        buyer, braintree_buyer = create_braintree_buyer()
         braintree_buyer.delete()
 
         res = self.client.post(self.url,
@@ -81,7 +81,7 @@ class TestPaymentMethod(BraintreeTest):
     def test_braintree_fails(self):
         self.mocks['method'].create.return_value = error()
 
-        buyer, braintree_buyer = create_buyer()
+        buyer, braintree_buyer = create_braintree_buyer()
         res = self.client.post(self.url,
                                data={'buyer_uuid': buyer.uuid, 'nonce': '123'})
         eq_(res.status_code, 400)
@@ -90,7 +90,7 @@ class TestPaymentMethod(BraintreeTest):
 class TestBraintreeBuyerMethod(APITest):
 
     def setUp(self):
-        self.buyer, self.braintree_buyer = create_buyer()
+        self.buyer, self.braintree_buyer = create_braintree_buyer()
         self.url = reverse('braintree:mozilla:paymethod-list')
         super(TestBraintreeBuyerMethod, self).setUp()
 

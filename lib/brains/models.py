@@ -23,11 +23,6 @@ class BraintreeBuyer(Model):
     def get_uri(self):
         return reverse('braintree:mozilla:buyer', kwargs={'pk': self.pk})
 
-    def save(self, *args, **kw):
-        if not self.pk:
-            self.braintree_id = str(self.buyer.pk)
-        return super(BraintreeBuyer, self).save(*args, **kw)
-
 
 class BraintreePaymentMethod(Model):
 
