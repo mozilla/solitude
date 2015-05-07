@@ -48,3 +48,24 @@ class BraintreePaymentMethod(Model):
     def get_uri(self):
         return reverse('braintree:mozilla:paymethod-detail',
                        kwargs={'pk': self.pk})
+
+
+class BraintreeSubscription(Model):
+
+    """
+    A holder for Braintree specific information around the subscriber.
+    """
+    active = models.BooleanField(default=True)
+    # From the payment method we know the buyer.
+    paymethod = models.ForeignKey(BraintreePaymentMethod, db_index=True)
+    seller_product = models.ForeignKey('sellers.SellerProduct', db_index=True)
+    # An id specific to the provider.
+    provider_id = models.CharField(max_length=255)
+
+    class Meta(Model.Meta):
+        db_table = 'braintree_subscription'
+        unique_together = (('paymethod', 'seller_product'),)
+
+    def get_uri(self):
+        return reverse('braintree:mozilla:subscription-detail',
+                       kwargs={'pk': self.pk})
