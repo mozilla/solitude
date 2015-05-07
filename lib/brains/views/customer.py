@@ -1,4 +1,3 @@
-from braintree.exceptions.not_found_error import NotFoundError
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -7,8 +6,6 @@ from lib.brains.client import get_client
 from lib.brains.errors import BraintreeResultError
 from lib.brains.forms import BuyerForm
 from lib.brains.models import BraintreeBuyer
-from lib.buyers.models import Buyer
-from lib.buyers.serializers import BuyerSerializer
 from solitude.logger import getLogger
 
 log = getLogger('s.brains')
@@ -22,38 +19,21 @@ def create(request):
     if not form.is_valid():
         return Response(form.errors, status=400)
 
-    uuid = form.cleaned_data['uuid']
+    result = client.create()
+    if not result.is_success:
+        log.warning('Error on creating Customer: {0}, {1}'
+                    .format(form.cleaned_data['uuid'], result.message))
+        raise BraintreeResultError(result)
 
-    # Create the solitude objects.
-    buyer, buyer_created = Buyer.objects.get_or_create(uuid=uuid)
-    log.info('Buyer {0}: {1}'
-             .format('created' if buyer_created else 'exists', buyer.pk))
+    log.info('Braintree customer created: {0}'.format(result.customer.id))
 
-    braintree, braintree_buyer_created = (
-        BraintreeBuyer.objects.get_or_create(buyer=buyer))
-    log.info('BraintreeBuyer {0}: {1}'
-             .format('created' if braintree_buyer_created else 'exists',
-                     braintree.pk))
+    braintree_buyer = BraintreeBuyer.objects.create(
+        buyer=form.buyer, braintree_id=result.customer.id)
 
-    braintree_id = braintree.braintree_id
-    # Create the braintree objects.
-    # If anything fails at this point, the transaction will be rolled back.
-    braintree_created = False
-    try:
-        customer = client.find(braintree_id)
-        log.info('Customer found: {0}'.format(braintree_id))
-    except NotFoundError:
-        result = client.create({'id': braintree_id})
-        if not result.is_success:
-            log.warning('Error on creating Customer: {0}, {1}'
-                        .format(uuid, result.message))
-            raise BraintreeResultError(result)
+    log.info('Braintree buyer created: {0}'.format(braintree_buyer.pk))
 
-        braintree_created = True
-        customer = result.customer
-
-    res = BuyerSerializer(instance=buyer).data
-    res.update({'braintree': serializers.Customer(instance=customer).data})
-    created = any([braintree_created, braintree_buyer_created, buyer_created])
-    status = 201 if created else 200
-    return Response(res, status)
+    res = serializers.Namespaced(
+        serializers.LocalBuyer(instance=braintree_buyer),
+        serializers.Customer(instance=result.customer)
+    )
+    return Response(res.data, status=201)

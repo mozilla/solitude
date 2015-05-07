@@ -8,11 +8,15 @@ from lib.buyers.models import Buyer
 from solitude.base import APITest
 
 
-def create_buyer():
-    buyer = Buyer.objects.create(uuid=str(uuid.uuid4()))
+def create_braintree_buyer(braintree_id='sample:id'):
+    buyer = create_buyer()
     braintree_buyer = BraintreeBuyer.objects.create(
-        braintree_id='sample:id', buyer=buyer)
+        braintree_id=braintree_id, buyer=buyer)
     return buyer, braintree_buyer
+
+
+def create_buyer():
+    return Buyer.objects.create(uuid=str(uuid.uuid4()))
 
 
 class BraintreeMock(mock.Mock):

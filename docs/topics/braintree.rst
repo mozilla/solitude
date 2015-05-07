@@ -27,51 +27,40 @@ customer exists in Braintree already, it is not created.
 
     :<json string uuid: the uuid of the buyer in solitude.
 
-    Returns :ref:`a buyer object <buyer-label>` with some extra fields.
-
     .. code-block:: json
 
         {
-            "active": true,
             "braintree": {
-                "created_at": "2015-04-27T21:35:51",
-                "id": "123",
-                "updated_at": "2015-04-27T21:35:51"
+                "created_at": "2015-05-06T15:35:41.519",
+                "id": "customer-id",
+                "updated_at": "2015-05-06T15:35:41.519"
             },
-            "email": null,
-            "needs_pin_reset": false,
-            "new_pin": false,
-            "pin": false,
-            "pin_confirmed": false,
-            "pin_failures": 0,
-            "pin_is_locked_out": false,
-            "pin_was_locked_out": false,
-            "resource_pk": 8,
-            "resource_uri": "/generic/buyer/8/",
-            "uuid": "123"
+            "mozilla": {
+                "active": true,
+                "braintree_id": "customer-id",
+                "buyer": "/generic/buyer/3/",
+                "counter": 0,
+                "created": "2015-05-06T15:35:41.523",
+                "id": 2,
+                "modified": "2015-05-06T15:35:41.523",
+                "resource_pk": 2,
+                "resource_uri": "/braintree/mozilla/buyer/2/"
+            }
         }
 
     :>json string braintree id: id.
     :>json string braintree created_at: created date and time.
     :>json string braintree updated_at: updated date and time.
 
-    :status 200: customer, Braintree buyer and buyer already exist.
-    :status 201: customer, Braintree buyer or buyer successfully created.
-
-.. note:: If the creation fails at Braintree then the new buyer objects will
-          not be created.
+    :status 201: customer and Braintree buyer successfully created.
 
 .. _braintree-buyer-label:
 
-Braintree Buyer
----------------
+Data stored in solitude
+-----------------------
 
 Stores information about the Buyer in Braintree in solitude. It links a Buyer
 object and Braintree customer.
-
-.. note:: Because creation of Braintree buyer is tied to creating a Customer
-          in Braintree, creation of a Braintree buyer is not allowed through
-          a POST. You must use the "Create a Customer" API.
 
 .. http:get:: /braintree/buyer/<buyer id>/
 
@@ -79,13 +68,14 @@ object and Braintree customer.
 
         {
             "active": true,
-            "braintree_id": "7",
-            "buyer": "/braintree/buyer/7/",
+            "braintree_id": "customer-id",
+            "buyer": "/generic/buyer/3/",
             "counter": 0,
-            "created": "2015-04-30T11:42:09",
-            "modified": "2015-04-30T11:42:09",
-            "resource_pk": 1,
-            "resource_uri": "/braintree/buyer/1/"
+            "created": "2015-05-06T15:35:41.523",
+            "id": 2,
+            "modified": "2015-05-06T15:35:41.523",
+            "resource_pk": 2,
+            "resource_uri": "/braintree/mozilla/buyer/2/"
         }
 
     :>json boolean active: if the buyer is currently active.
