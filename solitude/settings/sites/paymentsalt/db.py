@@ -64,11 +64,6 @@ ZIPPY_CONFIGURATION = {
     'reference': {
         'url': 'https://zippy-dev.allizom.org'
     },
-    'boku': {
-        'url': base.BOKU_API_DOMAIN
-    }
 }
-
-BOKU_PROXY = ZIPPY_PROXY
 
 NOSE_PLUGINS = []

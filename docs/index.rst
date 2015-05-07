@@ -17,7 +17,6 @@ every API that the provider supports.
 Currently we support:
 
 * some `Bango <http://bango.com/>`_ APIs
-* some `Boku <http://www.boku.com/>`_ APIs
 * some `Braintree <http://www.braintree.com/>`_ APIs
 * some `Zippy <http://zippypayments.readthedocs.org/>`_ compliance
 
@@ -43,7 +42,6 @@ Contents
    topics/auth.rst
    topics/generic.rst
    topics/bango.rst
-   topics/boku.rst
    topics/braintree.rst
    topics/zippy.rst
    topics/proxy.rst

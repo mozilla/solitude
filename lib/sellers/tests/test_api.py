@@ -4,9 +4,8 @@ from nose.tools import eq_
 
 from lib.sellers.constants import (ACCESS_PURCHASE, ACCESS_SIMULATE,
                                    EXTERNAL_PRODUCT_ID_IS_NOT_UNIQUE)
-from lib.sellers.models import (Seller, SellerBango, SellerBoku,
-                                SellerProduct, SellerProductBango,
-                                SellerProductBoku)
+from lib.sellers.models import (
+    Seller, SellerBango, SellerProduct, SellerProductBango)
 from solitude.base import APITest
 
 uuid = 'sample:uid'
@@ -79,13 +78,6 @@ class TestSellerProduct(APITest):
         )
         return SellerProductBango.objects.create(
             seller_bango=seller_bango,
-            seller_product=product
-        )
-
-    def create_boku_product(self, product):
-        seller_boku = SellerBoku.objects.create(seller=self.seller)
-        return SellerProductBoku.objects.create(
-            seller_boku=seller_boku,
             seller_product=product
         )
 
@@ -238,19 +230,8 @@ class TestSellerProduct(APITest):
 
     def test_supported_providers_listed(self):
         product = self.create(public_id=self.public_id)
-        self.create_boku_product(product)
         self.create_bango_product(product)
 
         res = self.client.get(self.list_url, {'public_id': self.public_id})
         eq_(res.status_code, 200, res)
         eq_(res.json['objects'][0]['seller_uuids']['bango'], uuid)
-        eq_(res.json['objects'][0]['seller_uuids']['boku'], uuid)
-
-    def test_one_supported_provider_listed(self):
-        product = self.create(public_id=self.public_id)
-        self.create_boku_product(product)
-
-        res = self.client.get(self.list_url, {'public_id': self.public_id})
-        eq_(res.status_code, 200, res)
-        eq_(res.json['objects'][0]['seller_uuids']['bango'], None)
-        eq_(res.json['objects'][0]['seller_uuids']['boku'], uuid)

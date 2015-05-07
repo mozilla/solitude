@@ -25,7 +25,7 @@ from lib.buyers.models import Buyer
 from lib.sellers.models import (Seller, SellerBango, SellerProduct,
                                 SellerProductBango)
 from lib.transactions import constants
-from lib.transactions.constants import (PROVIDER_BANGO, PROVIDER_BOKU,
+from lib.transactions.constants import (PROVIDER_BANGO, PROVIDER_REFERENCE,
                                         STATUS_CANCELLED, STATUS_COMPLETED,
                                         STATUS_PENDING, TYPE_REFUND,
                                         TYPE_REFUND_MANUAL)
@@ -703,7 +703,7 @@ class TestRefund(APITest):
         eq_(res.status_code, 404)
 
     def test_not_bango(self):
-        self.trans.provider = PROVIDER_BOKU
+        self.trans.provider = PROVIDER_REFERENCE
         self.trans.save()
         self._fail()
 

@@ -68,7 +68,7 @@ class TestTransaction(APITest):
 
     def test_provider(self):
         res = self.client.get(self.list_url,
-                              {'provider': constants.PROVIDER_BOKU})
+                              {'provider': constants.PROVIDER_REFERENCE})
         eq_(res.status_code, 200)
         eq_(res.json['meta']['total_count'], 0, res.content)
 
@@ -76,7 +76,7 @@ class TestTransaction(APITest):
         self.trans.provider = None
         self.trans.save()
         res = self.client.patch(
-            self.detail_url, data={'provider': constants.PROVIDER_BOKU})
+            self.detail_url, data={'provider': constants.PROVIDER_REFERENCE})
         eq_(res.status_code, 200, res.content)
         res = self.client.patch(
             self.detail_url, data={'provider': constants.PROVIDER_BANGO})

@@ -58,9 +58,6 @@ ZIPPY_CONFIGURATION = {
     'reference': {
         'url': 'https://zippy-dev.allizom.org'
     },
-    'boku': {
-        'url': base.BOKU_API_DOMAIN
-    }
 }
 
 BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
@@ -68,8 +65,5 @@ BANGO_FAKE_REFUNDS = True
 BANGO_PROXY = private.BANGO_PROXY
 BANGO_NOTIFICATION_URL = (
     'https://marketplace-dev.allizom.org/mozpay/bango/notification')
-
-
-BOKU_PROXY = ZIPPY_PROXY
 
 NOSE_PLUGINS = []

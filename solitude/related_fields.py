@@ -1,7 +1,6 @@
 import urlparse
 
-from rest_framework.relations import (HyperlinkedIdentityField,
-                                      HyperlinkedRelatedField)
+from rest_framework.relations import HyperlinkedRelatedField
 
 
 class RelativePathMixin(object):
@@ -13,8 +12,4 @@ class RelativePathMixin(object):
 
 
 class PathRelatedField(RelativePathMixin, HyperlinkedRelatedField):
-    pass
-
-
-class PathIdentityField(RelativePathMixin, HyperlinkedIdentityField):
     pass

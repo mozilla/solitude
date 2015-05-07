@@ -53,7 +53,6 @@ class SellerProduct(Model):
         providers = {}
         provider_fields = (
             ('bango', 'product', 'seller_bango'),
-            ('boku', 'product_boku', 'seller_boku'),
             ('reference', 'product_reference', 'seller_reference'),
         )
 
@@ -98,23 +97,6 @@ class SellerProductBango(Model):
 
     class Meta(Model.Meta):
         db_table = 'seller_product_bango'
-
-
-class SellerBoku(Model):
-    seller = models.OneToOneField(Seller, related_name='boku')
-    service_id = models.CharField(max_length=255, blank=False, null=False)
-
-    class Meta(Model.Meta):
-        db_table = 'seller_boku'
-
-
-class SellerProductBoku(Model):
-    seller_product = models.OneToOneField(SellerProduct,
-                                          related_name='product_boku')
-    seller_boku = models.ForeignKey(SellerBoku, related_name='product_boku')
-
-    class Meta(Model.Meta):
-        db_table = 'seller_product_boku'
 
 
 class SellerReference(Model):

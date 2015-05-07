@@ -90,19 +90,6 @@ You can fake out Bango for some tasks if you'd like::
 
     BANGO_MOCK = True
 
-Boku settings
-~~~~~~~~~~~~~
-
-To process payments with Boku, you will need a Boku account. Once you have
-that, setup your account details::
-
-    BOKU_SECRET_KEY = 'your-secret-key'
-    BOKU_MERCHANT_ID = 'your-merchant-id'
-
-You can fake out Boku for some tasks if you'd like::
-
-    BOKU_MOCK = True
-
 .. _braintree-settings:
 
 Braintree settings
