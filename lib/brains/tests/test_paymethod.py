@@ -16,12 +16,11 @@ from solitude.constants import PAYMENT_METHOD_CARD, PAYMENT_METHOD_OPERATOR
 
 def method(**kw):
     method = {
-        'token': 'customer-id',
-        'created_at': datetime.now(),
-        'updated_at': datetime.now(),
-        'last_4': '7890',
         'card_type': 'visa',
+        'created_at': datetime.now(),
+        'last_4': '7890',
         'token': 'da-token',
+        'updated_at': datetime.now(),
     }
     method.update(**kw)
     return PaymentMethod(None, method)
