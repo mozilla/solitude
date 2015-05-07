@@ -1,11 +1,15 @@
 from hashlib import md5
 
 from django.core.urlresolvers import reverse
+from django.test import RequestFactory
 
-from nose.tools import eq_
+from nose.tools import eq_, raises
+from rest_framework.viewsets import GenericViewSet
 
 from lib.buyers.models import Buyer
 from solitude.base import APITest
+from solitude.exceptions import InvalidQueryParams
+from solitude.filter import StrictQueryFilter
 
 
 class TestHeaders(APITest):
@@ -69,3 +73,24 @@ class TestHeaders(APITest):
         res = self.client.patch(buyer.get_uri(),
                                 data={'pin': '9101'})
         eq_(res.status_code, 200)
+
+
+class Dummy(GenericViewSet):
+    filter_fields = ['uuid']
+
+
+class TestStrictQueryFilter(APITest):
+
+    def setUp(self):
+        self.req = RequestFactory().get('/')
+        self.queryset = Buyer.objects.filter()
+        self.view = Dummy()
+
+    def test_ok(self):
+        self.req.QUERY_PARAMS = {'uuid': ['bar']}
+        StrictQueryFilter().filter_queryset(self.req, self.queryset, self.view)
+
+    @raises(InvalidQueryParams)
+    def test_not_ok(self):
+        self.req.QUERY_PARAMS = {'uid': ['bar']}  # Note the typo there.
+        StrictQueryFilter().filter_queryset(self.req, self.queryset, self.view)

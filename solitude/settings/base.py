@@ -230,6 +230,9 @@ DJANGO_PARANOIA_REPORTERS = [
 # Prints out incoming and outgoing HTTP Requests.
 DUMP_REQUESTS = False
 
+# Until I can figure out mozilla/solitude#388
+IN_TEST_SUITE = False
+
 # Remove traces of jinja and jingo from solitude.
 JINJA_CONFIG = lambda: ''
 
@@ -313,7 +316,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_SERIALIZER_CLASS':
         'solitude.paginator.CustomPaginationSerializer',
     'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework.filters.DjangoFilterBackend',
+        'solitude.filter.StrictQueryFilter',
     ),
     'EXCEPTION_HANDLER': 'solitude.exceptions.custom_exception_handler',
     'PAGINATE_BY': 20,
