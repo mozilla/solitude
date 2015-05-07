@@ -36,7 +36,7 @@ class TestModel(APITest):
         with self.assertRaises(ValidationError):
             Transaction.create(**data)  # Uid pay conflicts.
 
-        data['provider'] = constants.PROVIDER_BOKU
+        data['provider'] = constants.PROVIDER_REFERENCE
         Transaction.create(**data)
         eq_(Transaction.objects.count(), 2)
 

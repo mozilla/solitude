@@ -464,30 +464,6 @@ ZIPPY_PROXY = os.getenv('SOLITUDE_ZIPPY_PROXY', '')
 ###############################################################################
 
 ###############################################################################
-# Start Boku settings.
-
-# Mock out Boku, when you've got an account, you'll need to set this to False.
-BOKU_MOCK = False
-
-# The secret key created with the account. This is found in Boku emails.
-BOKU_SECRET_KEY = ''
-
-# The merchant id for the Boku integrator account.
-BOKU_MERCHANT_ID = ''
-
-# This is the API that Boku has for setting up payments.
-BOKU_API_DOMAIN = 'https://api2.boku.com'
-
-# If you'd like to use the proxy for Boku, set this to ZIPPY_PROXY.
-BOKU_PROXY = os.getenv('SOLITUDE_BOKU_PROXY', '')
-
-# If we want to do md5 check of Boku signatures.
-BOKU_MD5_CHECK = True
-
-# End Bango settings.
-###############################################################################
-
-###############################################################################
 # Start Braintree settings.
 
 # You'll find this in the Braintree account under:

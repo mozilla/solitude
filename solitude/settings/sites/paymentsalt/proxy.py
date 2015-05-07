@@ -56,10 +56,4 @@ ZIPPY_CONFIGURATION = {
                  'secret': private.ZIPPY_PAAS_SECRET,
                  'realm': 'zippy-dev.allizom.org'}
     },
-    'boku': {
-        'url': base.BOKU_API_DOMAIN,
-    }
 }
-
-BOKU_MERCHANT_ID = private.BOKU_MERCHANT_ID
-BOKU_SECRET_KEY = private.BOKU_SECRET_KEY

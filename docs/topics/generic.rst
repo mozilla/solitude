@@ -329,14 +329,12 @@ payment provider, a generic product must first be created.
             "seller": "/generic/seller/3/",
             "seller_uuids": {
                 "bango": null,
-                "boku": "a35ce575-cabf-4c49-af34-1e9ed43903ad",
                 "reference": null
             }
         }
 
     * ``seller_uuids``: is a mapping of uuids for the specific payment
-      providers. In the example above, the seller has also had a Boku account
-      created for them.
+      providers.
 
 Transaction
 ===========

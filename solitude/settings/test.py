@@ -50,9 +50,6 @@ DJANGO_PARANOIA_REPORTERS = []
 # We don't want to hit the live servers in tests.
 BANGO_MOCK = True
 ZIPPY_MOCK = True
-BOKU_MOCK = True
-
-BOKU_SECRET_KEY = 'for-testing-only'
 
 SITE_URL = 'http://localhost/'
 

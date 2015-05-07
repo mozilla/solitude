@@ -51,16 +51,9 @@ REQUIRE_OAUTH = True
 
 NEWRELIC_INI = '/etc/newrelic.d/payments.allizom.org.ini'
 
+ZIPPY_CONFIGURATION = {}
+
 # Below is configuration of payment providers.
-
-ZIPPY_CONFIGURATION = {
-    'boku': {
-        'url': base.BOKU_API_DOMAIN
-    }
-}
-
-BOKU_PROXY = 'https://payments-proxy.allizom.org/proxy/provider'
-
 BANGO_BASIC_AUTH = private.BANGO_BASIC_AUTH
 BANGO_ENV = 'prod'
 BANGO_FAKE_REFUNDS = False
