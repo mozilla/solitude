@@ -248,7 +248,7 @@ minutes. You can tell if a buyer is locked by checking the
 since the last time the PIN was changed or successfully verified will have the
 ``pin_was_locked_out`` property set to ``true``.
 
-.. _generic-seller:
+.. _seller-label:
 
 Sellers
 =======
@@ -279,6 +279,8 @@ You can else get the details of a seller:
             "resource_pk": 16
         }
 
+.. _seller-product:
+
 Product
 =======
 
@@ -299,7 +301,7 @@ payment provider, a generic product must first be created.
             "seller": "/generic/seller/3/"
         }
 
-    * ``seller``: is a seller created with the :ref:`generic seller endpoint <generic-seller>`.
+    * ``seller``: is a seller created with the :ref:`generic seller endpoint <seller-label>`.
 
     * ``external_id``: an id that corresponds to the sellers catalog.
 

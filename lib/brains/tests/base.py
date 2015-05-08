@@ -1,11 +1,15 @@
 import uuid
 
 import mock
+from braintree.error_result import ErrorResult
 
 from lib.brains.errors import MockError
-from lib.brains.models import BraintreeBuyer
+from lib.brains.models import (
+    BraintreeBuyer, BraintreePaymentMethod)
 from lib.buyers.models import Buyer
+from lib.sellers.models import Seller, SellerProduct
 from solitude.base import APITest
+from solitude.constants import PAYMENT_METHOD_CARD
 
 
 def create_braintree_buyer(braintree_id='sample:id'):
@@ -17,6 +21,26 @@ def create_braintree_buyer(braintree_id='sample:id'):
 
 def create_buyer():
     return Buyer.objects.create(uuid=str(uuid.uuid4()))
+
+
+def create_method(braintree_buyer):
+    return BraintreePaymentMethod.objects.create(
+        braintree_buyer=braintree_buyer,
+        provider_id=str(uuid.uuid4()),
+        type=PAYMENT_METHOD_CARD)
+
+
+def create_seller():
+    seller = Seller.objects.create(uuid=str(uuid.uuid4()))
+    seller_product = SellerProduct.objects.create(
+        external_id='brick',
+        public_id=str(uuid.uuid4()),
+        seller=seller)
+    return seller, seller_product
+
+
+def error():
+    return ErrorResult(None, {'errors': {}, 'message': ''})
 
 
 class BraintreeMock(mock.Mock):

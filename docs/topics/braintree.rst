@@ -59,10 +59,12 @@ customer exists in Braintree already, it is not created.
 Data stored in solitude
 -----------------------
 
-Stores information about the Buyer in Braintree in solitude. It links a Buyer
-object and Braintree customer.
+Information stored in solitude after creating a customer.
 
-.. http:get:: /braintree/buyer/<buyer id>/
+.. http:get:: /braintree/mozilla/buyer/<buyer id>/
+
+    :<json string uuid: the uuid of the buyer in solitude.
+    :<json string nonce: the payment nonce returned by Braintree.
 
     .. code-block:: json
 
@@ -83,14 +85,16 @@ object and Braintree customer.
                                 is read only.
     :>json string buyer: URI to :ref:`a buyer object <buyer-label>`
 
-.. http:patch:: /braintree/buyer/<buyer id>/
+.. http:patch:: /braintree/mozilla/buyer/<buyer id>/
 
     :<json boolean active: if the buyer is currently active.
 
-.. http:get:: /braintree/buyer/
+.. http:get:: /braintree/mozilla/buyer/
 
     :query buyer: the primary key of the buyer.
     :query active: the active status.
+
+.. _payment-methods-label:
 
 Create a payment method
 -----------------------
@@ -102,9 +106,6 @@ solitude.
 
     :<json string uuid: the uuid of the buyer in solitude.
     :<json string nonce: the payment nonce returned by Braintree.
-
-    Returns :ref:`a payment method object <payment-methods>` with some extra
-    fields.
 
     .. code-block:: json
 
@@ -137,7 +138,7 @@ solitude.
     :status 201: payment method created.
 
 Data stored in solitude
------------------------
++++++++++++++++++++++++
 
 Information about the payment method is stored in solitude.
 
@@ -177,3 +178,86 @@ Information about the payment method is stored in solitude.
     :query braintree_buyer: the primary key of the braintree_buyer.
     :query braintree_buyer__buyer__uuid: the uuid for the buyer.
     :query active: the active status.
+
+.. _subscription-label:
+
+Subscription
+------------
+
+Creates a subscription in Braintree and the corresponding subscription in
+solitude.
+
+.. http:post:: /braintree/subscription/
+
+    :<json string paymethod: the uri of the payment method.
+    :<json string plan: the id of the plan being purchased.
+
+    .. code-block:: json
+
+        {
+            "braintree": {
+                "created_at": "2015-05-06T13:34:53.746",
+                "id": "some:id",
+                "updated_at": "2015-05-06T13:34:53.746"
+            },
+            "mozilla": {
+                "active": true,
+                "counter": 0,
+                "created": "2015-05-06T13:34:53.763",
+                "id": 1,
+                "modified": "2015-05-06T13:34:53.763",
+                "paymethod": "/braintree/mozilla/paymethod/1/",
+                "provider_id": "some:id",
+                "resource_pk": 1,
+                "resource_uri": "/braintree/mozilla/subscription/1/",
+                "seller_product": "/generic/product/1/"
+            }
+        }
+
+    :>json string braintree id: id of the subscription in braintree.
+    :>json string braintree created_at: created date and time.
+    :>json string braintree updated_at: updated date and time.
+
+    :status 201: payment method created.
+
+
+Data stored in solitude
++++++++++++++++++++++++
+
+Information about the subscripton is stored in solitude.
+
+.. http:get:: /braintree/mozilla/subscription/<subscription id>/
+
+
+    .. code-block:: json
+
+        {
+            "active": true,
+            "counter": 0,
+            "created": "2015-05-01T18:21:49",
+            "id": 1,
+            "paymethod": "/braintree/mozilla/paymethod/2/",
+            "modified": "2015-05-01T18:21:49",
+            "provider_id": "some:id",
+            "resource_pk": 1,
+            "resource_uri": "/braintree/mozilla/subscription/1/",
+            "seller_product": "/generic/product/2/"
+        }
+
+    :>json boolean active: active flag for the method.
+    :>json string provider_id: an id for the subscription on the provider,
+                               this field is read only.
+    :>json string paymethod: the URI to `a payment object <payment-methods-label>`_.
+    :>json string seller_product: the URI to `a seller product
+                                  <seller-product>`_.
+
+.. http:patch:: /braintree/mozilla/subscription/<subscription id>/
+
+    :<json boolean active: if the buyer is currently active.
+
+.. http:get:: /braintree/mozilla/subscription/
+
+    :query paymethod: the primary key of the payment method.
+    :query paymethod__braintree_buyer: the primary key of the braintree buyer.
+    :query paymethod__braintree_buyer__buyer: the primary key of the buyer.
+    :query seller_product: the primary key of the product.

@@ -2,7 +2,8 @@ from django.core.urlresolvers import reverse
 
 from rest_framework import serializers
 
-from lib.brains.models import BraintreeBuyer, BraintreePaymentMethod
+from lib.brains.models import (
+    BraintreeBuyer, BraintreePaymentMethod, BraintreeSubscription)
 from solitude.base import BaseSerializer
 from solitude.related_fields import PathRelatedField
 
@@ -50,6 +51,21 @@ class LocalBuyer(BaseSerializer):
         return reverse('braintree:mozilla:buyer-detail', kwargs={'pk': pk})
 
 
+class LocalSubscription(BaseSerializer):
+    paymethod = PathRelatedField(
+        view_name='braintree:mozilla:paymethod-detail', read_only=True)
+    seller_product = PathRelatedField(
+        view_name='generic:sellerproduct-detail', read_only=True)
+
+    class Meta:
+        model = BraintreeSubscription
+        read_only_fields = ('provider_id',)
+
+    def resource_uri(self, pk):
+        return reverse('braintree:mozilla:subscription-detail',
+                       kwargs={'pk': pk})
+
+
 class Braintree(serializers.Serializer):
 
     def __init__(self, instance=None):
@@ -65,4 +81,8 @@ class PayMethod(Braintree):
 
 
 class Customer(Braintree):
+    fields = ['id', 'created_at', 'updated_at']
+
+
+class Subscription(Braintree):
     fields = ['id', 'created_at', 'updated_at']
