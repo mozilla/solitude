@@ -364,10 +364,14 @@ else:
     NOSE_ARGS.append('-a ' + tests)
 
 # Figure out the whitelist.
-http = 'localhost' if 'live' in tests else ''
-http += ',api.sandbox.braintreegateway.com' if 'braintree' in tests else ''
-NOSE_ARGS.append('--http-whitelist=' + http)
+http = []
+# Split tests to distinguish between !live and live etc.
+if 'live' in tests.split(','):
+    http.append('localhost')
+if 'braintree' in tests.split(','):
+    http.append('api.sandbox.braintreegateway.com')
 
+NOSE_ARGS.append('--http-whitelist=' + ','.join(http))
 
 # Below is configuration of payment providers.
 

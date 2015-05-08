@@ -6,6 +6,7 @@ from django.core.exceptions import ImproperlyConfigured
 import mock
 from braintree.error_result import ErrorResult
 from nose.plugins.attrib import attr
+
 from lib.brains.errors import MockError
 from lib.brains.models import (
     BraintreeBuyer, BraintreePaymentMethod)
