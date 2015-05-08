@@ -122,8 +122,6 @@ their PIN. Once you've received their confirmed PIN you can POST to the
 
         {
             "confirmed": false,
-            "resource_pk": "confirm_pin",
-            "resource_uri": "no_uri",
             "uuid": "93e33277-87f7-417b-8ed2-371672b5297e"
         }
 
@@ -158,8 +156,6 @@ something you can simply verify their PIN using the ``verify_pin`` endpoint:
         {
             "locked": false,
             "pin": "1224",
-            "resource_pk": "verify_pin",
-            "resource_uri": "no_uri",
             "uuid": "93e33277-87f7-417b-8ed2-371672b5297e",
             "valid": false
         }
@@ -229,8 +225,6 @@ buyer's ``new_pin`` rather than their ``pin``:
 
         {
             "confirmed": false,
-            "resource_pk": "reset_confirm_pin",
-            "resource_uri": "no_uri",
             "uuid": "93e33277-87f7-417b-8ed2-371672b5297e"
         }
 
