@@ -352,15 +352,26 @@ NOSE_ARGS = [
     '--with-blockage',
 ]
 
-if not os.environ.get('LIVE_TESTS'):
-    NOSE_ARGS += [
-        '-a !live',
-        '--http-whitelist=']
+# Figure out which tests we run. By default that's no live tests.
+# LIVE_TESTS=live,braintree  < runs tests marked as live and braintree
+tests = os.environ.get('LIVE_TESTS', '')
+
+if not tests:
+    # If you specified no tests, exclude them all by default.
+    NOSE_ARGS.append('-a !{0}'.format(',!'.join(['live', 'braintree'])))
 else:
-    NOSE_ARGS += [
-        '-a live',
-        '--http-whitelist=localhost,api.sandbox.braintreegateway.com'
-    ]
+    # If you specified something, just pass it through.
+    NOSE_ARGS.append('-a ' + tests)
+
+# Figure out the whitelist.
+http = []
+# Split tests to distinguish between !live and live etc.
+if 'live' in tests.split(','):
+    http.append('localhost')
+if 'braintree' in tests.split(','):
+    http.append('api.sandbox.braintreegateway.com')
+
+NOSE_ARGS.append('--http-whitelist=' + ','.join(http))
 
 # Below is configuration of payment providers.
 

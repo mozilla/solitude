@@ -175,19 +175,6 @@ def log_cef(msg, request, **kw):
     _log_cef(msg, severity, request.META.copy(), **cef_kw)
 
 
-def handle_500(request, exception):
-    # Print some nice 500 errors back to the clients if not in debug mode.
-    data = {
-        'error_message': str(exception),
-        'error_code': getattr(exception, 'id',
-                              exception.__class__.__name__),
-        'error_data': getattr(exception, 'data', {})
-    }
-    # We'll also cef log any errors.
-    log_cef(str(exception), request, severity=3)
-    return Response(json.dumps(data), status=500)
-
-
 def format_form_errors(forms):
     errors = {}
     if not isinstance(forms, list):

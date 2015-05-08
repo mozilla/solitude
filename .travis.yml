@@ -25,7 +25,8 @@ env:
     - secure: Qjfu3W5kevg1zI2MlpIngoCt9mltQy7Ko0FrDEsXihSuXtAqsl6TcoJ5e0laYI0bnxWFohJwhWrH+R0+o5H2SnoIzb93u9xC/ytRQQ8zFFANWqflGmKPaxpVSt9hPhBOLVSusVwkPollpTdEr/ou77/qgU7p1CyPmVR6fDhsa88=
   matrix:
     - LIVE_TESTS=
-    - LIVE_TESTS=yes
+    - LIVE_TESTS=live,!braintree
+    - LIVE_TESTS=!live,braintree
 matrix:
   allow_failures:
-    - env: LIVE_TESTS=yes
+    - env: LIVE_TESTS=!live,braintree

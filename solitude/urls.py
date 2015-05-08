@@ -40,6 +40,6 @@ if os.getenv('IS_DOCKER'):
 
 urlpatterns = patterns('', *urls)
 
-handler500 = 'solitude.views.error'
+handler500 = 'solitude.views.error_500'
 handler404 = 'solitude.views.error_404'
 handler403 = 'solitude.views.error_403'

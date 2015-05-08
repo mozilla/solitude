@@ -1,5 +1,4 @@
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
+
 from django.test import LiveServerTestCase
 from django.test.utils import override_settings
 
@@ -13,22 +12,15 @@ log = getLogger('s.tests')
 configs = {
     'REQUIRE_OAUTH': True,
     'SITE_URL': 'http://localhost:8081',
-    'CLIENT_OAUTH_KEYS': {'foo': 'bar'}
+    'CLIENT_OAUTH_KEYS': {'foo': 'bar'},
+    'DEBUG': False,
+    'DEBUG_PROPAGATE_EXCEPTIONS': False,
 }
 
 
 @attr('live')
 @override_settings(**configs)
 class LiveTestCase(LiveServerTestCase):
-
-    def setUp(self):
-        for key in ['BRAINTREE_MERCHANT_ID',
-                    'BRAINTREE_PUBLIC_KEY',
-                    'BRAINTREE_PRIVATE_KEY']:
-            if not getattr(settings, key):
-                raise ImproperlyConfigured('{0} is empty'.format(key))
-
-        super(LiveTestCase, self).setUp()
 
     @property
     def request(self):
