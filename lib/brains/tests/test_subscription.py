@@ -6,7 +6,7 @@ import mock
 from braintree.subscription import Subscription
 from braintree.subscription_gateway import SubscriptionGateway
 from braintree.successful_result import SuccessfulResult
-from nose.tools import eq_
+from nose.tools import eq_, ok_
 
 from lib.brains.models import BraintreeSubscription
 from lib.brains.tests.base import (
@@ -84,6 +84,7 @@ class TestSubscriptionMethod(BraintreeTest):
         res = self.client.post(
             self.url, data={'paymethod': method.get_uri(), 'plan': 'brick'})
 
+        ok_(not BraintreeSubscription.objects.exists())
         eq_(res.status_code, 400, res.content)
 
 

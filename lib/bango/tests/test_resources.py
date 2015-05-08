@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import contextlib
-import json
 from hashlib import md5
-
 from django import test
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -946,28 +944,12 @@ class TestStatus(SellerProductBangoBase):
         is_valid.return_value = False
         res = self.client.post(self.url, data=self.data())
         eq_(res.status_code, 400)
-        status = Status.objects.all()[0]
-        eq_(status.status, STATUS_BAD)
-        eq_(json.loads(status.errors).keys(), ['form.errors'])
 
     def test_good(self):
         res = self.client.post(self.url, data=self.data())
         eq_(res.status_code, 201, res.content)
         status = Status.objects.all()[0]
         eq_(status.status, STATUS_GOOD)
-
-    @mock.patch('lib.bango.forms.CreateBillingConfigurationForm.is_valid')
-    def test_statuses_failures(self, is_valid):
-        is_valid.return_value = False
-        self.client.post(self.url, data=self.data())
-        status_instance = Status.objects.all()[0]
-        res = self.client.get(reverse('services.failures.statuses'))
-        data = res.json
-        status = data['statuses'][0]
-        eq_(status['product_id'],
-            status_instance.seller_product_bango.seller_product.external_id)
-        eq_(status['id'], status_instance.id)
-        eq_(status['errors'], status_instance.errors)
 
     def test_no_statuses_failures(self):
         self.client.post(self.url, data=self.data())
@@ -977,6 +959,7 @@ class TestStatus(SellerProductBangoBase):
 
     @mock.patch.object(ClientMock, 'mock_results')
     def test_bad(self, mock_results):
+        # This triggers the BangoImmediateError.
         mock_results.return_value = {'responseCode': 'NOPE',
                                      'responseMessage': 'wat?'}
         res = self.client.post(self.url, data=self.data())

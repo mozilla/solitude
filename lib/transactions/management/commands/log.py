@@ -18,7 +18,8 @@ def generate_log(day, filename, log_type):
     out = open(filename, 'w')
     writer = csv.writer(out)
     next_day = day + timedelta(days=1)
-    transactions = Transaction.objects.filter(modified__range=(day, next_day))
+    transactions = Transaction.objects.filter(
+        modified__range=(day.date(), next_day.date()))
 
     header = False
     if log_type == 'stats':

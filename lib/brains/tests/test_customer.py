@@ -6,7 +6,7 @@ from braintree.customer import Customer
 from braintree.customer_gateway import CustomerGateway
 from braintree.error_result import ErrorResult
 from braintree.successful_result import SuccessfulResult
-from nose.tools import eq_
+from nose.tools import eq_, ok_
 
 from lib.brains.forms import BuyerForm
 from lib.brains.models import BraintreeBuyer
@@ -65,6 +65,8 @@ class TestCustomer(BraintreeTest):
 
         buyer = create_buyer()
         res = self.client.post(self.url, data={'uuid': buyer.uuid})
+
+        ok_(not BraintreeBuyer.objects.exists())
         eq_(res.status_code, 400)
 
     def test_no_uuid(self):

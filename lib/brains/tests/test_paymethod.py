@@ -6,7 +6,7 @@ from braintree.error_result import ErrorResult
 from braintree.payment_method import PaymentMethod
 from braintree.payment_method_gateway import PaymentMethodGateway
 from braintree.successful_result import SuccessfulResult
-from nose.tools import eq_
+from nose.tools import eq_, ok_
 
 from lib.brains.models import BraintreePaymentMethod
 from lib.brains.tests.base import BraintreeTest, create_braintree_buyer
@@ -83,6 +83,7 @@ class TestPaymentMethod(BraintreeTest):
         buyer, braintree_buyer = create_braintree_buyer()
         res = self.client.post(self.url,
                                data={'buyer_uuid': buyer.uuid, 'nonce': '123'})
+        ok_(not BraintreePaymentMethod.objects.exists())
         eq_(res.status_code, 400)
 
 
