@@ -123,6 +123,7 @@ oauth2==1.5.211
 
 # Used by curling for communicating with zippy.
 # sha256: oFHwTujsMwUFWrNNh7NsmkSTdeB8fWoFvK-kgynKx8M
+# sha256: Q2B5YKWWQ9MkyHCDeHxNUmSAIh0eTUCgB-5NH0kGrms
 oauthlib==0.7.2
 
 # sha256: X6E7zlUUaDUNZsSINpSFBXDz2ijWhmu2OLpE_l6r2ng
