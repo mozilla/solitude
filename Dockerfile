@@ -38,9 +38,9 @@ EXPOSE 2602
 # Preserve bash history across image updates.
 # This works best when you link your local source code
 # as a volume.
-ENV HISTFILE=/srv/solitude/docker/bash_history
+ENV HISTFILE /srv/solitude/docker/bash_history
 # Configure bash history.
-ENV HISTSIZE=50000
-ENV HISTIGNORE=ls:exit:"cd .."
+ENV HISTSIZE 50000
+ENV HISTIGNORE ls:exit:"cd .."
 # This prevents dupes but only in memory for the current session.
-ENV HISTCONTROL=erasedups
+ENV HISTCONTROL erasedups
