@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch import receiver
@@ -92,21 +94,23 @@ class Transaction(Model):
             status=constants.STATUS_COMPLETED).exists()
 
     def for_log(self):
-        return (
-            'v5',  # Version.
-            self.uuid,
-            self.created.isoformat(),
-            self.modified.isoformat(),
-            self.amount,
-            self.currency,
-            self.status,
-            self.status_reason,
-            self.buyer.uuid if self.buyer else None,
-            self.seller_product.seller.uuid if self.seller_product else None,
-            self.source,
-            self.carrier,
-            self.region,
-            self.provider)
+        return OrderedDict((
+            ('version', 'v5'),  # Version.
+            ('uuid', self.uuid),
+            ('created', self.created.isoformat()),
+            ('modified', self.modified.isoformat()),
+            ('amount', self.amount),
+            ('currency', self.currency),
+            ('status', self.status),
+            ('reason', self.status_reason),
+            ('buyer', self.buyer.uuid if self.buyer else None),
+            ('seller', (self.seller_product.seller.uuid
+                        if self.seller_product else None)),
+            ('source', self.source),
+            ('carrier', self.carrier),
+            ('region', self.region),
+            ('provider', self.provider)
+        ))
 
     def get_uri(self):
         return reverse('generic:transaction-detail',
