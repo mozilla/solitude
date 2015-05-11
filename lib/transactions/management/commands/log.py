@@ -18,16 +18,18 @@ def generate_log(day, filename, log_type):
     out = open(filename, 'w')
     writer = csv.writer(out)
     next_day = day + timedelta(days=1)
-    writer.writerow(('version', 'uuid', 'created', 'modified', 'amount',
-                     'currency', 'status', 'buyer', 'seller', 'source',
-                     'carrier', 'region', 'provider'))
-
     transactions = Transaction.objects.filter(modified__range=(day, next_day))
 
+    header = False
     if log_type == 'stats':
         for row in transactions:
             row.log.get_or_create(type=constants.LOG_STATS)
-            writer.writerow(row.for_log())
+            data = row.for_log()
+            if not header:
+                writer.writerow(data.keys())
+                header = True
+
+            writer.writerow(data.values())
 
     if log_type == 'revenue':
         transactions = (
@@ -48,7 +50,12 @@ def generate_log(day, filename, log_type):
                 print 'Transaction skipped: {0}'.format(row.uuid)
                 continue
 
-            writer.writerow(row.for_log())
+            data = row.for_log()
+            if not header:
+                writer.writerow(data.keys())
+                header = True
+
+            writer.writerow(data.values())
 
 
 class Command(BaseCommand):
