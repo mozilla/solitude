@@ -64,7 +64,7 @@ class ConfirmedSerializer(BaseBuyerSerializer):
     class Meta:
         model = Buyer
         fields = [
-            'confirmed', 'resource_pk', 'resource_uri', 'uuid'
+            'confirmed', 'uuid'
         ]
 
     def __init__(self, *args, **kw):
@@ -82,7 +82,7 @@ class VerifiedSerializer(BaseBuyerSerializer):
     class Meta:
         model = Buyer
         fields = [
-            'locked', 'pin', 'resource_pk', 'resource_uri', 'uuid', 'valid'
+            'locked', 'pin', 'uuid', 'valid'
         ]
 
     def __init__(self, *args, **kw):

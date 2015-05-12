@@ -26,16 +26,12 @@ Responses
 Common elements in some responses:
 
 * `response_pk` (string): a primary key for that resource. Will be unique to
-  that resource. Example: `123`. Please note that some
-  endpoints return a value of `confirm_pin` or similar, that's
-  `a bug <https://github.com/mozilla/solitude/issues/380>`_.
+  that resource. Example: `123`.
 
 * `response_uri` (string): a URI to the object within solitude. To turn it
   into a URL add the protocol and domain of the server. Example:
   `/generic/transaction/123/`. To turn that into URL:
-  `http://solitude:2602/generic/transaction/123/`. Note: that some endpoints
-  return a value of `no_uri`, or similar, that's
-  `a bug <https://github.com/mozilla/solitude/issues/380>`_.
+  `http://solitude:2602/generic/transaction/123/`.
 
 * `created` (datetime): when the object is created. Using the Django Rest
   Framework format, `ECMA 262 <http://ecma-international.org/ecma-262/5.1/#sec-15.9.1.15>`_.
