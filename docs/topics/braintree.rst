@@ -6,8 +6,8 @@ Braintree
 Make sure your :ref:`braintree-settings` are up to date so that
 Solitude can connect to the API.
 
-Generate a token
-----------------
+Tokens
+------
 
 Calls braintree `ClientToken.generate <https://developers.braintreepayments.com/javascript+python/reference/request/client-token/generate>`_:
 
@@ -16,8 +16,8 @@ Calls braintree `ClientToken.generate <https://developers.braintreepayments.com/
     :>json string token: the token returned by Braintree.
     :status 200: token successfully generated.
 
-Create a customer
------------------
+Customers
+---------
 
 Creates a customer in Braintree and the corresponding buyer and Braintree buyer
 in solitude. If the buyer exists in solitude already, it is not created. If the
@@ -57,9 +57,9 @@ customer exists in Braintree already, it is not created.
 .. _braintree-buyer-label:
 
 Data stored in solitude
------------------------
++++++++++++++++++++++++
 
-Information stored in solitude after creating a customer.
+Some information is stored in solitude after creating a customer.
 
 .. http:get:: /braintree/mozilla/buyer/<buyer id>/
 
@@ -96,8 +96,8 @@ Information stored in solitude after creating a customer.
 
 .. _payment-methods-label:
 
-Create a payment method
------------------------
+Payment Methods
+---------------
 
 Creates a payment method in Braintree and the corresponding payment method in
 solitude.
@@ -140,7 +140,7 @@ solitude.
 Data stored in solitude
 +++++++++++++++++++++++
 
-Information about the payment method is stored in solitude.
+Some information about the payment method is stored in solitude.
 
 .. http:get:: /braintree/mozilla/paymethod/<method id>/
 
@@ -169,11 +169,11 @@ Information about the payment method is stored in solitude.
     :>json int type: `1` for credit card is currently the only one supported, this field is read only.
     :>json string type_name: name of the type of purchase, this field is read only.
 
-.. http:patch:: /braintree/mozilla/<method id>/
+.. http:patch:: /braintree/mozilla/paymethod/<method id>/
 
-    :<json boolean active: if the buyer is currently active.
+    :<json boolean active: if the payment method is currently active.
 
-.. http:get:: /braintree/mozilla/
+.. http:get:: /braintree/mozilla/paymethod/
 
     :query braintree_buyer: the primary key of the braintree_buyer.
     :query braintree_buyer__buyer__uuid: the uuid for the buyer.
@@ -181,10 +181,10 @@ Information about the payment method is stored in solitude.
 
 .. _subscription-label:
 
-Subscription
-------------
+Subscriptions
+-------------
 
-Creates a subscription in Braintree and the corresponding subscription in
+Create a subscription in Braintree and the corresponding subscription in
 solitude.
 
 .. http:post:: /braintree/subscription/
@@ -224,7 +224,7 @@ solitude.
 Data stored in solitude
 +++++++++++++++++++++++
 
-Information about the subscripton is stored in solitude.
+Some information about the subscripton is stored in solitude.
 
 .. http:get:: /braintree/mozilla/subscription/<subscription id>/
 
@@ -253,7 +253,7 @@ Information about the subscripton is stored in solitude.
 
 .. http:patch:: /braintree/mozilla/subscription/<subscription id>/
 
-    :<json boolean active: if the buyer is currently active.
+    :<json boolean active: if the subscription is currently active.
 
 .. http:get:: /braintree/mozilla/subscription/
 
