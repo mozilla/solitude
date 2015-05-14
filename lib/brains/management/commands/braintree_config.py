@@ -15,9 +15,9 @@ def get_or_create_seller(uuid):
     """
     Create a seller in solitude for the product.
     """
-    # We'll suffix with the BRAINTREE_PUBLIC_ID so that the seller will
+    # We'll suffix with the BRAINTREE_MERCHANT_ID so that the seller will
     # change if you change ids, or servers.
-    uuid = uuid + '-' + settings.BRAINTREE_PUBLIC_KEY
+    uuid = uuid + '-' + settings.BRAINTREE_MERCHANT_ID
     seller, created = Seller.objects.get_or_create(uuid=uuid)
     log.info('Seller {0}, pk: {1}'
              .format('created' if created else 'exists', seller.pk))

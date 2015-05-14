@@ -489,8 +489,7 @@ ZIPPY_PROXY = os.getenv('SOLITUDE_ZIPPY_PROXY', '')
 
 # To make it easier, we'll pull these from the env as well.
 BRAINTREE_MERCHANT_ID = os.getenv('BRAINTREE_MERCHANT_ID', '')
-BRAINTREE_PUBLIC_KEY = os.getenv('BRAINTREE_PUBLIC_KEY', '')
-BRAINTREE_PRIVATE_KEY = os.getenv('BRAINTREE_PRIVATE_KEY', '')
+# Other API Keys must be added into the solitude-auth server.
 
 # See lib.brains.client for the options.
 BRAINTREE_ENVIRONMENT = 'sandbox'
@@ -514,3 +513,6 @@ BRAINTREE_CONFIG = {
         ]
     }
 }
+
+# The URL of the solitude-auth server that will be used by solitude.
+BRAINTREE_PROXY = os.getenv('SOLITUDE_BRAINTREE_PROXY', '')
