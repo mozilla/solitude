@@ -6,6 +6,7 @@ FROM mozillamarketplace/centos-mysql-mkt:0.2
 
 RUN yum install -y supervisor
 RUN yum install -y bash-completion
+RUN yum install -y cronie
 
 ENV IS_DOCKER 1
 
@@ -44,3 +45,6 @@ ENV HISTSIZE 50000
 ENV HISTIGNORE ls:exit:"cd .."
 # This prevents dupes but only in memory for the current session.
 ENV HISTCONTROL erasedups
+
+# Add in the cron jobs.
+RUN python /srv/solitude/bin/crontab/gen-crons.py -w /srv/solitude -p python | crontab -
