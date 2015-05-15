@@ -46,6 +46,7 @@ if 'mysql' in DATABASES['default'].get('ENGINE', ''):
     DATABASES['default']['OPTIONS'] = opt
 DATABASES['default']['TEST_CHARSET'] = 'utf8'
 DATABASES['default']['TEST_COLLATION'] = 'utf8_general_ci'
+DATABASES['default']['ATOMIC_REQUESTS'] = True
 
 DEBUG = True
 DEBUG_PROPAGATE_EXCEPTIONS = True
@@ -273,11 +274,11 @@ else:
     )
     MIDDLEWARE_CLASSES = (
         'solitude.middleware.LoggerMiddleware',
-        'django.middleware.transaction.TransactionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.middleware.http.ConditionalGetMiddleware',
         'django_statsd.middleware.GraphiteMiddleware',
-        'django_paranoia.middleware.Middleware'
+        'django_paranoia.middleware.Middleware',
+        'django.middleware.security.SecurityMiddleware'
     )
 
 STATSD_CLIENT = 'django_statsd.clients.normal'

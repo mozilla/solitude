@@ -1,4 +1,5 @@
-from django.db.transaction import rollback
+
+from django.db.transaction import set_rollback
 
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
@@ -17,8 +18,9 @@ class InvalidQueryParams(ParseError):
 
 
 def custom_exception_handler(exc):
-    log.warning('Transaction rolled back due to error.')
-    rollback()
+    # If you raise an error in solitude, it comes to here and
+    # we rollback the transaction.
+    set_rollback(True)
 
     if isinstance(exc, BraintreeResultError):
         res = {

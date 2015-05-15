@@ -1,4 +1,3 @@
-import json
 import uuid
 
 from django.conf import settings
@@ -21,7 +20,6 @@ from lib.transactions.constants import PROVIDER_BANGO
 from solitude.base import ListModelMixin, RetrieveModelMixin
 from solitude.constants import PAYMENT_METHOD_ALL
 from solitude.logger import getLogger
-
 
 log = getLogger('s.bango')
 
@@ -52,17 +50,17 @@ class StatusViewSet(CreateModelMixin, ListModelMixin,
             'transaction_uuid': 'test:status:{0}'.format(uuid.uuid4()),
             'user_uuid': 'test:user:{0}'.format(uuid.uuid4())
         })
+
         if not form.is_valid():
             log.info('Form not valid: {0}'.format(pk))
-            obj.status = STATUS_BAD
-            obj.errors = json.dumps({'form.errors': form.errors})
-            obj.save()
             raise ParseError
 
         try:
             data = prepare(form, obj.seller_product_bango.bango_id)
             view.client('CreateBillingConfiguration', data)
         except BangoImmediateError:
+            # Cause the information about this record to be saved
+            # by not raising an error.
             log.info('Bango error in check status: {0}'.format(pk))
             obj.status = STATUS_BAD
             obj.save()
