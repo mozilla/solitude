@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.db.transaction import rollback
 
 from rest_framework.exceptions import ParseError
@@ -18,11 +17,8 @@ class InvalidQueryParams(ParseError):
 
 
 def custom_exception_handler(exc):
-    # We shouldn't be rolling back if we are inside a transaction test case
-    # until we figure out mozilla/solitude#388
-    if not settings.IN_TEST_SUITE:
-        log.warning('Transaction rolled back due to error.')
-        rollback()
+    log.warning('Transaction rolled back due to error.')
+    rollback()
 
     if isinstance(exc, BraintreeResultError):
         res = {

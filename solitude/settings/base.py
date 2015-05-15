@@ -230,9 +230,6 @@ DJANGO_PARANOIA_REPORTERS = [
 # Prints out incoming and outgoing HTTP Requests.
 DUMP_REQUESTS = False
 
-# Until I can figure out mozilla/solitude#388
-IN_TEST_SUITE = False
-
 # Remove traces of jinja and jingo from solitude.
 JINJA_CONFIG = lambda: ''
 

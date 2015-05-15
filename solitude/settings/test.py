@@ -58,8 +58,6 @@ CHECK_BANGO_TOKEN = True
 
 REQUIRE_OAUTH = False
 
-IN_TEST_SUITE = True
-
 # Live server tests require this, otherwise they will fail. There is no static
 # content on our site, so meh.
 STATIC_URL = '/'
