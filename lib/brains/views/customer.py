@@ -6,6 +6,7 @@ from lib.brains.client import get_client
 from lib.brains.errors import BraintreeResultError
 from lib.brains.forms import BuyerForm
 from lib.brains.models import BraintreeBuyer
+from solitude.errors import FormError
 from solitude.logger import getLogger
 
 log = getLogger('s.brains')
@@ -17,7 +18,7 @@ def create(request):
     form = BuyerForm(request.DATA)
 
     if not form.is_valid():
-        return Response(form.errors, status=400)
+        raise FormError(form.errors)
 
     result = client.create()
     if not result.is_success:

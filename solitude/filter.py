@@ -1,6 +1,6 @@
 from rest_framework.filters import DjangoFilterBackend
 
-from solitude.exceptions import InvalidQueryParams
+from solitude.errors import InvalidQueryParams
 
 
 class StrictQueryFilter(DjangoFilterBackend):

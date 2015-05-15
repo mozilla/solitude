@@ -38,7 +38,7 @@ class TestBuyer(APITest):
         res = self.client.post(
             self.list_url,
             data={'uuid': self.uuid, 'pin': '1234'})
-        eq_(res.status_code, 400)
+        eq_(res.status_code, 400, res.content)
         eq_(self.get_errors(res.content, 'uuid'),
             [BUYER_UUID_ALREADY_EXISTS])
 
@@ -260,7 +260,7 @@ class TestBuyerVerifyPin(APITest):
 
     def test_empty_post(self):
         res = self.client.post(self.list_url, data={})
-        eq_(res.status_code, 400)
+        eq_(res.status_code, 422)
 
     def test_good_resets_was_locked(self):
         self.buyer.pin_was_locked_out = True
@@ -302,7 +302,7 @@ class TestBuyerConfirmPin(APITest):
 
     def test_empty_post(self):
         res = self.client.post(self.list_url, data={})
-        eq_(res.status_code, 400)
+        eq_(res.status_code, 422, res.content)
 
 
 class TestBuyerResetPin(APITest):
@@ -371,4 +371,4 @@ class TestBuyerResetPin(APITest):
 
     def test_empty_post(self):
         res = self.client.post(self.list_url, data={})
-        eq_(res.status_code, 400)
+        eq_(res.status_code, 422)

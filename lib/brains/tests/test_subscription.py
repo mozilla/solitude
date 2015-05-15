@@ -68,24 +68,30 @@ class TestSubscriptionMethod(BraintreeTest):
         res = self.client.post(
             self.url, data={'method': method.get_uri() + 'n', 'plan': 'brick'})
 
-        eq_(res.status_code, 400, res.content)
+        eq_(res.status_code, 422, res.content)
 
     def test_no_plan(self):
         method = self.create()
         res = self.client.post(
             self.url, data={'paymethod': method.get_uri(), 'plan': 'nope'})
 
-        eq_(res.status_code, 400, res.content)
+        eq_(res.status_code, 422, res.content)
+        eq_(self.mozilla_error(res.json, 'plan'), ['does_not_exist'])
 
     def test_braintree_fails(self):
-        self.mocks['sub'].create.return_value = error()
+        self.mocks['sub'].create.return_value = error([{
+            'attribute': 'payment_method_token',
+            'message': 'Payment method token is invalid.',
+            'code': '91903'
+        }])
 
         method = self.create()
         res = self.client.post(
             self.url, data={'paymethod': method.get_uri(), 'plan': 'brick'})
 
         ok_(not BraintreeSubscription.objects.exists())
-        eq_(res.status_code, 400, res.content)
+        eq_(res.status_code, 422, res.content)
+        eq_(self.braintree_error(res.json, 'payment_method_token'), ['91903'])
 
 
 class TestSubscriptionViewSet(APITest):

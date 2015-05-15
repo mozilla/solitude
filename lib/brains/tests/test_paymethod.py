@@ -2,14 +2,13 @@ from datetime import datetime
 
 from django.core.urlresolvers import reverse
 
-from braintree.error_result import ErrorResult
 from braintree.payment_method import PaymentMethod
 from braintree.payment_method_gateway import PaymentMethodGateway
 from braintree.successful_result import SuccessfulResult
 from nose.tools import eq_, ok_
 
 from lib.brains.models import BraintreePaymentMethod
-from lib.brains.tests.base import BraintreeTest, create_braintree_buyer
+from lib.brains.tests.base import BraintreeTest, create_braintree_buyer, error
 from solitude.base import APITest
 from solitude.constants import PAYMENT_METHOD_CARD, PAYMENT_METHOD_OPERATOR
 
@@ -28,10 +27,6 @@ def method(**kw):
 
 def successful_method(**kw):
     return SuccessfulResult({'payment_method': method(**kw)})
-
-
-def error():
-    return ErrorResult(None, {'errors': {}, 'message': ''})
 
 
 class TestPaymentMethod(BraintreeTest):
@@ -67,7 +62,8 @@ class TestPaymentMethod(BraintreeTest):
     def test_no_buyer(self):
         res = self.client.post(self.url,
                                data={'buyer_uuid': 'nope', 'nonce': '123'})
-        eq_(res.status_code, 400)
+        eq_(res.status_code, 422)
+        eq_(self.mozilla_error(res.json, 'buyer_uuid'), ['does_not_exist'])
 
     def test_no_buyerbraintree(self):
         buyer, braintree_buyer = create_braintree_buyer()
@@ -75,16 +71,22 @@ class TestPaymentMethod(BraintreeTest):
 
         res = self.client.post(self.url,
                                data={'buyer_uuid': buyer.uuid, 'nonce': '123'})
-        eq_(res.status_code, 400, res.content)
+        eq_(res.status_code, 422, res.content)
+        eq_(self.mozilla_error(res.json, 'buyer_uuid'), ['does_not_exist'])
 
     def test_braintree_fails(self):
-        self.mocks['method'].create.return_value = error()
+        self.mocks['method'].create.return_value = error([{
+            'attribute': 'payment_method_nonce',
+            'message': 'Payment method nonce is invalid.',
+            'code': '91925'
+        }])
 
         buyer, braintree_buyer = create_braintree_buyer()
         res = self.client.post(self.url,
                                data={'buyer_uuid': buyer.uuid, 'nonce': '123'})
         ok_(not BraintreePaymentMethod.objects.exists())
-        eq_(res.status_code, 400)
+        eq_(res.status_code, 422)
+        eq_(self.braintree_error(res.json, 'payment_method_nonce'), ['91925'])
 
 
 class TestBraintreeBuyerMethod(APITest):
@@ -135,4 +137,4 @@ class TestBraintreeBuyerMethod(APITest):
         # This is just a sanity check that the StrictQueryFilter is being
         # applied to queries. It is tested independently elsewhere.
         res = self.client.get(self.url, {'foo': 'bar'})
-        eq_(res.status_code, 400)
+        eq_(res.status_code, 400, res.json)

@@ -8,6 +8,7 @@ from lib.brains.forms import PaymentMethodForm
 from lib.brains.models import BraintreePaymentMethod
 from solitude.base import NonDeleteModelViewSet
 from solitude.constants import PAYMENT_METHOD_CARD
+from solitude.errors import FormError
 from solitude.logger import getLogger
 
 log = getLogger('s.brains')
@@ -19,7 +20,7 @@ def create(request):
     form = PaymentMethodForm(request.DATA)
 
     if not form.is_valid():
-        return Response(form.errors, status=400)
+        raise FormError(form.errors)
 
     buyer = form.buyer
     braintree_buyer = form.braintree_buyer

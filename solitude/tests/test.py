@@ -8,7 +8,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from lib.buyers.models import Buyer
 from solitude.base import APITest
-from solitude.exceptions import InvalidQueryParams
+from solitude.errors import InvalidQueryParams
 from solitude.filter import StrictQueryFilter
 
 

@@ -16,10 +16,12 @@ class BuyerForm(forms.Form):
         try:
             self.buyer = Buyer.objects.get(uuid=data['uuid'])
         except ObjectDoesNotExist:
-            raise forms.ValidationError('Buyer does not exist.')
+            raise forms.ValidationError('Buyer does not exist.',
+                                        code='does_not_exist')
 
         if BraintreeBuyer.objects.filter(buyer=self.buyer).exists():
-            raise forms.ValidationError('Braintree buyer already exists.')
+            raise forms.ValidationError('Braintree buyer already exists.',
+                                        code='already_exists')
 
         return data
 
@@ -34,12 +36,14 @@ class PaymentMethodForm(forms.Form):
         try:
             self.buyer = Buyer.objects.get(uuid=data['buyer_uuid'])
         except ObjectDoesNotExist:
-            raise forms.ValidationError('Buyer does not exist.')
+            raise forms.ValidationError('Buyer does not exist.',
+                                        code='does_not_exist')
 
         try:
             self.braintree_buyer = self.buyer.braintreebuyer
         except ObjectDoesNotExist:
-            raise forms.ValidationError('Braintree buyer does not exist.')
+            raise forms.ValidationError('Braintree buyer does not exist.',
+                                        code='does_not_exist')
 
         return data
 
@@ -61,13 +65,14 @@ class SubscriptionForm(forms.Form):
         queryset=BraintreePaymentMethod.objects.filter())
     plan = forms.CharField(max_length=255)
 
-    def clean(self):
+    def clean_plan(self):
         data = self.cleaned_data
 
         try:
             obj = SellerProduct.objects.get(external_id=data['plan'])
         except ObjectDoesNotExist:
-            raise forms.ValidationError('Seller product does not exist.')
+            raise forms.ValidationError(
+                'Seller product does not exist.', code='does_not_exist')
 
         self.seller_product = obj
         return data

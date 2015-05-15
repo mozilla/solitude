@@ -1,20 +1,13 @@
 
 from django.db.transaction import set_rollback
 
-from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
 from lib.bango.errors import BangoImmediateError
-from lib.brains.errors import BraintreeResultError
 from solitude.logger import getLogger
 
 log = getLogger('s')
-
-
-class InvalidQueryParams(ParseError):
-    status_code = 400
-    default_detail = 'Incorrect query parameters.'
 
 
 def custom_exception_handler(exc):
@@ -22,13 +15,14 @@ def custom_exception_handler(exc):
     # we rollback the transaction.
     set_rollback(True)
 
-    if isinstance(exc, BraintreeResultError):
-        res = {
-            '__all__': [exc.result.message],
-            '__braintree__': 'error',
-            '__type__': 'braintree'
-        }
-        return Response(res, status=400)
+    if hasattr(exc, 'formatter'):
+        try:
+            return Response(exc.formatter(exc).format(),
+                            status=getattr(exc, 'status_code', 422))
+        except:
+            # If the formatter fails, fall back to the standard
+            # error formatting.
+            log.error('Failed to use formatter.')
 
     if isinstance(exc, BangoImmediateError):
         return Response(exc.message, status=400)

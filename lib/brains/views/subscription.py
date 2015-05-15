@@ -8,6 +8,7 @@ from lib.brains.models import BraintreeSubscription
 from lib.brains.serializers import (
     LocalSubscription, Namespaced, Subscription)
 from solitude.base import NonDeleteModelViewSet
+from solitude.errors import FormError
 from solitude.logger import getLogger
 
 log = getLogger('s.brains')
@@ -19,7 +20,7 @@ def create(request):
     form = SubscriptionForm(request.DATA)
 
     if not form.is_valid():
-        return Response(form.errors, status=400)
+        raise FormError(form.errors)
 
     data = form.braintree_data
     result = client.create(data)
