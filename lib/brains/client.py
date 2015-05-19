@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
 import braintree
 from django_statsd.clients import statsd
@@ -25,6 +26,9 @@ def get_client():
         'sandbox': braintree.Environment.Sandbox,
         'production': braintree.Environment.Production,
     }
+
+    if not settings.BRAINTREE_MERCHANT_ID:
+        raise ImproperlyConfigured('BRAINTREE_MERCHANT_ID must be set.')
 
     braintree.Configuration.configure(
         environments[settings.BRAINTREE_ENVIRONMENT],

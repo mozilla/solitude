@@ -51,6 +51,8 @@ DJANGO_PARANOIA_REPORTERS = []
 BANGO_MOCK = True
 ZIPPY_MOCK = True
 
+BRAINTREE_MERCHANT_ID = 'test'
+
 SITE_URL = 'http://localhost/'
 
 SEND_USER_ID_TO_BANGO = True
