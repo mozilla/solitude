@@ -26,6 +26,7 @@ RUN peep install \
 # Ship the source in the container, its up to docker-compose to override it
 # if it wants to.
 COPY . /srv/solitude
+RUN cd /srv/solitude && git show -s --pretty="format:%h" > git-rev.txt
 
 # Technically this should be in supervisor.conf, if the value is placed there,
 # when you enter a bash prompt on the container this value is unset. Meaning
