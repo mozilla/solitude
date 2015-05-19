@@ -22,7 +22,7 @@ def custom_exception_handler(exc):
         except:
             # If the formatter fails, fall back to the standard
             # error formatting.
-            log.error('Failed to use formatter.')
+            log.exception('Failed to use formatter.')
 
     if isinstance(exc, BangoImmediateError):
         return Response(exc.message, status=400)

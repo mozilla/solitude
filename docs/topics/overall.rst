@@ -46,7 +46,7 @@ Common elements in some responses:
 Errors
 ~~~~~~
 
-Errors. Consistent interface in progress:
+Errors. Consistent interface in progress and tracked 
 `by this issue <https://github.com/mozilla/solitude/issues/349>`_.
 
 To seperate the old and new style, two different kinds of errors will be returned
@@ -70,8 +70,8 @@ Mozilla
 Form errors in Solitude are given the namespace `mozilla`.
 
 An error contains the field the error occurred on and the message and code. It is
-possible for more than one error on a field. For a consistent interface use the code
-attribute.
+possible for more than one error to exist on a field. For a consistent interface
+use the `code` attribute.
 
 Example failure in form processing::
 
@@ -97,8 +97,8 @@ Braintree
 Data errors in Braintree are given the namespace `braintree`.
 
 An error contains the field the error occurred on and the message and code. It is
-possible for more than one error on a field. For a consistent interface use the code
-attribute, the code attribute is referenced in the
+possible for more than one error to exist on a field. For a consistent interface use the code
+attribute, the `code` attribute is referenced in the
 `Braintree documentation <https://developers.braintreepayments.com/javascript+python/reference/general/validation-errors/all>`_
 
 Errors occur on Braintree fields, not fields passed in the request, so the the error

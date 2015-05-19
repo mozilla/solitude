@@ -31,10 +31,10 @@ class PaymentMethodForm(forms.Form):
     nonce = forms.CharField(max_length=255)
 
     def clean_buyer_uuid(self):
-        data = self.cleaned_data
+        data = self.cleaned_data['buyer_uuid']
 
         try:
-            self.buyer = Buyer.objects.get(uuid=data['buyer_uuid'])
+            self.buyer = Buyer.objects.get(uuid=data)
         except ObjectDoesNotExist:
             raise forms.ValidationError('Buyer does not exist.',
                                         code='does_not_exist')

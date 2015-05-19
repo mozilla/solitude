@@ -28,7 +28,6 @@ class BraintreeResultError(Exception):
 
     """
     When an error occurs in the result that is not a standard error.
-    Raise this error.
     """
     status_code = 422
     formatter = BraintreeFormatter
