@@ -12,10 +12,10 @@ def clean_pin(pin):
         return pin
 
     if not len(pin) == 4:
-        raise forms.ValidationError(PIN_4_NUMBERS_LONG)
+        raise forms.ValidationError(PIN_4_NUMBERS_LONG, code='invalid')
 
     if not pin.isdigit():
-        raise forms.ValidationError(PIN_ONLY_NUMBERS)
+        raise forms.ValidationError(PIN_ONLY_NUMBERS, code='invalid')
 
     return pin
 

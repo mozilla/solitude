@@ -23,9 +23,8 @@ if os.environ.get('SOLITUDE_PROXY', 'disabled') == 'enabled':
 PAYPAL_PROXY = False
 PAYPAL_URLS_ALLOWED = ('https://marketplace-dev.allizom.org',)
 
-# How tastypie processes error depends upon these settings.
 DEBUG = True
-DEBUG_PROPAGATE_EXCEPTIONS = DEBUG
+DEBUG_PROPAGATE_EXCEPTIONS = False
 
 DUMP_REQUESTS = False
 

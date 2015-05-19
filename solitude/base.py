@@ -145,6 +145,12 @@ class APITest(test.TestCase):
     def get_errors(self, content, field):
         return json.loads(content)[field]
 
+    def mozilla_error(self, content, field):
+        return [f['code'] for f in content['mozilla'][field]]
+
+    def braintree_error(self, content, field):
+        return [f['code'] for f in content['braintree'][field]]
+
 
 def log_cef(msg, request, **kw):
     g = functools.partial(getattr, settings)

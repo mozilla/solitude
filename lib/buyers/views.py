@@ -6,6 +6,7 @@ from lib.buyers.models import Buyer
 from lib.buyers.serializers import (
     BuyerSerializer, ConfirmedSerializer, VerifiedSerializer)
 from solitude.base import log_cef, NonDeleteModelViewSet
+from solitude.errors import FormError
 
 
 class BuyerViewSet(NonDeleteModelViewSet):
@@ -33,7 +34,7 @@ def confirm_pin(request):
         output = ConfirmedSerializer(instance=buyer, confirmed=confirmed)
         return Response(output.data)
 
-    return Response(status=400)
+    raise FormError(form.errors)
 
 
 @api_view(['POST'])
@@ -69,7 +70,7 @@ def verify_pin(request):
         output = VerifiedSerializer(instance=buyer, valid=valid, locked=locked)
         return Response(output.data)
 
-    return Response(status=400)
+    raise FormError(form.errors)
 
 
 @api_view(['POST'])
@@ -96,4 +97,4 @@ def reset_confirm_pin(request):
         output = ConfirmedSerializer(instance=buyer, confirmed=confirmed)
         return Response(output.data)
 
-    return Response(status=400)
+    raise FormError(form.errors)

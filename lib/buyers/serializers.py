@@ -44,7 +44,8 @@ class BuyerSerializer(BaseBuyerSerializer):
             qs = qs.exclude(pk=self.object.pk)
 
         if qs.exists():
-            raise serializers.ValidationError(BUYER_UUID_ALREADY_EXISTS)
+            raise serializers.ValidationError(BUYER_UUID_ALREADY_EXISTS,
+                                              code='not_unique')
 
         return attrs
 

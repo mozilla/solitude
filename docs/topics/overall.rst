@@ -46,5 +46,72 @@ Common elements in some responses:
 Errors
 ~~~~~~
 
-Errors. Consistent interface to be determined
+Errors. Consistent interface in progress and tracked 
 `by this issue <https://github.com/mozilla/solitude/issues/349>`_.
+
+To seperate the old and new style, two different kinds of errors will be returned
+a status of `400 <http://httpstatus.es/400>`_ for old format errors and
+`422 <http://httpstatus.es/422>`_ for new format errors.
+
+400
+---
+
+Responses are currently inconsistent and pending upon
+fixes to Bango and `upgrading to Django Rest Framework 3.x <https://github.com/mozilla/solitude/issues/416>`_.
+
+422
+---
+
+Errors will be raised with the namespace of the error, currently one of `mozilla`,
+`braintree` or `bango` to represent the part of the system that caused the error.
+
+Mozilla
+~~~~~~~
+Form errors in Solitude are given the namespace `mozilla`.
+
+An error contains the field the error occurred on and the message and code. It is
+possible for more than one error to exist on a field. For a consistent interface
+use the `code` attribute.
+
+Example failure in form processing::
+
+    .. code:json::
+
+        {
+            "mozilla": {
+                "name": [
+                    {"message": "First error", 'code': "first"},
+                    {"message": "Second error", 'code': "second"}
+                ],
+                "__all__": [
+                    {"message': "Non field error", "code: "non-field"}
+                ]
+            }
+        }
+
+In this example `name` is a field passed in the request. The `__all__` refers
+to an error that did not exist on a field.
+
+Braintree
+~~~~~~~~~
+Data errors in Braintree are given the namespace `braintree`.
+
+An error contains the field the error occurred on and the message and code. It is
+possible for more than one error to exist on a field. For a consistent interface use the code
+attribute, the `code` attribute is referenced in the
+`Braintree documentation <https://developers.braintreepayments.com/javascript+python/reference/general/validation-errors/all>`_
+
+Errors occur on Braintree fields, not fields passed in the request, so the the error
+keys do not match request fields.
+
+Example failure from Braintree::
+
+    .. code:json::
+
+        {
+            "braintree": {
+                "payment_method_token": [
+                    {'message': 'Payment method token is invalid.', 'code': '91903'},
+                ]
+            }
+        }

@@ -4,14 +4,12 @@ from django.core.urlresolvers import reverse
 
 from braintree.customer import Customer
 from braintree.customer_gateway import CustomerGateway
-from braintree.error_result import ErrorResult
 from braintree.successful_result import SuccessfulResult
 from nose.tools import eq_, ok_
 
-from lib.brains.forms import BuyerForm
 from lib.brains.models import BraintreeBuyer
 from lib.brains.tests.base import (
-    BraintreeTest, create_braintree_buyer, create_buyer)
+    BraintreeTest, create_braintree_buyer, create_buyer, error)
 
 
 def customer(**kw):
@@ -28,10 +26,6 @@ def successful_customer(**kw):
     return SuccessfulResult({'customer': customer(**kw)})
 
 
-def error():
-    return ErrorResult(None, {'errors': {}, 'message': ''})
-
-
 class TestCustomer(BraintreeTest):
     gateways = {'customer': CustomerGateway}
 
@@ -41,12 +35,14 @@ class TestCustomer(BraintreeTest):
 
     def test_buyer_doesnt_exist(self):
         res = self.client.post(self.url, data={'uuid': 'nope'})
-        eq_(res.status_code, 400)
+        eq_(res.status_code, 422)
+        eq_(self.mozilla_error(res.json, 'uuid'), ['does_not_exist'])
 
     def test_braintree_buyer_exists(self):
         buyer, braintree_buyer = create_braintree_buyer()
         res = self.client.post(self.url, data={'uuid': buyer.uuid})
-        eq_(res.status_code, 400)
+        eq_(res.status_code, 422)
+        eq_(self.mozilla_error(res.json, 'uuid'), ['already_exists'])
 
     def test_ok(self):
         self.mocks['customer'].create.return_value = successful_customer()
@@ -67,10 +63,9 @@ class TestCustomer(BraintreeTest):
         res = self.client.post(self.url, data={'uuid': buyer.uuid})
 
         ok_(not BraintreeBuyer.objects.exists())
-        eq_(res.status_code, 400)
+        eq_(res.status_code, 422)
 
     def test_no_uuid(self):
         res = self.client.post(self.url, data={})
-        eq_(res.status_code, 400)
-        eq_(res.json['uuid'][0],
-            unicode(BuyerForm().fields['uuid'].error_messages['required']))
+        eq_(res.status_code, 422)
+        eq_(self.mozilla_error(res.json, 'uuid'), ['required'])

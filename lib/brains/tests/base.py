@@ -44,8 +44,9 @@ def create_seller():
     return seller, seller_product
 
 
-def error():
-    return ErrorResult(None, {'errors': {}, 'message': ''})
+def error(errors=None):
+    errors = {'scope': {'errors': errors or []}}
+    return ErrorResult(None, {'errors': errors, 'message': ''})
 
 
 class BraintreeMock(mock.Mock):

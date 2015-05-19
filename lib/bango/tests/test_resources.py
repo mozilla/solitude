@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import contextlib
 from hashlib import md5
+
 from django import test
 from django.conf import settings
 from django.core.urlresolvers import reverse
