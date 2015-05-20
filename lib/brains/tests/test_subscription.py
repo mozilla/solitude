@@ -54,7 +54,10 @@ class TestSubscriptionMethod(BraintreeTest):
         data = {
             'payment_method_token': mock.ANY,
             'plan_id': 'brick',
-            'name': 'Mozilla',
+            'descriptor': {
+                'name': 'Mozilla*product',
+                'url': 'mozilla.org'
+            },
             'trial_period': False,
         }
         self.mocks['sub'].create.assert_called_with(data)
