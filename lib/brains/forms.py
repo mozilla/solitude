@@ -11,10 +11,10 @@ class BuyerForm(forms.Form):
     uuid = forms.CharField(max_length=255)
 
     def clean_uuid(self):
-        data = self.cleaned_data
+        data = self.cleaned_data['uuid']
 
         try:
-            self.buyer = Buyer.objects.get(uuid=data['uuid'])
+            self.buyer = Buyer.objects.get(uuid=data)
         except ObjectDoesNotExist:
             raise forms.ValidationError('Buyer does not exist.',
                                         code='does_not_exist')
@@ -66,10 +66,10 @@ class SubscriptionForm(forms.Form):
     plan = forms.CharField(max_length=255)
 
     def clean_plan(self):
-        data = self.cleaned_data
+        data = self.cleaned_data['plan']
 
         try:
-            obj = SellerProduct.objects.get(external_id=data['plan'])
+            obj = SellerProduct.objects.get(external_id=data)
         except ObjectDoesNotExist:
             raise forms.ValidationError(
                 'Seller product does not exist.', code='does_not_exist')
