@@ -228,7 +228,6 @@ Some information about the subscripton is stored in solitude.
 
 .. http:get:: /braintree/mozilla/subscription/<subscription id>/
 
-
     .. code-block:: json
 
         {
@@ -261,3 +260,25 @@ Some information about the subscripton is stored in solitude.
     :query paymethod__braintree_buyer: the primary key of the braintree buyer.
     :query paymethod__braintree_buyer__buyer: the primary key of the buyer.
     :query seller_product: the primary key of the product.
+
+Webhook
+-------
+
+When Braintree completes certain actions, they will make a request to the
+configured webhook URL. That will be `<payments-service https://github.com/mozilla/payments-service/>`_
+which then passes it on to this endpoint. For more information see the
+`Braintree documentation <https://developers.braintreepayments.com/javascript+python/reference/general/webhooks>`_.
+
+.. http:get:: /braintree/webhook/
+
+    :query bt_challenge string: the bt_challenge issued by Braintree.
+    :>json string: a token returned by the Braintree verify API.
+
+    :status 200: token verified and returned.
+
+.. http:post:: /braintree/webhook/
+
+    :<json bt_signature: the bt_signature issued by Braintree.
+    :<json bt_payload: the bt_payload issued by Braintree.
+
+    :status 204: webhook parsed successfully.
