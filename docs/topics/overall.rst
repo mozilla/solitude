@@ -46,7 +46,7 @@ Common elements in some responses:
 Errors
 ~~~~~~
 
-Errors. Consistent interface in progress and tracked 
+Errors. Consistent interface in progress and tracked
 `by this issue <https://github.com/mozilla/solitude/issues/349>`_.
 
 To seperate the old and new style, two different kinds of errors will be returned
@@ -54,13 +54,13 @@ a status of `400 <http://httpstatus.es/400>`_ for old format errors and
 `422 <http://httpstatus.es/422>`_ for new format errors.
 
 400
----
+===
 
 Responses are currently inconsistent and pending upon
 fixes to Bango and `upgrading to Django Rest Framework 3.x <https://github.com/mozilla/solitude/issues/416>`_.
 
 422
----
+===
 
 Errors will be raised with the namespace of the error, currently one of `mozilla`,
 `braintree` or `bango` to represent the part of the system that caused the error.
