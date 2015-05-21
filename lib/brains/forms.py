@@ -83,5 +83,10 @@ class SubscriptionForm(forms.Form):
             'payment_method_token': self.cleaned_data['paymethod'].provider_id,
             'plan_id': self.seller_product.external_id,
             'trial_period': False,
-            'name': 'Mozilla',
+            'descriptor': {
+                # TODO: figure out how to get product in here
+                # https://github.com/mozilla/payments/issues/57
+                'name': 'Mozilla*product',
+                'url': 'mozilla.org'
+            }
         }
