@@ -415,9 +415,9 @@ class EventForm(forms.Form):
 
             # Easier to work with a dictionary than etree.
             data = dict([c.values() for c in elem.getchildren()])
-            if (not data.get('externalCPTransId') and
+            if (not data.get('externalCPTransID') and
                     not data.get('transId')):
-                raise forms.ValidationError('externalCPTransId or transId'
+                raise forms.ValidationError('externalCPTransID or transId'
                                             'required')
 
         except Exception, exc:
@@ -442,16 +442,16 @@ class EventForm(forms.Form):
                 log.warning('Transaction not found by transId'
                             .format(data['transId']))
 
-        if not trans and data.get('externalCPTransId'):
+        if not trans and data.get('externalCPTransID'):
             try:
                 # The UUID field is the external transaction id that we pass to
                 # bango. We use this because we might not know the transaction
                 # id. The transaction id is sent in the redirect back from
                 # Bango, see bug 903567.
-                trans = Transaction.objects.get(uuid=data['externalCPTransId'])
+                trans = Transaction.objects.get(uuid=data['externalCPTransID'])
             except Transaction.DoesNotExist:
-                log.warning('Transaction not found by externalCPTransId'
-                            .format(data['externalCPTransId']))
+                log.warning('Transaction not found by externalCPTransID'
+                            .format(data['externalCPTransID']))
 
         if not trans:
             raise forms.ValidationError('Transaction not found, aborting.')
