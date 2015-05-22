@@ -90,3 +90,23 @@ class SubscriptionForm(forms.Form):
                 'url': 'mozilla.org'
             }
         }
+
+
+class WebhookVerifyForm(forms.Form):
+    bt_challenge = forms.CharField()
+
+    @property
+    def braintree_data(self):
+        return self.cleaned_data['bt_challenge']
+
+
+class WebhookParseForm(forms.Form):
+    bt_signature = forms.CharField()
+    bt_payload = forms.CharField()
+
+    @property
+    def braintree_data(self):
+        return (
+            self.cleaned_data['bt_signature'],
+            self.cleaned_data['bt_payload']
+        )
