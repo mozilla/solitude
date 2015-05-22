@@ -441,6 +441,8 @@ class EventForm(forms.Form):
             except Transaction.DoesNotExist:
                 log.warning('Transaction not found by transId'
                             .format(data['transId']))
+        else:
+            log.warning('No transId in notification.')
 
         if not trans and data.get('externalCPTransID'):
             try:
@@ -452,6 +454,8 @@ class EventForm(forms.Form):
             except Transaction.DoesNotExist:
                 log.warning('Transaction not found by externalCPTransID'
                             .format(data['externalCPTransID']))
+        else:
+            log.warning('No externalCPTransID in notification.')
 
         if not trans:
             raise forms.ValidationError('Transaction not found, aborting.')
