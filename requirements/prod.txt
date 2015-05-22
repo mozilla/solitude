@@ -39,9 +39,8 @@ dj-database-url==0.2.1
 # sha256: t3kyxn3ULwGhGRM94fqI7_ssTZerkDnZyVrpYEn63V8
 django-aesfield==0.1.2
 
-# sha256: W_3046UzsQJxVOY3LGuR_O08UYMjvbEjRa49NPE1068
-# sha256: z3nRsrclPDcPoMsk8koTKwegzgP-NW7qyuvYkJiyRCE
-django-extensions==0.9
+# sha256: f1GHhGqTd-WMrmWNYCSz58vQgxUnsnoB2bW1Ny0OZfY
+django-extensions==1.5.0
 
 # sha256: q3WolYCX12pkVl7RAsQndBW_mIDdJ0dzKweaayrs9D4
 django-filter==0.9.2
