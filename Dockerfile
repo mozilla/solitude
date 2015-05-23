@@ -4,9 +4,7 @@
 # NOTE: this is not provided for production usage.
 FROM mozillamarketplace/centos-mysql-mkt:0.2
 
-RUN yum install -y supervisor
-RUN yum install -y bash-completion
-RUN yum install -y cronie
+RUN yum install -y supervisor bash-completion cronie && yum clean all
 
 ENV IS_DOCKER 1
 
