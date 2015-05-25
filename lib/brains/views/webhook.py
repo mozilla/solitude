@@ -7,6 +7,7 @@ from rest_framework.response import Response
 
 from lib.brains.client import get_client
 from lib.brains.forms import WebhookParseForm, WebhookVerifyForm
+from lib.brains.webhooks import Processor
 from solitude.errors import FormError
 from solitude.logger import getLogger
 
@@ -35,7 +36,7 @@ def parse(request):
 
     log.info('Received webhook: {p.kind}.'.format(p=parsed))
     debug_log.debug(parsed)
-    # TODO: actually do something with the web hook.
+    Processor(parsed).process()
     return Response(status=204)
 
 

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from django import forms
 from django.conf import settings
 from django.db.models import Q
-from django.forms.models import model_to_dict
+from django.forms import model_to_dict
 from django.shortcuts import get_object_or_404
 
 import mobile_codes
