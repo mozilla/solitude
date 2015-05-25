@@ -4,29 +4,22 @@
 # NOTE: this is not provided for production usage.
 FROM mozillamarketplace/centos-mysql-mkt:0.2
 
-RUN yum install -y supervisor
-RUN yum install -y bash-completion
-RUN yum install -y cronie
+RUN yum install -y supervisor bash-completion cronie && yum clean all
 
 ENV IS_DOCKER 1
-
-RUN mkdir -p /pip/{cache,build}
-ADD requirements /pip/requirements
-WORKDIR /pip
-# Download this securely from pyprepo first.
-RUN pip install --no-deps --find-links https://pyrepo.addons.mozilla.org/ peep
-RUN peep install \
-    --build /pip/build \
-    --download-cache /pip/cache \
-    --no-deps \
-    -r /pip/requirements/dev.txt \
-    -r /pip/requirements/docs.txt \
-    --find-links https://pyrepo.addons.mozilla.org/
 
 # Ship the source in the container, its up to docker-compose to override it
 # if it wants to.
 COPY . /srv/solitude
 RUN cd /srv/solitude && git show -s --pretty="format:%h" > git-rev.txt
+
+# Download this securely from pyprepo first.
+RUN pip install --no-deps --find-links https://pyrepo.addons.mozilla.org/ peep
+RUN peep install \
+    --no-deps \
+    -r /srv/solitude/requirements/dev.txt \
+    -r /srv/solitude/requirements/docs.txt \
+    --find-links https://pyrepo.addons.mozilla.org/
 
 # Technically this should be in supervisor.conf, if the value is placed there,
 # when you enter a bash prompt on the container this value is unset. Meaning
