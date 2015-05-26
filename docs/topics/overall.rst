@@ -80,11 +80,11 @@ Example failure in form processing::
         {
             "mozilla": {
                 "name": [
-                    {"message": "First error", 'code': "first"},
-                    {"message": "Second error", 'code': "second"}
+                    {"message": "First error", "code": "first"},
+                    {"message": "Second error", "code": "second"}
                 ],
                 "__all__": [
-                    {"message': "Non field error", "code: "non-field"}
+                    {"message": "Non field error", "code": "non-field"}
                 ]
             }
         }
@@ -104,6 +104,13 @@ attribute, the `code` attribute is referenced in the
 Errors occur on Braintree fields, not fields passed in the request, so the the error
 keys do not match request fields.
 
+Braintree has some errors which it doesn't consider validation errors because
+they are not specific to a submitted input field. However, Solitude still
+displays these as validation errors so that error handling is consistent.
+The error codes may be prefixed. For
+`credit card processing errors <https://developers.braintreepayments.com/javascript+python/reference/general/processor-responses/authorization-responses>`_
+the error code is prefixed with ``cc-``.
+
 Example failure from Braintree::
 
     .. code:json::
@@ -111,7 +118,10 @@ Example failure from Braintree::
         {
             "braintree": {
                 "payment_method_token": [
-                    {'message': 'Payment method token is invalid.', 'code': '91903'},
+                    {"message": "Payment method token is invalid.", "code": "91903"}
+                ],
+                "__all__": [
+                    {"message": "Credit card denied", "code": "cc-2000"}
                 ]
             }
         }
