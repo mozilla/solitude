@@ -111,7 +111,12 @@ LOGGING = {
     },
     'loggers': {
         '': {
-            'handlers': ['unicodesyslog', 'sentry'],
+            'handlers': ['console', 'unicodesyslog', 'sentry'],
+            'level': 'INFO',
+            'propagate': True
+        },
+        's': {
+            'handlers': ['console', 'unicodesyslog', 'sentry'],
             'level': 'INFO',
             'propagate': True
         },

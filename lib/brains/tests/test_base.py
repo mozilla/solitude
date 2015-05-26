@@ -1,3 +1,4 @@
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.test import TestCase
 
 from braintree.error_result import ErrorResult
@@ -31,7 +32,7 @@ class TestSerializer(TestCase):
             {'id': 'Fake'})
 
 
-def DummyError():
+def ValidationError():
     # Cribbed from braintree_python source: http://bit.ly/1ICYL1M
     errors = {
         'scope': {
@@ -47,17 +48,39 @@ def DummyError():
     )
 
 
+def CreditCardError():
+    return ErrorResult(
+        'gateway', {
+            'errors': {},
+            'message': 'Do Not Honor',
+            'verification': {
+                'processor_response_code': 'processor-code',
+                'processor_response_text': 'processor response',
+            },
+        }
+    )
+
+
 class TestBraintreeError(TestCase):
 
     def setUp(self):
         self.brain = BraintreeFormatter
-        self.error = DummyError()
 
-    def test_format(self):
-        eq_(self.brain(BraintreeResultError(self.error)).format(),
+    def test_validation_errors(self):
+        eq_(self.brain(BraintreeResultError(ValidationError())).format(),
             {'braintree': {
                 'thing': [
                     {'message': 'message', 'code': 123},
                     {'message': 'else', 'code': 456}
                 ]}
              })
+
+    def test_credit_card_error(self):
+        eq_(self.brain(BraintreeResultError(CreditCardError())).format(), {
+            'braintree': {
+                NON_FIELD_ERRORS: [{
+                    'message': 'processor response',
+                    'code': 'cc-processor-code',
+                }]
+            }
+        })
