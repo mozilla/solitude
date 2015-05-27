@@ -107,9 +107,6 @@ keys do not match request fields.
 Braintree has some errors which it doesn't consider validation errors because
 they are not specific to a submitted input field. However, Solitude still
 displays these as validation errors so that error handling is consistent.
-The error codes may be prefixed. For
-`credit card processing errors <https://developers.braintreepayments.com/javascript+python/reference/general/processor-responses/authorization-responses>`_
-the error code is prefixed with ``cc-``.
 
 Example failure from Braintree::
 
@@ -121,7 +118,19 @@ Example failure from Braintree::
                     {"message": "Payment method token is invalid.", "code": "91903"}
                 ],
                 "__all__": [
-                    {"message": "Credit card denied", "code": "cc-2000"}
+                    {"message": "Credit card denied", "code": "2000"}
+                ]
+            }
+        }
+
+If no error can be found solitude will add the message to the response with code of `unknown`, for example::
+
+    .. code:json::
+
+        {
+            "braintree": {
+                "__all__": [
+                    {"message": "Invalid Secure Payment Data", "code": "unknown"}
                 ]
             }
         }

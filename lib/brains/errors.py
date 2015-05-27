@@ -30,10 +30,17 @@ class BraintreeFormatter(ErrorFormatter):
         if cc_result:
             log.debug('credit card processing error: {r}'.format(r=cc_result))
             errors[NON_FIELD_ERRORS].append({
-                # Prefix the actual error code with `cc-' so that it's sort
-                # of namespaced against other types of error codes.
-                'code': 'cc-{c}'.format(c=cc_result.processor_response_code),
+                'code': cc_result.processor_response_code,
                 'message': cc_result.processor_response_text,
+            })
+
+        # If we haven't found anything fall back to grabbing the message
+        # at least.
+        # See https://github.com/braintree/braintree_python/issues/57
+        if not errors:
+            errors[NON_FIELD_ERRORS].append({
+                'code': 'unknown',
+                'message': self.error.result.message
             })
 
         return {'braintree': dict(errors)}
