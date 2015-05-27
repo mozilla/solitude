@@ -54,6 +54,7 @@ def CreditCardError():
             'errors': {},
             'message': 'Do Not Honor',
             'verification': {
+                'status': 'processor_declined',
                 'processor_response_code': 'processor-code',
                 'processor_response_text': 'processor response',
             },
@@ -69,8 +70,37 @@ def InsecureError():
             'transaction': {
                 'amount': 1,
                 'tax_amount': 1,
+                'status': 'processor_declined',
                 'processor_response_code': 'blah-code',
                 'processor_response_text': 'blah',
+            },
+        }
+    )
+
+
+def FraudError():
+    return ErrorResult(
+        'gateway', {
+            'errors': {},
+            'message': 'Gateway Rejected: fraud',
+            'verification': {
+                'status': 'gateway_rejected',
+                'gateway_rejection_reason': 'fraud',
+                'cvv_response_code': None,
+            },
+        }
+    )
+
+
+def CVVError():
+    return ErrorResult(
+        'gateway', {
+            'errors': {},
+            'message': 'Gateway Rejected: cvv',
+            'verification': {
+                'status': 'gateway_rejected',
+                'gateway_rejection_reason': 'cvv',
+                'cvv_response_code': 'N',
             },
         }
     )
@@ -106,6 +136,26 @@ class TestBraintreeError(TestCase):
                 NON_FIELD_ERRORS: [{
                     'message': 'Invalid Secure Payment Data',
                     'code': 'unknown',
+                }]
+            }
+        })
+
+    def test_fraud_error(self):
+        eq_(self.brain(BraintreeResultError(FraudError())).format(), {
+            'braintree': {
+                NON_FIELD_ERRORS: [{
+                    'message': 'Gateway Rejected: fraud',
+                    'code': 'fraud',
+                }]
+            }
+        })
+
+    def test_cvv_error(self):
+        eq_(self.brain(BraintreeResultError(CVVError())).format(), {
+            'braintree': {
+                'cvv': [{
+                    'message': 'Gateway Rejected: cvv',
+                    'code': 'cvv',
                 }]
             }
         })
