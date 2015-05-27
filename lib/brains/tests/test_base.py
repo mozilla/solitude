@@ -61,6 +61,21 @@ def CreditCardError():
     )
 
 
+def InsecureError():
+    return ErrorResult(
+        'gateway', {
+            'errors': {},
+            'message': 'Invalid Secure Payment Data',
+            'transaction': {
+                'amount': 1,
+                'tax_amount': 1,
+                'processor_response_code': 'blah-code',
+                'processor_response_text': 'blah',
+            },
+        }
+    )
+
+
 class TestBraintreeError(TestCase):
 
     def setUp(self):
@@ -80,7 +95,17 @@ class TestBraintreeError(TestCase):
             'braintree': {
                 NON_FIELD_ERRORS: [{
                     'message': 'processor response',
-                    'code': 'cc-processor-code',
+                    'code': 'processor-code',
+                }]
+            }
+        })
+
+    def test_other_error(self):
+        eq_(self.brain(BraintreeResultError(InsecureError())).format(), {
+            'braintree': {
+                NON_FIELD_ERRORS: [{
+                    'message': 'Invalid Secure Payment Data',
+                    'code': 'unknown',
                 }]
             }
         })
