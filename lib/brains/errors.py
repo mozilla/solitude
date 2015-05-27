@@ -29,10 +29,25 @@ class BraintreeFormatter(ErrorFormatter):
         cc_result = self.error.result.credit_card_verification
         if cc_result:
             log.debug('credit card processing error: {r}'.format(r=cc_result))
-            errors[NON_FIELD_ERRORS].append({
-                'code': cc_result.processor_response_code,
-                'message': cc_result.processor_response_text,
-            })
+
+            if cc_result.status == 'gateway_rejected':
+                field = NON_FIELD_ERRORS
+                # I think these are two cases we care about
+                # http://bit.ly/1FbxYCE
+                if cc_result.cvv_response_code in ['N', 'U']:
+                    field = 'cvv'
+
+                errors[field].append({
+                    'code': cc_result.gateway_rejection_reason,
+                    'message': self.error.result.message,
+                })
+
+            # This covers JCB (failed) and all others (processor declined)
+            elif cc_result.status in ['processor_declined', 'failed']:
+                errors[NON_FIELD_ERRORS].append({
+                    'code': cc_result.processor_response_code,
+                    'message': cc_result.processor_response_text,
+                })
 
         # If we haven't found anything fall back to grabbing the message
         # at least.
