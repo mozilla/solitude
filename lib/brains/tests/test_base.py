@@ -71,8 +71,8 @@ def InsecureError():
                 'amount': 1,
                 'tax_amount': 1,
                 'status': 'processor_declined',
-                'processor_response_code': 'blah-code',
-                'processor_response_text': 'blah',
+                'processor_response_code': '2078',
+                'processor_response_text': 'Invalid Secure Payment Data',
             },
         }
     )
@@ -135,7 +135,7 @@ class TestBraintreeError(TestCase):
             'braintree': {
                 NON_FIELD_ERRORS: [{
                     'message': 'Invalid Secure Payment Data',
-                    'code': 'unknown',
+                    'code': '2078',
                 }]
             }
         })

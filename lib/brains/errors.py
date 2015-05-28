@@ -26,32 +26,35 @@ class BraintreeFormatter(ErrorFormatter):
                 'message': error.message
             })
 
-        cc_result = self.error.result.credit_card_verification
-        if cc_result:
-            log.debug('credit card processing error: {r}'.format(r=cc_result))
+        # If there's not a verification object,
+        # there will be a transaction object or neither.
+        error = (self.error.result.credit_card_verification
+                 or self.error.result.transaction)
+        if error:
+            log.debug('Processing error: {}'.format(object))
 
-            if cc_result.status == 'gateway_rejected':
+            if error.status.startswith('gateway'):
                 field = NON_FIELD_ERRORS
                 # I think these are two cases we care about
                 # http://bit.ly/1FbxYCE
-                if cc_result.cvv_response_code in ['N', 'U']:
+                if error.cvv_response_code in ['N', 'U']:
                     field = 'cvv'
 
                 errors[field].append({
-                    'code': cc_result.gateway_rejection_reason,
-                    'message': self.error.result.message,
+                    'code': error.gateway_rejection_reason,
+                    # There is no matching gateway_rejection_text.
+                    'message': self.error.result.message
                 })
 
             # This covers JCB (failed) and all others (processor declined)
-            elif cc_result.status in ['processor_declined', 'failed']:
+            elif error.status.startswith(('processor', 'failed')):
                 errors[NON_FIELD_ERRORS].append({
-                    'code': cc_result.processor_response_code,
-                    'message': cc_result.processor_response_text,
+                    'code': error.processor_response_code,
+                    'message': error.processor_response_text,
                 })
 
         # If we haven't found anything fall back to grabbing the message
         # at least.
-        # See https://github.com/braintree/braintree_python/issues/57
         if not errors:
             errors[NON_FIELD_ERRORS].append({
                 'code': 'unknown',
