@@ -41,4 +41,5 @@ ENV HISTIGNORE ls:exit:"cd .."
 ENV HISTCONTROL erasedups
 
 # Add in the cron jobs.
-RUN python /srv/solitude/bin/crontab/gen-crons.py -w /srv/solitude -p python | crontab -
+RUN mkdir -p /var/log/solitude/transactions/
+RUN python /srv/solitude/bin/crontab/gen-crons.py -w /srv/solitude -p python --dir /var/log | crontab -

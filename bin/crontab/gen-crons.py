@@ -17,6 +17,8 @@ def main():
                       help='Python interpreter to use.')
     parser.add_option("-d", "--deprecations", default=False,
                       help="Show deprecation warnings")
+    parser.add_option('--dir', default=None,
+                      help='Output log directory')
 
     (opts, args) = parser.parse_args()
 
@@ -35,6 +37,8 @@ def main():
     # Needs to stay below the opts.user injection.
     ctx['python'] = opts.python
     ctx['header'] = HEADER
+    ctx['dir'] = ('--dir {}/solitude/transactions/'.format(opts.dir)
+                  if opts.dir else '')
 
     print TEMPLATE % ctx
 

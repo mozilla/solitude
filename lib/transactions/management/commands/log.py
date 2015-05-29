@@ -19,7 +19,7 @@ def generate_log(day, filename, log_type):
     writer = csv.writer(out)
     next_day = day + timedelta(days=1)
     transactions = Transaction.objects.filter(
-        modified__range=(day.date(), next_day.date()))
+        modified__range=(day, next_day))
 
     header = False
     if log_type == 'stats':
@@ -86,10 +86,12 @@ class Command(BaseCommand):
             log.debug(msg)
             raise CommandError(msg)
 
-        dir_ = not options['dir']
-        if dir_:
+        dir_ = options['dir']
+        if not dir_:
             log.debug('No directory specified, making temp.')
             dir_ = tempfile.mkdtemp()
+        if not os.path.exists(dir_):
+            os.makedirs(dir_)
 
         # Default to yesterday for backwards compat.
         day = (datetime.today() if options['today']
