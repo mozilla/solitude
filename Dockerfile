@@ -8,10 +8,8 @@ RUN yum install -y supervisor bash-completion cronie && yum clean all
 
 ENV IS_DOCKER 1
 
-# Ship the source in the container, its up to docker-compose to override it
-# if it wants to.
-COPY . /srv/solitude
-RUN cd /srv/solitude && git show -s --pretty="format:%h" > git-rev.txt
+# Copy requirements over first to cache the build.
+COPY requirements /srv/solitude/requirements
 
 # Download this securely from pyprepo first.
 RUN pip install --no-deps --find-links https://pyrepo.addons.mozilla.org/ peep
@@ -20,6 +18,11 @@ RUN peep install \
     -r /srv/solitude/requirements/dev.txt \
     -r /srv/solitude/requirements/docs.txt \
     --find-links https://pyrepo.addons.mozilla.org/
+
+# Ship the source in the container, its up to docker-compose to override it
+# if it wants to.
+COPY . /srv/solitude
+RUN cd /srv/solitude && git show -s --pretty="format:%h" > git-rev.txt
 
 # Technically this should be in supervisor.conf, if the value is placed there,
 # when you enter a bash prompt on the container this value is unset. Meaning
