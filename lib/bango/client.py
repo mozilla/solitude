@@ -16,7 +16,7 @@ from suds.sax.parser import Parser
 from suds.transport import Reply
 from suds.transport.http import HttpTransport
 
-from .constants import (ACCESS_DENIED, HEADERS_ALLOWED, HEADERS_SERVICE,
+from .constants import (ACCESS_DENIED, HEADERS_ALLOWED,
                         INTERNAL_ERROR, SERVICE_UNAVAILABLE, WSDL_MAP,
                         WSDL_MAP_MANGLED)
 from .errors import (AuthError, BangoError,
@@ -185,7 +185,7 @@ class Client(object):
 class Proxy(HttpTransport):
 
     def get_headers(self, url, headers):
-        filtered = {HEADERS_SERVICE: url}
+        filtered = {settings.AUTH_SERVICE: url}
         for k, v in HEADERS_ALLOWED.items():
             if k in headers:
                 filtered[v] = headers[k]
