@@ -125,6 +125,10 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True
         },
+        's.webhook': {
+            'handlers': ['unicodesyslog', 'console'],
+            'level': 'DEBUG'
+        },
         's.auth': {
             'level': 'INFO',
         },

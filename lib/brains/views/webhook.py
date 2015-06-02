@@ -1,12 +1,15 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from django.conf import settings
+
 from lib.brains.client import get_client
 from lib.brains.forms import WebhookParseForm, WebhookVerifyForm
 from solitude.errors import FormError
 from solitude.logger import getLogger
 
 log = getLogger('s.brains')
+debug_log = getLogger('s.webhook')
 
 
 def webhook(request):
@@ -23,6 +26,7 @@ def parse(request):
 
     parsed = get_client().WebhookNotification.parse(*form.braintree_data)
     log.info('Received webhook: {p.kind}.'.format(p=parsed))
+    debug_log.debug(parsed)
     # TODO: actually do something with the web hook.
     return Response(status=204)
 
