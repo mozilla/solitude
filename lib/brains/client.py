@@ -29,9 +29,9 @@ class Http(braintree.util.http.Http):
 
     def http_do(self, verb, path, headers, body):
         # Tell solitude-auth where we really want this request to go to.
-        headers['x-solitude-url'] = self.environment._real.base_url + path
+        headers['x-solitude-service'] = self.environment._real.base_url + path
         # Set the URL of the request to point to the auth server.
-        path = self.env
+        path = self.environment._url.path
 
         with statsd.timer('solitude.braintree.api'):
             status, text = super(Http, self).http_do(verb, path, headers, body)
