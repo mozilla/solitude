@@ -1,3 +1,7 @@
+import base64
+
+from braintree.util.xml_util import XmlUtil
+from braintree.webhook_notification import WebhookNotification
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -22,7 +26,13 @@ def parse(request):
     if not form.is_valid():
         raise FormError(form.errors)
 
-    parsed = get_client().WebhookNotification.parse(*form.braintree_data)
+    # Parse the gateway without doing a validation on this server.
+    # The validation has happened on the solitude-auth server.
+    gateway = get_client().Configuration.instantiate().gateway()
+    payload = base64.decodestring(form.cleaned_data['bt_payload'])
+    attributes = XmlUtil.dict_from_xml(payload)
+    parsed = WebhookNotification(gateway, attributes['notification'])
+
     log.info('Received webhook: {p.kind}.'.format(p=parsed))
     debug_log.debug(parsed)
     # TODO: actually do something with the web hook.
@@ -35,6 +45,5 @@ def verify(request):
     if not form.is_valid():
         raise FormError(form.errors)
 
-    res = get_client().WebhookNotification.verify(form.braintree_data)
-    log.info('Received verification response: {r}'.format(r=res))
-    return Response(res)
+    log.info('Received verification response: {r}'.format(r=form.response))
+    return Response(form.response)
