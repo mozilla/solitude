@@ -1,9 +1,11 @@
 import uuid
+from StringIO import StringIO
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 import mock
+import requests
 from braintree.error_result import ErrorResult
 from nose.plugins.attrib import attr
 
@@ -125,6 +127,28 @@ class BraintreeTest(APITest):
                 if not getattr(v, call).called:
                     raise MockError('{0}.{1} registered but not called.'
                                     .format(self.gateways[k].__name__, call))
+
+    def cleanUpRequest(self):
+        self.req.patcher.stop()
+
+    def patch_webhook_forms(self):
+        request = mock.patch('lib.brains.forms.requests', name='test.forms')
+        self.req = request.start()
+        self.req.exceptions = requests.exceptions
+        self.req.patcher = request
+        self.addCleanup(self.cleanUpRequest)
+
+    def get_response(self, data, status_code, headers=None):
+        headers = headers or {}
+        raw = StringIO()
+        raw.write(data)
+        raw.seek(0)
+
+        res = requests.Response()
+        res.status_code = status_code
+        res.raw = raw
+        res.headers.update(headers)
+        return res
 
 
 @attr('braintree')

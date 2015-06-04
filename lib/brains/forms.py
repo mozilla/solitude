@@ -1,10 +1,16 @@
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+
+import requests
 
 from lib.brains.models import BraintreeBuyer, BraintreePaymentMethod
 from lib.buyers.models import Buyer
 from lib.sellers.models import SellerProduct
+from solitude.base import getLogger
 from solitude.related_fields import PathRelatedFormField
+
+log = getLogger('s.brains')
 
 
 class BuyerForm(forms.Form):
@@ -99,6 +105,19 @@ class WebhookVerifyForm(forms.Form):
     def braintree_data(self):
         return self.cleaned_data['bt_challenge']
 
+    def clean_bt_challenge(self):
+        res = requests.get(
+            settings.BRAINTREE_PROXY + '/verify',
+            params={'bt_challenge': self.cleaned_data['bt_challenge']}
+        )
+        if res.status_code != 200:
+            log.error('Did not receive a 204 from solitude-auth, got: {}'
+                      .format(res.status_code))
+            raise forms.ValidationError(
+                'Did not pass verification', code='invalid')
+        self.response = res.content
+        return self.cleaned_data['bt_challenge']
+
 
 class WebhookParseForm(forms.Form):
     bt_signature = forms.CharField()
@@ -110,3 +129,12 @@ class WebhookParseForm(forms.Form):
             self.cleaned_data['bt_signature'],
             self.cleaned_data['bt_payload']
         )
+
+    def clean(self):
+        res = requests.post(settings.BRAINTREE_PROXY + '/parse', self.data)
+        if res.status_code != 204:
+            log.error('Did not receive a 204 from solitude-auth, got: {}'
+                      .format(res.status_code))
+            raise forms.ValidationError(
+                'Did not pass verification', code='invalid')
+        return self.cleaned_data
