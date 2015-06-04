@@ -199,6 +199,9 @@ AES_KEYS = {
     'bango:signature': 'solitude/settings/sample.key',
 }
 
+# The header that passes the real URL to the solitude-auth server.
+AUTH_SERVICE = 'x-solitude-service'
+
 # Playdoh ships with sha512 password hashing by default. Bcrypt+HMAC is safer,
 # so it is recommended. Please read
 # <https://github.com/fwenzel/django-sha2#readme>, uncomment the bcrypt hasher
