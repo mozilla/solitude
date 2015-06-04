@@ -1,20 +1,12 @@
-<<<<<<< HEAD
 import base64
-=======
 from decimal import Decimal
->>>>>>> process a subscription charged event
 
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 
 from braintree.webhook_notification import WebhookNotification
-<<<<<<< HEAD
-from nose.tools import eq_
-=======
-from braintree.webhook_notification_gateway import WebhookNotificationGateway
 from mock import patch
-from nose.tools import eq_, ok_
->>>>>>> process a subscription charged event
+from nose.tools import eq_
 
 from lib.brains.models import BraintreeSubscription
 from lib.brains.tests.base import (
@@ -45,13 +37,13 @@ subscription = {
 }
 
 
-def parsed_subscription(**kwargs):
+def notification(**kwargs):
     data = {
         'kind': 'subscription_charged_successfully',
         'subject': subscription
     }
     data.update(kwargs)
-    return WebhookNotification(None, data)
+    return data
 
 
 example_xml = """<?xml version="1.0" encoding="UTF-8"?>
@@ -98,8 +90,11 @@ class TestWebhook(BraintreeTest):
 
     def test_post_ok(self):
         self.req.post.return_value = self.get_response('foo', 204)
-        eq_(self.client.post(self.url, data=example()).status_code, 204)
-        ok_(process.called)
+        with patch('lib.brains.views.webhook.XmlUtil.dict_from_xml') as res:
+            res.return_value = {'notification': notification()}
+            with patch('lib.brains.views.webhook.Processor.process'):
+                eq_(self.client.post(self.url, data=example()).status_code,
+                    204)
 
 
 class TestWebhookSubscriptionCharged(BraintreeTest):
