@@ -37,12 +37,15 @@ def create_method(braintree_buyer):
         type=PAYMENT_METHOD_CARD)
 
 
-def create_seller():
+def create_seller(seller_product_data=None):
     seller = Seller.objects.create(uuid=str(uuid.uuid4()))
-    seller_product = SellerProduct.objects.create(
-        external_id='brick',
-        public_id=str(uuid.uuid4()),
-        seller=seller)
+    data = {
+        'external_id': str(uuid.uuid4()),
+        'public_id': 'brick',
+        'seller': seller
+    }
+    data.update(seller_product_data or {})
+    seller_product = SellerProduct.objects.create(**data)
     return seller, seller_product
 
 

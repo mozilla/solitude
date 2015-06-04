@@ -86,10 +86,10 @@ class Command(BaseCommand):
             plans = get_plans(client)
             # Iterate through each product checking they exist.
             for product in item['products']:
-                external_id = item['seller'] + '-' + product['name']
+                public_id = item['seller'] + '-' + product['name']
                 get_or_create_seller_product(
-                    external_id=external_id,
-                    public_id=product['name'],
+                    external_id=product['name'],
+                    public_id=public_id,
                     seller=seller
                 )
-                product_exists(plans, external_id, product['amount'])
+                product_exists(plans, public_id, product['amount'])

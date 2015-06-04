@@ -75,7 +75,7 @@ class SubscriptionForm(forms.Form):
         data = self.cleaned_data['plan']
 
         try:
-            obj = SellerProduct.objects.get(external_id=data)
+            obj = SellerProduct.objects.get(public_id=data)
         except ObjectDoesNotExist:
             raise forms.ValidationError(
                 'Seller product does not exist.', code='does_not_exist')
@@ -87,7 +87,7 @@ class SubscriptionForm(forms.Form):
     def braintree_data(self):
         return {
             'payment_method_token': self.cleaned_data['paymethod'].provider_id,
-            'plan_id': self.seller_product.external_id,
+            'plan_id': self.seller_product.public_id,
             'trial_period': False,
             'descriptor': {
                 # TODO: figure out how to get product in here

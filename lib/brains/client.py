@@ -49,6 +49,9 @@ def get_client():
         'production': AuthProduction,
     }
 
+    if not settings.BRAINTREE_PROXY:
+        raise ImproperlyConfigured('BRAINTREE_PROXY must be set.')
+
     if not settings.BRAINTREE_MERCHANT_ID:
         raise ImproperlyConfigured('BRAINTREE_MERCHANT_ID must be set.')
 
