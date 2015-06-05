@@ -22,19 +22,20 @@ class TestLog(test.TestCase):
         self.first = Transaction.objects.create(
             provider=1,
             seller_product=self.product, uuid='uuid')
+        self.date = self.first.modified.date()
 
     def results(self):
         return csv.reader(open(self.name, 'rb'))
 
     def test_filter(self):
-        generate_log(datetime.today(), self.name, 'stats')
+        generate_log(self.date, self.name, 'stats')
         output = self.results()
         eq_(next(output)[0], 'version')
         eq_(next(output)[1], 'uuid')
 
     @raises(StopIteration)
     def test_stats_log_stops(self):
-        generate_log(datetime.today(), self.name, 'revenue')
+        generate_log(self.date, self.name, 'revenue')
         output = self.results()
         eq_(next(output)[0], 'version')
         next(output)  # There is no line 1, transaction not written.
@@ -43,7 +44,7 @@ class TestLog(test.TestCase):
         self.first.status = constants.STATUS_CHECKED
         self.first.save()
 
-        generate_log(datetime.today(), self.name, 'revenue')
+        generate_log(self.date, self.name, 'revenue')
         output = self.results()
         eq_(next(output)[0], 'version')
         eq_(next(output)[1], 'uuid')
@@ -54,7 +55,7 @@ class TestLog(test.TestCase):
         self.first.log.create(type=constants.LOG_REVENUE)
         self.first.save()
 
-        generate_log(datetime.today(), self.name, 'revenue')
+        generate_log(self.date, self.name, 'revenue')
         output = self.results()
         eq_(next(output)[0], 'version')
         next(output)  # There is no line 1, transaction not written.
@@ -64,7 +65,7 @@ class TestLog(test.TestCase):
         self.first.log.create(type=constants.LOG_STATS)
         self.first.save()
 
-        generate_log(datetime.today(), self.name, 'revenue')
+        generate_log(self.date, self.name, 'revenue')
         output = self.results()
         eq_(next(output)[0], 'version')
         eq_(next(output)[1], 'uuid')
@@ -72,4 +73,4 @@ class TestLog(test.TestCase):
     def test_no_seller(self):
         self.first.seller_product = None
         self.first.save()
-        generate_log(datetime.today(), self.name, 'stats')
+        generate_log(self.date, self.name, 'stats')
