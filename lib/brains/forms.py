@@ -77,6 +77,9 @@ class SubscriptionForm(forms.Form):
         try:
             obj = SellerProduct.objects.get(public_id=data)
         except ObjectDoesNotExist:
+            log.info(
+                'no seller product with braintree plan id: {plan}'
+                .format(plan=data))
             raise forms.ValidationError(
                 'Seller product does not exist.', code='does_not_exist')
 
