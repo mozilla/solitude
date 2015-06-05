@@ -51,6 +51,7 @@ BANGO_MOCK = True
 ZIPPY_MOCK = True
 
 BRAINTREE_MERCHANT_ID = 'test'
+BRAINTREE_PROXY = 'http://m.o'
 
 SITE_URL = 'http://localhost/'
 

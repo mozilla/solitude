@@ -16,3 +16,8 @@ class TestClient(BraintreeTest):
         with self.settings(BRAINTREE_MERCHANT_ID=''):
             with self.assertRaises(ImproperlyConfigured):
                 get_client()
+
+    def test_missing_proxy(self):
+        with self.settings(BRAINTREE_PROXY='', BRAINTREE_MERCHANT_ID='x'):
+            with self.assertRaises(ImproperlyConfigured):
+                get_client()

@@ -129,7 +129,8 @@ class TestSubscriptionViewSet(APITest):
         obj = self.create()
 
         paymethod = create_method(self.braintree_buyer)
-        seller, seller_product = create_seller()
+        seller, seller_product = create_seller(
+            seller_product_data={'public_id': 'a-different-brick'})
 
         data = {
             'paymethod': paymethod.get_uri(),
@@ -152,9 +153,7 @@ class TestSubscriptionViewSet(APITest):
                 {'seller_product': self.seller_product.pk},
                 {'paymethod__braintree_buyer': self.method.braintree_buyer.pk},
                 {'paymethod__braintree_buyer__buyer':
-                 self.method.braintree_buyer.buyer.pk},
-
-        ):
+                 self.method.braintree_buyer.buyer.pk},):
             res = self.client.get(self.url, d)
             eq_(res.json['meta']['total_count'], 1)
             eq_(res.json['objects'][0]['resource_pk'], obj.pk)
