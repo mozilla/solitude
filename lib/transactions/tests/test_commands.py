@@ -1,5 +1,4 @@
 import csv
-from datetime import datetime
 from tempfile import NamedTemporaryFile
 
 from django import test
