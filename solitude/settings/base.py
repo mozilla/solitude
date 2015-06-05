@@ -525,3 +525,6 @@ BRAINTREE_TRANSACTION_STATUSES = (
     'failed', 'gateway_rejected', 'processor_declined', 'settled',
     'settlement_declined'
 )
+
+# An arbitrary limit on the number of payment methods.
+BRAINTREE_MAX_METHODS = 5
