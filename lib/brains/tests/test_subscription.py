@@ -104,7 +104,7 @@ class TestSubscriptionViewSet(APITest):
         self.method = create_method(self.braintree_buyer)
         self.seller, self.seller_product = create_seller()
         self.url = reverse('braintree:mozilla:subscription-list')
-        super(self.__class__, self).setUp()
+        super(TestSubscriptionViewSet, self).setUp()
 
     def test_allowed(self):
         self.allowed_verbs(self.url, ['get'])

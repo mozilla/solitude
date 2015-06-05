@@ -18,5 +18,5 @@ class StrictQueryFilter(DjangoFilterBackend):
             raise InvalidQueryParams(
                 detail='Incorrect query parameters: ' + ','.join(difference))
 
-        return (super(self.__class__, self)
+        return (super(StrictQueryFilter, self)
                 .filter_queryset(request, queryset, view))
