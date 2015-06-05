@@ -17,7 +17,7 @@ class AuthEnvironment(braintree.environment.Environment):
         self._url = urlparse(settings.BRAINTREE_PROXY)
         self._real = real
 
-        super(self.__class__, self).__init__(
+        super(AuthEnvironment, self).__init__(
             self._url.hostname, self._url.port, '',
             self._url.scheme == 'https', None)
 
