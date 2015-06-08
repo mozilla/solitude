@@ -519,3 +519,9 @@ BRAINTREE_CONFIG = {
 
 # The URL of the solitude-auth server that will be used by solitude.
 BRAINTREE_PROXY = os.getenv('SOLITUDE_BRAINTREE_PROXY', '')
+
+# Statuses that we'll process in the webhook.
+BRAINTREE_TRANSACTION_STATUSES = (
+    'failed', 'gateway_rejected', 'processor_declined', 'settled',
+    'settlement_declined'
+)

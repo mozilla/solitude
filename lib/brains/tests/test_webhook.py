@@ -16,34 +16,34 @@ from lib.transactions import constants
 from lib.transactions.models import Transaction
 
 
-def parsed(**kwargs):
-    data = {'kind': 'test', 'subject': {}}
+def notification(**kwargs):
+    data = {
+        'kind': 'test',
+        'subject': {}
+    }
     data.update(kwargs)
     return WebhookNotification(None, data)
 
 
-subscription = {
-    'subscription': {
-        'id': 'some-bt:id',
-        'transactions': [
-            {
-                'id': 'bt:id',
-                'amount': 10,
-                'tax_amount': 1,
-                'currency_iso_code': 'USD'
-            }
-        ]
-    }
-}
-
-
-def notification(**kwargs):
+def transaction(**kwargs):
     data = {
-        'kind': 'subscription_charged_successfully',
-        'subject': subscription
+        'id': 'bt:id',
+        'amount': 10,
+        'tax_amount': 1,
+        'currency_iso_code': 'USD',
+        'status': 'settled'
     }
     data.update(kwargs)
     return data
+
+
+def subscription(**kwargs):
+    data = {
+        'id': 'some-bt:id',
+        'transactions': [transaction()],
+    }
+    data.update(kwargs)
+    return {'subscription': data}
 
 
 example_xml = """<?xml version="1.0" encoding="UTF-8"?>
@@ -91,14 +91,14 @@ class TestWebhook(BraintreeTest):
     def test_post_ok(self):
         self.req.post.return_value = self.get_response('foo', 204)
         with patch('lib.brains.views.webhook.XmlUtil.dict_from_xml') as res:
-            res.return_value = {'notification': notification()}
+            res.return_value = {
+                'notification': {'kind': '', 'subject': subscription()}}
             with patch('lib.brains.views.webhook.Processor.process'):
                 eq_(self.client.post(self.url, data=example()).status_code,
                     204)
 
 
-class TestWebhookSubscriptionCharged(BraintreeTest):
-    kind = 'subscription_charged_successfully'
+class SubscriptionTest(BraintreeTest):
 
     def setUp(self):
         self.buyer, self.braintree_buyer = create_braintree_buyer()
@@ -109,14 +109,83 @@ class TestWebhookSubscriptionCharged(BraintreeTest):
             seller_product=self.seller_product,
             provider_id='some-bt:id'
         )
-        self.sub = subscription
+        self.sub = subscription()
+
+
+class TestTransactions(SubscriptionTest):
+
+    def process(self, subscription):
+        process = Processor(notification(subject=subscription))
+        process.update_transactions(process.webhook.subscription,
+                                    self.braintree_sub)
+
+    def test_ignored(self):
+        sub = subscription(transactions=[transaction(status='settling')])
+        self.process(sub)
+        eq_(Transaction.objects.count(), 0)
+
+    def test_caught(self):
+        sub = subscription(transactions=[transaction(status='settled')])
+        self.process(sub)
+        trans = Transaction.objects.get()
+        eq_(trans.status, constants.STATUS_CHECKED)
+
+    def test_processor_declined(self):
+        sub = subscription(transactions=[
+            transaction(status='processor_declined',
+                        processor_response_code='wat'),
+        ])
+        self.process(sub)
+        trans = Transaction.objects.get()
+        eq_(trans.status, constants.STATUS_FAILED)
+        eq_(trans.status_reason, 'processor_declined wat')
+
+    def test_settlement_declined(self):
+        sub = subscription(transactions=[
+            transaction(status='settlement_declined',
+                        processor_settlement_response_code='wat'),
+        ])
+        self.process(sub)
+        trans = Transaction.objects.get()
+        eq_(trans.status, constants.STATUS_FAILED)
+        eq_(trans.status_reason, 'settlement_declined wat')
+
+    def test_gateway_rejected(self):
+        sub = subscription(transactions=[
+            transaction(status='gateway_rejected',
+                        gateway_rejection_reason='wat'),
+        ])
+        self.process(sub)
+        trans = Transaction.objects.get()
+        eq_(trans.status, constants.STATUS_FAILED)
+        eq_(trans.status_reason, 'gateway_rejected wat')
+
+    def test_repeated(self):
+        sub = subscription(transactions=[transaction(status='settled')])
+        self.process(sub)
+        self.process(sub)
+        eq_(Transaction.objects.count(), 1)
+
+    def test_repeated_but_changed_status(self):
+        sub = subscription(transactions=[transaction(status='settled')])
+        self.process(sub)
+        sub = subscription(transactions=[
+            transaction(status='processor_declined',
+                        processor_response_code='wat')
+        ])
+        with self.assertRaises(ValueError):
+            self.process(sub)
+
+
+class TestWebhookSubscriptionCharged(SubscriptionTest):
+    kind = 'subscription_charged_successfully'
 
     def test_ok(self):
-        Processor(parsed(kind=self.kind, subject=self.sub)).process()
+        Processor(notification(kind=self.kind, subject=self.sub)).process()
         eq_(Transaction.objects.get().status, constants.STATUS_CHECKED)
 
     def test_sets(self):
-        Processor(parsed(kind=self.kind, subject=self.sub)).process()
+        Processor(notification(kind=self.kind, subject=self.sub)).process()
         transaction = Transaction.objects.get()
         eq_(transaction.seller, self.seller)
         eq_(transaction.amount, Decimal('10'))
@@ -128,6 +197,6 @@ class TestWebhookSubscriptionCharged(BraintreeTest):
 
     def test_none(self):
         self.braintree_sub.delete()
-        obj = Processor(parsed(kind=self.kind, subject=self.sub))
+        obj = Processor(notification(kind=self.kind, subject=self.sub))
         with self.assertRaises(BraintreeSubscription.DoesNotExist):
             obj.process()
