@@ -39,10 +39,35 @@ class Processor(object):
         successfully moves to the next billing cycle.
 
         We have to:
-        * find the subscription and create a transaction for it.
+        * find the subscription and create transactions for it.
+        * ensure the subscription is set to active.
         """
         subscription = self.get_subscription()
+        self.update_subscription(subscription, True)
         self.update_transactions(self.webhook.subscription, subscription)
+
+    def process_subscription_cancelled(self):
+        """
+        We have to:
+        * find the subscription and create transactions for it.
+        * ensure the subscription is set to inactive.
+        """
+        subscription = self.get_subscription()
+        self.update_subscription(subscription, False)
+        self.update_transactions(self.webhook.subscription, subscription)
+
+    def update_subscription(self, subscription, active):
+        """
+        Update the active flag on a subscription, if it already matches
+        then nothing happens.
+        """
+        if subscription.active == active:
+            return
+
+        subscription.active = active
+        subscription.save()
+        log.info('Changed subscription: {} to {}'
+                 .format(subscription.pk, 'active' if active else 'inactive'))
 
     def get_subscription(self):
         """
