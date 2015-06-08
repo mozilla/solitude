@@ -51,9 +51,9 @@ def create(request):
 class SubscriptionViewSet(NonDeleteModelViewSet):
     queryset = BraintreeSubscription.objects.all()
     serializer_class = LocalSubscription
-    filter_fields = ('paymethod', 'paymethod__braintree_buyer',
+    filter_fields = ('active', 'paymethod', 'paymethod__braintree_buyer',
                      'paymethod__braintree_buyer__buyer',
-                     'seller_product')
+                     'seller_product', 'provider_id')
 
     def create(self, *args, **kw):
         # Subscriptions should be created using the braintree

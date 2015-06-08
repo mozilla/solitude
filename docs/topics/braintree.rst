@@ -256,9 +256,11 @@ Some information about the subscripton is stored in solitude.
 
 .. http:get:: /braintree/mozilla/subscription/
 
+    :query active: if the subscription is active.
     :query paymethod: the primary key of the payment method.
     :query paymethod__braintree_buyer: the primary key of the braintree buyer.
     :query paymethod__braintree_buyer__buyer: the primary key of the buyer.
+    :query provider_id: the plan id for this subscription.
     :query seller_product: the primary key of the product.
 
 Webhook

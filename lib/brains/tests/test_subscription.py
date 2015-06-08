@@ -150,11 +150,15 @@ class TestSubscriptionViewSet(APITest):
     def test_queries(self):
         obj = self.create()
         for d in (
+                {'active': 1},
                 {'paymethod': self.method.pk},
                 {'seller_product': self.seller_product.pk},
                 {'paymethod__braintree_buyer': self.method.braintree_buyer.pk},
                 {'paymethod__braintree_buyer__buyer':
-                 self.method.braintree_buyer.buyer.pk},):
+                 self.method.braintree_buyer.buyer.pk},
+                {'provider_id': 'some:id'},
+                ):
             res = self.client.get(self.url, d)
-            eq_(res.json['meta']['total_count'], 1)
+            eq_(res.status_code, 200, res.content)
+            eq_(res.json['meta']['total_count'], 1, d)
             eq_(res.json['objects'][0]['resource_pk'], obj.pk)
