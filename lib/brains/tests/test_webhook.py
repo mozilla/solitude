@@ -109,15 +109,22 @@ class SubscriptionTest(BraintreeTest):
             seller_product=self.seller_product,
             provider_id='some-bt:id'
         )
-        self.sub = subscription()
+        self.sub = subscription(id='some-bt:id')
 
 
-class TestTransactions(SubscriptionTest):
+class TestSubscription(SubscriptionTest):
 
     def process(self, subscription):
         process = Processor(notification(subject=subscription))
         process.update_transactions(process.webhook.subscription,
                                     self.braintree_sub)
+
+    def test_flip(self):
+        process = Processor(notification(subject=subscription()))
+        process.update_subscription(self.braintree_sub, True)
+        eq_(self.braintree_sub.reget().active, True)
+        process.update_subscription(self.braintree_sub, False)
+        eq_(self.braintree_sub.reget().active, False)
 
     def test_ignored(self):
         sub = subscription(transactions=[transaction(status='settling')])
@@ -129,6 +136,13 @@ class TestTransactions(SubscriptionTest):
         self.process(sub)
         trans = Transaction.objects.get()
         eq_(trans.status, constants.STATUS_CHECKED)
+        eq_(trans.seller, self.seller)
+        eq_(trans.amount, Decimal('10'))
+        eq_(trans.buyer, self.buyer)
+        eq_(trans.currency, 'USD')
+        eq_(trans.provider, constants.PROVIDER_BRAINTREE)
+        eq_(trans.seller_product, self.seller_product)
+        eq_(trans.uid_support, 'bt:id')
 
     def test_processor_declined(self):
         sub = subscription(transactions=[
@@ -183,20 +197,28 @@ class TestWebhookSubscriptionCharged(SubscriptionTest):
     def test_ok(self):
         Processor(notification(kind=self.kind, subject=self.sub)).process()
         eq_(Transaction.objects.get().status, constants.STATUS_CHECKED)
+        eq_(self.braintree_sub.reget().active, True)
 
-    def test_sets(self):
+    def test_subscription_active(self):
+        self.braintree_sub.active = False
+        self.braintree_sub.save()
         Processor(notification(kind=self.kind, subject=self.sub)).process()
-        transaction = Transaction.objects.get()
-        eq_(transaction.seller, self.seller)
-        eq_(transaction.amount, Decimal('10'))
-        eq_(transaction.buyer, self.buyer)
-        eq_(transaction.currency, 'USD')
-        eq_(transaction.provider, constants.PROVIDER_BRAINTREE)
-        eq_(transaction.seller_product, self.seller_product)
-        eq_(transaction.uid_support, 'bt:id')
+        eq_(self.braintree_sub.reget().active, True)
 
     def test_none(self):
         self.braintree_sub.delete()
         obj = Processor(notification(kind=self.kind, subject=self.sub))
         with self.assertRaises(BraintreeSubscription.DoesNotExist):
             obj.process()
+
+
+class TestWebhookSubscriptionCancelled(SubscriptionTest):
+    kind = 'subscription_cancelled'
+
+    def test_ok(self):
+        Processor(notification(kind=self.kind, subject=self.sub)).process()
+        eq_(Transaction.objects.get().status, constants.STATUS_CHECKED)
+
+    def test_subscription_inactive(self):
+        Processor(notification(kind=self.kind, subject=self.sub)).process()
+        eq_(self.braintree_sub.reget().active, False)
