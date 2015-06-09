@@ -74,6 +74,19 @@ class TestPaymentMethod(BraintreeTest):
         eq_(res.status_code, 422, res.content)
         eq_(self.mozilla_error(res.json, 'buyer_uuid'), ['does_not_exist'])
 
+    def test_reached_max(self):
+        self.mocks['method'].create.return_value = successful_method()
+        buyer, braintree_buyer = create_braintree_buyer()
+        res = self.client.post(
+            self.url, data={'buyer_uuid': buyer.uuid, 'nonce': '123'})
+        eq_(res.status_code, 201, res.content)
+
+        with self.settings(BRAINTREE_MAX_METHODS=1):
+            res = self.client.post(
+                self.url, data={'buyer_uuid': buyer.uuid, 'nonce': '1234'})
+            eq_(res.status_code, 422, res.content)
+            eq_(self.mozilla_error(res.json, 'buyer_uuid'), ['max_size'])
+
     def test_braintree_fails(self):
         self.mocks['method'].create.return_value = error([{
             'attribute': 'payment_method_nonce',
