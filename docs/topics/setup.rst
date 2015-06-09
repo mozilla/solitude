@@ -103,13 +103,20 @@ To process payments for Braintree, you will need to get a Braintree account.
 For development, use a
 `Braintree sandbox account <https://sandbox.braintreegateway.com/login>`_.
 
-Then go to Account > My User > API Keys. Alter your configration to read::
+Then go to Account > My User > API Keys.
+
+These values can be set as environment variables (recommended if
+you're running in Docker)::
+
+    export BRAINTREE_MERCHANT_ID=your-merchant-id
+    export BRAINTREE_PUBLIC_KEY=your-public-key
+    export BRAINTREE_PRIVATE_KEY=your-private-key
+
+Alternatively you can add them to your local python configuration file::
 
     BRAINTREE_MERCHANT_ID = 'your-merchant-id'
     BRAINTREE_PUBLIC_KEY = 'your-public-key'
     BRAINTREE_PRIVATE_KEY = 'your-private-key'
-
-These values can also be set by environment variables.
 
 The Braintree API server is configured by this setting::
 
