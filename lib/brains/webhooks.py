@@ -1,7 +1,10 @@
+import uuid
+
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from lib.brains.models import BraintreeSubscription
+from lib.brains.serializers import LocalReceipt, Namespaced, Webhook
 from lib.transactions import constants
 from lib.transactions.models import Transaction
 from solitude.base import getLogger
@@ -19,6 +22,8 @@ class Processor(object):
 
     def __init__(self, webhook):
         self.webhook = webhook
+        self.transactions = []
+        self.processed = False
 
     def process(self):
         try:
@@ -30,6 +35,29 @@ class Processor(object):
 
         log.info('Processing event: {0}'.format(self.webhook.kind))
         method()
+        self.processed = True
+
+    @property
+    def data(self):
+        if not self.processed:
+            return
+
+        subscription = self.get_subscription()
+        try:
+            transaction = self.transactions[0]
+        except IndexError:
+            log.exception('No transaction exists for subscription: {}'
+                          .format(subscription.pk))
+            raise
+
+        return Namespaced(
+            LocalReceipt(
+                subscription=subscription,
+                paymethod=subscription.paymethod,
+                transaction=transaction
+            ),
+            Webhook(self.webhook)
+        ).data
 
     def process_subscription_charged_successfully(self):
         """
@@ -100,6 +128,7 @@ class Processor(object):
         * gateway_rejected
         * processor_declined
         * settlement_declined
+        * submitted_for_settlement
 
         We are going to ignore the following:
         * authorized
@@ -108,11 +137,20 @@ class Processor(object):
         * settling
         * settlement_pending
         * settlement_confirmed
-        * submitted_for_settlement
         * voided
 
         All of the ignored states are temporary statuses and we don't
         really care about those.
+
+        Transactions on a subscription are:
+
+            Transactions associated with the subscription,
+            sorted by creation date with the most recent first.
+
+        The creation time in a transaction is set to the time it was
+        created in solitude. Because of lack of millisecond precision on
+        data queries, the best way to find the most recent transaction
+        is ordering by id.
         """
         for their_transaction in their_subscription.transactions:
             status = their_transaction.status
@@ -120,6 +158,7 @@ class Processor(object):
                 log.info('Ignoring transaction status: {}'.format(status))
                 continue
 
+            log.info('Processing transaction status: {}'.format(status))
             # These are really the only two end statuses we care about.
             our_status = (
                 constants.STATUS_CHECKED if status == 'settled'
@@ -163,6 +202,9 @@ class Processor(object):
                     status=our_status,
                     status_reason=reason,
                     type=constants.TYPE_PAYMENT,
-                    uid_support=their_transaction.id
+                    uid_support=their_transaction.id,
+                    uuid=str(uuid.uuid4())
                 )
                 log.info('Transaction created: {}'.format(our_transaction.pk))
+
+            self.transactions.append(our_transaction)

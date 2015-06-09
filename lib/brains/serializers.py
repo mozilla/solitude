@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from lib.brains.models import (
     BraintreeBuyer, BraintreePaymentMethod, BraintreeSubscription)
+from lib.transactions.serializers import TransactionSerializer
 from solitude.base import BaseSerializer
 from solitude.related_fields import PathRelatedField
 
@@ -25,6 +26,24 @@ class Namespaced(serializers.Serializer):
             'mozilla': self.mozilla.data,
             'braintree': self.braintree.data
         }
+
+
+class LocalReceipt(serializers.Serializer):
+
+    """
+    Serialize enough information to send the user a receipt in one go.
+    """
+
+    def __init__(self, **kw):
+        self.serial = {
+            'paymethod': LocalPayMethod(instance=kw['paymethod']),
+            'subscription': LocalSubscription(instance=kw['subscription']),
+            'transaction': TransactionSerializer(instance=kw['transaction'])
+        }
+
+    @property
+    def data(self):
+        return dict((k, v.data) for k, v in self.serial.items())
 
 
 class LocalPayMethod(BaseSerializer):
@@ -73,7 +92,13 @@ class Braintree(serializers.Serializer):
 
     @property
     def data(self):
-        return dict([k, getattr(self.object, k)] for k in self.fields)
+        res = {}
+        for field in self.fields:
+            obj = self.object
+            for k in field.split('.'):
+                obj = getattr(obj, k)
+            res[k] = obj
+        return res
 
 
 class PayMethod(Braintree):
@@ -86,3 +111,13 @@ class Customer(Braintree):
 
 class Subscription(Braintree):
     fields = ['id', 'created_at', 'updated_at']
+
+
+class Webhook(Braintree):
+    fields = [
+        'kind',
+        'subscription.billing_period_end_date',
+        'subscription.billing_period_start_date',
+        'subscription.next_billing_date',
+        'subscription.next_billing_period_amount',
+    ]
