@@ -282,3 +282,10 @@ which then passes it on to this endpoint. For more information see the
     :<json bt_payload: the bt_payload issued by Braintree.
 
     :status 204: webhook parsed successfully.
+
+Development Tips
+----------------
+
+When developing on systems that rely on Braintree data in Solitude
+you can reset some data with the ``./manage.py braintree_reset`` script.
+See the ``--help`` output for details.
