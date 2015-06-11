@@ -357,7 +357,6 @@ NOSE_PLUGINS = [
 
 NOSE_ARGS = [
     '--logging-clear-handlers',
-    '--logging-filter=xsd',
     '--with-nicedots',
     '--with-blockage',
 ]
@@ -523,7 +522,7 @@ BRAINTREE_PROXY = os.getenv('SOLITUDE_BRAINTREE_PROXY', '')
 # Statuses that we'll process in the webhook.
 BRAINTREE_TRANSACTION_STATUSES = (
     'failed', 'gateway_rejected', 'processor_declined', 'settled',
-    'settlement_declined'
+    'settlement_declined', 'submitted_for_settlement'
 )
 
 # An arbitrary limit on the number of payment methods.

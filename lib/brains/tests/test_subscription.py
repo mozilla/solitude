@@ -28,6 +28,13 @@ def successful_method(**kw):
     return SuccessfulResult({'subscription': method(**kw)})
 
 
+def create_method_all():
+    buyer, braintree_buyer = create_braintree_buyer()
+    seller, seller_product = create_seller()
+    method = create_method(braintree_buyer)
+    return method, seller_product
+
+
 class TestSubscriptionMethod(BraintreeTest):
     gateways = {'sub': SubscriptionGateway}
 
@@ -38,16 +45,10 @@ class TestSubscriptionMethod(BraintreeTest):
     def test_allowed(self):
         self.allowed_verbs(self.url, ['post'])
 
-    def create(self):
-        buyer, braintree_buyer = create_braintree_buyer()
-        seller, seller_product = create_seller()
-        method = create_method(braintree_buyer)
-        return method
-
     def test_ok(self):
         self.mocks['sub'].create.return_value = successful_method()
 
-        method = self.create()
+        method, seller_product = create_method_all()
         res = self.client.post(
             self.url, data={'paymethod': method.get_uri(), 'plan': 'brick'})
 
@@ -67,14 +68,14 @@ class TestSubscriptionMethod(BraintreeTest):
         eq_(subscription.provider_id, 'some:id')
 
     def test_no_method(self):
-        method = self.create()
+        method, seller_product = create_method_all()
         res = self.client.post(
             self.url, data={'method': method.get_uri() + 'n', 'plan': 'brick'})
 
         eq_(res.status_code, 422, res.content)
 
     def test_no_plan(self):
-        method = self.create()
+        method, seller_product = create_method_all()
         res = self.client.post(
             self.url, data={'paymethod': method.get_uri(), 'plan': 'nope'})
 
@@ -88,7 +89,7 @@ class TestSubscriptionMethod(BraintreeTest):
             'code': '91903'
         }])
 
-        method = self.create()
+        method, seller_product = create_method_all()
         res = self.client.post(
             self.url, data={'paymethod': method.get_uri(), 'plan': 'brick'})
 

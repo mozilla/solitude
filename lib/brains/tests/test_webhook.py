@@ -1,4 +1,5 @@
 import base64
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.core.urlresolvers import reverse
@@ -41,6 +42,11 @@ def subscription(**kwargs):
     data = {
         'id': 'some-bt:id',
         'transactions': [transaction()],
+        'next_billing_date': datetime.today() + timedelta(days=30),
+        'next_billing_period_amount': 10,
+        'billing_period_end_date': datetime.today() + timedelta(days=29),
+        'billing_period_start_date': datetime.today(),
+        'price': 10
     }
     data.update(kwargs)
     return {'subscription': data}
@@ -63,7 +69,20 @@ def example(**kwargs):
     return data
 
 
-@override_settings(BRAINTREE_PROXY='http://m.o')
+class SubscriptionTest(BraintreeTest):
+
+    def setUp(self):
+        self.buyer, self.braintree_buyer = create_braintree_buyer()
+        self.method = create_method(self.braintree_buyer)
+        self.seller, self.seller_product = create_seller()
+        self.braintree_sub = BraintreeSubscription.objects.create(
+            paymethod=self.method,
+            seller_product=self.seller_product,
+            provider_id='some-bt:id'
+        )
+        self.sub = subscription(id='some-bt:id')
+
+
 class TestWebhook(BraintreeTest):
 
     def setUp(self):
@@ -88,36 +107,86 @@ class TestWebhook(BraintreeTest):
         self.req.post.return_value = self.get_response('', 403)
         eq_(self.client.post(self.url, data=example()).status_code, 422)
 
-    def test_post_ok(self):
-        self.req.post.return_value = self.get_response('foo', 204)
-        with patch('lib.brains.views.webhook.XmlUtil.dict_from_xml') as res:
-            res.return_value = {
-                'notification': {'kind': '', 'subject': subscription()}}
-            with patch('lib.brains.views.webhook.Processor.process'):
-                eq_(self.client.post(self.url, data=example()).status_code,
-                    204)
 
-
-class SubscriptionTest(BraintreeTest):
+@override_settings(BRAINTREE_PROXY='http://m.o')
+class TestWebhookWithSubscription(SubscriptionTest):
 
     def setUp(self):
-        self.buyer, self.braintree_buyer = create_braintree_buyer()
-        self.method = create_method(self.braintree_buyer)
-        self.seller, self.seller_product = create_seller()
-        self.braintree_sub = BraintreeSubscription.objects.create(
-            paymethod=self.method,
-            seller_product=self.seller_product,
-            provider_id='some-bt:id'
-        )
-        self.sub = subscription(id='some-bt:id')
+        super(TestWebhookWithSubscription, self).setUp()
+        self.url = reverse('braintree:webhook')
+        self.patch_webhook_forms()
+        self.req.post.return_value = self.get_response('foo', 204)
+
+    def test_post_ok(self):
+        with patch('lib.brains.views.webhook.XmlUtil.dict_from_xml') as attr:
+            attr.return_value = {
+                'notification': {
+                    'kind': 'subscription_charged_successfully',
+                    'subject': subscription()
+                }
+            }
+            res = self.client.post(self.url, data=example())
+            eq_(res.status_code, 200)
+            eq_(res.json.keys(), ['mozilla', 'braintree'])
+
+    def test_post_ignored(self):
+        with patch('lib.brains.views.webhook.XmlUtil.dict_from_xml') as attr:
+            attr.return_value = {
+                'notification': {
+                    'kind': '',
+                    'subject': ''
+                }
+            }
+            res = self.client.post(self.url, data=example())
+            eq_(res.status_code, 204)
 
 
 class TestSubscription(SubscriptionTest):
+    kind = 'subscription_charged_successfully'
 
     def process(self, subscription):
         process = Processor(notification(subject=subscription))
         process.update_transactions(process.webhook.subscription,
                                     self.braintree_sub)
+
+    def test_data(self):
+        process = Processor(notification(
+            subject=subscription(), kind=self.kind))
+        process.process()
+        eq_(process.data['braintree']['kind'],
+            'subscription_charged_successfully')
+        eq_(process.data['mozilla']['transaction']['resource_pk'],
+            Transaction.objects.get().pk)
+        eq_(process.data['mozilla']['paymethod']['resource_pk'],
+            self.method.pk)
+        eq_(process.data['mozilla']['subscription']['resource_pk'],
+            self.braintree_sub.pk)
+
+    def test_no_transactions(self):
+        process = Processor(notification(
+            subject=subscription(transactions=[]), kind=self.kind))
+        process.process()
+        eq_(process.transactions, [])
+
+    def test_no_transactions_data(self):
+        process = Processor(notification(
+            subject=subscription(transactions=[]), kind=self.kind))
+        process.process()
+        with self.assertRaises(IndexError):
+            process.data
+
+    def test_transactions_order(self):
+        process = Processor(notification(
+            subject=subscription(transactions=[
+                # Repeated transactions only most recent (first)
+                # should be used.
+                transaction(id='first:id'),
+                transaction(id='another:id')
+            ]),
+            kind=self.kind))
+        process.process()
+
+        eq_(process.transactions[0].uid_support, 'first:id')
 
     def test_flip(self):
         process = Processor(notification(subject=subscription()))

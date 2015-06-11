@@ -332,6 +332,8 @@ payment provider, a generic product must first be created.
     * ``seller_uuids``: is a mapping of uuids for the specific payment
       providers.
 
+.. _transaction-label:
+
 Transaction
 ===========
 

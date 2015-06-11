@@ -36,8 +36,11 @@ def parse(request):
 
     log.info('Received webhook: {p.kind}.'.format(p=parsed))
     debug_log.debug(parsed)
-    Processor(parsed).process()
-    return Response(status=204)
+
+    processor = Processor(parsed)
+    processor.process()
+    data = processor.data
+    return Response(data, status=200 if data else 204)
 
 
 @api_view(['GET'])

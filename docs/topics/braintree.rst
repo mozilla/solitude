@@ -281,7 +281,78 @@ which then passes it on to this endpoint. For more information see the
     :<json bt_signature: the bt_signature issued by Braintree.
     :<json bt_payload: the bt_payload issued by Braintree.
 
-    :status 204: webhook parsed successfully.
+    .. code-block:: json
+
+        {
+          "mozilla": {
+            "paymethod": {
+              "resource_pk": 2,
+              "resource_uri": "/braintree/mozilla/paymethod/2/",
+              "braintree_buyer": "/braintree/mozilla/buyer/2/",
+              "id": 2,
+              "created": "2015-06-09T22:50:59.326",
+              "modified": "2015-06-09T22:50:59.326",
+              "counter": 0,
+              "active": true,
+              "provider_id": "c5e9ba19-3165-4fb6-a6a0-22fe1a42c5f6",
+              "type": 1,
+              "type_name": "",
+              "truncated_id": ""
+            },
+            "transaction": {
+              "amount": "10.00",
+              "buyer": "/generic/buyer/2/",
+              "carrier": null,
+              "created": "2015-06-09T22:50:59.346",
+              "currency": "USD",
+              "notes": null,
+              "pay_url": null,
+              "provider": 4,
+              "region": null,
+              "related": null,
+              "relations": [],
+              "resource_pk": 2,
+              "resource_uri": "/generic/transaction/2/",
+              "seller": "/generic/seller/2/",
+              "seller_product": "/generic/product/2/",
+              "source": null,
+              "status": 2,
+              "status_reason": "settled",
+              "type": 0,
+              "uid_pay": null,
+              "uid_support": "bt:id",
+              "uuid": ""
+            },
+            "subscription": {
+              "resource_pk": 2,
+              "resource_uri": "/braintree/mozilla/subscription/2/",
+              "paymethod": "/braintree/mozilla/paymethod/2/",
+              "seller_product": "/generic/product/2/",
+              "id": 2,
+              "created": "2015-06-09T22:50:59.334",
+              "modified": "2015-06-09T22:50:59.334",
+              "counter": 0,
+              "active": true,
+              "provider_id": "some-bt:id"
+            }
+          },
+          "braintree": {
+            "kind": "subscription_charged_successfully",
+            "next_billing_period_amount": "10",
+            "next_billing_date": "2015-07-09T22:50:59.337"
+          }
+        }
+
+    :>json mozilla.paymethod: a :ref:`payment method <payment-methods-label>`.
+    :>json mozilla.subscription: a :ref:`subscription <subscription-label>`.
+    :>json mozilla.transaction: a :ref:`transaction <transaction-label>`.
+    :>json braintree.kind: the kind of webhook.
+    :>json braintree.next_billing_period_amount: the amount of the next charge.
+    :>json braintree.next_billing_date: the date of the next charge.
+    :status 200: webhook parsed successfully, solitude may have acted on the webhook and
+                 is returning data with the expectation that the client will as well.
+    :status 204: webhook parsed successfully, however solitude did not act on the
+                 webhook and does not expect the caller to act either.
 
 Development Tips
 ----------------
