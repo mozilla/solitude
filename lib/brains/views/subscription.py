@@ -42,8 +42,8 @@ def create(request):
     log.info('Subscription created in solitude: {0}'.format(subscription.pk))
 
     res = Namespaced(
-        LocalSubscription(instance=subscription),
-        Subscription(instance=braintree_subscription)
+        mozilla=LocalSubscription(instance=subscription),
+        braintree=Subscription(instance=braintree_subscription)
     )
     return Response(res.data, status=201)
 

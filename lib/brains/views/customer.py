@@ -34,7 +34,7 @@ def create(request):
     log.info('Braintree buyer created: {0}'.format(braintree_buyer.pk))
 
     res = serializers.Namespaced(
-        serializers.LocalBuyer(instance=braintree_buyer),
-        serializers.Customer(instance=result.customer)
+        mozilla=serializers.LocalBuyer(instance=braintree_buyer),
+        braintree=serializers.Customer(instance=result.customer)
     )
     return Response(res.data, status=201)

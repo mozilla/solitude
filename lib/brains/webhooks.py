@@ -3,8 +3,8 @@ import uuid
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from lib.brains.models import BraintreeSubscription
-from lib.brains.serializers import LocalReceipt, Namespaced, Webhook
+from lib.brains.models import BraintreeSubscription, BraintreeTransaction
+from lib.brains.serializers import serialize_webhook
 from lib.transactions import constants
 from lib.transactions.models import Transaction
 from solitude.base import getLogger
@@ -22,7 +22,10 @@ class Processor(object):
 
     def __init__(self, webhook):
         self.webhook = webhook
+        # All the transactions found on this webhook.
         self.transactions = []
+        # The one transaction that matters for serialization.
+        self.transaction = None
         self.processed = False
 
     def process(self):
@@ -42,22 +45,21 @@ class Processor(object):
         if not self.processed:
             return
 
-        subscription = self.get_subscription()
-        try:
-            transaction = self.transactions[0]
-        except IndexError:
-            log.exception('No transaction exists for subscription: {}'
-                          .format(subscription.pk))
-            raise
+        if not self.transaction:
+            log.info('No transaction, nothing to return.')
+            return
 
-        return Namespaced(
-            LocalReceipt(
-                subscription=subscription,
-                paymethod=subscription.paymethod,
-                transaction=transaction
-            ),
-            Webhook(self.webhook)
-        ).data
+        return serialize_webhook(self.webhook, self.transaction)
+
+    def get_transaction(self, status):
+        """
+        Look through the transactions, finding the most recent transaction
+        that matches the transaction. Because transactions are in order
+        of the most recent first, finding the first will normally do.
+        """
+        for transaction in self.transactions:
+            if transaction.status == status:
+                return transaction
 
     def process_subscription_charged_successfully(self):
         """
@@ -72,7 +74,8 @@ class Processor(object):
         """
         subscription = self.get_subscription()
         self.update_subscription(subscription, True)
-        self.update_transactions(self.webhook.subscription, subscription)
+        self.update_transactions(subscription)
+        self.transaction = self.get_transaction(constants.STATUS_CHECKED)
 
     def process_subscription_cancelled(self):
         """
@@ -82,7 +85,7 @@ class Processor(object):
         """
         subscription = self.get_subscription()
         self.update_subscription(subscription, False)
-        self.update_transactions(self.webhook.subscription, subscription)
+        self.update_transactions(subscription)
 
     def update_subscription(self, subscription, active):
         """
@@ -115,7 +118,7 @@ class Processor(object):
         log.info('Found subscription: {}'.format(subscription.pk))
         return subscription
 
-    def update_transactions(self, their_subscription, subscription):
+    def update_transactions(self, subscription):
         """
         We are going to make an assumption that there are only
         some transactions that we care about.
@@ -152,6 +155,7 @@ class Processor(object):
         data queries, the best way to find the most recent transaction
         is ordering by id.
         """
+        their_subscription = self.webhook.subscription
         for their_transaction in their_subscription.transactions:
             status = their_transaction.status
             if status not in settings.BRAINTREE_TRANSACTION_STATUSES:
@@ -206,5 +210,21 @@ class Processor(object):
                     uuid=str(uuid.uuid4())
                 )
                 log.info('Transaction created: {}'.format(our_transaction.pk))
+
+                braintree_transaction = BraintreeTransaction.objects.create(
+                    transaction=our_transaction,
+                    subscription=subscription,
+                    paymethod=subscription.paymethod,
+                    kind=self.webhook.kind,
+                    billing_period_end_date=(
+                        their_subscription.billing_period_end_date),
+                    billing_period_start_date=(
+                        their_subscription.billing_period_start_date),
+                    next_billing_date=their_subscription.next_billing_date,
+                    next_billing_period_amount=(
+                        their_subscription.next_billing_period_amount),
+                )
+                log.info('BraintreeTransaction created: {}'
+                         .format(braintree_transaction.pk))
 
             self.transactions.append(our_transaction)

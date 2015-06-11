@@ -11,7 +11,7 @@ from nose.plugins.attrib import attr
 
 from lib.brains.errors import MockError
 from lib.brains.models import (
-    BraintreeBuyer, BraintreePaymentMethod)
+    BraintreeBuyer, BraintreePaymentMethod, BraintreeSubscription)
 from lib.buyers.models import Buyer
 from lib.sellers.models import Seller, SellerProduct
 from solitude.base import APITest
@@ -47,6 +47,13 @@ def create_seller(seller_product_data=None):
     data.update(seller_product_data or {})
     seller_product = SellerProduct.objects.create(**data)
     return seller, seller_product
+
+
+def create_subscription(paymethod, seller_product):
+    return BraintreeSubscription.objects.create(
+        seller_product=seller_product,
+        paymethod=paymethod
+    )
 
 
 def error(errors=None):

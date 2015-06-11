@@ -69,3 +69,31 @@ class BraintreeSubscription(Model):
     def get_uri(self):
         return reverse('braintree:mozilla:subscription-detail',
                        kwargs={'pk': self.pk})
+
+
+class BraintreeTransaction(Model):
+
+    """
+    A holder for Braintree specific information about the transaction since
+    some of this is not stored in the generic transaction.
+    """
+    # There isn't enough information on the Transaction.
+    paymethod = models.ForeignKey(BraintreePaymentMethod, db_index=True)
+    subscription = models.ForeignKey(BraintreeSubscription, db_index=True)
+    transaction = models.OneToOneField(
+        'transactions.Transaction', db_index=True)
+
+    # Data from Braintree that we'd like to store and re-use
+    billing_period_end_date = models.DateTimeField()
+    billing_period_start_date = models.DateTimeField()
+    kind = models.CharField(max_length=255)
+    next_billing_date = models.DateTimeField()
+    next_billing_period_amount = models.DecimalField(
+        max_digits=9, decimal_places=2, blank=True,  null=True)
+
+    class Meta(Model.Meta):
+        db_table = 'braintree_transaction'
+
+    def get_uri(self):
+        return reverse('braintree:mozilla:transaction-detail',
+                       kwargs={'pk': self.pk})

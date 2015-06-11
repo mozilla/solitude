@@ -286,66 +286,83 @@ which then passes it on to this endpoint. For more information see the
         {
           "mozilla": {
             "paymethod": {
-              "resource_pk": 2,
-              "resource_uri": "/braintree/mozilla/paymethod/2/",
-              "braintree_buyer": "/braintree/mozilla/buyer/2/",
-              "id": 2,
-              "created": "2015-06-09T22:50:59.326",
-              "modified": "2015-06-09T22:50:59.326",
+              "resource_pk": 1,
+              "resource_uri": "/braintree/mozilla/paymethod/1/",
+              "braintree_buyer": "/braintree/mozilla/buyer/1/",
+              "id": 1,
+              "created": "2015-06-11T12:45:26.451",
+              "modified": "2015-06-11T12:45:26.451",
               "counter": 0,
               "active": true,
-              "provider_id": "c5e9ba19-3165-4fb6-a6a0-22fe1a42c5f6",
+              "provider_id": "1ead4708-a742-45e3-b9f5-57b8383226dc",
               "type": 1,
               "type_name": "",
               "truncated_id": ""
             },
             "transaction": {
-              "amount": "10.00",
-              "buyer": "/generic/buyer/2/",
-              "carrier": null,
-              "created": "2015-06-09T22:50:59.346",
-              "currency": "USD",
-              "notes": null,
-              "pay_url": null,
-              "provider": 4,
-              "region": null,
-              "related": null,
-              "relations": [],
-              "resource_pk": 2,
-              "resource_uri": "/generic/transaction/2/",
-              "seller": "/generic/seller/2/",
-              "seller_product": "/generic/product/2/",
-              "source": null,
-              "status": 2,
-              "status_reason": "settled",
-              "type": 0,
-              "uid_pay": null,
-              "uid_support": "bt:id",
-              "uuid": ""
+              "generic": {
+                "amount": "10",
+                "buyer": "/generic/buyer/1/",
+                "carrier": null,
+                "created": "2015-06-11T12:45:26.768",
+                "currency": "USD",
+                "notes": null,
+                "pay_url": null,
+                "provider": 4,
+                "region": null,
+                "related": null,
+                "relations": [],
+                "resource_pk": 1,
+                "resource_uri": "/generic/transaction/1/",
+                "seller": "/generic/seller/1/",
+                "seller_product": "/generic/product/1/",
+                "source": null,
+                "status": 2,
+                "status_reason": "settled",
+                "type": 0,
+                "uid_pay": null,
+                "uid_support": "bt:id",
+                "uuid": "04fa85d3-05fb-42cb-82a7-13dd5f218c7d"
+              },
+              "braintree": {
+                "resource_pk": 1,
+                "resource_uri": "/generic/transaction/1/",
+                "paymethod": "/braintree/mozilla/paymethod/1/",
+                "subscription": "/braintree/mozilla/subscription/1/",
+                "transaction": "/generic/transaction/1/",
+                "id": 1,
+                "created": "2015-06-11T12:45:26.770",
+                "modified": "2015-06-11T12:45:26.770",
+                "counter": 0,
+                "billing_period_end_date": "2015-07-10T12:45:26.753",
+                "billing_period_start_date": "2015-06-11T12:45:26.753",
+                "kind": "subscription_charged_successfully",
+                "next_billing_date": "2015-07-11T12:45:26.753",
+                "next_billing_period_amount": "10"
+              }
             },
             "subscription": {
-              "resource_pk": 2,
-              "resource_uri": "/braintree/mozilla/subscription/2/",
-              "paymethod": "/braintree/mozilla/paymethod/2/",
-              "seller_product": "/generic/product/2/",
-              "id": 2,
-              "created": "2015-06-09T22:50:59.334",
-              "modified": "2015-06-09T22:50:59.334",
+              "resource_pk": 1,
+              "resource_uri": "/braintree/mozilla/subscription/1/",
+              "paymethod": "/braintree/mozilla/paymethod/1/",
+              "seller_product": "/generic/product/1/",
+              "id": 1,
+              "created": "2015-06-11T12:45:26.453",
+              "modified": "2015-06-11T12:45:26.454",
               "counter": 0,
               "active": true,
               "provider_id": "some-bt:id"
             }
           },
           "braintree": {
-            "kind": "subscription_charged_successfully",
-            "next_billing_period_amount": "10",
-            "next_billing_date": "2015-07-09T22:50:59.337"
+            "kind": "subscription_charged_successfully"
           }
         }
 
     :>json mozilla.paymethod: a :ref:`payment method <payment-methods-label>`.
     :>json mozilla.subscription: a :ref:`subscription <subscription-label>`.
-    :>json mozilla.transaction: a :ref:`transaction <transaction-label>`.
+    :>json mozilla.transaction.generic: a :ref:`generic transaction <transaction-label>`.
+    :>json mozilla.transaction.braintree: a :ref:`braintree transaction <braintree-transaction-label>`.
     :>json braintree.kind: the kind of webhook.
     :>json braintree.next_billing_period_amount: the amount of the next charge.
     :>json braintree.next_billing_date: the date of the next charge.
@@ -353,6 +370,44 @@ which then passes it on to this endpoint. For more information see the
                  is returning data with the expectation that the client will as well.
     :status 204: webhook parsed successfully, however solitude did not act on the
                  webhook and does not expect the caller to act either.
+
+.. _braintree-transaction-label:
+
+Transaction
+-----------
+
+The webhook returns transaction details to solitude. Solitude then creates a
+generic transaction object. It also creates a Braintree transaction that
+contains some information about the transaction.
+
+.. http:get:: /braintree/mozilla/transaction/<transaction id>/
+
+    .. code-block:: json
+
+        {
+            "id": 1,
+            "billing_period_end_date": "2015-07-10T12:20:19.926",
+            "billing_period_start_date": "2015-06-11T12:20:19.926",
+            "created": "2015-06-11T12:20:19.926",
+            "counter": 0,
+            "kind": "disbursement",
+            "modified": "2015-06-11T12:20:19.926",
+            "next_billing_date": "2015-07-11T12:20:19.926",
+            "next_billing_period_amount": "10.00",
+            "paymethod": "/braintree/mozilla/paymethod/2/",
+            "resource_pk": 1,
+            "resource_uri": "/generic/transaction/1/",
+            "subscription": "/braintree/mozilla/subscription/2/",
+            "transaction": "/generic/transaction/2/"
+        }
+
+    :>json string paymethod: the URI to `a payment object <payment-methods-label>`_.
+    :>json string subscription: the URI to `a subscription object <subscription-label:l>`_.
+    :>json string transaction: the URI to `a transaction object <_transaction-label>`_.
+
+    The fields `kind`, `next_billing_date`, `next_billing_period_amount`,
+    `billing_period_end_date`, `billing_period_start_date` are copies of the data
+    from Braintree. Please see the Braintree documentation for more information.
 
 Development Tips
 ----------------

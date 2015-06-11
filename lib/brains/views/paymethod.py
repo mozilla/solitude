@@ -44,8 +44,8 @@ def create(request):
     log.info('Method {0} created.'.format(solitude_method.pk))
 
     res = serializers.Namespaced(
-        serializers.LocalPayMethod(instance=solitude_method),
-        serializers.PayMethod(instance=braintree_method)
+        mozilla=serializers.LocalPayMethod(instance=solitude_method),
+        braintree=serializers.PayMethod(instance=braintree_method)
     )
     return Response(res.data, status=201)
 
