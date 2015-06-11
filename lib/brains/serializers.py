@@ -5,6 +5,7 @@ from rest_framework import serializers
 from lib.brains.models import (
     BraintreeBuyer, BraintreePaymentMethod, BraintreeSubscription,
     BraintreeTransaction)
+from lib.buyers.serializers import BuyerSerializer
 from lib.transactions import constants
 from lib.transactions.serializers import TransactionSerializer
 from solitude.base import BaseSerializer
@@ -124,6 +125,7 @@ def serialize_webhook(webhook, transaction):
     braintree = transaction.braintreetransaction
     serializer = Namespaced(
         mozilla={
+            'buyer': BuyerSerializer(transaction.buyer),
             'subscription': LocalSubscription(braintree.subscription),
             'transaction': {
                 'generic': TransactionSerializer(transaction),

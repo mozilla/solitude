@@ -155,6 +155,7 @@ class TestSubscription(SubscriptionTest):
         process.process()
         eq_(process.data['braintree']['kind'],
             'subscription_charged_successfully')
+        eq_(process.data['mozilla']['buyer']['resource_pk'], self.buyer.pk)
         eq_(process.data['mozilla']['transaction']['generic']['resource_pk'],
             Transaction.objects.get().pk)
         eq_(process.data['mozilla']['transaction']['braintree']['resource_pk'],
