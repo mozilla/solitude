@@ -146,23 +146,22 @@ class TestSubscription(SubscriptionTest):
     kind = 'subscription_charged_successfully'
 
     def process(self, subscription):
-        process = Processor(notification(subject=subscription))
-        process.update_transactions(self.braintree_sub)
+        hook = Processor(notification(subject=subscription), kind=self.kind)
+        hook.process()
+        hook.update_transactions(self.braintree_sub)
+        return hook
 
     def test_data(self):
-        process = Processor(notification(
-            subject=subscription(), kind=self.kind))
-        process.process()
-        eq_(process.data['braintree']['kind'],
+        hook = self.process(subscription())
+        eq_(hook.data['braintree']['kind'],
             'subscription_charged_successfully')
-        eq_(process.data['mozilla']['buyer']['resource_pk'], self.buyer.pk)
-        eq_(process.data['mozilla']['transaction']['generic']['resource_pk'],
+        eq_(hook.data['mozilla']['buyer']['resource_pk'], self.buyer.pk)
+        eq_(hook.data['mozilla']['transaction']['generic']['resource_pk'],
             Transaction.objects.get().pk)
-        eq_(process.data['mozilla']['transaction']['braintree']['resource_pk'],
+        eq_(hook.data['mozilla']['transaction']['braintree']['resource_pk'],
             BraintreeTransaction.objects.get().pk)
-        eq_(process.data['mozilla']['paymethod']['resource_pk'],
-            self.method.pk)
-        eq_(process.data['mozilla']['subscription']['resource_pk'],
+        eq_(hook.data['mozilla']['paymethod']['resource_pk'], self.method.pk)
+        eq_(hook.data['mozilla']['subscription']['resource_pk'],
             self.braintree_sub.pk)
 
     def test_no_transactions(self):

@@ -157,7 +157,7 @@ class TestSubscriptionViewSet(APITest):
                 {'paymethod__braintree_buyer__buyer':
                  self.method.braintree_buyer.buyer.pk},
                 {'provider_id': 'some:id'},
-                ):
+        ):
             res = self.client.get(self.url, d)
             eq_(res.status_code, 200, res.content)
             eq_(res.json['meta']['total_count'], 1, d)
