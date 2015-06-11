@@ -24,12 +24,17 @@ class FakeBraintree(serializers.Braintree):
 class TestSerializer(TestCase):
 
     def test_namespaced(self):
-        eq_(serializers.Namespaced(Fake(), Fake()).data,
-            {'mozilla': {}, 'braintree': {}})
+        eq_(serializers.Namespaced(m=Fake(), b=Fake()).data,
+            {'m': {}, 'b': {}})
 
     def test_braintree(self):
         eq_(FakeBraintree(FakeObject()).data,
             {'id': 'Fake'})
+
+    def test_nested(self):
+        eq_(serializers.Namespaced(
+            m=Fake(), b={'f': Fake(), 'b': {'c': Fake()}}).data,
+            {'b': {'b': {'c': {}}, 'f': {}}, 'm': {}})
 
 
 def ValidationError():

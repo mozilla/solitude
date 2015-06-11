@@ -9,7 +9,8 @@ from braintree.webhook_notification import WebhookNotification
 from mock import patch
 from nose.tools import eq_
 
-from lib.brains.models import BraintreeSubscription
+from lib.brains.models import BraintreeSubscription, BraintreeTransaction
+from lib.brains.serializers import serialize_webhook
 from lib.brains.tests.base import (
     BraintreeTest, create_braintree_buyer, create_method, create_seller)
 from lib.brains.webhooks import Processor
@@ -146,8 +147,7 @@ class TestSubscription(SubscriptionTest):
 
     def process(self, subscription):
         process = Processor(notification(subject=subscription))
-        process.update_transactions(process.webhook.subscription,
-                                    self.braintree_sub)
+        process.update_transactions(self.braintree_sub)
 
     def test_data(self):
         process = Processor(notification(
@@ -155,8 +155,10 @@ class TestSubscription(SubscriptionTest):
         process.process()
         eq_(process.data['braintree']['kind'],
             'subscription_charged_successfully')
-        eq_(process.data['mozilla']['transaction']['resource_pk'],
+        eq_(process.data['mozilla']['transaction']['generic']['resource_pk'],
             Transaction.objects.get().pk)
+        eq_(process.data['mozilla']['transaction']['braintree']['resource_pk'],
+            BraintreeTransaction.objects.get().pk)
         eq_(process.data['mozilla']['paymethod']['resource_pk'],
             self.method.pk)
         eq_(process.data['mozilla']['subscription']['resource_pk'],
@@ -172,8 +174,7 @@ class TestSubscription(SubscriptionTest):
         process = Processor(notification(
             subject=subscription(transactions=[]), kind=self.kind))
         process.process()
-        with self.assertRaises(IndexError):
-            process.data
+        eq_(process.transaction, None)
 
     def test_transactions_order(self):
         process = Processor(notification(
@@ -212,6 +213,17 @@ class TestSubscription(SubscriptionTest):
         eq_(trans.provider, constants.PROVIDER_BRAINTREE)
         eq_(trans.seller_product, self.seller_product)
         eq_(trans.uid_support, 'bt:id')
+
+    def test_braintree_transaction(self):
+        sub = subscription(transactions=[transaction(status='settled')])
+        self.process(sub)
+        trans = Transaction.objects.get()
+        brains = trans.braintreetransaction
+        eq_(brains.kind, 'test')
+        eq_(brains.transaction, trans)
+        eq_(brains.paymethod, self.method)
+        eq_(brains.subscription, self.braintree_sub)
+        eq_(brains.next_billing_period_amount, Decimal('10.00'))
 
     def test_processor_declined(self):
         sub = subscription(transactions=[
@@ -259,13 +271,20 @@ class TestSubscription(SubscriptionTest):
         with self.assertRaises(ValueError):
             self.process(sub)
 
+    def test_cant_serialize(self):
+        trans = Transaction.objects.create(provider=constants.PROVIDER_BANGO)
+        with self.assertRaises(ValueError):
+            serialize_webhook(None, trans)
+
 
 class TestWebhookSubscriptionCharged(SubscriptionTest):
     kind = 'subscription_charged_successfully'
 
     def test_ok(self):
         Processor(notification(kind=self.kind, subject=self.sub)).process()
-        eq_(Transaction.objects.get().status, constants.STATUS_CHECKED)
+        transaction = Transaction.objects.get()
+        eq_(transaction.status, constants.STATUS_CHECKED)
+        eq_(BraintreeTransaction.objects.get().transaction, transaction)
         eq_(self.braintree_sub.reget().active, True)
 
     def test_subscription_active(self):
