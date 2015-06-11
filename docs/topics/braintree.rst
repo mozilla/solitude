@@ -285,16 +285,30 @@ which then passes it on to this endpoint. For more information see the
 
         {
           "mozilla": {
+            "buyer": {
+              "active": true,
+              "email": "email@example.com",
+              "needs_pin_reset": false,
+              "new_pin": false,
+              "pin": false,
+              "pin_confirmed": false,
+              "pin_failures": 0,
+              "pin_is_locked_out": false,
+              "pin_was_locked_out": false,
+              "resource_pk": 1,
+              "resource_uri": "/generic/buyer/1/",
+              "uuid": "d5074761-eb08-4bd2-a08e-85b21f9df407"
+            },
             "paymethod": {
               "resource_pk": 1,
               "resource_uri": "/braintree/mozilla/paymethod/1/",
               "braintree_buyer": "/braintree/mozilla/buyer/1/",
               "id": 1,
-              "created": "2015-06-11T12:45:26.451",
-              "modified": "2015-06-11T12:45:26.451",
+              "created": "2015-06-11T13:20:14.588",
+              "modified": "2015-06-11T13:20:14.588",
               "counter": 0,
               "active": true,
-              "provider_id": "1ead4708-a742-45e3-b9f5-57b8383226dc",
+              "provider_id": "269f061d-d48c-48a9-8e4c-55a4acb3ea08",
               "type": 1,
               "type_name": "",
               "truncated_id": ""
@@ -304,7 +318,7 @@ which then passes it on to this endpoint. For more information see the
                 "amount": "10",
                 "buyer": "/generic/buyer/1/",
                 "carrier": null,
-                "created": "2015-06-11T12:45:26.768",
+                "created": "2015-06-11T13:20:14.600",
                 "currency": "USD",
                 "notes": null,
                 "pay_url": null,
@@ -322,7 +336,7 @@ which then passes it on to this endpoint. For more information see the
                 "type": 0,
                 "uid_pay": null,
                 "uid_support": "bt:id",
-                "uuid": "04fa85d3-05fb-42cb-82a7-13dd5f218c7d"
+                "uuid": "553e6540-5bf7-4e23-880e-b656f268a10e"
               },
               "braintree": {
                 "resource_pk": 1,
@@ -331,13 +345,13 @@ which then passes it on to this endpoint. For more information see the
                 "subscription": "/braintree/mozilla/subscription/1/",
                 "transaction": "/generic/transaction/1/",
                 "id": 1,
-                "created": "2015-06-11T12:45:26.770",
-                "modified": "2015-06-11T12:45:26.770",
+                "created": "2015-06-11T13:20:14.601",
+                "modified": "2015-06-11T13:20:14.601",
                 "counter": 0,
-                "billing_period_end_date": "2015-07-10T12:45:26.753",
-                "billing_period_start_date": "2015-06-11T12:45:26.753",
+                "billing_period_end_date": "2015-07-10T13:20:14.591",
+                "billing_period_start_date": "2015-06-11T13:20:14.591",
                 "kind": "subscription_charged_successfully",
-                "next_billing_date": "2015-07-11T12:45:26.753",
+                "next_billing_date": "2015-07-11T13:20:14.591",
                 "next_billing_period_amount": "10"
               }
             },
@@ -347,8 +361,8 @@ which then passes it on to this endpoint. For more information see the
               "paymethod": "/braintree/mozilla/paymethod/1/",
               "seller_product": "/generic/product/1/",
               "id": 1,
-              "created": "2015-06-11T12:45:26.453",
-              "modified": "2015-06-11T12:45:26.454",
+              "created": "2015-06-11T13:20:14.590",
+              "modified": "2015-06-11T13:20:14.590",
               "counter": 0,
               "active": true,
               "provider_id": "some-bt:id"
@@ -359,6 +373,7 @@ which then passes it on to this endpoint. For more information see the
           }
         }
 
+    :>json mozilla.buyer: a :ref:`buyer <buyer-label>`.
     :>json mozilla.paymethod: a :ref:`payment method <payment-methods-label>`.
     :>json mozilla.subscription: a :ref:`subscription <subscription-label>`.
     :>json mozilla.transaction.generic: a :ref:`generic transaction <transaction-label>`.
