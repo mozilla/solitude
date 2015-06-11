@@ -146,7 +146,7 @@ class TestSubscription(SubscriptionTest):
     kind = 'subscription_charged_successfully'
 
     def process(self, subscription):
-        hook = Processor(notification(subject=subscription), kind=self.kind)
+        hook = Processor(notification(subject=subscription, kind=self.kind))
         hook.process()
         hook.update_transactions(self.braintree_sub)
         return hook
@@ -219,7 +219,7 @@ class TestSubscription(SubscriptionTest):
         self.process(sub)
         trans = Transaction.objects.get()
         brains = trans.braintreetransaction
-        eq_(brains.kind, 'test')
+        eq_(brains.kind, self.kind)
         eq_(brains.transaction, trans)
         eq_(brains.paymethod, self.method)
         eq_(brains.subscription, self.braintree_sub)
