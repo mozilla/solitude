@@ -7,7 +7,7 @@ from lib.brains.forms import SubscriptionForm
 from lib.brains.models import BraintreeSubscription
 from lib.brains.serializers import (
     LocalSubscription, Namespaced, Subscription)
-from solitude.base import NonDeleteModelViewSet
+from solitude.base import NoAddModelViewSet
 from solitude.errors import FormError
 from solitude.logger import getLogger
 
@@ -48,14 +48,9 @@ def create(request):
     return Response(res.data, status=201)
 
 
-class SubscriptionViewSet(NonDeleteModelViewSet):
+class SubscriptionViewSet(NoAddModelViewSet):
     queryset = BraintreeSubscription.objects.all()
     serializer_class = LocalSubscription
     filter_fields = ('active', 'paymethod', 'paymethod__braintree_buyer',
                      'paymethod__braintree_buyer__buyer',
                      'seller_product', 'provider_id')
-
-    def create(self, *args, **kw):
-        # Subscriptions should be created using the braintree
-        # API so that they can be correctly set up.
-        return Response(status=405)
