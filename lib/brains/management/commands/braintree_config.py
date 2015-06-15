@@ -4,6 +4,7 @@ from optparse import make_option
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
+from payments_config import sellers
 from lib.brains.client import get_client
 from lib.sellers.models import Seller, SellerProduct
 from solitude.logger import getLogger
@@ -78,18 +79,16 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        config = settings.BRAINTREE_CONFIG
         client = get_client()
-        for name, item in config.items():
-            log.info('Configuring: {0}'.format(name))
-            seller = get_or_create_seller(item['seller'])
+        for seller_name, seller_config in sellers.items():
+            log.info('Configuring: {0}'.format(seller_name))
+            seller = get_or_create_seller(seller_name)
             plans = get_plans(client)
             # Iterate through each product checking they exist.
-            for product in item['products']:
-                public_id = item['seller'] + '-' + product['name']
+            for product in seller_config.products:
                 get_or_create_seller_product(
-                    external_id=product['name'],
-                    public_id=public_id,
+                    external_id=product.id,
+                    public_id=product.id,
                     seller=seller
                 )
-                product_exists(plans, public_id, product['amount'])
+                product_exists(plans, product.id, product.amount)

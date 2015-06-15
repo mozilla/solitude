@@ -1,6 +1,5 @@
 import logging.handlers
 import os
-from decimal import Decimal
 from urlparse import urlparse
 
 from django.core.urlresolvers import reverse_lazy
@@ -498,23 +497,6 @@ BRAINTREE_ENVIRONMENT = 'sandbox'
 
 # Mock out Braintree. Overrides environment.
 BRAINTREE_MOCK = False
-
-# A definiton of Products for Payments for Firefox Accounts for Braintree.
-BRAINTREE_CONFIG = {
-    'concrete': {
-        'seller': 'mozilla-concrete',
-        'products': [
-            {
-                'name': 'brick',
-                'amount': Decimal('10')
-            },
-            {
-                'name': 'mortar',
-                'amount': Decimal('5')
-            }
-        ]
-    }
-}
 
 # The URL of the solitude-auth server that will be used by solitude.
 BRAINTREE_PROXY = os.getenv('SOLITUDE_BRAINTREE_PROXY', '')
