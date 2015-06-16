@@ -13,6 +13,10 @@ amqplib==1.0.2
 # sha256: N4Ethjya0-NcBzTELgvwMgzow77YLNIK1UyzTRWBV7o
 anyjson==0.3.3
 
+# sha256: doFVm70_FpSwV3GUK9cbGtmhstOe554MZp7Ii7Gaa7M
+# sha256: SjoIXs8fzSc2VzU4_6EU8fQzGzu73Wk4Hm4XLEnJdQ8
+babel==0.9.6
+
 # sha256: S8R_pBVotR6tfi48s5CqOE-OHD--ydNdru1F8xvwbaQ
 # sha256: nTS2Gdg_ksSDJddW3hHO1FejLRkSMjuhrr6Wb3q2fEo
 billiard==2.7.3.17
