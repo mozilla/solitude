@@ -1,5 +1,4 @@
 from decimal import Decimal
-from optparse import make_option
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -68,15 +67,6 @@ def get_plans(client):
 
 class Command(BaseCommand):
     help = 'Creates products in solitude and braintree from configuration.'
-    option_list = BaseCommand.option_list + (
-        make_option(
-            '--path',
-            dest='path',
-            default='solitude.settings.products',
-            help=('Dotted path to the settings file, '
-                  'eg: solitude.settings.products')
-        ),
-    )
 
     def handle(self, *args, **options):
         client = get_client()
