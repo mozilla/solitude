@@ -10,7 +10,7 @@ import requests
 from braintree.util.crypto import Crypto
 
 from lib.brains.models import BraintreeSubscription
-from lib.brains.tests.samples import webhooks
+from lib.brains.management.commands.samples import webhooks
 from payments_config import products
 from solitude.logger import getLogger
 
