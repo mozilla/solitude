@@ -11,6 +11,7 @@ install:
 - peep install --no-deps -r requirements/test.txt --find-links https://pyrepo.addons.mozilla.org/
 before_script:
 - mysql -e 'create database solitude;'
+after_script:
 - flake8 . --exclude=./docs/conf.py
 script: ./manage.py test --noinput -s
 notifications:

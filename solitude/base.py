@@ -396,18 +396,26 @@ class RetrieveModelMixin(object):
         return self.retrieve_response(request, serializer)
 
 
-class NonDeleteModelViewSet(
-        mixins.CreateModelMixin,
+class NoAddModelViewSet(
         RetrieveModelMixin,
         mixins.RetrieveModelMixin,
         UpdateModelMixin,
         ListModelMixin,
         GenericViewSet):
+    """
+    Same as the ModelViewSet, without the delete or create mixins. Uses our
+    local mixins to give us ETag support.
+    """
+
+    def form_errors(self, forms):
+        return Response(format_form_errors(forms), status=400)
+
+
+class NonDeleteModelViewSet(
+        mixins.CreateModelMixin,
+        NoAddModelViewSet):
 
     """
     Same as the ModelViewSet, without the DeleteMixin. Uses our local mixins
     to give us ETag support.
     """
-
-    def form_errors(self, forms):
-        return Response(format_form_errors(forms), status=400)
