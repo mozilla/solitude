@@ -27,7 +27,8 @@ def create_braintree_buyer(braintree_id='sample:id'):
 
 
 def create_buyer():
-    return Buyer.objects.create(uuid=str(uuid.uuid4()))
+    return Buyer.objects.create(
+        uuid=str(uuid.uuid4()), email='email@example.com')
 
 
 def create_method(braintree_buyer):

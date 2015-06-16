@@ -20,6 +20,7 @@ from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.utils.encoders import JSONEncoder
 
 from solitude.logger import getLogger
 
@@ -150,6 +151,13 @@ class APITest(test.TestCase):
 
     def braintree_error(self, content, field):
         return [f['code'] for f in content['braintree'][field]]
+
+    def print_as_json(self, data):
+        """
+        A utility function used to dump the json to stdout. Useful in tests
+        when you want some output for documentation.
+        """
+        print json.dumps(data, indent=2, cls=JSONEncoder)
 
 
 def log_cef(msg, request, **kw):
