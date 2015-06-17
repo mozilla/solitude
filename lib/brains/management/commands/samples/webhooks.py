@@ -1,6 +1,6 @@
-subscription_charged_successfully = """<?xml version="1.0" encoding="UTF-8"?>
+sub = """<?xml version="1.0" encoding="UTF-8"?>
 <notification>
-  <kind>subscription_charged_successfully</kind>
+  <kind>{kind}</kind>
   <timestamp type="datetime">2015-06-15T18:34:41Z</timestamp>
   <subject>
     <subscription>
@@ -38,8 +38,8 @@ subscription_charged_successfully = """<?xml version="1.0" encoding="UTF-8"?>
       </descriptor>
       <transactions type="array">
         <transaction>
-          <id>6zdhry</id>
-          <status>submitted_for_settlement</status>
+          <id>{transaction[id]}</id>
+          <status>{transaction[status]}</status>
           <type>sale</type>
           <currency-iso-code>{product.currency}</currency-iso-code>
           <amount>{product.amount}</amount>
@@ -98,8 +98,8 @@ subscription_charged_successfully = """<?xml version="1.0" encoding="UTF-8"?>
           <cvv-response-code>I</cvv-response-code>
           <gateway-rejection-reason nil="true"/>
           <processor-authorization-code>KQPBDL</processor-authorization-code>
-          <processor-response-code>1000</processor-response-code>
-          <processor-response-text>Approved</processor-response-text>
+          <processor-response-code>{processor-response[code]}</processor-response-code>
+          <processor-response-text>{processor-response[text]}</processor-response-text>
           <additional-processor-response nil="true"/>
           <voice-referral-number nil="true"/>
           <purchase-order-number nil="true"/>
@@ -129,21 +129,21 @@ subscription_charged_successfully = """<?xml version="1.0" encoding="UTF-8"?>
           </credit-card>
           <status-history type="array">
             <status-event>
-              <timestamp type="datetime">2015-06-15T18:34:40Z</timestamp>
+              <timestamp type="datetime">{timestamp}</timestamp>
               <status>authorized</status>
-              <amount>5.00</amount>
+              <amount>{product.amount}</amount>
               <user>andymckay</user>
               <transaction-source>recurring</transaction-source>
             </status-event>
             <status-event>
-              <timestamp type="datetime">2015-06-15T18:34:40Z</timestamp>
+              <timestamp type="datetime">{timestamp}</timestamp>
               <status>submitted_for_settlement</status>
-              <amount>5.00</amount>
+              <amount>{product.amount}</amount>
               <user>andymckay</user>
               <transaction-source>recurring</transaction-source>
             </status-event>
           </status-history>
-          <plan-id>mozilla-concrete-mortar</plan-id>
+          <plan-id>{plan_id}</plan-id>
           <subscription-id>fpps4w</subscription-id>
           <subscription>
             <billing-period-end-date type="date">2015-07-14</billing-period-end-date>
@@ -181,12 +181,12 @@ subscription_charged_successfully = """<?xml version="1.0" encoding="UTF-8"?>
       </transactions>
       <status-history type="array">
         <status-event>
-          <timestamp type="datetime">2015-06-15T18:34:40Z</timestamp>
+          <timestamp type="datetime">{timestamp}</timestamp>
           <status>Active</status>
           <user>andymckay</user>
           <subscription-source>api</subscription-source>
           <balance>0.00</balance>
-          <price>5.00</price>
+          <price>{product.amount}</price>
         </status-event>
       </status-history>
     </subscription>

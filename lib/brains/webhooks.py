@@ -77,6 +77,15 @@ class Processor(object):
         self.update_transactions(subscription)
         self.transaction = self.get_transaction(constants.STATUS_CHECKED)
 
+    def process_subscription_charged_unsuccessfully(self):
+        """
+        We have to:
+        * find the subscription and create transactions for it.
+        """
+        subscription = self.get_subscription()
+        self.update_transactions(subscription)
+        self.transaction = self.get_transaction(constants.STATUS_FAILED)
+
     def process_subscription_cancelled(self):
         """
         We have to:

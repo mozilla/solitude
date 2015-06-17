@@ -1,5 +1,6 @@
 import base64
 import os
+import uuid
 from datetime import datetime, timedelta
 from optparse import make_option
 
@@ -11,11 +12,15 @@ from braintree.util.crypto import Crypto
 
 from lib.brains.models import BraintreeSubscription
 from lib.brains.management.commands.samples import webhooks
+from lib.transactions.models import Transaction
 from payments_config import products
 from solitude.logger import getLogger
 
 log = getLogger('s.brains.management')
-valid_kinds = ['subscription_charged_successfully']
+valid_kinds = [
+    'subscription_charged_successfully',
+    'subscription_charged_unsuccessfully'
+]
 
 
 class Command(BaseCommand):
@@ -68,6 +73,12 @@ class Command(BaseCommand):
             '--subscription_id',
             dest='subscription_id',
             help=('Primary key of the subscription in solitude.')
+        ),
+        make_option(
+            '--transaction_id',
+            dest='transaction_id',
+            default=None,
+            help=('Primary key of the transaction in solitude (optional).')
         )
     )
 
@@ -81,8 +92,30 @@ class Command(BaseCommand):
                 .format(res.status_code)
             )
 
-    def webhook(self, url, kind, sub):
+    def webhook(self, url, kind, sub, trans):
+        transaction = {
+            'subscription_charged_successfully': {
+                'id': trans.uid_support if trans else str(uuid.uuid4()),
+                'status': 'settled'
+            },
+            'subscription_charged_unsuccessfully': {
+                'id': trans.uid_support if trans else str(uuid.uuid4()),
+                'status': 'processor_declined'
+            }
+        }
+        processor_response = {
+            'subscription_charged_successfully': {
+                'text': 'Approved',
+                'code': '1000'
+            },
+            'subscription_charged_unsuccessfully': {
+                'text': 'Invalid Secure Payment Data',
+                'code': '2078'
+            }
+        }
+
         data = {
+            'kind': kind,
             'merchant_account_id': self.merchant,
             'sub': sub,
             'plan_id': sub.seller_product.public_id,
@@ -92,8 +125,11 @@ class Command(BaseCommand):
             # Braintree doesn't assume months are 30 days long.
             'paid': datetime.today() + timedelta(days=29),
             'next': datetime.today() + timedelta(days=30),
+            'transaction': transaction[kind],
+            'processor-response': processor_response[kind]
         }
-        xml_blob = getattr(webhooks, kind)
+
+        xml_blob = webhooks.sub
         xml_formatted = xml_blob.format(**data)
         payload = base64.encodestring(xml_formatted)
         res = requests.post(url, data={
@@ -102,6 +138,7 @@ class Command(BaseCommand):
                 Crypto.sha1_hmac_hash(self.private, payload),
             'bt_payload': payload
         })
+
         res.raise_for_status()
         if res.status_code != 200:
             raise CommandError(
@@ -127,6 +164,11 @@ class Command(BaseCommand):
         if options['parse']:
             subscription = BraintreeSubscription.objects.get(
                 id=options['subscription_id'])
+            transaction=None
+            if options['transaction_id']:
+                transaction = Transaction.objects.get(
+                    id=options['transaction_id']
+                )
             if options['parse'] not in valid_kinds:
                 raise CommandError(
                     'Not a valid kind of webhook: {} must be one of: {}'
@@ -138,5 +180,6 @@ class Command(BaseCommand):
             return self.webhook(
                 options['server'],
                 options['parse'],
-                subscription
+                subscription,
+                transaction
             )
