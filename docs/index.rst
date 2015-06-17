@@ -17,7 +17,7 @@ every API that the provider supports.
 Currently we support:
 
 * some `Bango <http://bango.com/>`_ APIs
-* some `Braintree <http://www.braintree.com/>`_ APIs
+* some `Braintree <http://www.braintreepayments.com/>`_ APIs
 * some `Zippy <http://zippypayments.readthedocs.org/>`_ compliance
 
 In the past PayPal was supported, that has been removed.
