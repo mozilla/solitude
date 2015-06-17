@@ -388,12 +388,16 @@ which then passes it on to this endpoint. For more information see the
           }
         }
 
+    Note: some webhooks (such as `subscription_canceled`) may not contain a
+    transaction. If that's the case then the `mozilla.transaction` and
+    `mozilla.paymethod` fields will be empty.
+
     :>json mozilla.buyer: a :ref:`buyer <buyer-label>`.
-    :>json mozilla.paymethod: a :ref:`payment method <payment-methods-label>`.
+    :>json mozilla.paymethod: a :ref:`payment method <payment-methods-label>` (optional).
     :>json mozilla.product: a :ref:`product <seller-product>`
     :>json mozilla.subscription: a :ref:`subscription <subscription-label>`.
-    :>json mozilla.transaction.generic: a :ref:`generic transaction <transaction-label>`.
-    :>json mozilla.transaction.braintree: a :ref:`braintree transaction <braintree-transaction-label>`.
+    :>json mozilla.transaction.generic: a :ref:`generic transaction <transaction-label>` (optional).
+    :>json mozilla.transaction.braintree: a :ref:`braintree transaction <braintree-transaction-label>` (optional).
     :>json braintree.kind: the kind of webhook.
     :>json braintree.next_billing_period_amount: the amount of the next charge.
     :>json braintree.next_billing_date: the date of the next charge.
