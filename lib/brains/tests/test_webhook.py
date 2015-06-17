@@ -214,6 +214,13 @@ class TestSubscription(SubscriptionTest):
         eq_(trans.seller_product, self.seller_product)
         eq_(trans.uid_support, 'bt:id')
 
+    def test_submitted_caught(self):
+        sub = subscription(
+            transactions=[transaction(status='submitted_for_settlement')])
+        self.process(sub)
+        trans = Transaction.objects.get()
+        eq_(trans.status, constants.STATUS_CHECKED)
+
     def test_braintree_transaction(self):
         sub = subscription(transactions=[transaction(status='settled')])
         self.process(sub)

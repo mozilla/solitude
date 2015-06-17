@@ -165,7 +165,8 @@ class Processor(object):
             log.info('Processing transaction status: {}'.format(status))
             # These are really the only two end statuses we care about.
             our_status = (
-                constants.STATUS_CHECKED if status == 'settled'
+                constants.STATUS_CHECKED
+                if status in ['settled', 'submitted_for_settlement']
                 else constants.STATUS_FAILED
             )
 
