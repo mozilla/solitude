@@ -130,7 +130,7 @@ class Command(BaseCommand):
             if options['parse'] not in valid_kinds:
                 raise CommandError(
                     'Not a valid kind of webhook: {} must be one of: {}'
-                    .format(options['kind'], ', '.join(valid_kinds))
+                    .format(options['parse'], ', '.join(valid_kinds))
                 )
 
             log.info('Sending parse command for subscription: {}'
