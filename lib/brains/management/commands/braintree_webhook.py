@@ -60,7 +60,7 @@ class Command(BaseCommand):
         make_option(
             '--server',
             dest='server',
-            action='store_true',
+            action='store',
             default='http://pay.dev:8000/api/braintree/webhook/',
             help=('URL of payments-service server.')
         ),
