@@ -161,6 +161,8 @@ class TestSubscription(SubscriptionTest):
         eq_(hook.data['mozilla']['transaction']['braintree']['resource_pk'],
             BraintreeTransaction.objects.get().pk)
         eq_(hook.data['mozilla']['paymethod']['resource_pk'], self.method.pk)
+        eq_(hook.data['mozilla']['product']['resource_pk'],
+            self.seller_product.pk)
         eq_(hook.data['mozilla']['subscription']['resource_pk'],
             self.braintree_sub.pk)
 
