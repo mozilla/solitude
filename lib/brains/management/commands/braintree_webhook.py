@@ -71,14 +71,19 @@ class Command(BaseCommand):
         ),
         make_option(
             '--subscription_id',
+            default='latest',
             dest='subscription_id',
-            help=('Primary key of the subscription in solitude.')
+            help=('Primary key of the subscription in solitude. '
+                  'As a special case, set this to `latest` to get the most '
+                  'recent one')
         ),
         make_option(
             '--transaction_id',
             dest='transaction_id',
             default=None,
-            help=('Primary key of the transaction in solitude (optional).')
+            help=('Primary key of the transaction in solitude (optional). '
+                  'As a special case, set this to `latest` to get the most '
+                  'recent one')
         )
     )
 
@@ -162,13 +167,20 @@ class Command(BaseCommand):
             return self.verify(options['server'])
 
         if options['parse']:
-            subscription = BraintreeSubscription.objects.get(
-                id=options['subscription_id'])
+            if options['subscription_id'] == 'latest':
+                subscription = (BraintreeSubscription.objects
+                                .latest('created'))
+            else:
+                subscription = BraintreeSubscription.objects.get(
+                    id=options['subscription_id'])
             transaction=None
             if options['transaction_id']:
-                transaction = Transaction.objects.get(
-                    id=options['transaction_id']
-                )
+                if options['transaction_id'] == 'latest':
+                    transaction = Transaction.objects.latest('created')
+                else:
+                    transaction = Transaction.objects.get(
+                        id=options['transaction_id']
+                    )
             if options['parse'] not in valid_kinds:
                 raise CommandError(
                     'Not a valid kind of webhook: {} must be one of: {}'
