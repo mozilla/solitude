@@ -18,9 +18,9 @@ from cef import log_cef as _log_cef
 from rest_framework import mixins
 from rest_framework import serializers, status
 from rest_framework.response import Response
+from rest_framework.utils.encoders import JSONEncoder
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
-from rest_framework.utils.encoders import JSONEncoder
 
 from solitude.logger import getLogger
 
@@ -410,6 +410,7 @@ class NoAddModelViewSet(
         UpdateModelMixin,
         ListModelMixin,
         GenericViewSet):
+
     """
     Same as the ModelViewSet, without the delete or create mixins. Uses our
     local mixins to give us ETag support.

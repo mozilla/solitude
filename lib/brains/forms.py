@@ -7,6 +7,7 @@ import requests
 from lib.brains.models import BraintreeBuyer, BraintreePaymentMethod
 from lib.buyers.models import Buyer
 from lib.sellers.models import SellerProduct
+from payments_config import products
 from solitude.base import getLogger
 from solitude.related_fields import PathRelatedFormField
 
@@ -97,16 +98,30 @@ class SubscriptionForm(forms.Form):
         self.seller_product = obj
         return data
 
+    def format_descriptor(self, name):
+        # The rules for descriptor are:
+        #
+        # Company name/DBA section must be either 3, 7 or 12 characters and
+        # the product descriptor can be up to 18, 14, or 9 characters
+        # respectively (with an * in between for a total descriptor
+        # name of 22 characters)
+        return 'Mozilla*{}'.format(name)[0:22]
+
+    def get_name(self, plan_id):
+        if plan_id in products:
+            return unicode(products.get(plan_id).description)
+        log.warning('Unknown product for descriptor: {}'.format(plan_id))
+        return 'Product'
+
     @property
     def braintree_data(self):
+        plan_id = self.seller_product.public_id
         return {
             'payment_method_token': self.cleaned_data['paymethod'].provider_id,
-            'plan_id': self.seller_product.public_id,
+            'plan_id': plan_id,
             'trial_period': False,
             'descriptor': {
-                # TODO: figure out how to get product in here
-                # https://github.com/mozilla/payments/issues/57
-                'name': 'Mozilla*product',
+                'name': self.format_descriptor(self.get_name(plan_id)),
                 'url': 'mozilla.org'
             }
         }

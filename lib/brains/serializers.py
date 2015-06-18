@@ -141,7 +141,6 @@ def serialize_webhook(webhook, subscription, transaction):
         }
         mozilla['paymethod'] = LocalPayMethod(braintree.paymethod)
 
-
     serializer = Namespaced(
         mozilla=mozilla,
         braintree={
