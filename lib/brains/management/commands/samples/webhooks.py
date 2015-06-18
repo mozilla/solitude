@@ -98,8 +98,8 @@ sub = """<?xml version="1.0" encoding="UTF-8"?>
           <cvv-response-code>I</cvv-response-code>
           <gateway-rejection-reason nil="true"/>
           <processor-authorization-code>KQPBDL</processor-authorization-code>
-          <processor-response-code>{processor-response[code]}</processor-response-code>
-          <processor-response-text>{processor-response[text]}</processor-response-text>
+          <processor-response-code>{processor_response[code]}</processor-response-code>
+          <processor-response-text>{processor_response[text]}</processor-response-text>
           <additional-processor-response nil="true"/>
           <voice-referral-number nil="true"/>
           <purchase-order-number nil="true"/>
@@ -178,6 +178,61 @@ sub = """<?xml version="1.0" encoding="UTF-8"?>
           </risk-data>
           <three-d-secure-info nil="true"/>
         </transaction>
+      </transactions>
+      <status-history type="array">
+        <status-event>
+          <timestamp type="datetime">{timestamp}</timestamp>
+          <status>Active</status>
+          <user>andymckay</user>
+          <subscription-source>api</subscription-source>
+          <balance>0.00</balance>
+          <price>{product.amount}</price>
+        </status-event>
+      </status-history>
+    </subscription>
+  </subject>
+</notification>
+"""  # noqa
+
+no_trans = """<?xml version="1.0" encoding="UTF-8"?>
+<notification>
+  <kind>{kind}</kind>
+  <timestamp type="datetime">2015-06-15T18:34:41Z</timestamp>
+  <subject>
+    <subscription>
+      <add-ons type="array"/>
+      <balance>0.00</balance>
+      <billing-day-of-month type="integer">{now.day}</billing-day-of-month>
+      <billing-period-end-date type="date">{next:%Y-%m-%d}</billing-period-end-date>
+      <billing-period-start-date type="date">{now:%Y-%m-%d}</billing-period-start-date>
+      <created-at type="datetime">{timestamp}</created-at>
+      <updated-at type="datetime">{timestamp}</updated-at>
+      <current-billing-cycle type="integer">1</current-billing-cycle>
+      <days-past-due nil="true"/>
+      <discounts type="array"/>
+      <failure-count type="integer">0</failure-count>
+      <first-billing-date type="date">{now:%Y-%m-%d}</first-billing-date>
+      <id>{sub.provider_id}</id>
+      <merchant-account-id>{merchant_account_id}</merchant-account-id>
+      <never-expires type="boolean">true</never-expires>
+      <next-bill-amount>{product.amount}</next-bill-amount>
+      <next-billing-period-amount>{product.amount}</next-billing-period-amount>
+      <next-billing-date type="date">{next:%Y-%m-%d}</next-billing-date>
+      <number-of-billing-cycles nil="true"/>
+      <paid-through-date type="date">{paid:%Y-%m-%d}</paid-through-date>
+      <payment-method-token>7js9mb</payment-method-token>
+      <plan-id>{plan_id}</plan-id>
+      <price>{product.amount}</price>
+      <status>Active</status>
+      <trial-duration nil="true"/>
+      <trial-duration-unit>day</trial-duration-unit>
+      <trial-period type="boolean">false</trial-period>
+      <descriptor>
+        <name>Mozilla*product</name>
+        <phone nil="true"/>
+        <url>mozilla.org</url>
+      </descriptor>
+      <transactions type="array">
       </transactions>
       <status-history type="array">
         <status-event>

@@ -118,27 +118,34 @@ class Subscription(Braintree):
     fields = ['id', 'created_at', 'updated_at']
 
 
-def serialize_webhook(webhook, transaction):
-    if transaction.provider != constants.PROVIDER_BRAINTREE:
-        raise ValueError('Not a Braintree transaction, got {}'
-                         .format(transaction.provider))
+def serialize_webhook(webhook, subscription, transaction):
+    # Sometimes the transaction might be empty.
+    mozilla = {
+        'buyer': BuyerSerializer(subscription.paymethod.braintree_buyer.buyer),
+        'paymethod': None,
+        'product': SellerProductSerializer(subscription.seller_product),
+        'transaction': None,
+        'subscription': LocalSubscription(subscription),
+    }
 
-    braintree = transaction.braintreetransaction
+    if transaction:
+        if transaction.provider != constants.PROVIDER_BRAINTREE:
+            raise ValueError('Not a Braintree transaction, got {}'
+                             .format(transaction.provider))
+
+        braintree = transaction.braintreetransaction
+
+        mozilla['transaction'] = {
+            'generic': TransactionSerializer(transaction),
+            'braintree': LocalTransaction(braintree),
+        }
+        mozilla['paymethod'] = LocalPayMethod(braintree.paymethod)
+
+
     serializer = Namespaced(
-        mozilla={
-            'buyer': BuyerSerializer(transaction.buyer),
-            'paymethod': LocalPayMethod(braintree.paymethod),
-            'product': SellerProductSerializer(
-                braintree.subscription.seller_product),
-            'subscription': LocalSubscription(braintree.subscription),
-            'transaction': {
-                'generic': TransactionSerializer(transaction),
-                'braintree': LocalTransaction(braintree),
-            },
-        },
+        mozilla=mozilla,
         braintree={
             'kind': webhook.kind
         }
     )
-
     return serializer.data

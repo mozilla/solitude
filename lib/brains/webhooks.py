@@ -26,6 +26,8 @@ class Processor(object):
         self.transactions = []
         # The one transaction that matters for serialization.
         self.transaction = None
+        # The subscription this webhook is about.
+        self.subscription = None
         self.processed = False
 
     def process(self):
@@ -36,6 +38,7 @@ class Processor(object):
                      .format(self.webhook.kind))
             return
 
+        self.subscription = self.get_subscription()
         log.info('Processing event: {0}'.format(self.webhook.kind))
         method()
         self.processed = True
@@ -46,10 +49,10 @@ class Processor(object):
             return
 
         if not self.transaction:
-            log.info('No transaction, nothing to return.')
-            return
+            log.info('No transaction.')
 
-        return serialize_webhook(self.webhook, self.transaction)
+        return serialize_webhook(
+            self.webhook, self.subscription, self.transaction)
 
     def get_transaction(self, status):
         """
@@ -60,6 +63,9 @@ class Processor(object):
         for transaction in self.transactions:
             if transaction.status == status:
                 return transaction
+
+        log.warning('No subscription was found for subscription: {}'
+                    .format(self.subscription.pk))
 
     def process_subscription_charged_successfully(self):
         """
@@ -72,9 +78,8 @@ class Processor(object):
         * find the subscription and create transactions for it.
         * ensure the subscription is set to active.
         """
-        subscription = self.get_subscription()
-        self.update_subscription(subscription, True)
-        self.update_transactions(subscription)
+        self.update_subscription(True)
+        self.update_transactions()
         self.transaction = self.get_transaction(constants.STATUS_CHECKED)
 
     def process_subscription_charged_unsuccessfully(self):
@@ -82,32 +87,36 @@ class Processor(object):
         We have to:
         * find the subscription and create transactions for it.
         """
-        subscription = self.get_subscription()
-        self.update_transactions(subscription)
+        self.update_transactions()
         self.transaction = self.get_transaction(constants.STATUS_FAILED)
 
-    def process_subscription_cancelled(self):
+    def process_subscription_canceled(self):
         """
         We have to:
-        * find the subscription and create transactions for it.
+        * find the subscription and create transactions for it
+        * note: there may not be any transactions
         * ensure the subscription is set to inactive.
         """
-        subscription = self.get_subscription()
-        self.update_subscription(subscription, False)
-        self.update_transactions(subscription)
+        self.update_subscription(False)
+        self.update_transactions()
+        self.transaction = self.get_transaction(constants.STATUS_FAILED)
 
-    def update_subscription(self, subscription, active):
+    def update_subscription(self, active):
         """
         Update the active flag on a subscription, if it already matches
         then nothing happens.
         """
-        if subscription.active == active:
+        if not self.subscription:
+            raise ValueError('No subscription, call `get_subscription` first.')
+
+        if self.subscription.active == active:
             return
 
-        subscription.active = active
-        subscription.save()
+        self.subscription.active = active
+        self.subscription.save()
         log.info('Changed subscription: {} to {}'
-                 .format(subscription.pk, 'active' if active else 'inactive'))
+                 .format(self.subscription.pk,
+                         'active' if active else 'inactive'))
 
     def get_subscription(self):
         """
@@ -127,7 +136,7 @@ class Processor(object):
         log.info('Found subscription: {}'.format(subscription.pk))
         return subscription
 
-    def update_transactions(self, subscription):
+    def update_transactions(self):
         """
         We are going to make an assumption that there are only
         some transactions that we care about.
@@ -164,6 +173,9 @@ class Processor(object):
         data queries, the best way to find the most recent transaction
         is ordering by id.
         """
+        if not self.subscription:
+            raise ValueError('No subscription, call `get_subscription` first.')
+
         their_subscription = self.webhook.subscription
         for their_transaction in their_subscription.transactions:
             status = their_transaction.status
@@ -208,11 +220,11 @@ class Processor(object):
             except ObjectDoesNotExist:
                 our_transaction = Transaction.objects.create(
                     amount=their_transaction.amount,
-                    buyer=subscription.paymethod.braintree_buyer.buyer,
+                    buyer=self.subscription.paymethod.braintree_buyer.buyer,
                     currency=their_transaction.currency_iso_code,
                     provider=constants.PROVIDER_BRAINTREE,
-                    seller=subscription.seller_product.seller,
-                    seller_product=subscription.seller_product,
+                    seller=self.subscription.seller_product.seller,
+                    seller_product=self.subscription.seller_product,
                     status=our_status,
                     status_reason=reason,
                     type=constants.TYPE_PAYMENT,
@@ -223,8 +235,8 @@ class Processor(object):
 
                 braintree_transaction = BraintreeTransaction.objects.create(
                     transaction=our_transaction,
-                    subscription=subscription,
-                    paymethod=subscription.paymethod,
+                    subscription=self.subscription,
+                    paymethod=self.subscription.paymethod,
                     kind=self.webhook.kind,
                     billing_period_end_date=(
                         their_subscription.billing_period_end_date),

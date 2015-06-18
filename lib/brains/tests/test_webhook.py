@@ -148,7 +148,8 @@ class TestSubscription(SubscriptionTest):
     def process(self, subscription):
         hook = Processor(notification(subject=subscription, kind=self.kind))
         hook.process()
-        hook.update_transactions(self.braintree_sub)
+        hook.get_subscription()
+        hook.update_transactions()
         return hook
 
     def test_data(self):
@@ -163,6 +164,16 @@ class TestSubscription(SubscriptionTest):
         eq_(hook.data['mozilla']['paymethod']['resource_pk'], self.method.pk)
         eq_(hook.data['mozilla']['product']['resource_pk'],
             self.seller_product.pk)
+        eq_(hook.data['mozilla']['subscription']['resource_pk'],
+            self.braintree_sub.pk)
+
+    def test_no_transaction(self):
+        self.kind = 'subscription_canceled'
+        hook = self.process(subscription(transactions=[]))
+        eq_(hook.data['braintree']['kind'], 'subscription_canceled')
+        eq_(hook.data['mozilla']['buyer']['resource_pk'], self.buyer.pk)
+        eq_(hook.data['mozilla']['transaction'], None)
+        eq_(hook.data['mozilla']['paymethod'], None)
         eq_(hook.data['mozilla']['subscription']['resource_pk'],
             self.braintree_sub.pk)
 
@@ -193,9 +204,11 @@ class TestSubscription(SubscriptionTest):
 
     def test_flip(self):
         process = Processor(notification(subject=subscription()))
-        process.update_subscription(self.braintree_sub, True)
+        process.subscription = self.braintree_sub
+        process.get_subscription()
+        process.update_subscription(True)
         eq_(self.braintree_sub.reget().active, True)
-        process.update_subscription(self.braintree_sub, False)
+        process.update_subscription(False)
         eq_(self.braintree_sub.reget().active, False)
 
     def test_ignored(self):
@@ -283,7 +296,7 @@ class TestSubscription(SubscriptionTest):
     def test_cant_serialize(self):
         trans = Transaction.objects.create(provider=constants.PROVIDER_BANGO)
         with self.assertRaises(ValueError):
-            serialize_webhook(None, trans)
+            serialize_webhook(None, self.braintree_sub, trans)
 
 
 class TestWebhookSubscriptionCharged(SubscriptionTest):
@@ -321,7 +334,7 @@ class TestWebhookSubscriptionNotCharged(SubscriptionTest):
 
 
 class TestWebhookSubscriptionCancelled(SubscriptionTest):
-    kind = 'subscription_cancelled'
+    kind = 'subscription_canceled'
 
     def test_ok(self):
         Processor(notification(kind=self.kind, subject=self.sub)).process()

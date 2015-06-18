@@ -19,7 +19,8 @@ from solitude.logger import getLogger
 log = getLogger('s.brains.management')
 valid_kinds = [
     'subscription_charged_successfully',
-    'subscription_charged_unsuccessfully'
+    'subscription_charged_unsuccessfully',
+    'subscription_canceled',
 ]
 
 
@@ -98,13 +99,14 @@ class Command(BaseCommand):
             )
 
     def webhook(self, url, kind, sub, trans):
+        trans_id = trans.uid_support if trans else str(uuid.uuid4())
         transaction = {
             'subscription_charged_successfully': {
-                'id': trans.uid_support if trans else str(uuid.uuid4()),
+                'id': trans_id,
                 'status': 'settled'
             },
             'subscription_charged_unsuccessfully': {
-                'id': trans.uid_support if trans else str(uuid.uuid4()),
+                'id': trans_id,
                 'status': 'processor_declined'
             }
         }
@@ -130,11 +132,11 @@ class Command(BaseCommand):
             # Braintree doesn't assume months are 30 days long.
             'paid': datetime.today() + timedelta(days=29),
             'next': datetime.today() + timedelta(days=30),
-            'transaction': transaction[kind],
-            'processor-response': processor_response[kind]
+            'transaction': transaction.get(kind),
+            'processor_response': processor_response.get(kind)
         }
 
-        xml_blob = webhooks.sub
+        xml_blob = webhooks.sub if data['transaction'] else webhooks.no_trans
         xml_formatted = xml_blob.format(**data)
         payload = base64.encodestring(xml_formatted)
         res = requests.post(url, data={
