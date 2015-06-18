@@ -2,7 +2,8 @@ from django.test.utils import override_settings
 
 from nose.tools import eq_
 
-from lib.brains.forms import WebhookParseForm, WebhookVerifyForm
+from lib.brains.forms import (
+    SubscriptionForm, WebhookParseForm, WebhookVerifyForm)
 from lib.brains.tests.base import BraintreeTest
 
 
@@ -45,3 +46,22 @@ class TestWebhook(BraintreeTest):
             'http://m.o/parse',
             {'bt_signature': 's', 'bt_payload': 'p'}
         )
+
+
+class TestSubscription(BraintreeTest):
+
+    def setUp(self):
+        self.form = SubscriptionForm()
+
+    def test_default_name(self):
+        eq_(self.form.get_name('not-brick'), 'Product')
+
+    def test_seller_name(self):
+        eq_(self.form.get_name('mozilla-concrete-brick'), 'Brick')
+
+    def test_format_descriptor(self):
+        for in_string, out_string in [
+                ('Product', 'Mozilla*Product'),
+                ('Long Product With Space', 'Mozilla*Long Product W')
+            ]:
+            eq_(self.form.format_descriptor(in_string), out_string)

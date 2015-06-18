@@ -326,9 +326,9 @@ class TestWebhookSubscriptionNotCharged(SubscriptionTest):
     kind = 'subscription_charged_unsuccessfully'
 
     def test_ok(self):
-        sub = subscription(transactions=
-            [transaction(status='processor_declined',
-                         processor_response_code='nah')])
+        sub = subscription(transactions=[
+            transaction(status='processor_declined',
+                        processor_response_code='nah')])
         Processor(notification(kind=self.kind, subject=sub)).process()
         eq_(Transaction.objects.get().status, constants.STATUS_FAILED)
 

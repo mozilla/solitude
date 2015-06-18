@@ -56,7 +56,7 @@ class TestSubscriptionMethod(BraintreeTest):
             'payment_method_token': mock.ANY,
             'plan_id': 'brick',
             'descriptor': {
-                'name': 'Mozilla*product',
+                'name': 'Mozilla*Product',
                 'url': 'mozilla.org'
             },
             'trial_period': False,

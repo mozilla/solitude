@@ -125,9 +125,9 @@ class BraintreeTest(APITest):
             self.classes[key].return_value = obj
             self.mocks[key] = obj
 
-        self.addCleanup(self.cleanUpBrains)
+        self.addCleanup(self.clean_up_brains)
 
-    def cleanUpBrains(self):
+    def clean_up_brains(self):
         # Stop the class mocks.
         for v in self.classes.values():
             v.patcher.stop()
@@ -139,7 +139,7 @@ class BraintreeTest(APITest):
                     raise MockError('{0}.{1} registered but not called.'
                                     .format(self.gateways[k].__name__, call))
 
-    def cleanUpRequest(self):
+    def clean_up_request(self):
         self.req.patcher.stop()
 
     def patch_webhook_forms(self):
@@ -147,7 +147,7 @@ class BraintreeTest(APITest):
         self.req = request.start()
         self.req.exceptions = requests.exceptions
         self.req.patcher = request
-        self.addCleanup(self.cleanUpRequest)
+        self.addCleanup(self.clean_up_request)
 
     def get_response(self, data, status_code, headers=None):
         headers = headers or {}

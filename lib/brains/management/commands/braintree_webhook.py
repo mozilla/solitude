@@ -10,8 +10,8 @@ import braintree
 import requests
 from braintree.util.crypto import Crypto
 
-from lib.brains.models import BraintreeSubscription
 from lib.brains.management.commands.samples import webhooks
+from lib.brains.models import BraintreeSubscription
 from lib.transactions.models import Transaction
 from payments_config import products
 from solitude.logger import getLogger
@@ -175,7 +175,7 @@ class Command(BaseCommand):
             else:
                 subscription = BraintreeSubscription.objects.get(
                     id=options['subscription_id'])
-            transaction=None
+            transaction = None
             if options['transaction_id']:
                 if options['transaction_id'] == 'latest':
                     transaction = Transaction.objects.latest('created')
