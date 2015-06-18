@@ -3,6 +3,7 @@ from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
 
 from lib.brains.models import BraintreePaymentMethod, BraintreeSubscription
+from lib.transactions.models import Transaction
 
 
 class Command(BaseCommand):
@@ -12,6 +13,11 @@ class Command(BaseCommand):
             '--clear-subscriptions', action='store_true',
             dest='clear_subscriptions',
             help='Remove all subscription data'
+        ),
+        make_option(
+            '--clear-transactions', action='store_true',
+            dest='clear_transactions',
+            help='Remove all transaction data'
         ),
         make_option(
             '--clear-paymethods', action='store_true',
@@ -30,6 +36,9 @@ class Command(BaseCommand):
         if options['clear_paymethods']:
             did_something = True
             self._clear(BraintreePaymentMethod)
+        if options['clear_transactions']:
+            did_something = True
+            self._clear(Transaction)
 
         if not did_something:
             raise CommandError('Nothing to do. Try specifying some options.')
