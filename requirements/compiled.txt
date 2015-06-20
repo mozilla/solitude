@@ -1,5 +1,8 @@
-# sha256: JblEmFBcLYAO5GXbDMGv8JexYVrcOsBCochc7KJk_Ao
-M2Crypto==0.21.1
+# sha256: XB5NkzSqKedAx6qubwogm93yKVa1plWz2p7q3sxBCpM
+# sha256: YHG_yBfZRyPptFigENVlNlEE-EqnP3_hGRmHH3Vi_3I
+# pyrepo wheelhouse
+# sha256: eSnjUWPzFnUf4tM90UBXKeP6cJ-U_BopmJ7-gnFwXzk
+M2Crypto==0.22.3
 
 # sha256: gRBAtkfl1WhvhNtBXv1pfmJQAIsRK2kJunesBZ4UDHQ
 MySQL-python==1.2.5
