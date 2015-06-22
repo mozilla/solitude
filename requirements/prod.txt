@@ -26,7 +26,8 @@ billiard==2.7.3.17
 boto==2.9.0
 
 # sha256: _j2iOsNV182HHtbm222XK1UwKhh4sixWgbfB_tl5leA
-braintree==3.12.0
+# sha256: XZrD094XIccp0w86HHqpjNIq5SptaqYTU-E1lmq7-yI
+braintree==3.16.0
 
 # sha256: aslNS1_ZFqPoFu5Zt30n-tyaC4b1y2HvjiL1vIxiPWI
 # sha256: LRy1WDkWc99RCaP-XoT95hYO3IskGz6xmrPTq-m43zE
