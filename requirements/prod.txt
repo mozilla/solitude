@@ -1,6 +1,7 @@
 # This file pulls in everything a developer needs. If it's a basic package
 # needed to run the site, it belongs in requirements/prod.txt. If it's a
 # package for developers (testing, docs, etc.), it goes in this file.
+-r compiled.txt
 
 # sha256: 2SrYWoaE2G0HgxKssIYIJIYaPPy0gkKPQIeEIfIlM5g
 Django==1.8.1
