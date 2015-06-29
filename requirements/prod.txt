@@ -110,6 +110,9 @@ mock==1.0.1
 # sha256: CF23OQHqOHKKxesUGXl5rouVJFEbp_DYlB1wZQtYbvU
 mozilla-logger==0.2
 
+# sha256: gRBAtkfl1WhvhNtBXv1pfmJQAIsRK2kJunesBZ4UDHQ
+MySQL-python==1.2.5
+
 # sha256: RP1SkpqNeercGRth-qbzzkBvnJYu168x324dWc3Mrb0
 # sha256: YkKgRnEVkSBG-CQT54Olr7dLS3r_QJZI0MqmBQfUh0I
 newrelic==2.4.0.4
