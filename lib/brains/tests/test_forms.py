@@ -61,7 +61,7 @@ class TestSubscription(BraintreeTest):
 
     def test_format_descriptor(self):
         for in_string, out_string in [
-                ('Product', 'Mozilla*Product'),
-                ('Long Product With Space', 'Mozilla*Long Product W')
-            ]:
+            ('Product', 'Mozilla*Product'),
+            ('Long Product With Space', 'Mozilla*Long Product W')
+        ]:
             eq_(self.form.format_descriptor(in_string), out_string)

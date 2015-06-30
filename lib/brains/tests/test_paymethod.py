@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.core.urlresolvers import reverse
 
+from braintree.exceptions.not_found_error import NotFoundError
 from braintree.payment_method import PaymentMethod
 from braintree.payment_method_gateway import PaymentMethodGateway
 from braintree.successful_result import SuccessfulResult
@@ -9,7 +10,6 @@ from nose.tools import eq_, ok_
 
 from lib.brains.models import BraintreePaymentMethod
 from lib.brains.tests.base import BraintreeTest, create_braintree_buyer, error
-from solitude.base import APITest
 from solitude.constants import PAYMENT_METHOD_CARD, PAYMENT_METHOD_OPERATOR
 
 
@@ -102,7 +102,8 @@ class TestPaymentMethod(BraintreeTest):
         eq_(self.braintree_error(res.json, 'payment_method_nonce'), ['91925'])
 
 
-class TestBraintreeBuyerMethod(APITest):
+class TestBraintreeBuyerMethod(BraintreeTest):
+    gateways = {'method': PaymentMethodGateway}
 
     def setUp(self):
         self.buyer, self.braintree_buyer = create_braintree_buyer()
@@ -125,10 +126,41 @@ class TestBraintreeBuyerMethod(APITest):
         eq_(self.client.get(obj.get_uri()).json['resource_pk'], obj.pk)
 
     def test_patch(self):
+        self.mocks['method'].delete.return_value = SuccessfulResult({})
+
         obj = self.create()
         res = self.client.patch(obj.get_uri(), data={'active': False})
         eq_(res.status_code, 200, res.content)
         eq_(self.client.get(obj.get_uri()).json['active'], False)
+
+        self.mocks['method'].delete.assert_called_with(obj.provider_id)
+
+    def test_not_found_patch(self):
+        self.mocks['method'].delete.side_effect = NotFoundError
+
+        obj = self.create()
+        res = self.client.patch(obj.get_uri(), data={'active': False})
+        eq_(res.status_code, 200, res.content)
+
+        self.mocks['method'].delete.assert_called_with(obj.provider_id)
+
+    def test_fails_patch(self):
+        self.mocks['method'].delete.return_value = error()
+
+        obj = self.create()
+        res = self.client.patch(obj.get_uri(), data={'active': False})
+        eq_(res.status_code, 422, res.content)
+
+        self.mocks['method'].delete.assert_called_with(obj.provider_id)
+
+
+    def test_active_patch(self):
+        obj = self.create()
+        obj.active = False
+        obj.save()
+
+        res = self.client.patch(obj.get_uri(), data={'active': True})
+        eq_(res.status_code, 422, res.content)
 
     def test_patch_read_only(self):
         obj = self.create()
