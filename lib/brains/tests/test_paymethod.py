@@ -153,7 +153,6 @@ class TestBraintreeBuyerMethod(BraintreeTest):
 
         self.mocks['method'].delete.assert_called_with(obj.provider_id)
 
-
     def test_active_patch(self):
         obj = self.create()
         obj.active = False
