@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from lib.brains import serializers
 from lib.brains.client import get_client
 from lib.brains.errors import BraintreeResultError
-from lib.brains.forms import PaymentMethodForm
+from lib.brains.forms import PaymentMethodForm, PayMethodUpdateForm
 from lib.brains.models import BraintreePaymentMethod
 from solitude.base import NoAddModelViewSet
 from solitude.constants import PAYMENT_METHOD_CARD
@@ -55,3 +55,14 @@ class PaymentMethodViewSet(NoAddModelViewSet):
     serializer_class = serializers.LocalPayMethod
     filter_fields = ('braintree_buyer', 'braintree_buyer__buyer__uuid',
                      'active')
+
+    def update(self, request, *args, **kwargs):
+        form = PayMethodUpdateForm(request.DATA, self.get_object_or_none())
+
+        if not form.is_valid():
+            raise FormError(form.errors)
+
+        return (
+            super(PaymentMethodViewSet, self)
+            .update(request, *args, **kwargs)
+        )
