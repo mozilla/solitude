@@ -17,6 +17,7 @@ RUN peep install \
     --no-deps \
     -r /srv/solitude/requirements/dev.txt \
     -r /srv/solitude/requirements/docs.txt \
+    -r /srv/solitude/requirements/compiled.txt \
     --find-links https://pyrepo.addons.mozilla.org/
 
 # Ship the source in the container, its up to docker-compose to override it

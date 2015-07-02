@@ -5,10 +5,10 @@ python:
 install:
 - pip install --no-deps MySQL-Python==1.2.5 --use-mirrors
 - pip install --find-links https://pyrepo.addons.mozilla.org/ peep
-- peep install --no-deps -r requirements/test.txt -r requirements/compiled.txt --find-links https://pyrepo.addons.mozilla.org/wheelhouse/
+- peep install --no-deps -r requirements/test.txt --find-links https://pyrepo.addons.mozilla.org/
+- peep install --no-deps -r requirements/compiled.txt --find-links https://pyrepo.addons.mozilla.org/travis/
 before_script:
 - mysql -e 'create database solitude;'
-after_script:
 - flake8 . --exclude=./docs/conf.py
 script: ./manage.py test --noinput -s
 notifications:
