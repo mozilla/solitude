@@ -3,7 +3,8 @@ from rest_framework.response import Response
 
 from lib.brains.client import get_client
 from lib.brains.errors import BraintreeResultError
-from lib.brains.forms import SubscriptionForm, SubscriptionUpdateForm
+from lib.brains.forms import (
+    SubscriptionForm, SubscriptionCancelForm, SubscriptionUpdateForm)
 from lib.brains.models import BraintreeSubscription
 from lib.brains.serializers import (
     LocalSubscription, Namespaced, Subscription)
@@ -45,6 +46,37 @@ def change(request):
         braintree=Subscription(instance=result.subscription)
     )
     return Response(res.data, status=200)
+
+
+@api_view(['POST'])
+def cancel(request):
+    client = get_client().Subscription
+    form = SubscriptionCancelForm(request.DATA)
+
+    if not form.is_valid():
+        raise FormError(form.errors)
+
+    solitude_subscription = form.cleaned_data['subscription']
+
+    # Cancels the subscription from Braintree. See:
+    # http://bit.ly/1M84dbi for more.
+    result = client.cancel(solitude_subscription.provider_id)
+    if not result.is_success:
+        log.warning('Error on cancelling subscription: {} {}'
+                    .format(solitude_subscription.pk, result.message))
+        raise BraintreeResultError(result)
+
+    solitude_subscription.active = False
+    solitude_subscription.save()
+
+    log.info('Subscription cancelled in braintree: {}'
+             .format(solitude_subscription.pk))
+
+    res = Namespaced(
+        mozilla=LocalSubscription(instance=solitude_subscription),
+        braintree=Subscription(instance=result.subscription)
+    )
+    return Response(res.data)
 
 
 @api_view(['POST'])

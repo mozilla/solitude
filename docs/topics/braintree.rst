@@ -232,11 +232,19 @@ Change payment method on a subscription:
 .. http:post:: /braintree/subscription/paymethod/change/
 
     :<json string paymethod: the resource_uri of the paymethod in solitude.
+
+    :status 200: subscription changed.
+
+Cancel a subscription. This will cancel the subscription in Braintree and is
+not reversible.
+
+.. http:post:: /braintree/subscription/cancel/
+
     :<json string subscription: the resource_uri of the subscription in solitude.
 
     The response is in the same format as for creation.
 
-    :status 200: subscription changed.
+    :status 200: subscription cancelled.
 
 Data stored in solitude
 +++++++++++++++++++++++
