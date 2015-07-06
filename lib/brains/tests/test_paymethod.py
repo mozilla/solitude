@@ -2,14 +2,14 @@ from datetime import datetime
 
 from django.core.urlresolvers import reverse
 
-from braintree.exceptions.not_found_error import NotFoundError
 from braintree.payment_method import PaymentMethod
 from braintree.payment_method_gateway import PaymentMethodGateway
 from braintree.successful_result import SuccessfulResult
 from nose.tools import eq_, ok_
 
 from lib.brains.models import BraintreePaymentMethod
-from lib.brains.tests.base import BraintreeTest, create_braintree_buyer, error
+from lib.brains.tests.base import (
+    BraintreeTest, create_braintree_buyer, create_method, error)
 from solitude.constants import PAYMENT_METHOD_CARD, PAYMENT_METHOD_OPERATOR
 
 
@@ -102,8 +102,54 @@ class TestPaymentMethod(BraintreeTest):
         eq_(self.braintree_error(res.json, 'payment_method_nonce'), ['91925'])
 
 
-class TestBraintreeBuyerMethod(BraintreeTest):
+class TestPaymentMethodCancel(BraintreeTest):
     gateways = {'method': PaymentMethodGateway}
+
+    def setUp(self):
+        super(TestPaymentMethodCancel, self).setUp()
+        self.url = reverse('braintree:paymethod.delete')
+
+    def test_allowed(self):
+        self.allowed_verbs(self.url, ['post'])
+
+    def create_paymethod(self):
+        buyer, braintree_buyer = create_braintree_buyer()
+        return create_method(braintree_buyer)
+
+    def post(self, obj, **kw):
+        data = {'paymethod': obj.get_uri()}
+        data.update(**kw)
+        return self.client.post(self.url, data=data)
+
+    def test_post(self):
+        self.mocks['method'].delete.return_value = successful_method()
+
+        obj = self.create_paymethod()
+        res = self.post(obj)
+        eq_(res.status_code, 200, res.status_code)
+
+        self.mocks['method'].delete.assert_called_with(obj.provider_id)
+
+    def test_fails_post(self):
+        self.mocks['method'].delete.return_value = error()
+
+        obj = self.create_paymethod()
+        res = self.post(obj)
+        eq_(res.status_code, 422, res.content)
+        eq_(obj.reget().active, True)
+
+        self.mocks['method'].delete.assert_called_with(obj.provider_id)
+
+    def test_active_post(self):
+        obj = self.create_paymethod()
+        obj.active = False
+        obj.save()
+
+        res = self.post(obj)
+        eq_(res.status_code, 422, res.content)
+
+
+class TestBraintreeBuyerMethod(BraintreeTest):
 
     def setUp(self):
         self.buyer, self.braintree_buyer = create_braintree_buyer()
@@ -126,40 +172,10 @@ class TestBraintreeBuyerMethod(BraintreeTest):
         eq_(self.client.get(obj.get_uri()).json['resource_pk'], obj.pk)
 
     def test_patch(self):
-        self.mocks['method'].delete.return_value = SuccessfulResult({})
-
         obj = self.create()
         res = self.client.patch(obj.get_uri(), data={'active': False})
         eq_(res.status_code, 200, res.content)
         eq_(self.client.get(obj.get_uri()).json['active'], False)
-
-        self.mocks['method'].delete.assert_called_with(obj.provider_id)
-
-    def test_not_found_patch(self):
-        self.mocks['method'].delete.side_effect = NotFoundError
-
-        obj = self.create()
-        res = self.client.patch(obj.get_uri(), data={'active': False})
-        eq_(res.status_code, 200, res.content)
-
-        self.mocks['method'].delete.assert_called_with(obj.provider_id)
-
-    def test_fails_patch(self):
-        self.mocks['method'].delete.return_value = error()
-
-        obj = self.create()
-        res = self.client.patch(obj.get_uri(), data={'active': False})
-        eq_(res.status_code, 422, res.content)
-
-        self.mocks['method'].delete.assert_called_with(obj.provider_id)
-
-    def test_active_patch(self):
-        obj = self.create()
-        obj.active = False
-        obj.save()
-
-        res = self.client.patch(obj.get_uri(), data={'active': True})
-        eq_(res.status_code, 422, res.content)
 
     def test_patch_read_only(self):
         obj = self.create()

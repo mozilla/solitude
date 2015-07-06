@@ -19,6 +19,7 @@ urlpatterns = patterns(
     url(r'^token/generate/$', 'token.generate', name='token.generate'),
     url(r'^customer/$', 'customer.create', name='customer'),
     url(r'^paymethod/$', 'paymethod.create', name='paymethod'),
+    url(r'^paymethod/delete/$', 'paymethod.delete', name='paymethod.delete'),
     url(r'^subscription/$', 'subscription.create', name='subscription'),
     url(r'^webhook/$', 'webhook.webhook', name='webhook'),
 )
