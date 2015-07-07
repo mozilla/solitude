@@ -99,12 +99,12 @@ Some information is stored in solitude after creating a customer.
 Payment Methods
 ---------------
 
-Creates a payment method in Braintree and the corresponding payment method in
-solitude.
+Create or update a payment method in Braintree and the corresponding payment
+method in solitude.
 
 .. http:post:: /braintree/paymethod/
 
-    :<json string uuid: the uuid of the buyer in solitude.
+    :<json string buyer_uuid: the uuid of the buyer in solitude.
     :<json string nonce: the payment nonce returned by Braintree.
 
     .. code-block:: json
@@ -131,11 +131,22 @@ solitude.
             }
         }
 
-    :>json string braintree token: id of the payment method in braintree.
+    :>json string braintree token: id of the payment method in Braintree.
     :>json string braintree created_at: created date and time.
     :>json string braintree updated_at: updated date and time.
 
     :status 201: payment method created.
+
+Delete a payment method. This will delete the payment method in Braintree
+and is not reversible.
+
+.. http:post:: /braintree/paymethod/delete/
+
+    :<json string paymethod: the resource_uri of the payment method in solitude.
+
+    The response is in the same format as for creation.
+
+    :status 200: payment method cancelled.
 
 Data stored in solitude
 +++++++++++++++++++++++
@@ -168,10 +179,6 @@ Some information about the payment method is stored in solitude.
                                 for a credit card, the last 4 digits, this field is read only.
     :>json int type: `1` for credit card is currently the only one supported, this field is read only.
     :>json string type_name: name of the type of purchase, this field is read only.
-
-.. http:patch:: /braintree/mozilla/paymethod/<method id>/
-
-    :<json boolean active: if the payment method is currently active.
 
 .. http:get:: /braintree/mozilla/paymethod/
 

@@ -3,10 +3,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 import requests
-from braintree.exceptions.not_found_error import NotFoundError
 
-from lib.brains.client import get_client
-from lib.brains.errors import BraintreeResultError
 from lib.brains.models import BraintreeBuyer, BraintreePaymentMethod
 from lib.buyers.models import Buyer
 from lib.sellers.models import SellerProduct
@@ -172,43 +169,20 @@ class WebhookParseForm(forms.Form):
         return self.cleaned_data
 
 
-class PayMethodUpdateForm(forms.Form):
-    active = forms.BooleanField(required=False)
+class PayMethodDeleteForm(forms.Form):
+    paymethod = PathRelatedFormField(
+        view_name='braintree:mozilla:paymethod-detail',
+        queryset=BraintreePaymentMethod.objects.filter())
 
-    def __init__(self, data, obj):
-        self.object = obj
-        return super(PayMethodUpdateForm, self).__init__(data)
-
-    def clean_active(self):
-        active = self.cleaned_data['active']
-
-        # An attempt to enable active on the payment method.
-        if active and not self.object.active:
+    def clean(self):
+        solitude_method = self.cleaned_data.get('paymethod')
+        if not solitude_method:
             raise forms.ValidationError(
-                'Cannot set an inactive payment method to active',
-                code='invalid')
+                'Paymethod is required', code='required')
 
-        # Disabling a payment method.
-        #
-        # Deletes the payment method from Braintree. See:
-        # http://bit.ly/1g82b0Q for more.
-        if not active and self.object.active:
-            log.info('Payment method set inactive in solitude: {}'
-                     .format(self.object.pk))
-            client = get_client().PaymentMethod
-            try:
-                result = client.delete(self.object.provider_id)
-                if not result.is_success:
-                    log.warning('Error on deleting Payment method: {} {}'
-                                .format(self.object.pk, result.message))
-                    raise BraintreeResultError(result)
-            except NotFoundError:
-                # Repeated deletes hit a NotFoundError, if we assume that
-                # deletes should be idempotent, we can catch and ignore this.
-                log.info('Payment method not found: {}'.format(self.object.pk))
-                return
+        # An attempt to delete an inactive payment.
+        if not solitude_method.active:
+            raise forms.ValidationError(
+                'Cannot delete an inactive payment method', code='invalid')
 
-            log.info('Payment method deleted from braintree: {}'
-                     .format(self.object.pk))
-
-        return active
+        return self.cleaned_data

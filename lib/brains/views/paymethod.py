@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from lib.brains import serializers
 from lib.brains.client import get_client
 from lib.brains.errors import BraintreeResultError
-from lib.brains.forms import PaymentMethodForm, PayMethodUpdateForm
+from lib.brains.forms import PaymentMethodForm, PayMethodDeleteForm
 from lib.brains.models import BraintreePaymentMethod
 from solitude.base import NoAddModelViewSet
 from solitude.constants import PAYMENT_METHOD_CARD
@@ -12,6 +12,36 @@ from solitude.errors import FormError
 from solitude.logger import getLogger
 
 log = getLogger('s.brains')
+
+
+@api_view(['POST'])
+def delete(request):
+    client = get_client().PaymentMethod
+    form = PayMethodDeleteForm(request.DATA)
+
+    if not form.is_valid():
+        raise FormError(form.errors)
+
+    solitude_method = form.cleaned_data['paymethod']
+
+    client = get_client().PaymentMethod
+    result = client.delete(solitude_method.provider_id)
+    if not result.is_success:
+        log.warning('Error on deleting Payment method: {} {}'
+                    .format(solitude_method.pk, result.message))
+        raise BraintreeResultError(result)
+
+    solitude_method.active = False
+    solitude_method.save()
+
+    log.info('Payment method deleted from braintree: {}'
+             .format(solitude_method.pk))
+
+    res = serializers.Namespaced(
+        mozilla=serializers.LocalPayMethod(instance=solitude_method),
+        braintree=serializers.PayMethod(instance=result.payment_method)
+    )
+    return Response(res.data)
 
 
 @api_view(['POST'])
@@ -55,14 +85,3 @@ class PaymentMethodViewSet(NoAddModelViewSet):
     serializer_class = serializers.LocalPayMethod
     filter_fields = ('braintree_buyer', 'braintree_buyer__buyer__uuid',
                      'active')
-
-    def update(self, request, *args, **kwargs):
-        form = PayMethodUpdateForm(request.DATA, self.get_object_or_none())
-
-        if not form.is_valid():
-            raise FormError(form.errors)
-
-        return (
-            super(PaymentMethodViewSet, self)
-            .update(request, *args, **kwargs)
-        )
