@@ -227,6 +227,16 @@ solitude.
 
     :status 201: payment method created.
 
+Change payment method on a subscription:
+
+.. http:post:: /braintree/subscription/paymethod/change/
+
+    :<json string paymethod: the resource_uri of the paymethod in solitude.
+    :<json string subscription: the resource_uri of the subscription in solitude.
+
+    The response is in the same format as for creation.
+
+    :status 200: subscription changed.
 
 Data stored in solitude
 +++++++++++++++++++++++

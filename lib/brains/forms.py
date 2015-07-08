@@ -4,7 +4,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 import requests
 
-from lib.brains.models import BraintreeBuyer, BraintreePaymentMethod
+from lib.brains.models import (
+    BraintreeBuyer, BraintreePaymentMethod, BraintreeSubscription)
 from lib.buyers.models import Buyer
 from lib.sellers.models import SellerProduct
 from payments_config import products
@@ -184,5 +185,28 @@ class PayMethodDeleteForm(forms.Form):
         if not solitude_method.active:
             raise forms.ValidationError(
                 'Cannot delete an inactive payment method', code='invalid')
+
+        return self.cleaned_data
+
+
+class SubscriptionUpdateForm(forms.Form):
+    paymethod = PathRelatedFormField(
+        view_name='braintree:mozilla:paymethod-detail',
+        queryset=BraintreePaymentMethod.objects.filter())
+    subscription = PathRelatedFormField(
+        view_name='braintree:mozilla:subscription-detail',
+        queryset=BraintreeSubscription.objects.filter())
+
+    def clean(self):
+        solitude_subscription = self.cleaned_data.get('subscription')
+        solitude_method = self.cleaned_data.get('paymethod')
+
+        if not solitude_subscription.active:
+            raise forms.ValidationError(
+                'Cannot alter an inactive subscription', code='invalid')
+
+        if not solitude_method.active:
+            raise forms.ValidationError(
+                'Cannot use an inactive payment method', code='invalid')
 
         return self.cleaned_data

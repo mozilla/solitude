@@ -21,5 +21,7 @@ urlpatterns = patterns(
     url(r'^paymethod/$', 'paymethod.create', name='paymethod'),
     url(r'^paymethod/delete/$', 'paymethod.delete', name='paymethod.delete'),
     url(r'^subscription/$', 'subscription.create', name='subscription'),
+    url(r'^subscription/paymethod/change/$', 'subscription.change',
+        name='subscription.change'),
     url(r'^webhook/$', 'webhook.webhook', name='webhook'),
 )
