@@ -17,6 +17,8 @@ from lib.brains.webhooks import Processor
 from lib.transactions import constants
 from lib.transactions.models import Transaction
 
+from solitude.utils import shorter
+
 
 def notification(**kwargs):
     data = {
@@ -166,6 +168,8 @@ class TestSubscription(SubscriptionTest):
             self.seller_product.pk)
         eq_(hook.data['mozilla']['subscription']['resource_pk'],
             self.braintree_sub.pk)
+        assert (hook.data['mozilla']['transaction']['generic']['uuid']
+                .startswith('bt-' + shorter(Transaction.objects.get().pk)))
 
     def test_no_transaction(self):
         self.kind = 'subscription_canceled'
