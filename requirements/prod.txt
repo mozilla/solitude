@@ -2,8 +2,8 @@
 # needed to run the site, it belongs in requirements/prod.txt. If it's a
 # package for developers (testing, docs, etc.), it goes in this file.
 
-# sha256: 2SrYWoaE2G0HgxKssIYIJIYaPPy0gkKPQIeEIfIlM5g
-Django==1.8.1
+# sha256: BH0PTJMmKzOAEEmi3N2u8Jwp50HAOpR6NVbqR0ju0uI
+Django==1.8.3
 
 # sha256: 6U5suTX9CqWjpE2PfrrFvc5pRRHDDa0QzFdAsFazDqo
 # sha256: hD1ptoGmCv0h-_UPMQQE7Gf8350T389unUHztFYhfls
