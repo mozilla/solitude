@@ -24,7 +24,6 @@ def delete(request):
 
     solitude_method = form.cleaned_data['paymethod']
 
-    client = get_client().PaymentMethod
     result = client.delete(solitude_method.provider_id)
     if not result.is_success:
         log.warning('Error on deleting Payment method: {} {}'
