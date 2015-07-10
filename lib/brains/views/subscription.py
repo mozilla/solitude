@@ -50,27 +50,15 @@ def change(request):
 
 @api_view(['POST'])
 def cancel(request):
-    client = get_client().Subscription
     form = SubscriptionCancelForm(request.DATA)
 
     if not form.is_valid():
         raise FormError(form.errors)
 
     solitude_subscription = form.cleaned_data['subscription']
-
-    # Cancels the subscription from Braintree. See:
-    # http://bit.ly/1M84dbi for more.
-    result = client.cancel(solitude_subscription.provider_id)
-    if not result.is_success:
-        log.warning('Error on cancelling subscription: {} {}'
-                    .format(solitude_subscription.pk, result.message))
-        raise BraintreeResultError(result)
-
+    result = solitude_subscription.braintree_cancel()
     solitude_subscription.active = False
     solitude_subscription.save()
-
-    log.info('Subscription cancelled in braintree: {}'
-             .format(solitude_subscription.pk))
 
     res = Namespaced(
         mozilla=LocalSubscription(instance=solitude_subscription),

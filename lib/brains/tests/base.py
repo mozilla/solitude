@@ -52,8 +52,9 @@ def create_seller(seller_product_data=None):
 
 def create_subscription(paymethod, seller_product):
     return BraintreeSubscription.objects.create(
+        paymethod=paymethod,
+        provider_id=str(uuid.uuid4()),
         seller_product=seller_product,
-        paymethod=paymethod
     )
 
 

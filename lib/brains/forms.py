@@ -57,8 +57,7 @@ class PaymentMethodForm(forms.Form):
         # as well, something we'll need to remember when we add in another
         # payment method. However, we don't know the type until the reply
         # comes from Braintree.
-        if (self.braintree_buyer.braintreepaymentmethod_set
-                .filter(active=True).count()
+        if (self.braintree_buyer.paymethods.filter(active=True).count()
                 >= settings.BRAINTREE_MAX_METHODS):
             raise forms.ValidationError(
                 'Reached maximum number of payment methods',

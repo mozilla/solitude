@@ -16,20 +16,13 @@ log = getLogger('s.brains')
 
 @api_view(['POST'])
 def delete(request):
-    client = get_client().PaymentMethod
     form = PayMethodDeleteForm(request.DATA)
 
     if not form.is_valid():
         raise FormError(form.errors)
 
     solitude_method = form.cleaned_data['paymethod']
-
-    result = client.delete(solitude_method.provider_id)
-    if not result.is_success:
-        log.warning('Error on deleting Payment method: {} {}'
-                    .format(solitude_method.pk, result.message))
-        raise BraintreeResultError(result)
-
+    result = solitude_method.braintree_delete()
     solitude_method.active = False
     solitude_method.save()
 
