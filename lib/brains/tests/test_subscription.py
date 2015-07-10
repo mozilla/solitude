@@ -11,7 +11,6 @@ from nose.tools import eq_, ok_
 from lib.brains.models import BraintreeSubscription
 from lib.brains.tests.base import (
     BraintreeTest, create_braintree_buyer, create_method, create_seller, error)
-from solitude.base import APITest
 
 
 def method(**kw):
@@ -24,7 +23,7 @@ def method(**kw):
     return Subscription(None, method)
 
 
-def successful_method(**kw):
+def successful_subscription(**kw):
     return SuccessfulResult({'subscription': method(**kw)})
 
 
@@ -35,18 +34,18 @@ def create_method_all():
     return method, seller_product
 
 
-class TestSubscriptionMethod(BraintreeTest):
+class TestSubscription(BraintreeTest):
     gateways = {'sub': SubscriptionGateway}
 
     def setUp(self):
-        super(TestSubscriptionMethod, self).setUp()
+        super(TestSubscription, self).setUp()
         self.url = reverse('braintree:subscription')
 
     def test_allowed(self):
         self.allowed_verbs(self.url, ['post'])
 
     def test_ok(self):
-        self.mocks['sub'].create.return_value = successful_method()
+        self.mocks['sub'].create.return_value = successful_subscription()
 
         method, seller_product = create_method_all()
         res = self.client.post(
@@ -112,7 +111,7 @@ class TestSubscriptionChange(BraintreeTest):
             paymethod=self.first_method, seller_product=product)
 
     def test_change(self):
-        self.mocks['sub'].update.return_value = successful_method()
+        self.mocks['sub'].update.return_value = successful_subscription()
 
         sub = self.create_subscription_methods()
         res = self.client.post(self.url, data={
@@ -160,7 +159,56 @@ class TestSubscriptionChange(BraintreeTest):
         eq_(sub.reget().paymethod.pk, self.first_method.pk)
 
 
-class TestSubscriptionViewSet(APITest):
+class TestSubscriptionCancel(BraintreeTest):
+    gateways = {'sub': SubscriptionGateway}
+
+    def setUp(self):
+        super(TestSubscriptionCancel, self).setUp()
+        self.url = reverse('braintree:subscription.cancel')
+
+    def test_allowed(self):
+        self.allowed_verbs(self.url, ['post'])
+
+    def create_subscription(self):
+        method, product = create_method_all()
+        return BraintreeSubscription.objects.create(
+            paymethod=method, seller_product=product)
+
+    def post(self, obj, **kw):
+        data = {'subscription': obj.get_uri()}
+        data.update(**kw)
+        return self.client.post(self.url, data=data)
+
+    def test_post(self):
+        self.mocks['sub'].cancel.return_value = successful_subscription()
+
+        obj = self.create_subscription()
+        res = self.post(obj)
+        eq_(res.status_code, 200, res.status_code)
+
+        self.mocks['sub'].cancel.assert_called_with(obj.provider_id)
+
+    def test_fails_post(self):
+        self.mocks['sub'].cancel.return_value = error()
+
+        obj = self.create_subscription()
+        res = self.post(obj)
+        eq_(res.status_code, 422, res.content)
+        eq_(obj.reget().active, True)
+
+        self.mocks['sub'].cancel.assert_called_with(obj.provider_id)
+
+    def test_cancel_inactive(self):
+        obj = self.create_subscription()
+        obj.active = False
+        obj.save()
+
+        res = self.post(obj)
+        eq_(res.status_code, 422, res.content)
+
+
+class TestSubscriptionViewSet(BraintreeTest):
+    gateways = {'sub': SubscriptionGateway}
 
     def setUp(self):
         self.buyer, self.braintree_buyer = create_braintree_buyer()
@@ -181,12 +229,6 @@ class TestSubscriptionViewSet(APITest):
     def test_get(self):
         obj = self.create()
         eq_(self.client.get(obj.get_uri()).json['resource_pk'], obj.pk)
-
-    def test_patch(self):
-        obj = self.create()
-        res = self.client.patch(obj.get_uri(), data={'active': False})
-        eq_(res.status_code, 200, res.content)
-        eq_(self.client.get(obj.get_uri()).json['active'], False)
 
     def test_patch_read_only(self):
         obj = self.create()

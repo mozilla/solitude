@@ -210,3 +210,18 @@ class SubscriptionUpdateForm(forms.Form):
                 'Cannot use an inactive payment method', code='invalid')
 
         return self.cleaned_data
+
+
+class SubscriptionCancelForm(forms.Form):
+    subscription = PathRelatedFormField(
+        view_name='braintree:mozilla:subscription-detail',
+        queryset=BraintreeSubscription.objects.filter())
+
+    def clean(self):
+        solitude_subscription = self.cleaned_data.get('subscription')
+
+        if not solitude_subscription.active:
+            raise forms.ValidationError(
+                'Cannot cancel an inactive subscription', code='invalid')
+
+        return self.cleaned_data
