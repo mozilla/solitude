@@ -1,4 +1,4 @@
-import uuid
+import time
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -8,6 +8,7 @@ from lib.brains.serializers import serialize_webhook
 from lib.transactions import constants
 from lib.transactions.models import Transaction
 from solitude.base import getLogger
+from solitude.utils import shorter
 
 log = getLogger('s.webhooks')
 
@@ -228,9 +229,21 @@ class Processor(object):
                     status=our_status,
                     status_reason=reason,
                     type=constants.TYPE_PAYMENT,
-                    uid_support=their_transaction.id,
-                    uuid=str(uuid.uuid4())
+                    uid_support=their_transaction.id
                 )
+
+                # Make the transaction short and helpful
+                # (14 chars, still 4 chars less than the mocks)
+                our_transaction.uuid = (
+                    'bt-{}-{}'.format(
+                        # Should be unique within this db.
+                        shorter(our_transaction.pk),
+                        # If pk is repeated (eg. in tests, dev) should still
+                        # be unique.
+                        shorter(int(time.time())))
+                    )
+                our_transaction.save()
+
                 log.info('Transaction created: {}'.format(our_transaction.pk))
 
                 braintree_transaction = BraintreeTransaction.objects.create(

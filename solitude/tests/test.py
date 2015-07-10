@@ -1,7 +1,7 @@
 from hashlib import md5
 
 from django.core.urlresolvers import reverse
-from django.test import RequestFactory
+from django.test import RequestFactory, TestCase
 
 from nose.tools import eq_, raises
 from rest_framework.viewsets import GenericViewSet
@@ -10,6 +10,7 @@ from lib.buyers.models import Buyer
 from solitude.base import APITest
 from solitude.errors import InvalidQueryParams
 from solitude.filter import StrictQueryFilter
+from solitude.utils import shorter
 
 
 class TestHeaders(APITest):
@@ -94,3 +95,9 @@ class TestStrictQueryFilter(APITest):
     def test_not_ok(self):
         self.req.QUERY_PARAMS = {'uid': ['bar']}  # Note the typo there.
         StrictQueryFilter().filter_queryset(self.req, self.queryset, self.view)
+
+
+class TestShorter(TestCase):
+
+    def test_shorter(self):
+        eq_(shorter(40000), 'nUs')
