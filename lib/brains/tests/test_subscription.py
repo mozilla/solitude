@@ -98,6 +98,68 @@ class TestSubscriptionMethod(BraintreeTest):
         eq_(self.braintree_error(res.json, 'payment_method_token'), ['91903'])
 
 
+class TestSubscriptionChange(BraintreeTest):
+    gateways = {'sub': SubscriptionGateway}
+
+    def setUp(self):
+        super(TestSubscriptionChange, self).setUp()
+        self.url = reverse('braintree:subscription.change')
+
+    def create_subscription_methods(self):
+        self.first_method, product = create_method_all()
+        self.second_method = create_method(self.first_method.braintree_buyer)
+        return BraintreeSubscription.objects.create(
+            paymethod=self.first_method, seller_product=product)
+
+    def test_change(self):
+        self.mocks['sub'].update.return_value = successful_method()
+
+        sub = self.create_subscription_methods()
+        res = self.client.post(self.url, data={
+            'paymethod': self.second_method.get_uri(),
+            'subscription': sub.get_uri()
+        })
+        eq_(res.status_code, 200, res.content)
+        eq_(sub.reget().paymethod.pk, self.second_method.pk)
+
+        self.mocks['sub'].update.assert_called_with(
+            sub.provider_id,
+            {'payment_method_token': self.second_method.provider_id})
+
+    def test_inactive_subscription(self):
+        sub = self.create_subscription_methods()
+        sub.active = False
+        sub.save()
+
+        res = self.client.post(self.url, data={
+            'paymethod': self.second_method.get_uri(),
+            'subscription': sub.get_uri()
+        })
+        eq_(res.status_code, 422, res.content)
+
+    def test_inactive_method(self):
+        sub = self.create_subscription_methods()
+        self.second_method.active = False
+        self.second_method.save()
+
+        res = self.client.post(self.url, data={
+            'paymethod': self.second_method.get_uri(),
+            'subscription': sub.get_uri()
+        })
+        eq_(res.status_code, 422, res.content)
+
+    def test_error(self):
+        self.mocks['sub'].update.return_value = error()
+
+        sub = self.create_subscription_methods()
+        res = self.client.post(self.url, data={
+            'paymethod': self.second_method.get_uri(),
+            'subscription': sub.get_uri()
+        })
+        eq_(res.status_code, 422, res.content)
+        eq_(sub.reget().paymethod.pk, self.first_method.pk)
+
+
 class TestSubscriptionViewSet(APITest):
 
     def setUp(self):
