@@ -115,6 +115,8 @@ mock==1.0.1
 mozilla-logger==0.2
 
 # sha256: gRBAtkfl1WhvhNtBXv1pfmJQAIsRK2kJunesBZ4UDHQ
+# pyrepo wheel
+# sha256: sbYTpzeXhR85S6B6YvU-HicfT4mXWqtMEDWhQg21JMA
 MySQL-python==1.2.5
 
 # sha256: RP1SkpqNeercGRth-qbzzkBvnJYu168x324dWc3Mrb0
