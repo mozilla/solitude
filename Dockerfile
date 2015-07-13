@@ -2,7 +2,7 @@
 # Marketplace development environment.
 
 # NOTE: this is not provided for production usage.
-FROM mozillamarketplace/centos-mysql-mkt:0.2
+FROM mozillamarketplace/centos-mysql-mkt:latest
 
 RUN yum install -y supervisor bash-completion cronie && yum clean all
 
@@ -16,7 +16,6 @@ RUN pip install --no-deps --find-links https://pyrepo.addons.mozilla.org/ peep
 RUN peep install \
     --no-deps \
     -r /srv/solitude/requirements/dev.txt \
-    -r /srv/solitude/requirements/docs.txt \
     -r /srv/solitude/requirements/compiled.txt \
     --find-links https://pyrepo.addons.mozilla.org/
 
