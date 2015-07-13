@@ -12,4 +12,9 @@ if [ $? -ne 0 ]; then
     schematic migrations/
 fi
 
+if [ "$BRAINTREE_MERCHANT_ID" ]; then
+    echo "Braintree merchant ID found in environment, running braintree_config."
+    python manage.py braintree_config
+fi
+
 python manage.py runserver 0.0.0.0:2602
