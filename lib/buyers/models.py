@@ -1,13 +1,19 @@
+import uuid
 from datetime import datetime
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.dispatch import Signal
 from django.db import models
 
 from aesfield.field import AESField
 
 from .field import HashField
 from solitude.base import Model
+from solitude.logger import getLogger
+
+log = getLogger(__name__)
+ANONYMISED = 'anonymised-uuid:'
 
 
 class Buyer(Model):
@@ -21,6 +27,8 @@ class Buyer(Model):
     new_pin = HashField(blank=True, null=True)
     needs_pin_reset = models.BooleanField(default=False)
     email = AESField(blank=True, null=True, aes_key='buyeremail:key')
+
+    close_signal = Signal(providing_args=['buyer'])
 
     class Meta(Model.Meta):
         db_table = 'buyer'
@@ -59,6 +67,36 @@ class Buyer(Model):
             return True
 
         return False
+
+    def close(self):
+        """
+        An explicit close command that goes and changes all the associated
+        payment providers for this account and assumes that anything they
+        need to do happens.
+
+        Warning:
+
+        This is performing multiple actions across the multiple payment
+        providers. Some actions are irreversible. If the action fails, then
+        the entire transaction in solitude will be rolled back. Leaving us in a
+        confusing state.
+        """
+        log.warning('Anonymising account starting: {}'.format(self.pk))
+        if self.uuid.startswith(ANONYMISED):
+            raise ValueError('Account already anonymised.')
+
+        self.close_signal.send(
+            buyer=self,
+            dispatch_uid='close_account_signal_{}'.format(self.pk),
+            sender=self.__class__
+        )
+
+        # All succeeds, so go ahead and anonymise the account.
+        self.active = False
+        self.email = ''
+        self.uuid = ANONYMISED + str(uuid.uuid4())
+        self.save()
+        log.warning('Anonymising account complete: {}'.format(self.pk))
 
     def get_uri(self):
         return reverse('generic:buyer-detail', kwargs={'pk': self.pk})

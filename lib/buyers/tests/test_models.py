@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta
 
 from django.conf import settings
+from django.dispatch import receiver
 from django.test import TestCase
 
 from aesfield.field import EncryptedField
 from nose.tools import eq_
 
-from lib.buyers.models import Buyer
+from lib.buyers.models import ANONYMISED, Buyer
 
 
 class TestEncryption(TestCase):
@@ -102,3 +103,34 @@ class TestLockout(TestCase):
         self.buyer.save()
         assert not self.buyer.locked_out
         eq_(self.buyer.reget().pin_locked_out, None)
+
+
+class TestClose(TestCase):
+
+    def setUp(self):
+        self.uid = 'some:buyer'
+        self.buyer = Buyer.objects.create(
+            email='f@b.com', uuid=self.uid)
+
+    def test_close(self):
+        self.buyer.close()
+        buyer = self.buyer.reget()
+        eq_(buyer.active, False)
+        eq_(buyer.email, '')
+        assert buyer.uuid.startswith(ANONYMISED)
+
+    def test_repeat(self):
+        self.buyer.close()
+        with self.assertRaises(ValueError):
+            self.buyer.close()
+
+    def test_signal(self):
+        self.called = True
+
+        @receiver(self.buyer.close_signal, sender=self.buyer.__class__)
+        def signal(sender, *args, **kw):
+            eq_(kw['buyer'], self.buyer)
+            self.called = True
+
+        self.buyer.close()
+        assert self.called

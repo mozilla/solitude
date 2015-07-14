@@ -1,9 +1,14 @@
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.dispatch import receiver
 
+from lib.brains.client import get_client
+from lib.brains.errors import BraintreeResultError
 from lib.buyers.models import Buyer
-from solitude.base import Model
+from solitude.base import getLogger, Model
 from solitude.constants import PAYMENT_METHOD_CARD
+
+log = getLogger('s.brains')
 
 
 class BraintreeBuyer(Model):
@@ -24,12 +29,41 @@ class BraintreeBuyer(Model):
         return reverse('braintree:mozilla:buyer', kwargs={'pk': self.pk})
 
 
+@receiver(Buyer.close_signal, sender=Buyer)
+def close(signal, *args, **kw):
+    buyer = kw['buyer']
+    try:
+        braintree_buyer = BraintreeBuyer.objects.get(buyer=buyer)
+    except BraintreeBuyer.DoesNotExist:
+        # The buyer might not have used braintree. If that's the
+        # case continue.
+        log.info('No braintree buyer found for buyer: {}'
+                 .format(buyer.pk))
+        return
+
+    for paymethod in braintree_buyer.paymethods.all():
+
+        # Find and clear out all subscriptions.
+        for subscription in paymethod.subscriptions.filter(active=True):
+            subscription.braintree_cancel()
+            subscription.active = False
+            subscription.save()
+            log.info('Cancelled subscription: {}'.format(subscription.pk))
+
+        # Delete the payment method from braintree.
+        paymethod.braintree_delete()
+        paymethod.active = False
+        paymethod.save()
+        log.info('Deleted payment method: {}'.format(paymethod.pk))
+
+
 class BraintreePaymentMethod(Model):
 
     """A holder for braintree specific payment method."""
 
     active = models.BooleanField(default=True)
-    braintree_buyer = models.ForeignKey(BraintreeBuyer)
+    braintree_buyer = models.ForeignKey(
+        BraintreeBuyer, related_name='paymethods')
     # An id specific to the provider.
     provider_id = models.CharField(max_length=255)
     # The type of payment method eg: card, paypal or bitcon
@@ -49,6 +83,19 @@ class BraintreePaymentMethod(Model):
         return reverse('braintree:mozilla:paymethod-detail',
                        kwargs={'pk': self.pk})
 
+    def braintree_delete(self):
+        """
+        Deletes this payment method on braintree.
+        """
+        result = get_client().PaymentMethod.delete(self.provider_id)
+        if not result.is_success:
+            log.warning('Error on deleting Payment method: {} {}'
+                        .format(self.pk, result.message))
+            raise BraintreeResultError(result)
+
+        log.info('Payment method deleted in braintree: {}'.format(self.pk))
+        return result
+
 
 class BraintreeSubscription(Model):
 
@@ -57,7 +104,8 @@ class BraintreeSubscription(Model):
     """
     active = models.BooleanField(default=True)
     # From the payment method we know the buyer.
-    paymethod = models.ForeignKey(BraintreePaymentMethod, db_index=True)
+    paymethod = models.ForeignKey(
+        BraintreePaymentMethod, db_index=True, related_name='subscriptions')
     seller_product = models.ForeignKey('sellers.SellerProduct', db_index=True)
     # An id specific to the provider.
     provider_id = models.CharField(max_length=255)
@@ -69,6 +117,20 @@ class BraintreeSubscription(Model):
     def get_uri(self):
         return reverse('braintree:mozilla:subscription-detail',
                        kwargs={'pk': self.pk})
+
+    def braintree_cancel(self):
+        """
+        Cancels this subscription on braintree. See: http://bit.ly/1M84dbi
+        for more.
+        """
+        result = get_client().Subscription.cancel(self.provider_id)
+        if not result.is_success:
+            log.warning('Error on cancelling subscription: {} {}'
+                        .format(self.pk, result.message))
+            raise BraintreeResultError(result)
+
+        log.info('Subscription cancelled in braintree: {}'.format(self.pk))
+        return result
 
 
 class BraintreeTransaction(Model):
