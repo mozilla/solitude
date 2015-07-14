@@ -201,11 +201,11 @@ class SubscriptionUpdateForm(forms.Form):
         solitude_subscription = self.cleaned_data.get('subscription')
         solitude_method = self.cleaned_data.get('paymethod')
 
-        if not solitude_subscription.active:
+        if solitude_subscription and not solitude_subscription.active:
             raise forms.ValidationError(
                 'Cannot alter an inactive subscription', code='invalid')
 
-        if not solitude_method.active:
+        if solitude_method and not solitude_method.active:
             raise forms.ValidationError(
                 'Cannot use an inactive payment method', code='invalid')
 
@@ -220,7 +220,7 @@ class SubscriptionCancelForm(forms.Form):
     def clean(self):
         solitude_subscription = self.cleaned_data.get('subscription')
 
-        if not solitude_subscription.active:
+        if solitude_subscription and not solitude_subscription.active:
             raise forms.ValidationError(
                 'Cannot cancel an inactive subscription', code='invalid')
 
