@@ -3,7 +3,8 @@ from django.test.utils import override_settings
 from nose.tools import eq_
 
 from lib.brains.forms import (
-    SubscriptionForm, WebhookParseForm, WebhookVerifyForm)
+    SubscriptionForm, SubscriptionCancelForm, SubscriptionUpdateForm,
+    WebhookParseForm, WebhookVerifyForm)
 from lib.brains.tests.base import BraintreeTest
 
 
@@ -65,3 +66,21 @@ class TestSubscription(BraintreeTest):
             ('Long Product With Space', 'Mozilla*Long Product W')
         ]:
             eq_(self.form.format_descriptor(in_string), out_string)
+
+
+class TestSubscriptionManagement(BraintreeTest):
+
+    def test_missing_update_params(self):
+        form = SubscriptionUpdateForm({})
+        form.is_valid()
+        errors = form.errors
+        # Make sure empty params are caught.
+        assert 'subscription' in errors, errors.as_text()
+        assert 'paymethod' in errors, errors.as_text()
+
+    def test_missing_cancel_params(self):
+        form = SubscriptionCancelForm({})
+        form.is_valid()
+        errors = form.errors
+        # Make sure empty params are caught.
+        assert 'subscription' in errors, errors.as_text()
