@@ -27,6 +27,7 @@ class Buyer(Model):
     new_pin = HashField(blank=True, null=True)
     needs_pin_reset = models.BooleanField(default=False)
     email = AESField(blank=True, null=True, aes_key='buyeremail:key')
+    locale = models.CharField(max_length=255, blank=True, null=True)
 
     close_signal = Signal(providing_args=['buyer'])
 

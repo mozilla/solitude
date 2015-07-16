@@ -1,0 +1,1 @@
+ALTER TABLE `buyer` ADD COLUMN `locale` VARCHAR(255);

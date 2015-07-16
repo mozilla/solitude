@@ -60,7 +60,8 @@ class TestBuyer(APITest):
         eq_(res.json['objects'][0]['uuid'], self.uuid)
 
     def create(self, **kwargs):
-        defaults = {'uuid': self.uuid, 'pin': self.pin, 'email': self.email}
+        defaults = {'uuid': self.uuid, 'pin': self.pin, 'email': self.email,
+                    'locale': 'en-US'}
         defaults.update(kwargs)
         return Buyer.objects.create(**defaults)
 
@@ -75,6 +76,7 @@ class TestBuyer(APITest):
         eq_(data['pin_is_locked_out'], False)
         eq_(data['pin_was_locked_out'], False)
         eq_(data['email'], self.email)
+        eq_(data['locale'], 'en-US')
 
     @mock.patch.object(settings, 'PIN_FAILURES', 1)
     def test_locked_out(self):

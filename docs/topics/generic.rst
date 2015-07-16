@@ -31,7 +31,8 @@ a unique UUID as well as the PIN the buyer has chosen:
 
         {
             "uuid": "93e33277-87f7-417b-8ed2-371672b5297e",
-            "pin": "8472"
+            "pin": "8472",
+            "locale": "fr,en;q=0.7,en-US;q=0.3"
         }
 
     **Response**
@@ -42,6 +43,7 @@ a unique UUID as well as the PIN the buyer has chosen:
             "active": false,
             "counter": null,
             "email": "",
+            "locale": "fr,en;q=0.7,en-US;q=0.3",
             "needs_pin_reset": false,
             "new_pin": false,
             "pin": false,
@@ -68,6 +70,7 @@ You can also get the details of a buyer:
             "active": false,
             "counter": null,
             "email": "",
+            "locale": "fr,en;q=0.7,en-US;q=0.3",
             "needs_pin_reset": false,
             "new_pin": false,
             "pin": false,
@@ -81,6 +84,8 @@ You can also get the details of a buyer:
         }
 
     :param email: users email address.
+    :param type: string
+    :param locale: users locale, most likely the Accept Language HTTP header
     :param type: string
     :param pin: in a POST a PIN is a string, but in responses, the PIN is never
     returned. It returns a boolean, `true` if a PIN is present, `false` if not.
