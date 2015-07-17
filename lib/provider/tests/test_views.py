@@ -43,9 +43,6 @@ class TestAPIasProxy(TestCase):
         self.addCleanup(p.stop)
 
         self.api = mock.MagicMock()
-        store = mock.Mock()
-        store._store = {'base_url': 'http://f'}
-        self.api.products.get.__self__ = store
         get_client.return_value = mock.Mock(api=self.api)
 
         self.fake_data = {'foo': 'bar'}
@@ -65,7 +62,7 @@ class TestAPIasProxy(TestCase):
         self.request('get', '/reference/products?foo=bar', 'products')
         assert self.api.products.get.called
         result = self.fake_data.copy()
-        result.update({'headers': {'x-solitude-service': 'http://f'}})
+        result.update({'headers': {'x-solitude-service': 'http://zippy:2605'}})
         eq_(self.api.products.get.call_args[1], result)
 
     def test_proxy_error_responses(self):

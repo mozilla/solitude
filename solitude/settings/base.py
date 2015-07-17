@@ -460,7 +460,7 @@ BANGO_NOTIFICATION_URL = ''
 # Mock out Zippy, because we are sharing zippy.paas configuration.
 ZIPPY_MOCK = False
 
-url = os.environ.get('ZIPPY_BASE_URL', 'https://zippy.paas.allizom.org')
+url = os.environ.get('ZIPPY_BASE_URL', 'http://zippy:2605')
 
 # Override this to configure some zippy backends.
 ZIPPY_CONFIGURATION = {

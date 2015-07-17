@@ -74,14 +74,9 @@ class ProxyView(BaseAPIView):
     def result(self, proxied_endpoint, *args, **kwargs):
         method = getattr(proxied_endpoint, '__name__', 'unknown_method')
 
-        # Not all test mocks have this. Someone more dedicated than me
-        # can fix up all the tests for this soon to be deleted feature.
-        if (hasattr(proxied_endpoint, '__self__')
-                and hasattr(proxied_endpoint.__self__, '_store')):
-            # Pass the real URL through in the HTTP header to the proxy.
-            kwargs.setdefault('headers', {})
-            kwargs['headers'][settings.AUTH_SERVICE] = (
-                proxied_endpoint.__self__._store['base_url'])
+        kwargs.setdefault('headers', {})
+        kwargs['headers'][settings.AUTH_SERVICE] = (
+            settings.ZIPPY_CONFIGURATION[self.reference_name]['url'])
 
         try:
             with statsd.timer('solitude.provider.{ref}.proxy.{method}'

@@ -34,7 +34,7 @@ class APIMockObject(object):
     def __call__(self, pk):
         return self.__class__(self.resource_name, pk)
 
-    def get(self):
+    def get(self, **kwargs):
         if self.pk:
             return self.get_data(self.resource_name)[self.pk]
         else:
@@ -45,7 +45,7 @@ class APIMockObject(object):
         """Exists to make mock patching easy."""
         return mock_data[resource_name]
 
-    def post(self, data):
+    def post(self, data, **kwargs):
         id = data.get('pk', data.get('external_id'))
         data['uuid'] = 'ref:uuid'
         data['resource_pk'] = self.pk
@@ -56,13 +56,13 @@ class APIMockObject(object):
         mock_data[self.resource_name][id] = data
         return self.get_data(self.resource_name)[id]
 
-    def put(self, data):
+    def put(self, data, **kwargs):
         initial_data = self.get_data(self.resource_name)[self.pk]
         initial_data.update(data)
         mock_data[self.resource_name][self.pk] = initial_data
         return mock_data[self.resource_name][self.pk]
 
-    def delete(self):
+    def delete(self, **kwargs):
         del mock_data[self.resource_name][self.pk]
 
 
