@@ -88,7 +88,7 @@ class TestSellerProductReferenceView(SellerTest):
             'external_id': self.product.external_id,
             'uuid': 'some:uuid',
             'name': 'bob'
-        })
+        }, headers={'x-solitude-service': 'http://zippy:2605'})
 
     def test_get(self):
         ref = self.create_provider_product()
