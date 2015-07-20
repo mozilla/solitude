@@ -28,9 +28,11 @@ class TestAPIView(TestCase):
 
     def test_no_reference(self):
         req = RequestFactory().get('/')
-        with self.settings(ZIPPY_MOCK=False):
-            eq_(ProxyView().dispatch(req, reference_name='bob',
-                                     resource_name='sellers').status_code, 404)
+        with self.assertRaises(KeyError):
+            with self.settings(ZIPPY_MOCK=False):
+                eq_(ProxyView().dispatch(
+                    req, reference_name='bob',
+                    resource_name='sellers').status_code, 404)
 
 
 class TestAPIasProxy(TestCase):
