@@ -144,9 +144,7 @@ and is not reversible.
 
     :<json string paymethod: the resource_uri of the payment method in solitude.
 
-    The response is in the same format as for creation.
-
-    :status 200: payment method cancelled.
+    :status 204: payment method deleted.
 
 Data stored in solitude
 +++++++++++++++++++++++

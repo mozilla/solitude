@@ -22,18 +22,14 @@ def delete(request):
         raise FormError(form.errors)
 
     solitude_method = form.cleaned_data['paymethod']
-    result = solitude_method.braintree_delete()
+    solitude_method.braintree_delete()
     solitude_method.active = False
     solitude_method.save()
 
     log.info('Payment method deleted from braintree: {}'
              .format(solitude_method.pk))
 
-    res = serializers.Namespaced(
-        mozilla=serializers.LocalPayMethod(instance=solitude_method),
-        braintree=serializers.PayMethod(instance=result.payment_method)
-    )
-    return Response(res.data)
+    return Response({}, status=204)
 
 
 @api_view(['POST'])
