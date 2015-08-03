@@ -102,11 +102,11 @@ class TestPaymentMethod(BraintreeTest):
         eq_(self.braintree_error(res.json, 'payment_method_nonce'), ['91925'])
 
 
-class TestPaymentMethodCancel(BraintreeTest):
+class TestDeletePaymentMethod(BraintreeTest):
     gateways = {'method': PaymentMethodGateway}
 
     def setUp(self):
-        super(TestPaymentMethodCancel, self).setUp()
+        super(TestDeletePaymentMethod, self).setUp()
         self.url = reverse('braintree:paymethod.delete')
 
     def test_allowed(self):
@@ -126,11 +126,11 @@ class TestPaymentMethodCancel(BraintreeTest):
 
         obj = self.create_paymethod()
         res = self.post(obj)
-        eq_(res.status_code, 200, res.status_code)
+        eq_(res.status_code, 204, res.status_code)
 
         self.mocks['method'].delete.assert_called_with(obj.provider_id)
 
-    def test_fails_post(self):
+    def test_braintree_delete_failure(self):
         self.mocks['method'].delete.return_value = error()
 
         obj = self.create_paymethod()
@@ -140,7 +140,7 @@ class TestPaymentMethodCancel(BraintreeTest):
 
         self.mocks['method'].delete.assert_called_with(obj.provider_id)
 
-    def test_active_post(self):
+    def test_cannot_delete_inactive_paymethod(self):
         obj = self.create_paymethod()
         obj.active = False
         obj.save()
