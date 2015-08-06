@@ -42,7 +42,7 @@ CLIENT_JWT_KEYS = private.CLIENT_JWT_KEYS
 NOSE_PLUGINS = []
 
 REQUIRE_OAUTH = False
-SITE_URL = 'https://payments-proxy.firefox.com'
+SITE_URL = private.SITE_URL
 
 # Below is configuration of payment providers.
 ZIPPY_CONFIGURATION = {}
