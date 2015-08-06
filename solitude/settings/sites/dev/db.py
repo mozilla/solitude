@@ -11,7 +11,11 @@ from django_sha2 import get_password_hashers
 
 
 ADMINS = ()
-ALLOWED_HOSTS = ['payments-dev.allizom.org', 'localhost']
+ALLOWED_HOSTS = [
+    'payments-dev.allizom.org',
+    'payments.dev.mozaws.net',
+    'localhost'
+]
 
 DATABASES = {}
 DATABASES['default'] = dj_database_url.parse(private.DATABASES_DEFAULT_URL)

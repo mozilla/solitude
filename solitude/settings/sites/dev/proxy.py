@@ -9,7 +9,10 @@ from django_sha2 import get_password_hashers
 
 
 ADMINS = ()
-ALLOWED_HOSTS = ['payments-proxy-dev.allizom.org']
+ALLOWED_HOSTS = [
+    'payments-proxy-dev.allizom.org',
+    'payments-proxy.dev.mozaws.net'
+]
 
 DATABASES = {'default': {}}
 
