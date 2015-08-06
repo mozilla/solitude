@@ -477,7 +477,8 @@ ZIPPY_CONFIGURATION = {
 }
 
 # The URL for a solitude proxy to zippy.
-ZIPPY_PROXY = os.getenv('SOLITUDE_ZIPPY_PROXY', '')
+ZIPPY_PROXY = os.getenv(
+    'SOLITUDE_ZIPPY_PROXY', 'http://solitude-auth:2603/v1/reference/')
 
 # End Zippy settings.
 ###############################################################################
