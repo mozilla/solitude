@@ -16,6 +16,7 @@ DATABASES = {}
 DATABASES['default'] = dj_database_url.parse(private.DATABASES_DEFAULT_URL)
 DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
 DATABASES['default']['OPTIONS'] = {'init_command': 'SET storage_engine=InnoDB'}
+DATABASES['default']['ATOMIC_REQUESTS'] = True
 
 DEBUG = False
 DEBUG_PROPAGATE_EXCEPTIONS = False
