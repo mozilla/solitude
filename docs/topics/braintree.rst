@@ -291,7 +291,7 @@ Webhook
 -------
 
 When Braintree completes certain actions, they will make a request to the
-configured webhook URL. That will be `<payments-service https://github.com/mozilla/payments-service/>`_
+configured webhook URL. That will be `payments-service <https://github.com/mozilla/payments-service/>`_
 which then passes it on to this endpoint. For more information see the
 `Braintree documentation <https://developers.braintreepayments.com/javascript+python/reference/general/webhooks>`_.
 
