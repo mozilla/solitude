@@ -96,6 +96,11 @@ class TestStrictQueryFilter(APITest):
         self.req.QUERY_PARAMS = {'uid': ['bar']}  # Note the typo there.
         StrictQueryFilter().filter_queryset(self.req, self.queryset, self.view)
 
+    def test_order(self):
+        klass = StrictQueryFilter().get_filter_class(
+            self.view, queryset=self.queryset)
+        eq_(klass._meta.order_by, ('-id',))
+
 
 class TestShorter(TestCase):
 

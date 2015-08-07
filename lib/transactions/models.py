@@ -72,7 +72,6 @@ class Transaction(Model):
 
     class Meta(Model.Meta):
         db_table = 'transaction'
-        ordering = ('-id',)
         unique_together = (('uid_pay', 'provider'),
                            ('uid_support', 'provider'))
 
