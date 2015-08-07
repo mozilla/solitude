@@ -13,7 +13,8 @@ log = getLogger('s')
 def custom_exception_handler(exc):
     # If you raise an error in solitude, it comes to here and
     # we rollback the transaction.
-    log.exception('Handling exception, about to roll back', exc_info=exc)
+    log.info('Handling exception, about to roll back for: {}, {}'
+             .format(type(exc), exc.message))
     set_rollback(True)
 
     if hasattr(exc, 'formatter'):
