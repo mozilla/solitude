@@ -8,9 +8,10 @@ mysql -u root --host mysql_1 -e 'use solitude;'
 if [ $? -ne 0 ]; then
     echo "Solitude database doesn't exist. Let's create it"
     mysql -u root --host mysql_1 -e 'create database solitude'
-    echo "Since we didn't have a db. Lets run the migrations."
-    schematic migrations/
 fi
+
+# Lets always run the migrations.
+schematic migrations
 
 if [ "$BRAINTREE_MERCHANT_ID" ]; then
     echo "Braintree merchant ID found in environment, running braintree_config."
