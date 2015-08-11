@@ -8,6 +8,7 @@ from solitude.base import NoAddModelViewSet
 class TransactionViewSet(NoAddModelViewSet):
     queryset = BraintreeTransaction.objects.all()
     serializer_class = LocalTransaction
+    filter_fields = ('transaction__buyer__uuid',)
 
     def update(self, *args, **kw):
         # Not sure what a patch to this object would do.

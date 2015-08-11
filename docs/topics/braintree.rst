@@ -437,9 +437,11 @@ Transaction
 
 The webhook returns transaction details to solitude. Solitude then creates a
 generic transaction object. It also creates a Braintree transaction that
-contains some information about the transaction.
+contains some information about the purchase transaction.
 
 .. http:get:: /braintree/mozilla/transaction/<transaction id>/
+
+    Get a single braintree transaction object.
 
     .. code-block:: json
 
@@ -467,6 +469,14 @@ contains some information about the transaction.
     The fields `kind`, `next_billing_date`, `next_billing_period_amount`,
     `billing_period_end_date`, `billing_period_start_date` are copies of the data
     from Braintree. Please see the Braintree documentation for more information.
+
+.. http:get:: /braintree/mozilla/transaction/
+
+    Get all braintree transactions.
+
+    :query transaction__buyer__uuid:
+        only get transactions belonging to this
+        :ref:`generic buyer <buyer-label>` UUID.
 
 Development Tips
 ----------------
