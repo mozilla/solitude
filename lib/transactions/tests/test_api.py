@@ -169,3 +169,8 @@ class TestTransaction(APITest):
         res = self.client.patch(res.json['resource_uri'],
                                 data={'status': constants.STATUS_ERRORED})
         eq_(res.json['uuid'], 'test:uuid')
+
+    def test_newest_first(self):
+        Transaction.objects.create(uuid='newest')
+        res = self.client.get(self.list_url)
+        eq_([o['uuid'] for o in res.json['objects']], ['newest', self.uuid])
