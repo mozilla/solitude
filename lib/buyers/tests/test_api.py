@@ -16,7 +16,6 @@ from solitude.base import APITest
 class TestBuyer(APITest):
 
     def setUp(self):
-        self.api_name = 'generic'
         self.uuid = 'sample:uid'
         self.pin = '1234'
         self.email = 'test@test.com'
@@ -178,7 +177,6 @@ class TestBuyer(APITest):
 class TestBuyerVerifyPin(APITest):
 
     def setUp(self):
-        self.api_name = 'generic'
         self.uuid = 'sample:uid'
         self.pin = '1234'
         self.buyer = Buyer.objects.create(uuid=self.uuid, pin=self.pin,
@@ -275,7 +273,6 @@ class TestBuyerVerifyPin(APITest):
 class TestBuyerConfirmPin(APITest):
 
     def setUp(self):
-        self.api_name = 'generic'
         self.uuid = 'sample:uid'
         self.pin = '1234'
         self.buyer = Buyer.objects.create(uuid=self.uuid, pin=self.pin)
@@ -310,7 +307,6 @@ class TestBuyerConfirmPin(APITest):
 class TestBuyerResetPin(APITest):
 
     def setUp(self):
-        self.api_name = 'generic'
         self.uuid = 'sample:uid'
         self.pin = '1234'
         self.new_pin = '4321'

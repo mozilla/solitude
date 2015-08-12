@@ -12,7 +12,6 @@ from solitude.base import APITest
 class TestTransaction(APITest):
 
     def setUp(self):
-        self.api_name = 'generic'
         self.uuid = 'sample:uid'
         self.list_url = reverse('generic:transaction-list')
         self.buyer = Buyer.objects.create(uuid='buyer_uuid')

@@ -34,7 +34,6 @@ from solitude.constants import PAYMENT_METHOD_ALL, PAYMENT_METHOD_OPERATOR
 
 
 class BangoAPI(APITest):
-    api_name = 'bango'
     uuid = 'foo:uuid'
 
     def create(self, without_product_bango=False):
@@ -650,7 +649,6 @@ class TestGetSBI(BangoAPI):
 class TestRefund(APITest):
 
     def setUp(self):
-        self.api_name = 'bango'
         self.uuid = 'sample:uid'
         self.sellers = utils.make_sellers(self.uuid)
         self.seller = self.sellers.seller
@@ -761,7 +759,6 @@ class TestRefund(APITest):
 class TestRefundStatus(APITest):
 
     def setUp(self):
-        self.api_name = 'bango'
         self.refund_uuid = 'sample:refund'
         self.sellers = utils.make_sellers('sample:uuid')
         self.seller = self.sellers.seller

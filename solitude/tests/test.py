@@ -14,7 +14,6 @@ from solitude.utils import shorter
 
 
 class TestHeaders(APITest):
-    api_name = 'generic'
 
     def test_content_headers_list(self):
         Buyer.objects.create(uuid='sample:uuid')

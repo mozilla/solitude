@@ -14,7 +14,6 @@ uuid = 'sample:uid'
 class TestSeller(APITest):
 
     def setUp(self):
-        self.api_name = 'generic'
         self.list_url = reverse('generic:seller-list')
 
     def test_add(self):
@@ -56,7 +55,6 @@ class TestSeller(APITest):
 class TestSellerProduct(APITest):
 
     def setUp(self):
-        self.api_name = 'generic'
         self.seller = Seller.objects.create(uuid=uuid)
         self.seller_url = self.seller.get_uri()
         self.list_url = reverse('generic:sellerproduct-list')
