@@ -213,7 +213,7 @@ After these two steps you will use the ``reset_confirm_pin`` endpoint. It works
 the same way as the ``confirm_pin`` endpoint but instead checks against the
 buyer's ``new_pin`` rather than their ``pin``:
 
-.. htp:post::: /generic/reset_confirm_pin/
+.. http:post::: /generic/reset_confirm_pin/
 
     **Request**
 
@@ -246,6 +246,42 @@ minutes. You can tell if a buyer is locked by checking the
 ``pin_is_locked_out`` property of the buyer data. Buyers that were locked out
 since the last time the PIN was changed or successfully verified will have the
 ``pin_was_locked_out`` property set to ``true``.
+
+Close
+-----
+
+This does not delete the buyer, but does the following:
+
+* calls a close signal the payment providers can listen to, in the case of Braintree it cancels all payment methods and subscriptions
+* sets the account to inactive
+* removes the email
+* sets the uuid to something anonymous
+
+Note: only if the close signal is succesfully processed will the account be set to inactive.
+
+.. http:post:: /generic/buyer/int:id/close/
+
+    :status 204: account closed successfully
+    :status 400: problem processing the uuid into a buyer
+    :status 404: active buyer not found, will trigger if you try to close an account twice
+    :status 500: something went wrong with closing the account
+
+The account is not deleted and can still be accessed by the URL to that account to preserve data integrity. For example:
+
+* create a buyer with a POST to `/generic/buyer`
+* store the `resource_uri` in the response
+* close the buyer with a POST to `/generic/buyer/int:id/close`
+* get the buyer with a GET to `resource_uri`, a *truncated* version of the response shows:
+
+  .. code-block:: json
+
+    {
+        "active": False,
+        "email": "",
+        "uuid": "anonymised-uuid:1b3db7a9-0e8f-43d8-b8da-b3317a147068"
+    }
+
+
 
 .. _seller-label:
 
