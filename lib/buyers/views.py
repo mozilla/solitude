@@ -1,3 +1,5 @@
+from django.shortcuts import get_object_or_404
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -7,6 +9,9 @@ from lib.buyers.serializers import (
     BuyerSerializer, ConfirmedSerializer, VerifiedSerializer)
 from solitude.base import log_cef, NonDeleteModelViewSet
 from solitude.errors import FormError
+from solitude.logger import getLogger
+
+log = getLogger('s.buyer')
 
 
 class BuyerViewSet(NonDeleteModelViewSet):
@@ -98,3 +103,11 @@ def reset_confirm_pin(request):
         return Response(output.data)
 
     raise FormError(form.errors)
+
+
+@api_view(['POST'])
+def close(request, pk):
+    buyer = get_object_or_404(Buyer, pk=pk, active=True)
+    log.info('Closing account for: {}'.format(buyer.pk))
+    buyer.close()
+    return Response(status=204)

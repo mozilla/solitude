@@ -374,3 +374,22 @@ class TestBuyerResetPin(APITest):
     def test_empty_post(self):
         res = self.client.post(self.list_url, data={})
         eq_(res.status_code, 422)
+
+
+class TestBuyerClose(APITest):
+
+    def setUp(self):
+        self.uuid = 'sample:uid'
+        self.buyer = Buyer.objects.create(uuid=self.uuid)
+        self.url = reverse('generic:close', kwargs={'pk': self.buyer.pk})
+
+    def test_close(self):
+        res = self.client.post(self.url)
+        eq_(res.status_code, 204)
+        eq_(self.buyer.reget().active, False, res.content)
+
+    def test_already_closed(self):
+        self.buyer.active = False
+        self.buyer.save()
+        res = self.client.post(self.url)
+        eq_(res.status_code, 404, res.content)
