@@ -20,7 +20,6 @@ from ..utils import sign
 
 
 class TestNotification(APITest):
-    api_name = 'bango'
 
     def setUp(self):
         self.trans_uuid = 'some-transaction-uid'
@@ -218,7 +217,6 @@ class TestNotification(APITest):
 
 @patch.object(settings, 'BANGO_BASIC_AUTH', {'USER': 'f', 'PASSWORD': 'b'})
 class TestEvent(APITest):
-    api_name = 'bango'
 
     def setUp(self):
         self.trans_uuid = 'external-trans-uid'
