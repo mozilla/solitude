@@ -287,6 +287,77 @@ Some information about the subscripton is stored in solitude.
     :query provider_id: the plan id for this subscription.
     :query seller_product: the primary key of the product.
 
+Sale
+----
+
+A sale is a one off payment to call the Braintree Transaction API. For more
+information see the `Braintree documentation <https://developers.braintreepayments.com/javascript+python/reference/request/transaction/sale>`_.
+
+This should not be used for subscriptions.
+
+.. http:post:: /braintree/sale/
+
+    :<json amount: the amount of the transaction, within the maximum and minimum limits
+    :<json product_id: the product_id as defined by `payments-config <https://github.com/mozilla/payments-config/>`_.
+    :<json nonce: (optional) the payment nonce returned by Braintree, used when no payment method is stored.
+    :<json paymethod: (optional) the URI to `a payment object <payment-methods-label>`_.
+
+    .. code-block:: json
+
+        {
+          "mozilla": {
+            "generic": {
+              "resource_pk": 1,
+              "related": null,
+              "seller_product": "/generic/product/1/",
+              "currency": "USD",
+              "uid_pay": null,
+              "uuid": "",
+              "uid_support": "test-id",
+              "relations": [],
+              "seller": "/generic/seller/1/",
+              "source": null,
+              "provider": 4,
+              "pay_url": null,
+              "type": 0,
+              "status": 2,
+              "buyer": null,
+              "status_reason": null,
+              "created": "2015-08-17T19:17:04.296",
+              "notes": null,
+              "amount": "5.00",
+              "carrier": null,
+              "region": null,
+              "resource_uri": "/generic/transaction/1/"
+            },
+            "braintree": {
+              "kind": "",
+              "transaction": "/generic/transaction/1/",
+              "next_billing_period_amount": null,
+              "created": "2015-08-17T19:17:04.298",
+              "paymethod": null,
+              "counter": 0,
+              "billing_period_end_date": null,
+              "modified": "2015-08-17T19:17:04.298",
+              "next_billing_date": null,
+              "resource_pk": 1,
+              "resource_uri": "/braintree/mozilla/transaction/1/",
+              "billing_period_start_date": null,
+              "id": 1,
+              "subscription": null
+            }
+          },
+          "braintree": {}
+        }
+
+
+    :>json mozilla.generic: the generic transaction object.
+    :>json mozilla.generic.buyer: this will be the buyer or empty if no buyer is registered.
+    :>json mozilla.braintree: the braintree transaction object.
+
+Notes:
+* either a `nonce` or a `paymethod` must exist, but not both
+
 Webhook
 -------
 

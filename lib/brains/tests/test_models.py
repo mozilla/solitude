@@ -2,10 +2,10 @@ from braintree.payment_method_gateway import PaymentMethodGateway
 from braintree.subscription_gateway import SubscriptionGateway
 from nose.tools import eq_
 
-from lib.brains.tests.base import create_subscription, BraintreeTest
+from lib.brains.tests.base import BraintreeTest, create_subscription
+from lib.brains.tests.test_paymethod import successful_method
 from lib.brains.tests.test_subscription import (
     create_method_all, successful_subscription)
-from lib.brains.tests.test_paymethod import successful_method
 
 
 class TestClose(BraintreeTest):

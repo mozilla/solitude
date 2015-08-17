@@ -3,9 +3,10 @@ from django.test.utils import override_settings
 from nose.tools import eq_
 
 from lib.brains.forms import (
-    SubscriptionForm, SubscriptionCancelForm, SubscriptionUpdateForm,
+    SaleForm, SubscriptionCancelForm, SubscriptionForm, SubscriptionUpdateForm,
     WebhookParseForm, WebhookVerifyForm)
-from lib.brains.tests.base import BraintreeTest
+from lib.brains.tests.base import (
+    BraintreeTest, create_braintree_buyer, create_method, create_seller)
 
 
 @override_settings(BRAINTREE_PROXY='http://m.o')
@@ -84,3 +85,58 @@ class TestSubscriptionManagement(BraintreeTest):
         errors = form.errors
         # Make sure empty params are caught.
         assert 'subscription' in errors, errors.as_text()
+
+
+class TestSaleForm(BraintreeTest):
+
+    def process(self, data):
+        form = SaleForm(data)
+        form.is_valid()
+        return form, form.errors
+
+    def test_no_paymethod_nonce(self):
+        form, errors = self.process({})
+        assert '__all__' in errors, errors.as_text()
+
+    def test_both_paymethod_nonce(self):
+        method = create_method(create_braintree_buyer()[1])
+        form, errors = self.process({
+            'nonce': 'abc',
+            'paymethod': method.get_uri()
+        })
+        assert '__all__' in errors, errors.as_text()
+
+    def test_paymethod_does_not_exist(self):
+        form, errors = self.process({'paymethod': '/nope'})
+        assert 'paymethod' in errors, errors.as_text()
+
+    def test_no_product(self):
+        form, errors = self.process({
+            'amount': '5',
+            'nonce': 'noncey',
+            'product_id': 'nope',
+        })
+        assert 'product_id' in errors, errors.as_text()
+
+    def test_ok(self):
+        seller, seller_product = create_seller()
+        form, errors = self.process({
+            'amount': '5',
+            'nonce': 'noncey',
+            'product_id': seller_product.public_id
+        })
+        assert not errors, errors.as_text()
+        assert 'payment_method_token' not in form.braintree_data
+        eq_(form.braintree_data['payment_method_nonce'], 'noncey')
+
+    def test_ok_method(self):
+        seller, seller_product = create_seller()
+        method = create_method(create_braintree_buyer()[1])
+        form, errors = self.process({
+            'amount': '5',
+            'paymethod': method.get_uri(),
+            'product_id': seller_product.public_id
+        })
+        assert not errors, errors.as_text()
+        assert 'payment_method_nonce' not in form.braintree_data
+        eq_(form.braintree_data['payment_method_token'], method.provider_id)

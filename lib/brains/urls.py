@@ -20,6 +20,7 @@ urlpatterns = patterns(
     url(r'^customer/$', 'customer.create', name='customer'),
     url(r'^paymethod/$', 'paymethod.create', name='paymethod'),
     url(r'^paymethod/delete/$', 'paymethod.delete', name='paymethod.delete'),
+    url(r'^sale/$', 'sale.create', name='sale'),
     url(r'^subscription/$', 'subscription.create', name='subscription'),
     url(r'^subscription/cancel/$', 'subscription.cancel',
         name='subscription.cancel'),

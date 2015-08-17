@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from lib.brains.client import get_client
 from lib.brains.errors import BraintreeResultError
 from lib.brains.forms import (
-    SubscriptionForm, SubscriptionCancelForm, SubscriptionUpdateForm)
+    SubscriptionCancelForm, SubscriptionForm, SubscriptionUpdateForm)
 from lib.brains.models import BraintreeSubscription
 from lib.brains.serializers import (
     LocalSubscription, Namespaced, Subscription)

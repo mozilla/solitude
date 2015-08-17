@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -186,6 +188,72 @@ class PayMethodDeleteForm(forms.Form):
                 'Cannot delete an inactive payment method', code='invalid')
 
         return self.cleaned_data
+
+
+class SaleForm(forms.Form):
+    amount = forms.DecimalField(
+        max_value=Decimal(settings.BRAINTREE_MAX_AMOUNT),
+        min_value=Decimal(settings.BRAINTREE_MIN_AMOUNT))
+    # This will be populated by the paymethod.
+    buyer = None
+    nonce = forms.CharField(max_length=255, required=False)
+    paymethod = PathRelatedFormField(
+        view_name='braintree:mozilla:paymethod-detail',
+        queryset=BraintreePaymentMethod.objects.filter(),
+        required=False,
+        allow_null=True)
+    # Seller and seller_product are set by looking up the
+    # product_id inside payments-config.
+    product_id = forms.CharField()
+    seller = None
+    seller_product = None
+
+    def clean_product_id(self):
+        product_id = self.cleaned_data.get('product_id')
+
+        try:
+            self.seller_product = (
+                SellerProduct.objects.get(public_id=product_id))
+        except SellerProduct.DoesNotExist:
+            raise forms.ValidationError(
+                'Product does not exist: {}'.format(product_id))
+
+        return product_id
+
+    def clean_paymethod(self):
+        paymethod = self.cleaned_data['paymethod']
+        if paymethod:
+            self.buyer = paymethod.braintree_buyer.buyer
+        return paymethod
+
+    def clean(self):
+        nonce = self.cleaned_data.get('nonce')
+        paymethod = self.cleaned_data.get('paymethod')
+
+        if nonce and paymethod:
+            raise forms.ValidationError(
+                'Cannot set both paymethod and nonce', code='invalid')
+
+        if not nonce and not paymethod:
+            raise forms.ValidationError(
+                'Either nonce or paymethod must be set', code='invalid')
+
+        return self.cleaned_data
+
+    @property
+    def braintree_data(self):
+        data = {
+            'amount': self.cleaned_data['amount'],
+            'options': {
+                'submit_for_settlement': True
+            }
+        }
+        if self.cleaned_data.get('paymethod'):
+            data['payment_method_token'] = (
+                self.cleaned_data['paymethod'].provider_id)
+        elif self.cleaned_data.get('nonce'):
+            data['payment_method_nonce'] = self.cleaned_data['nonce']
+        return data
 
 
 class SubscriptionUpdateForm(forms.Form):
