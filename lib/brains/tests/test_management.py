@@ -25,13 +25,26 @@ class TestManagement(BraintreeTest):
             seller=seller)
         eq_(seller_product, seller.product.get())
 
-    def get_plans(self):
+    def get_plans(self, plan=None):
         # Note price is a string not a decimal or something useful:
         # https://github.com/braintree/braintree_python/issues/52
-        self.mocks['plans'].all.return_value = [
-            Plan(None, {'id': 'mozilla-concrete-mortar', 'price': '1'}),
-            Plan(None, {'id': 'mozilla-concrete-brick', 'price': '10'})
+        plans = [
+            Plan(None, {
+                'billing_day_of_month': None,
+                'id': 'mozilla-concrete-mortar',
+                'price': '1',
+                'trial_period': None
+            }),
+            Plan(None, {
+                'billing_day_of_month': None,
+                'id': 'mozilla-concrete-brick',
+                'price': '10',
+                'trial_period': None
+            })
         ]
+        if plan:
+            plans.append(plan)
+        self.mocks['plans'].all.return_value = plans
         return config.get_plans(get_client())
 
     def test_plans(self):
@@ -48,3 +61,23 @@ class TestManagement(BraintreeTest):
 
     def test_plan_ok(self):
         config.product_exists(self.get_plans(), 'mozilla-concrete-brick', 10)
+
+    @raises(CommandError)
+    def test_trial_period(self):
+        plan = Plan(None, {
+            'billing_day_of_month': None,
+            'id': 'trial',
+            'price': '1',
+            'trial_period': '1'
+        })
+        config.product_exists(self.get_plans(plan), 'trial', 1)
+
+    @raises(CommandError)
+    def test_billing_day_of_month(self):
+        plan = Plan(None, {
+            'billing_day_of_month': 1,
+            'id': 'day',
+            'price': '1',
+            'trial_period': None
+        })
+        config.product_exists(self.get_plans(plan), 'day', 1)
