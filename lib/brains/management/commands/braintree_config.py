@@ -58,6 +58,21 @@ def product_exists(plans, external_id, amount):
 
         raise CommandError('Different price: {0}'.format(external_id))
 
+    if plan.billing_day_of_month:
+        log.warning(
+            'The plan: {} in Braintree has a billing_day_of_month set, which '
+            'is not supported at the moment.'.format(external_id)
+        )
+        raise CommandError('Unsupported billing_day_of_month: {}'
+                           .format(external_id))
+
+    if plan.trial_period:
+        log.warning(
+            'The plan: {} in Braintree has a trial_period set, which is not '
+            'supported at the moment.'.format(external_id)
+        )
+        raise CommandError('Unsupported trial_period: {}'.format(external_id))
+
     log.info('Plan: {0} exists correctly on Braintree'.format(external_id))
 
 
@@ -76,9 +91,13 @@ class Command(BaseCommand):
             plans = get_plans(client)
             # Iterate through each product checking they exist.
             for product in seller_config.products:
+                # Check that the product exists in Braintree.
                 get_or_create_seller_product(
                     external_id=product.id,
                     public_id=product.id,
                     seller=seller
                 )
-                product_exists(plans, product.id, product.amount)
+                if product.recurrence:
+                    # If there's recurrence, we need to check
+                    # that it exists in Braintree and is set up ok.
+                    product_exists(plans, product.id, product.amount)
