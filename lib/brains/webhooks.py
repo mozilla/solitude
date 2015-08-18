@@ -241,7 +241,7 @@ class Processor(object):
                         # If pk is repeated (eg. in tests, dev) should still
                         # be unique.
                         shorter(int(time.time())))
-                    )
+                )
                 our_transaction.save()
 
                 log.info('Transaction created: {}'.format(our_transaction.pk))

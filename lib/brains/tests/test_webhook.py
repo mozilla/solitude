@@ -16,7 +16,6 @@ from lib.brains.tests.base import (
 from lib.brains.webhooks import Processor
 from lib.transactions import constants
 from lib.transactions.models import Transaction
-
 from solitude.utils import shorter
 
 

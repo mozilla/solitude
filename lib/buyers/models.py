@@ -3,8 +3,8 @@ from datetime import datetime
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.dispatch import Signal
 from django.db import models
+from django.dispatch import Signal
 
 from aesfield.field import AESField
 

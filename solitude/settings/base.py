@@ -510,3 +510,7 @@ BRAINTREE_TRANSACTION_STATUSES = (
 
 # An arbitrary limit on the number of payment methods.
 BRAINTREE_MAX_METHODS = 5
+
+# Arbitrary amounts for top and bottom limits.
+BRAINTREE_MAX_AMOUNT = 10000
+BRAINTREE_MIN_AMOUNT = 1
