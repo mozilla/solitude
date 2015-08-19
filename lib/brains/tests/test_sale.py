@@ -10,7 +10,8 @@ from braintree.transaction_gateway import TransactionGateway
 from nose.tools import eq_
 
 from lib.brains.tests.base import (
-    BraintreeTest, create_braintree_buyer, create_method, create_seller)
+    BraintreeTest, create_braintree_buyer, create_method, create_seller,
+    ProductsTest)
 
 
 def transaction(**kw):
@@ -33,7 +34,7 @@ def successful_method(**kw):
     return SuccessfulResult({'transaction': transaction(**kw)})
 
 
-class TestSale(BraintreeTest):
+class TestSale(BraintreeTest, ProductsTest):
     gateways = {'sale': TransactionGateway}
 
     def setUp(self):
@@ -45,14 +46,19 @@ class TestSale(BraintreeTest):
 
     def test_ok(self):
         self.mocks['sale'].create.return_value = successful_method()
+        self.product_mock.get('moz-brick').recurrence = None
         seller, seller_product = create_seller()
+
         res = self.client.post(
             self.url,
-            data={'amount': '5', 'nonce': 'some-nonce', 'product_id': 'brick'}
-        )
+            data={
+                'amount': 10,
+                'nonce': 'some-nonce',
+                'product_id': 'moz-brick'
+            })
 
         self.mocks['sale'].create.assert_called_with({
-            'amount': Decimal('5'),
+            'amount': Decimal('10'),
             'type': 'sale',
             'options': {'submit_for_settlement': True},
             'payment_method_nonce': u'some-nonce'}
@@ -67,25 +73,30 @@ class TestSale(BraintreeTest):
     def test_failure(self):
         res = self.client.post(
             self.url,
-            data={'amount': '5', 'nonce': 'some-nonce', 'product_id': 'brick'}
+            data={
+                'amount': '5',
+                'nonce': 'some-nonce',
+                'product_id': 'moz-brick'}
         )
         eq_(res.status_code, 422)
 
     def test_pay_method(self):
         self.mocks['sale'].create.return_value = successful_method()
+        self.product_mock.get('moz-brick').recurrence = None
         seller, seller_product = create_seller()
         method = create_method(create_braintree_buyer()[1])
+
         res = self.client.post(
             self.url,
             data={
-                'amount': '5',
+                'amount': '10.00',
                 'paymethod': method.get_uri(),
-                'product_id': 'brick'
+                'product_id': 'moz-brick'
             }
         )
 
         self.mocks['sale'].create.assert_called_with({
-            'amount': Decimal('5'),
+            'amount': Decimal('10.00'),
             'type': 'sale',
             'options': {'submit_for_settlement': True},
             'payment_method_token': mock.ANY}

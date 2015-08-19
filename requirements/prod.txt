@@ -142,8 +142,8 @@ oauthlib==0.7.2
 # sha256: X6E7zlUUaDUNZsSINpSFBXDz2ijWhmu2OLpE_l6r2ng
 py-bcrypt==0.4
 
-# sha256: FBWlvR4_CiMbwaHb2aiejB3VAURgtmfXAxxzqzoXx3w
-payments-config==0.0.11
+# sha256: ogcDHY1RGrz8PN7rJ5R0JhXujEZasdbDXqJNwRyWr5w
+payments-config==0.0.12
 
 # sha256: aFwGTOdTFr29NSNqh8a_kNNJvdW6ReHLWaaHs6A1DcY
 python-dateutil==1.5
