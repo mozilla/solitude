@@ -39,12 +39,19 @@ def create(request):
         type=constants.TYPE_PAYMENT,
         uid_support=result.transaction.id
     )
+    our_transaction.uuid = our_transaction.create_short_uid()
+    our_transaction.save()
+    log.info('Transaction created: {}'.format(our_transaction.pk))
+
     braintree_transaction = BraintreeTransaction.objects.create(
         kind='submit_for_settlement',
         paymethod=form.cleaned_data['paymethod'],
         transaction=our_transaction,
 
     )
+    log.info('BraintreeTransaction created: {}'
+             .format(braintree_transaction.pk))
+
     res = Namespaced(
         braintree={},  # Not sure if there's anything useful to add here.
         mozilla={

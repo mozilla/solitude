@@ -88,3 +88,13 @@ class TestModel(APITest):
         data = self.get_data()
         del data['provider']
         Transaction.objects.create(**data)
+
+    def test_short_id(self):
+        obj = Transaction.objects.create(**self.get_data())
+        ok_(obj.create_short_uid().startswith('ba-'))
+
+    def test_short_id_no_provider(self):
+        data = self.get_data()
+        del data['provider']
+        obj = Transaction.objects.create(**data)
+        ok_(obj.create_short_uid().startswith('dk-'))

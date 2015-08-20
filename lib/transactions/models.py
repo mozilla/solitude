@@ -1,3 +1,5 @@
+import time
+
 from collections import OrderedDict
 
 from django.core.urlresolvers import reverse
@@ -9,6 +11,7 @@ from django_statsd.clients import statsd
 from lib.transactions import constants
 from solitude.base import Model
 from solitude.logger import getLogger
+from solitude.utils import shorter
 
 log = getLogger('s.transaction')
 stats_log = getLogger('s.transaction.stats')
@@ -63,8 +66,6 @@ class Transaction(Model):
                                null=True)
     # Absolute payment start URL for this transaction.
     pay_url = models.CharField(max_length=255, blank=True, null=True)
-    # An ID we generate for this transaction, we'll generate one for you if
-    # you don't specify one.
     uuid = models.CharField(max_length=255, db_index=True, unique=True)
 
     # A general "store whatever you like" field. Solitude wont use this.
@@ -85,6 +86,26 @@ class Transaction(Model):
         transaction.full_clean()
         transaction.save()
         return transaction
+
+    def create_short_uid(self):
+        """
+        Generate a unique id based on the primary key which is shorter
+        (14 chars) than an average uuid (32 chars).
+        """
+        codes = {
+            constants.PROVIDER_BANGO: 'ba',
+            constants.PROVIDER_BRAINTREE: 'bt',
+        }
+        return (
+            '{}-{}-{}'.format(
+                # Get a provider code or dk for dont know.
+                codes.get(self.provider, 'dk'),
+                # Should be unique within this db.
+                shorter(self.pk),
+                # If pk is repeated (eg. in tests, dev) should still
+                # be unique.
+                shorter(int(time.time())))
+        )
 
     def is_refunded(self):
         return Transaction.objects.filter(

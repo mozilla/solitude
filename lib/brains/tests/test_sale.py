@@ -95,3 +95,15 @@ class TestSale(BraintreeTest):
         eq_(generic['buyer'], method.braintree_buyer.buyer.get_uri())
         braintree = res.json['mozilla']['braintree']
         eq_(braintree['paymethod'], method.get_uri())
+
+    def test_multiple(self):
+        self.mocks['sale'].create.return_value = successful_method()
+        seller, seller_product = create_seller()
+
+        data = {'amount': 5, 'nonce': 123, 'product_id': 'brick'}
+        res = self.client.post(self.url, data=data)
+        eq_(res.status_code, 200, res.content)
+
+        self.mocks['sale'].create.return_value = successful_method(id='two-id')
+        res = self.client.post(self.url, data=data)
+        eq_(res.status_code, 200, res.content)
