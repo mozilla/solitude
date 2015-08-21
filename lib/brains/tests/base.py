@@ -106,7 +106,19 @@ class ProductsTest(APITest):
                 'amount': '10.00',
                 'recurrence': 'monthly',
             }],
-        }
+        },
+        'charity': {
+            'email': 'charity@something.org',
+            'name': 'Some Charity',
+            'url': 'http://charity.org/',
+            'terms': 'http://charity.org/terms/',
+            'kind': 'donations',
+            'products': [{
+                'id': 'donation',
+                'description': 'Donation',
+                'recurrence': None,
+            }],
+        },
     }
 
     def setUp(self):
