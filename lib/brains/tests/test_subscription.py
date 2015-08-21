@@ -49,11 +49,14 @@ class TestSubscription(BraintreeTest):
 
         method, seller_product = create_method_all()
         res = self.client.post(
-            self.url, data={'paymethod': method.get_uri(), 'plan': 'brick'})
+            self.url, data={
+                'paymethod': method.get_uri(),
+                'plan': 'moz-brick'
+            })
 
         data = {
             'payment_method_token': mock.ANY,
-            'plan_id': 'brick',
+            'plan_id': 'moz-brick',
             'descriptor': {
                 'name': 'Mozilla*Product',
                 'url': 'mozilla.org'
@@ -69,7 +72,11 @@ class TestSubscription(BraintreeTest):
     def test_no_method(self):
         method, seller_product = create_method_all()
         res = self.client.post(
-            self.url, data={'method': method.get_uri() + 'n', 'plan': 'brick'})
+            self.url,
+            data={
+                'method': method.get_uri() + 'n',
+                'plan': 'moz-brick'
+            })
 
         eq_(res.status_code, 422, res.content)
 
@@ -90,7 +97,10 @@ class TestSubscription(BraintreeTest):
 
         method, seller_product = create_method_all()
         res = self.client.post(
-            self.url, data={'paymethod': method.get_uri(), 'plan': 'brick'})
+            self.url, data={
+                'paymethod': method.get_uri(),
+                'plan': 'moz-brick'
+            })
 
         ok_(not BraintreeSubscription.objects.exists())
         eq_(res.status_code, 422, res.content)

@@ -4,13 +4,14 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
+import payments_config
 import requests
 
 from lib.brains.models import (
     BraintreeBuyer, BraintreePaymentMethod, BraintreeSubscription)
 from lib.buyers.models import Buyer
 from lib.sellers.models import SellerProduct
-from payments_config import products
+
 from solitude.base import getLogger
 from solitude.related_fields import PathRelatedFormField
 
@@ -110,7 +111,7 @@ class SubscriptionForm(forms.Form):
         return 'Mozilla*{}'.format(name)[0:22]
 
     def get_name(self, plan_id):
-        if plan_id in products:
+        if payments_config.products.get(plan_id):
             return unicode(products.get(plan_id).description)
         log.warning('Unknown product for descriptor: {}'.format(plan_id))
         return 'Product'
@@ -237,6 +238,32 @@ class SaleForm(forms.Form):
         if not nonce and not paymethod:
             raise forms.ValidationError(
                 'Either nonce or paymethod must be set', code='invalid')
+
+        product = payments_config.products.get(self.cleaned_data.get('product_id'))
+
+        if not product:
+            raise forms.ValidationError(
+                'Product does not exist: {}'
+                .format(self.cleaned_data.get('product_id')),
+                code='invalid')
+
+        amount = self.cleaned_data.get('amount')
+        if (amount and product.amount != amount):
+            self.add_error(
+                'amount',
+                forms.ValidationError(
+                    'Product has an amount specified: {} and the amount '
+                    'given differs: {}'.format(
+                        product.amount, self.cleaned_data['amount']),
+                    code='invalid'))
+
+        if product.recurrence:
+            self.add_error(
+                'product_id',
+                forms.ValidationError(
+                    'Product has a recurrence of: {}, '
+                    'use the subscription API'.format(product.recurrence),
+                    code='invalid'))
 
         return self.cleaned_data
 

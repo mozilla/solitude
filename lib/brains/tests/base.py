@@ -8,6 +8,7 @@ import mock
 import requests
 from braintree.error_result import ErrorResult
 from nose.plugins.attrib import attr
+from payments_config import populate
 
 from lib.brains.errors import MockError
 from lib.brains.models import (
@@ -42,7 +43,7 @@ def create_seller(seller_product_data=None):
     seller = Seller.objects.create(uuid=str(uuid.uuid4()))
     data = {
         'external_id': str(uuid.uuid4()),
-        'public_id': 'brick',
+        'public_id': 'moz-brick',
         'seller': seller
     }
     data.update(seller_product_data or {})
@@ -84,6 +85,39 @@ class BraintreeMock(mock.Mock):
         """
         raise MockError(
             'Attempt to serialise a Mock without the result being overridden.')
+
+
+class ProductsTest(APITest):
+
+    """
+    A test that wraps the products from payments-config so that
+    tests do not have to be dependent upon the content in payments-config.
+    """
+    product_config = {
+        'moz': {
+            'email': 'support@concrete.mozilla.org',
+            'name': 'Mozilla Concrete',
+            'url': 'http://pay.dev.mozaws.net/',
+            'terms': 'http://pay.dev.mozaws.net/terms/',
+            'kind': 'products',
+            'products': [{
+                'id': 'brick',
+                'description': 'Recurring',
+                'amount': '10.00',
+                'recurrence': 'monthly',
+            }],
+        }
+    }
+
+    def setUp(self):
+        super(ProductsTest, self).setUp()
+
+        products = mock.patch('payments_config.products', name='products')
+        self.product_mock = products.start()
+        self.product_mock.get = populate(self.product_config)[1].get
+
+        self.product_mock.patcher = products
+        self.addCleanup(self.product_mock.patcher.stop)
 
 
 class BraintreeTest(APITest):

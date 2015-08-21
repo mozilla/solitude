@@ -6,7 +6,8 @@ from lib.brains.forms import (
     SaleForm, SubscriptionCancelForm, SubscriptionForm, SubscriptionUpdateForm,
     WebhookParseForm, WebhookVerifyForm)
 from lib.brains.tests.base import (
-    BraintreeTest, create_braintree_buyer, create_method, create_seller)
+    BraintreeTest, create_braintree_buyer, create_method, create_seller,
+    ProductsTest)
 
 
 @override_settings(BRAINTREE_PROXY='http://m.o')
@@ -59,7 +60,7 @@ class TestSubscription(BraintreeTest):
         eq_(self.form.get_name('not-brick'), 'Product')
 
     def test_seller_name(self):
-        eq_(self.form.get_name('mozilla-concrete-brick'), 'Brick')
+        eq_(self.form.get_name('moz-brick'), 'Product')
 
     def test_format_descriptor(self):
         for in_string, out_string in [
@@ -87,7 +88,7 @@ class TestSubscriptionManagement(BraintreeTest):
         assert 'subscription' in errors, errors.as_text()
 
 
-class TestSaleForm(BraintreeTest):
+class TestSaleForm(BraintreeTest, ProductsTest):
 
     def process(self, data):
         form = SaleForm(data)
@@ -112,7 +113,7 @@ class TestSaleForm(BraintreeTest):
 
     def test_no_product(self):
         form, errors = self.process({
-            'amount': '5',
+            'amount': '10.00',
             'nonce': 'noncey',
             'product_id': 'nope',
         })
@@ -120,8 +121,10 @@ class TestSaleForm(BraintreeTest):
 
     def test_ok(self):
         seller, seller_product = create_seller()
+        self.product_mock.get('moz-brick').recurrence = None
+
         form, errors = self.process({
-            'amount': '5',
+            'amount': '10.00',
             'nonce': 'noncey',
             'product_id': seller_product.public_id
         })
@@ -131,12 +134,32 @@ class TestSaleForm(BraintreeTest):
 
     def test_ok_method(self):
         seller, seller_product = create_seller()
+        self.product_mock.get('moz-brick').recurrence = None
         method = create_method(create_braintree_buyer()[1])
+
         form, errors = self.process({
-            'amount': '5',
+            'amount': '10.00',
             'paymethod': method.get_uri(),
             'product_id': seller_product.public_id
         })
         assert not errors, errors.as_text()
         assert 'payment_method_nonce' not in form.braintree_data
         eq_(form.braintree_data['payment_method_token'], method.provider_id)
+
+    def test_recurring(self):
+        seller, seller_product = create_seller()
+        form, errors = self.process({
+            'amount': '10.00',
+            'nonce': 'nonce',
+            'product_id': seller_product.public_id
+        })
+        eq_(form.errors.as_data()['product_id'][0].code, 'invalid')
+
+    def test_different_amount_for_fixed_price(self):
+        seller, seller_product = create_seller()
+        form, errors = self.process({
+            'amount': '1.23',
+            'nonce': 'nonce',
+            'product_id': seller_product.public_id
+        })
+        eq_(errors.as_data()['amount'][0].code, 'invalid')
