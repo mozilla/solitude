@@ -112,7 +112,7 @@ class SubscriptionForm(forms.Form):
 
     def get_name(self, plan_id):
         if payments_config.products.get(plan_id):
-            return unicode(products.get(plan_id).description)
+            return unicode(payments_config.products.get(plan_id).description)
         log.warning('Unknown product for descriptor: {}'.format(plan_id))
         return 'Product'
 
@@ -239,7 +239,8 @@ class SaleForm(forms.Form):
             raise forms.ValidationError(
                 'Either nonce or paymethod must be set', code='invalid')
 
-        product = payments_config.products.get(self.cleaned_data.get('product_id'))
+        product = payments_config.products.get(
+            self.cleaned_data.get('product_id'))
 
         if not product:
             raise forms.ValidationError(

@@ -109,9 +109,10 @@ class TestSale(BraintreeTest, ProductsTest):
 
     def test_multiple(self):
         self.mocks['sale'].create.return_value = successful_method()
+        self.product_mock.get('moz-brick').recurrence = None
         seller, seller_product = create_seller()
 
-        data = {'amount': 5, 'nonce': 123, 'product_id': 'brick'}
+        data = {'amount': 10, 'nonce': 123, 'product_id': 'moz-brick'}
         res = self.client.post(self.url, data=data)
         eq_(res.status_code, 200, res.content)
 
