@@ -249,7 +249,7 @@ class SaleForm(forms.Form):
                 code='invalid')
 
         amount = self.cleaned_data.get('amount')
-        if (amount and product.amount != amount):
+        if (product.amount and product.amount != amount):
             self.add_error(
                 'amount',
                 forms.ValidationError(

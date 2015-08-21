@@ -163,3 +163,14 @@ class TestSaleForm(BraintreeTest, ProductsTest):
             'product_id': seller_product.public_id
         })
         eq_(errors.as_data()['amount'][0].code, 'invalid')
+
+    def test_allow_variable_amounts_for_donations(self):
+        seller, seller_product = create_seller(
+            seller_product_data={'public_id': 'charity-donation'}
+        )
+        form, errors = self.process({
+            'amount': '99.00',
+            'nonce': 'nonce',
+            'product_id': seller_product.public_id
+        })
+        assert not errors, errors.as_text()
