@@ -197,7 +197,9 @@ in Braintree and the corresponding subscription in solitude.
     :<json string paymethod: the uri of the payment method.
     :<json string plan:
         the braintree ID of the plan being purchased.
-        This must also match `public_id` of :ref:`seller-product`.
+        This must also match `public_id` of :ref:`seller-product` and
+        the ID must link to a known,
+        `configured product <https://github.com/mozilla/payments-config>`_.
     :<json string amount:
         custom payment amount as a decimal string.
         This only applies to subscription plans that allow

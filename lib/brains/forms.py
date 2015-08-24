@@ -92,7 +92,6 @@ class SubscriptionForm(forms.Form):
 
     def clean_plan(self):
         data = self.cleaned_data['plan']
-
         try:
             obj = SellerProduct.objects.get(public_id=data)
         except ObjectDoesNotExist:
@@ -103,6 +102,13 @@ class SubscriptionForm(forms.Form):
                 'Seller product does not exist.', code='does_not_exist')
 
         self.seller_product = obj
+
+        product = payments_config.products.get(data)
+        if not product:
+            raise forms.ValidationError(
+                'No product configured for plan ID',
+                code='no_configured_product')
+
         return data
 
     def format_descriptor(self, name):
@@ -115,10 +121,7 @@ class SubscriptionForm(forms.Form):
         return 'Mozilla*{}'.format(name)[0:22]
 
     def get_name(self, plan_id):
-        if payments_config.products.get(plan_id):
-            return unicode(payments_config.products.get(plan_id).description)
-        log.warning('Unknown product for descriptor: {}'.format(plan_id))
-        return 'Product'
+        return unicode(payments_config.products.get(plan_id).description)
 
     @property
     def braintree_data(self):

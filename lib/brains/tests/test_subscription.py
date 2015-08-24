@@ -11,7 +11,8 @@ from nose.tools import eq_, ok_
 
 from lib.brains.models import BraintreeSubscription
 from lib.brains.tests.base import (
-    BraintreeTest, create_braintree_buyer, create_method, create_seller, error)
+    BraintreeTest, create_braintree_buyer, create_method, create_seller, error,
+    ProductsTest)
 
 
 def method(**kw):
@@ -35,7 +36,7 @@ def create_method_all():
     return method, seller_product
 
 
-class TestSubscription(BraintreeTest):
+class TestSubscription(BraintreeTest, ProductsTest):
     gateways = {'sub': SubscriptionGateway}
 
     def setUp(self):
@@ -62,7 +63,7 @@ class TestSubscription(BraintreeTest):
             'payment_method_token': mock.ANY,
             'plan_id': 'moz-brick',
             'descriptor': {
-                'name': 'Mozilla*Product',
+                'name': 'Mozilla*Recurring',
                 'url': 'mozilla.org'
             },
             'trial_period': False,
