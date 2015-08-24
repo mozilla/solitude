@@ -117,6 +117,10 @@ class ProductsTest(APITest):
                 'id': 'donation',
                 'description': 'Donation',
                 'recurrence': None,
+            }, {
+                'id': 'donation-monthly',
+                'description': 'Monthly Donation',
+                'recurrence': 'monthly',
             }],
         },
     }

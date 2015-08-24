@@ -105,8 +105,13 @@ class TestSubscription(BraintreeTest, ProductsTest):
     def test_create_with_custom_amount(self):
         self.mocks['sub'].create.return_value = successful_subscription()
 
-        method, seller_product = create_method_all()
-        res = self.post(paymethod=method.get_uri(), amount='4.99')
+        buyer, braintree_buyer = create_braintree_buyer()
+        seller, seller_product = create_seller(seller_product_data={
+            'public_id': 'charity-donation-monthly',
+        })
+        method = create_method(braintree_buyer)
+        res = self.post(paymethod=method.get_uri(), amount='4.99',
+                        plan=seller_product.public_id)
 
         eq_(res.status_code, 201, res.content)
         subscription = BraintreeSubscription.objects.get()

@@ -82,6 +82,7 @@ class TestSubscription(BraintreeTest, ProductsTest):
                            expect_errors=True)
 
         assert 'plan' in form.errors, form.errors.as_text()
+        eq_(form.errors.as_data()['plan'][0].code, 'does_not_exist')
 
     def test_plan_is_not_a_configured_product(self):
         seller, prod = create_seller(seller_product_data={
@@ -90,6 +91,40 @@ class TestSubscription(BraintreeTest, ProductsTest):
         form = self.submit(expect_errors=True,
                            data={'plan': prod.public_id})
         assert 'plan' in form.errors, form.errors.as_text()
+        eq_(form.errors.as_data()['plan'][0].code,
+            'no_configured_product')
+
+    def test_plan_amount_is_not_customizable(self):
+        form = self.submit(expect_errors=True, data={
+            # Link to a non-donation product.
+            'plan': 'moz-brick',
+            # You cannot change the price on a product with a fixed amount.
+            'amount': '1.99',
+        })
+        assert 'amount' in form.errors, form.errors.as_text()
+        eq_(form.errors.as_data()['amount'][0].code,
+            'amount_cannot_be_changed')
+
+    def test_plan_amount_is_customizable(self):
+        seller, prod = create_seller(seller_product_data={
+            'public_id': 'charity-donation-monthly',
+        })
+        self.submit(data={
+            'plan': prod.public_id,
+            'amount': '1.99',
+        })
+
+    def test_plan_requires_an_amount(self):
+        seller, prod = create_seller(seller_product_data={
+            'public_id': 'charity-donation-monthly',
+        })
+        # Submit the form without defining an amount.
+        form = self.submit(expect_errors=True, data={
+            'plan': prod.public_id,
+        })
+        assert 'amount' in form.errors, form.errors.as_text()
+        eq_(form.errors.as_data()['amount'][0].code,
+            'subscription_amount_missing')
 
     def test_format_descriptor(self):
         for in_string, out_string in [

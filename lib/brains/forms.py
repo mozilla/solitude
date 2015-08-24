@@ -90,6 +90,37 @@ class SubscriptionForm(forms.Form):
         max_value=Decimal(settings.BRAINTREE_MAX_AMOUNT),
         min_value=Decimal(settings.BRAINTREE_MIN_AMOUNT))
 
+    def clean(self):
+        cleaned_data = super(SubscriptionForm, self).clean()
+        plan = cleaned_data.get('plan')
+        if plan:
+            product = payments_config.products.get(plan)
+            if not product:
+                self.add_error(
+                    'plan',
+                    forms.ValidationError(
+                        'No product configured for plan ID',
+                        code='no_configured_product'))
+            else:
+                amount = self.cleaned_data.get('amount')
+
+                # If an amount is specified then the product's
+                # configured amount (if it has one) must match.
+                if amount and product.amount and product.amount != amount:
+                    self.add_error(
+                        'amount',
+                        forms.ValidationError(
+                            'The payment amount for this subscription cannot '
+                            'be changed', code='amount_cannot_be_changed'))
+
+                if not amount and not product.amount:
+                    self.add_error(
+                        'amount',
+                        forms.ValidationError(
+                            'This product has no default amount so you must '
+                            'define an amount',
+                            code='subscription_amount_missing'))
+
     def clean_plan(self):
         data = self.cleaned_data['plan']
         try:
@@ -102,13 +133,6 @@ class SubscriptionForm(forms.Form):
                 'Seller product does not exist.', code='does_not_exist')
 
         self.seller_product = obj
-
-        product = payments_config.products.get(data)
-        if not product:
-            raise forms.ValidationError(
-                'No product configured for plan ID',
-                code='no_configured_product')
-
         return data
 
     def format_descriptor(self, name):
