@@ -84,15 +84,18 @@ def create(request):
         raise BraintreeResultError(result)
 
     braintree_subscription = result.subscription
-    log.info('Subscription created in braintree: {0}'
-             .format(braintree_subscription.id))
+    log.info('Subscription created in braintree {} for paymethod {}'
+             .format(braintree_subscription.id,
+                     form.cleaned_data['paymethod']))
 
     subscription = BraintreeSubscription.objects.create(
+        amount=form.cleaned_data['amount'],
         paymethod=form.cleaned_data['paymethod'],
         seller_product=form.seller_product,
         provider_id=braintree_subscription.id
     )
-    log.info('Subscription created in solitude: {0}'.format(subscription.pk))
+    log.info('Subscription created in solitude: {}; braintree: {}'
+             .format(subscription.pk, braintree_subscription.id))
 
     res = Namespaced(
         mozilla=LocalSubscription(instance=subscription),

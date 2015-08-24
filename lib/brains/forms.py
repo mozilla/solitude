@@ -85,6 +85,10 @@ class SubscriptionForm(forms.Form):
         view_name='braintree:mozilla:paymethod-detail',
         queryset=BraintreePaymentMethod.objects.filter())
     plan = forms.CharField(max_length=255)
+    amount = forms.DecimalField(
+        required=False,
+        max_value=Decimal(settings.BRAINTREE_MAX_AMOUNT),
+        min_value=Decimal(settings.BRAINTREE_MIN_AMOUNT))
 
     def clean_plan(self):
         data = self.cleaned_data['plan']
@@ -119,7 +123,7 @@ class SubscriptionForm(forms.Form):
     @property
     def braintree_data(self):
         plan_id = self.seller_product.public_id
-        return {
+        data = {
             'payment_method_token': self.cleaned_data['paymethod'].provider_id,
             'plan_id': plan_id,
             'trial_period': False,
@@ -128,6 +132,9 @@ class SubscriptionForm(forms.Form):
                 'url': 'mozilla.org'
             }
         }
+        if self.cleaned_data['amount']:
+            data['price'] = str(self.cleaned_data['amount'])
+        return data
 
 
 class WebhookVerifyForm(forms.Form):

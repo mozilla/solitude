@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 
 from django.core.urlresolvers import reverse
 
@@ -41,6 +42,13 @@ class TestSubscription(BraintreeTest):
         super(TestSubscription, self).setUp()
         self.url = reverse('braintree:subscription')
 
+    def post(self, paymethod, plan='moz-brick', **kwargs):
+        return self.client.post(self.url, data=dict(
+            paymethod=paymethod,
+            plan=plan,
+            **kwargs
+        ))
+
     def test_allowed(self):
         self.allowed_verbs(self.url, ['post'])
 
@@ -48,11 +56,7 @@ class TestSubscription(BraintreeTest):
         self.mocks['sub'].create.return_value = successful_subscription()
 
         method, seller_product = create_method_all()
-        res = self.client.post(
-            self.url, data={
-                'paymethod': method.get_uri(),
-                'plan': 'moz-brick'
-            })
+        res = self.post(paymethod=method.get_uri())
 
         data = {
             'payment_method_token': mock.ANY,
@@ -68,22 +72,17 @@ class TestSubscription(BraintreeTest):
         eq_(res.status_code, 201)
         subscription = BraintreeSubscription.objects.get()
         eq_(subscription.provider_id, 'some:id')
+        eq_(subscription.amount, None)
 
     def test_no_method(self):
         method, seller_product = create_method_all()
-        res = self.client.post(
-            self.url,
-            data={
-                'method': method.get_uri() + 'n',
-                'plan': 'moz-brick'
-            })
+        res = self.post(paymethod=method.get_uri() + 'n')
 
         eq_(res.status_code, 422, res.content)
 
-    def test_no_plan(self):
+    def test_plan_is_not_a_seller_product(self):
         method, seller_product = create_method_all()
-        res = self.client.post(
-            self.url, data={'paymethod': method.get_uri(), 'plan': 'nope'})
+        res = self.post(paymethod=method.get_uri(), plan='no-seller-product')
 
         eq_(res.status_code, 422, res.content)
         eq_(self.mozilla_error(res.json, 'plan'), ['does_not_exist'])
@@ -96,15 +95,25 @@ class TestSubscription(BraintreeTest):
         }])
 
         method, seller_product = create_method_all()
-        res = self.client.post(
-            self.url, data={
-                'paymethod': method.get_uri(),
-                'plan': 'moz-brick'
-            })
+        res = self.post(paymethod=method.get_uri())
 
         ok_(not BraintreeSubscription.objects.exists())
         eq_(res.status_code, 422, res.content)
         eq_(self.braintree_error(res.json, 'payment_method_token'), ['91903'])
+
+    def test_create_with_custom_amount(self):
+        self.mocks['sub'].create.return_value = successful_subscription()
+
+        method, seller_product = create_method_all()
+        res = self.post(paymethod=method.get_uri(), amount='4.99')
+
+        eq_(res.status_code, 201, res.content)
+        subscription = BraintreeSubscription.objects.get()
+        eq_(subscription.amount, Decimal('4.99'))
+
+        # Make sure price is in braintree creation.
+        data = self.mocks['sub'].create.call_args[0][0]
+        eq_(data['price'], '4.99')
 
 
 class TestSubscriptionChange(BraintreeTest):
