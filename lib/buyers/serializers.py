@@ -25,9 +25,10 @@ class BuyerSerializer(BaseBuyerSerializer):
     class Meta:
         model = Buyer
         fields = [
-            'active', 'email', 'locale', 'needs_pin_reset', 'new_pin', 'pin',
-            'pin_confirmed', 'pin_failures', 'pin_is_locked_out',
-            'pin_was_locked_out', 'resource_pk', 'resource_uri', 'uuid'
+            'active', 'authenticated', 'email', 'locale', 'needs_pin_reset',
+            'new_pin', 'pin', 'pin_confirmed', 'pin_failures',
+            'pin_is_locked_out', 'pin_was_locked_out', 'resource_pk',
+            'resource_uri', 'uuid',
         ]
 
     def transform_pin(self, obj, value):

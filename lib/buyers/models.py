@@ -28,6 +28,11 @@ class Buyer(Model):
     needs_pin_reset = models.BooleanField(default=False)
     email = AESField(blank=True, null=True, aes_key='buyeremail:key')
     locale = models.CharField(max_length=255, blank=True, null=True)
+    # When this is True it means the buyer was created by some trusted
+    # authentication mechanism such as with a verified Firefox Account
+    # email. This is True by default for historic reasons since most
+    # clients only create authenticated users.
+    authenticated = models.BooleanField(default=True)
 
     close_signal = Signal(providing_args=['buyer'])
 

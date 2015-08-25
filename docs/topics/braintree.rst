@@ -25,7 +25,7 @@ customer exists in Braintree already, it is not created.
 
 .. http:post:: /braintree/customer/
 
-    :<json string uuid: the uuid of the buyer in solitude.
+    :<json string uuid: the UUID of the :ref:`buyer <buyer-label>`.
 
     .. code-block:: json
 
@@ -300,7 +300,7 @@ Sale
 ----
 
 A sale is a one off payment to call the Braintree Transaction API. For more
-information see the `Braintree documentation <https://developers.braintreepayments.com/javascript+python/reference/request/transaction/sale>`_.
+information see the `Braintree transaction documentation <https://developers.braintreepayments.com/javascript+python/reference/request/transaction/sale>`_.
 
 This should not be used for subscriptions.
 
@@ -373,7 +373,7 @@ Webhook
 When Braintree completes certain actions, they will make a request to the
 configured webhook URL. That will be `payments-service <https://github.com/mozilla/payments-service/>`_
 which then passes it on to this endpoint. For more information see the
-`Braintree documentation <https://developers.braintreepayments.com/javascript+python/reference/general/webhooks>`_.
+`Braintree webhook documentation <https://developers.braintreepayments.com/javascript+python/reference/general/webhooks/overview>`_.
 
 .. http:get:: /braintree/webhook/
 
