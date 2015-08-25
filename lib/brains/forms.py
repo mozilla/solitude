@@ -85,10 +85,44 @@ class SubscriptionForm(forms.Form):
         view_name='braintree:mozilla:paymethod-detail',
         queryset=BraintreePaymentMethod.objects.filter())
     plan = forms.CharField(max_length=255)
+    amount = forms.DecimalField(
+        required=False,
+        max_value=Decimal(settings.BRAINTREE_MAX_AMOUNT),
+        min_value=Decimal(settings.BRAINTREE_MIN_AMOUNT))
+
+    def clean(self):
+        cleaned_data = super(SubscriptionForm, self).clean()
+        plan = cleaned_data.get('plan')
+        if plan:
+            product = payments_config.products.get(plan)
+            if not product:
+                self.add_error(
+                    'plan',
+                    forms.ValidationError(
+                        'No product configured for plan ID',
+                        code='no_configured_product'))
+            else:
+                amount = self.cleaned_data.get('amount')
+
+                # If an amount is specified then the product's
+                # configured amount (if it has one) must match.
+                if amount and product.amount and product.amount != amount:
+                    self.add_error(
+                        'amount',
+                        forms.ValidationError(
+                            'The payment amount for this subscription cannot '
+                            'be changed', code='amount_cannot_be_changed'))
+
+                if not amount and not product.amount:
+                    self.add_error(
+                        'amount',
+                        forms.ValidationError(
+                            'This product has no default amount so you must '
+                            'define an amount',
+                            code='subscription_amount_missing'))
 
     def clean_plan(self):
         data = self.cleaned_data['plan']
-
         try:
             obj = SellerProduct.objects.get(public_id=data)
         except ObjectDoesNotExist:
@@ -111,15 +145,12 @@ class SubscriptionForm(forms.Form):
         return 'Mozilla*{}'.format(name)[0:22]
 
     def get_name(self, plan_id):
-        if payments_config.products.get(plan_id):
-            return unicode(payments_config.products.get(plan_id).description)
-        log.warning('Unknown product for descriptor: {}'.format(plan_id))
-        return 'Product'
+        return unicode(payments_config.products.get(plan_id).description)
 
     @property
     def braintree_data(self):
         plan_id = self.seller_product.public_id
-        return {
+        data = {
             'payment_method_token': self.cleaned_data['paymethod'].provider_id,
             'plan_id': plan_id,
             'trial_period': False,
@@ -128,6 +159,9 @@ class SubscriptionForm(forms.Form):
                 'url': 'mozilla.org'
             }
         }
+        if self.cleaned_data['amount']:
+            data['price'] = str(self.cleaned_data['amount'])
+        return data
 
 
 class WebhookVerifyForm(forms.Form):

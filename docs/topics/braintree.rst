@@ -189,13 +189,21 @@ Some information about the payment method is stored in solitude.
 Subscriptions
 -------------
 
-Create a subscription in Braintree and the corresponding subscription in
-solitude.
+Create a subscription (including recurring donation plans)
+in Braintree and the corresponding subscription in solitude.
 
 .. http:post:: /braintree/subscription/
 
     :<json string paymethod: the uri of the payment method.
-    :<json string plan: the id of the plan being purchased.
+    :<json string plan:
+        the braintree ID of the plan being purchased.
+        This must also match `public_id` of :ref:`seller-product` and
+        the ID must link to a known,
+        `configured product <https://github.com/mozilla/payments-config>`_.
+    :<json string amount:
+        custom payment amount as a decimal string.
+        This only applies to subscription plans that allow
+        custom amounts such as donations.
 
     .. code-block:: json
 
@@ -210,6 +218,7 @@ solitude.
                 "counter": 0,
                 "created": "2015-05-06T13:34:53.763",
                 "id": 1,
+                "amount": null,
                 "modified": "2015-05-06T13:34:53.763",
                 "paymethod": "/braintree/mozilla/paymethod/1/",
                 "provider_id": "some:id",

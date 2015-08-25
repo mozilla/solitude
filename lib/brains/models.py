@@ -109,6 +109,9 @@ class BraintreeSubscription(Model):
     seller_product = models.ForeignKey('sellers.SellerProduct', db_index=True)
     # An id specific to the provider.
     provider_id = models.CharField(max_length=255)
+    # A custom amount for subscriptions like recurring-donations.
+    amount = models.DecimalField(max_digits=9, decimal_places=2, blank=True,
+                                 null=True)
 
     class Meta(Model.Meta):
         db_table = 'braintree_subscription'

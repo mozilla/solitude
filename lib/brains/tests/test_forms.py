@@ -1,5 +1,6 @@
 from django.test.utils import override_settings
 
+from braintree.subscription_gateway import SubscriptionGateway
 from nose.tools import eq_
 
 from lib.brains.forms import (
@@ -8,6 +9,8 @@ from lib.brains.forms import (
 from lib.brains.tests.base import (
     BraintreeTest, create_braintree_buyer, create_method, create_seller,
     ProductsTest)
+
+from .test_subscription import create_method_all
 
 
 @override_settings(BRAINTREE_PROXY='http://m.o')
@@ -51,23 +54,84 @@ class TestWebhook(BraintreeTest):
         )
 
 
-class TestSubscription(BraintreeTest):
+class TestSubscription(BraintreeTest, ProductsTest):
+    gateways = {'sub': SubscriptionGateway}
 
     def setUp(self):
-        self.form = SubscriptionForm()
+        super(TestSubscription, self).setUp()
+        self.paymethod, seller_product = create_method_all()
 
-    def test_default_name(self):
-        eq_(self.form.get_name('not-brick'), 'Product')
+    def submit(self, expect_errors=False, data=None):
+        if not data:
+            data = {}
+        submission = {
+            'paymethod': self.paymethod.get_uri(),
+            'plan_id': 'moz-brick',
+        }
+        submission.update(data)
+        form = SubscriptionForm(submission)
+        if not expect_errors:
+            assert form.is_valid(), form.errors.as_text()
+        return form
 
     def test_seller_name(self):
-        eq_(self.form.get_name('moz-brick'), 'Product')
+        eq_(SubscriptionForm().get_name('moz-brick'), 'Recurring')
+
+    def test_plan_is_not_a_seller_product(self):
+        form = self.submit(data={'plan': 'no-seller-product'},
+                           expect_errors=True)
+
+        assert 'plan' in form.errors, form.errors.as_text()
+        eq_(form.errors.as_data()['plan'][0].code, 'does_not_exist')
+
+    def test_plan_is_not_a_configured_product(self):
+        seller, prod = create_seller(seller_product_data={
+            'public_id': 'plan-id-not-in-config',
+        })
+        form = self.submit(expect_errors=True,
+                           data={'plan': prod.public_id})
+        assert 'plan' in form.errors, form.errors.as_text()
+        eq_(form.errors.as_data()['plan'][0].code,
+            'no_configured_product')
+
+    def test_plan_amount_is_not_customizable(self):
+        form = self.submit(expect_errors=True, data={
+            # Link to a non-donation product.
+            'plan': 'moz-brick',
+            # You cannot change the price on a product with a fixed amount.
+            'amount': '1.99',
+        })
+        assert 'amount' in form.errors, form.errors.as_text()
+        eq_(form.errors.as_data()['amount'][0].code,
+            'amount_cannot_be_changed')
+
+    def test_plan_amount_is_customizable(self):
+        seller, prod = create_seller(seller_product_data={
+            'public_id': 'charity-donation-monthly',
+        })
+        self.submit(data={
+            'plan': prod.public_id,
+            'amount': '1.99',
+        })
+
+    def test_plan_requires_an_amount(self):
+        seller, prod = create_seller(seller_product_data={
+            'public_id': 'charity-donation-monthly',
+        })
+        # Submit the form without defining an amount.
+        form = self.submit(expect_errors=True, data={
+            'plan': prod.public_id,
+        })
+        assert 'amount' in form.errors, form.errors.as_text()
+        eq_(form.errors.as_data()['amount'][0].code,
+            'subscription_amount_missing')
 
     def test_format_descriptor(self):
         for in_string, out_string in [
             ('Product', 'Mozilla*Product'),
             ('Long Product With Space', 'Mozilla*Long Product W')
         ]:
-            eq_(self.form.format_descriptor(in_string), out_string)
+            eq_(SubscriptionForm().format_descriptor(in_string), out_string)
 
 
 class TestSubscriptionManagement(BraintreeTest):
