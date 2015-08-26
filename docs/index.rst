@@ -8,7 +8,7 @@ and Addons site.
 
 .. figure:: _static/solitude.svg
         :align: right
-        :target: http://www.breweryvivant.com/#!packaged-beer/cais
+        :target: http://www.breweryvivant.com/
 
 It provides a REST API for processing payments that you would plug into your
 site. We've implemented the APIs that we want to use for the Marketplace, not
@@ -17,17 +17,17 @@ every API that the provider supports.
 Currently we support:
 
 * some `Bango <http://bango.com/>`_ APIs
-* some `Braintree <http://www.braintreepayments.com/>`_ APIs
+* some `Braintree <https://www.braintreepayments.com/>`_ APIs
 * some `Zippy <http://zippypayments.readthedocs.org/>`_ compliance
 
 In the past PayPal was supported, that has been removed.
 
 This project is based on **playdoh**. Mozilla's Playdoh is an open source
-web application template based on `Django <http://www.djangoproject.com/>`_.
+web application template based on `Django <https://www.djangoproject.com/>`_.
 
 This document is available as a `PDF <https://media.readthedocs.org/pdf/solitude/latest/solitude.pdf>`_.
 
-Solitude is also a nice tasting beer from `Brewery Vivant <http://breweryvivant.com/>`_. The logo is
+Solitude is also a nice tasting beer from `Brewery Vivant <http://www.breweryvivant.com/>`_. The logo is
 theirs.
 
 Contents
