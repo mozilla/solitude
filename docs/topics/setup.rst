@@ -153,6 +153,6 @@ Optional settings
   cleansed settings in the `django.conf.settings` through the API. Should be
   `False` on production.
 
-.. _homebrew: http://mxcl.github.com/homebrew/
-.. _virtualenv: http://pypi.python.org/pypi/virtualenv
+.. _homebrew: http://mxcl.github.io/homebrew/
+.. _virtualenv: https://pypi.python.org/pypi/virtualenv
 .. _playdoh: http://playdoh.readthedocs.org/en/latest/getting-started/installation.html
