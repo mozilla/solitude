@@ -29,6 +29,8 @@ class TestBuyer(APITest):
         buyer = Buyer.objects.get(uuid=self.uuid)
         eq_(buyer.email, self.email)
         eq_(res.json['pin'], True)
+        # By default, the code assume buyers have been authenticated.
+        eq_(res.json['authenticated'], True)
 
     def test_add_multiple(self):
         self.client.post(
@@ -41,15 +43,25 @@ class TestBuyer(APITest):
         eq_(self.get_errors(res.content, 'uuid'),
             [BUYER_UUID_ALREADY_EXISTS])
 
-    def test_add_empty(self):
+    def test_uuid_cannot_be_empty(self):
         res = self.client.post(self.list_url, data={'uuid': ''})
         eq_(res.status_code, 400)
         eq_(self.get_errors(res.content, 'uuid'), [FIELD_REQUIRED])
 
-    def test_add_missing(self):
+    def test_uuid_is_required(self):
         res = self.client.post(self.list_url, data={})
         eq_(res.status_code, 400)
         eq_(self.get_errors(res.content, 'uuid'), [FIELD_REQUIRED])
+
+    def test_add_unauthenticated_buyer(self):
+        res = self.client.post(self.list_url,
+                               data={'uuid': self.uuid,
+                                     'email': self.email,
+                                     'authenticated': False})
+        eq_(res.status_code, 201)
+        buyer = Buyer.objects.get(uuid=self.uuid)
+        eq_(buyer.authenticated, False)
+        eq_(res.json['authenticated'], False)
 
     def test_filter(self):
         self.client.post(self.list_url, data={'uuid': self.uuid})

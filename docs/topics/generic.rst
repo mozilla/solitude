@@ -12,7 +12,7 @@ Buyers
 
 Buyers are identified by a UUID, which is a string (max 255 chars) that makes
 sense to the client. It must be unique within solitude, so we'd recommend
-prefixing the UUID, eg: `marketplace:<your-uuid>`
+prefixing the UUID, eg: ``marketplace:<your-uuid>``
 
 *Note*: after `spartacus was merged <https://github.com/mozilla/spartacus/>`_
 some of these fields and features were no longer needed but remain in service.
@@ -25,13 +25,23 @@ a unique UUID as well as the PIN the buyer has chosen:
 
 .. http:post:: /generic/buyer/
 
-    **Request**
+    :<json string uuid: a unique identifier string.
+    :<json bool active: True if this is an active account.
+    :<json bool authenticated:
+        True if this user account was authenticated in a trusted way.
+        For example, if the email has been verified using the Firefox Accounts
+        OAuth API then you would say this account has been authenticated.
+    :<json string email: email address.
+    :<json string locale:
+        `ISO 639 <https://en.wikipedia.org/wiki/ISO_639>`_
+        locale code to indicate the buyer's preferred locale.
+        See the example below for how it looks.
 
     .. code-block:: json
 
         {
             "uuid": "93e33277-87f7-417b-8ed2-371672b5297e",
-            "pin": "8472",
+            "email": "someone@somewhere.org",
             "locale": "fr,en;q=0.7,en-US;q=0.3"
         }
 
@@ -42,7 +52,7 @@ a unique UUID as well as the PIN the buyer has chosen:
         {
             "active": false,
             "counter": null,
-            "email": "",
+            "email": "someone@somewhere.org",
             "locale": "fr,en;q=0.7,en-US;q=0.3",
             "needs_pin_reset": false,
             "new_pin": false,
@@ -87,8 +97,10 @@ You can also get the details of a buyer:
     :param type: string
     :param locale: users locale, most likely the Accept Language HTTP header
     :param type: string
-    :param pin: in a POST a PIN is a string, but in responses, the PIN is never
-    returned. It returns a boolean, `true` if a PIN is present, `false` if not.
+    :param pin:
+        in a POST a PIN is a string, but in responses, the PIN is never
+        returned. It returns a boolean, `true` if a PIN is present, `false`
+        if not.
     :param type: boolean
     :param pin_confirmed: if the pin has been confirmed.
     :param type: boolean
@@ -98,9 +110,9 @@ You can also get the details of a buyer:
     :param type: boolean
     :param pin_locked_out: if the PIN is currently locked out.
     :param type: boolean
-    :param pin_failures: the number of failed PIN entries. Reset to 0 on
-    successful entry. When a threshold is reached defined by `PIN_FAILURES` in
-    settings.
+    :param pin_failures:
+        the number of failed PIN entries. Reset to 0 on successful entry.
+        When a threshold is reached defined by `PIN_FAILURES` in settings.
     :param type: int
 
 Confirm PIN
@@ -133,8 +145,8 @@ their PIN. Once you've received their confirmed PIN you can POST to the
     :status 200: uuid found and PIN processed, check `confirmed` in the result
     :status 404: uuid not found.
 
-    :param confirmed: if `true` the PIN matched, if `false` the PIN did not
-    match.
+    :param confirmed:
+        if `true` the PIN matched, if `false` the PIN did not match.
     :type confirmed: boolean
 
 Verify PIN
