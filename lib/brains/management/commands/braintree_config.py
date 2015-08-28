@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 from decimal import Decimal
+import textwrap
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -9,6 +11,12 @@ from payments_config import sellers
 from solitude.logger import getLogger
 
 log = getLogger('s.brains.management')
+
+
+class BraintreePlanDoesNotExist(Exception):
+    """
+    Failed to look up a recurring payment plan in the Braintree API.
+    """
 
 
 def get_or_create_seller(uuid):
@@ -40,23 +48,23 @@ def product_exists(plans, external_id, amount):
     Check that the product exists in Braintree.
     """
     if external_id not in plans:
-        log.warning(
-            'The plan: {0} does not exist in Braintree. Plans cannot be '
-            'created from the API and must be created from the Braintree '
-            'console.'
-            .format(external_id))
-
-        raise CommandError('Missing product: {0}'.format(external_id))
+        raise BraintreePlanDoesNotExist(
+            'plan does not exist: {}'.format(external_id))
 
     plan = plans[external_id]
-    if Decimal(plan.price) != amount:
-        log.warning(
-            'The plan: {0} in Braintree has a different amount ({1}) from the '
-            'configuration file ({2}). It will need to be updated in '
-            'Braintree.'
-            .format(external_id, plan.price, amount))
+    if amount:
+        # This only applies to products with a configured amount.
+        # For example: donations do not have a configured amount.
+        # To be more specific: the braintree dashboard won't let you create
+        # a plan with an empty price so you have to use $0.00
+        if Decimal(plan.price) != amount:
+            log.warning(
+                'The plan: {0} in Braintree has a different amount ({1}) '
+                'from the configuration file ({2}). It will need to be '
+                'updated in Braintree.'
+                .format(external_id, plan.price, amount))
 
-        raise CommandError('Different price: {0}'.format(external_id))
+            raise CommandError('Different price: {0}'.format(external_id))
 
     if plan.billing_day_of_month:
         log.warning(
@@ -100,4 +108,29 @@ class Command(BaseCommand):
                 if product.recurrence:
                     # If there's recurrence, we need to check
                     # that it exists in Braintree and is set up ok.
-                    product_exists(plans, product.id, product.amount)
+                    try:
+                        product_exists(plans, product.id, product.amount)
+                    except BraintreePlanDoesNotExist:
+                        raise CommandError(textwrap.dedent('''\
+                            Missing product: {product.id}
+
+                            Currently it's not possible to automate this.
+
+                            1. Log into https://sandbox.braintreegateway.com/
+                               (or the production dashboard)
+                            2. Go to Recurring Billing > Plans from the sidebar
+                            3. Enter the following data:
+
+                                Plan ID: {product.id}
+                                Plan Name: {product.description}
+                                Price: {price}
+                                Billing Cycle Every: 1 month
+
+                            4. re-run this script
+                            5. MFBT 🍺
+                        '''.format(
+                            # TODO: show the right thing for recurrence
+                            # other than 'month'
+                            product=product,
+                            price=(product.amount or '0.00'),
+                        )))
