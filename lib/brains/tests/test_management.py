@@ -6,6 +6,9 @@ from nose.tools import eq_, raises
 
 from lib.brains.client import get_client
 from lib.brains.management.commands import braintree_config as config
+from lib.brains.management.commands.braintree_config import (
+    BraintreePlanDoesNotExist
+)
 from lib.brains.tests.base import BraintreeTest
 
 
@@ -51,7 +54,7 @@ class TestManagement(BraintreeTest):
         eq_(self.get_plans().keys(),
             [u'mozilla-concrete-mortar', u'mozilla-concrete-brick'])
 
-    @raises(CommandError)
+    @raises(BraintreePlanDoesNotExist)
     def test_product_missing(self):
         config.product_exists(self.get_plans(), 'nope', 1)
 

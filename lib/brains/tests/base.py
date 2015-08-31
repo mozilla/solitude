@@ -105,6 +105,7 @@ class ProductsTest(APITest):
                 'description': 'Recurring',
                 'amount': '10.00',
                 'recurrence': 'monthly',
+                'user_identification': 'fxa-auth',
             }],
         },
         'charity': {
@@ -117,10 +118,12 @@ class ProductsTest(APITest):
                 'id': 'donation',
                 'description': 'Donation',
                 'recurrence': None,
+                'user_identification': None,
             }, {
                 'id': 'donation-monthly',
                 'description': 'Monthly Donation',
                 'recurrence': 'monthly',
+                'user_identification': 'email',
             }],
         },
     }
