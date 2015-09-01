@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from decimal import Decimal
 import textwrap
 
@@ -127,7 +126,7 @@ class Command(BaseCommand):
                                 Billing Cycle Every: 1 month
 
                             4. re-run this script
-                            5. MFBT 🍺
+                            5. MFBT
                         '''.format(
                             # TODO: show the right thing for recurrence
                             # other than 'month'
