@@ -34,13 +34,9 @@ class TestEncryption(TestCase):
         with self.assertRaises(EncryptedField):
             Buyer.objects.filter(email='f@f.c')
 
-    def test_email_hash(self):
+    def test_email_sig(self):
         obj = Buyer.objects.create(email='f@f.c')
-        # Note: __eq__ causes the right hand side value to be hashed
-        # and checked against the left hand side.
-        eq_(obj.email_hash, 'f@f.c')
-        # Check the raw value in the DB is hashed.
-        assert str(obj.email_hash).startswith('md5')
+        assert str(obj.email_sig).startswith('consistent:')
 
 
 class TestLockout(TestCase):
@@ -125,7 +121,7 @@ class TestClose(TestCase):
         buyer = self.buyer.reget()
         eq_(buyer.active, False)
         eq_(buyer.email, '')
-        eq_(str(buyer.email_hash), '')
+        eq_(str(buyer.email_sig), '')
         assert buyer.uuid.startswith(ANONYMISED)
 
     def test_repeat(self):

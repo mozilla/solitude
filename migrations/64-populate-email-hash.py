@@ -9,5 +9,5 @@ def run():
         if not buyer['email']:
             continue
 
-        log.info('Updating email_hash for {}'.format(buyer['id']))
+        log.info('Updating email_sig for {}'.format(buyer['id']))
         Buyer.objects.get(pk=buyer['id']).save()

@@ -1,23 +1,47 @@
 from django.shortcuts import get_object_or_404
 
 from rest_framework.decorators import api_view
+from rest_framework.request import Request
 from rest_framework.response import Response
 
+from lib.buyers.field import ConsistentSigField
 from lib.buyers.forms import PinForm
 from lib.buyers.models import Buyer
 from lib.buyers.serializers import (
     BuyerSerializer, ConfirmedSerializer, VerifiedSerializer)
 from solitude.base import log_cef, NonDeleteModelViewSet
 from solitude.errors import FormError
+from solitude.filter import StrictQueryFilter
 from solitude.logger import getLogger
 
 log = getLogger('s.buyer')
 
 
+class HashedEmailRequest(Request):
+
+    @property
+    def QUERY_PARAMS(self):
+        data = self._request.GET.copy()
+        if 'email' in data:
+            email = data.pop('email')
+            if len(email) > 1:
+                raise ValueError('Multiple values of email not supported')
+            data['email_sig'] = ConsistentSigField()._hash(email[0])
+        return data
+
+
+class EmailHash(StrictQueryFilter):
+
+    def filter_queryset(self, request, queryset, view):
+        request = HashedEmailRequest(request)
+        return super(EmailHash, self).filter_queryset(request, queryset, view)
+
+
 class BuyerViewSet(NonDeleteModelViewSet):
     queryset = Buyer.objects.all()
     serializer_class = BuyerSerializer
-    filter_fields = ('uuid', 'active')
+    filter_fields = ('uuid', 'active', 'email_sig')
+    filter_backends = (EmailHash,)
 
 
 @api_view(['POST'])

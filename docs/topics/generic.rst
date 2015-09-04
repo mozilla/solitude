@@ -68,7 +68,24 @@ a unique UUID as well as the PIN the buyer has chosen:
 
     :status 201: successfully processed.
 
-You can also get the details of a buyer:
+List and retrieve
+-----------------
+
+List buyers:
+
+.. http:get:: /generic/buyer/
+
+    You can filter on the following parameters.
+
+    :param active: the active flag for a user.
+    :param email: users email address.
+    :param uuid: the uuid for a user.
+
+    **Response**
+
+    A standard listing response containing buyers (see below).
+
+Get the details of a buyer:
 
 .. http:get:: /generic/buyer/int:id/
 

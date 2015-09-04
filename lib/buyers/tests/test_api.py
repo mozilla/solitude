@@ -2,14 +2,18 @@ from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.test import RequestFactory
 
 import mock
 from django_paranoia.signals import warning
 from nose import SkipTest
 from nose.tools import eq_
+from rest_framework.request import Request
 
 from lib.buyers.constants import BUYER_UUID_ALREADY_EXISTS, FIELD_REQUIRED
+from lib.buyers.field import ConsistentSigField
 from lib.buyers.models import Buyer
+from lib.buyers.views import HashedEmailRequest
 from solitude.base import APITest
 
 
@@ -63,18 +67,29 @@ class TestBuyer(APITest):
         eq_(buyer.authenticated, False)
         eq_(res.json['authenticated'], False)
 
-    def test_filter(self):
-        self.client.post(self.list_url, data={'uuid': self.uuid})
-        res = self.client.get(self.list_url + '?uuid=%s' % self.uuid)
-        eq_(res.status_code, 200)
-        eq_(res.json['meta']['total_count'], 1)
-        eq_(res.json['objects'][0]['uuid'], self.uuid)
-
     def create(self, **kwargs):
         defaults = {'uuid': self.uuid, 'pin': self.pin, 'email': self.email,
                     'locale': 'en-US'}
         defaults.update(kwargs)
         return Buyer.objects.create(**defaults)
+
+    def test_filter(self):
+        self.create()
+        res = self.client.get(self.list_url + '?uuid=%s' % self.uuid)
+        eq_(res.status_code, 200)
+        eq_(res.json['meta']['total_count'], 1)
+        eq_(res.json['objects'][0]['uuid'], self.uuid)
+
+    def test_filter_email(self):
+        self.create()
+        res = self.client.get(self.list_url, {'email': self.email}).json
+        eq_(res['meta']['total_count'], 1)
+        eq_(res['objects'][0]['email'], self.email)
+
+    def test_multiple_email(self):
+        self.create()
+        with self.assertRaises(ValueError):
+            self.client.get(self.list_url, {'email': [self.email, self.email]})
 
     def test_get(self):
         obj = self.create()
@@ -184,6 +199,15 @@ class TestBuyer(APITest):
         obj = self.create()
         self.allowed_verbs(self.list_url, ['get', 'post'])
         self.allowed_verbs(obj.get_uri(), ['get', 'put', 'patch'])
+
+
+class TestEmailHash(APITest):
+
+    def test_hashed_email(self):
+        request = Request(RequestFactory().get('/?email=value'))
+        hashed = ConsistentSigField()._hash('value')
+        altered = HashedEmailRequest(request)
+        eq_(altered.QUERY_PARAMS['email_sig'], hashed)
 
 
 class TestBuyerVerifyPin(APITest):

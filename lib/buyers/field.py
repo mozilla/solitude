@@ -1,18 +1,20 @@
+import hashlib
+import hmac
+
+from django.conf import settings
 from django.contrib.auth.hashers import (check_password, get_hasher,
                                          make_password)
 from django.db.models import CharField, SubfieldBase
 
 
-class HashField(CharField):
+class HashFieldBase(CharField):
 
     __metaclass__ = SubfieldBase
 
     def __init__(self, max_length=255, *args, **kwargs):
         # Longer than the average hash, should generally be more than enough.
-        super(HashField, self).__init__(max_length=max_length, *args, **kwargs)
-
-    def get_prep_lookup(self):
-        raise NotImplemented('Looking up by hash is not supported')
+        super(HashFieldBase, self).__init__(
+            max_length=max_length, *args, **kwargs)
 
     def get_prep_value(self, value, prepared=False):
         if not prepared and value:
@@ -23,7 +25,7 @@ class HashField(CharField):
             # to_python() unless you are doing a .update() in which case
             # to_python()  is not called and the value is passed in raw.
             if not isinstance(value, HashedData):
-                value = make_password(value, salt=self.salt)
+                value = self._hash(value, salt=self.salt)
             self.salt = False  # dump salt after saving.
         return value
 
@@ -40,8 +42,42 @@ class HashField(CharField):
         # to save the hash, the same value we see is what is put in the DB.
         if not value.startswith(hasher.algorithm):
             self.salt = hasher.salt()
-            value = make_password(value, salt=self.salt)
+            value = self._hash(value, salt=self.salt)
         return HashedData(value)
+
+
+class HashField(HashFieldBase):
+
+    def get_prep_lookup(self, *args, **kw):
+        raise NotImplemented('Looking up by hash is not supported')
+
+    def _hash(self, value, salt=None):
+        return make_password(value, salt)
+
+
+class ConsistentSigField(HashFieldBase):
+
+    """
+    Like the HashField, but is always a consistent value to allow lookups
+    on the field.
+    """
+
+    def get_prep_lookup(self, *args, **kw):
+        return super(CharField, self).get_prep_lookup(*args, **kw)
+
+    def _hash(self, value, salt=None):
+        """
+        Hash the value with hmac, using sha256. This ignores values of
+        salt, so that the hash can be consistent.
+        """
+        if not value:
+            return ''
+        if value.startswith('consistent:'):
+            return value
+        key_id = max(settings.HMAC_KEYS.keys())
+        key_value = settings.HMAC_KEYS[key_id]
+        res = hmac.new(key_value, value, hashlib.sha256).hexdigest()
+        return 'consistent:' + res
 
 
 class HashedData(object):

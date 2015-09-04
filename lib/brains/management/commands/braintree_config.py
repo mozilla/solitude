@@ -14,6 +14,7 @@ log = getLogger('s.brains.management')
 
 
 class BraintreePlanDoesNotExist(Exception):
+
     """
     Failed to look up a recurring payment plan in the Braintree API.
     """
