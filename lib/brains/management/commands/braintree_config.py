@@ -1,12 +1,13 @@
-from decimal import Decimal
 import textwrap
+from decimal import Decimal
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
+from payments_config import sellers
+
 from lib.brains.client import get_client
 from lib.sellers.models import Seller, SellerProduct
-from payments_config import sellers
 from solitude.logger import getLogger
 
 log = getLogger('s.brains.management')

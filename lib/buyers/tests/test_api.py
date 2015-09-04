@@ -198,7 +198,7 @@ class TestBuyerVerifyPin(APITest):
     def test_good_uuid_and_pin(self):
         res = self.client.post(self.list_url, data={'uuid': self.uuid,
                                                     'pin': self.pin})
-        eq_(res.status_code, 200)
+        eq_(res.status_code, 200, res.json)
         assert res.json['valid']
         eq_(res.json['uuid'], self.uuid)
 

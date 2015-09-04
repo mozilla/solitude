@@ -9,7 +9,6 @@ from lib.brains.forms import (
 from lib.brains.tests.base import (
     BraintreeTest, create_braintree_buyer, create_method, create_seller,
     ProductsTest)
-
 from .test_subscription import create_method_all
 
 

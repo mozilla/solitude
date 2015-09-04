@@ -9,11 +9,11 @@ from django.core.management.base import BaseCommand, CommandError
 import braintree
 import requests
 from braintree.util.crypto import Crypto
+from payments_config import products
 
 from lib.brains.management.commands.samples import webhooks
 from lib.brains.models import BraintreeSubscription
 from lib.transactions.models import Transaction
-from payments_config import products
 from solitude.logger import getLogger
 
 log = getLogger('s.brains.management')
