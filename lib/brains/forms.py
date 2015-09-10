@@ -11,7 +11,6 @@ from lib.brains.models import (
     BraintreeBuyer, BraintreePaymentMethod, BraintreeSubscription)
 from lib.buyers.models import Buyer
 from lib.sellers.models import SellerProduct
-
 from solitude.base import getLogger
 from solitude.related_fields import PathRelatedFormField
 

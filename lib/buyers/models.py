@@ -8,7 +8,7 @@ from django.dispatch import Signal
 
 from aesfield.field import AESField
 
-from .field import HashField
+from .field import ConsistentSigField, HashField
 from solitude.base import Model
 from solitude.logger import getLogger
 
@@ -27,6 +27,10 @@ class Buyer(Model):
     new_pin = HashField(blank=True, null=True)
     needs_pin_reset = models.BooleanField(default=False)
     email = AESField(blank=True, null=True, aes_key='buyeremail:key')
+    # Because the email field is encrypted we can't do lookups in mysql on it.
+    # This allows us to use a field for lookups, without exposing anything in
+    # the database.
+    email_sig = ConsistentSigField(blank=True, null=True)
     locale = models.CharField(max_length=255, blank=True, null=True)
     # When this is True it means the buyer was created by some trusted
     # authentication mechanism such as with a verified Firefox Account
@@ -100,9 +104,17 @@ class Buyer(Model):
         # All succeeds, so go ahead and anonymise the account.
         self.active = False
         self.email = ''
+        self.email_sig = None
         self.uuid = ANONYMISED + str(uuid.uuid4())
         self.save()
         log.warning('Anonymising account complete: {}'.format(self.pk))
 
     def get_uri(self):
         return reverse('generic:buyer-detail', kwargs={'pk': self.pk})
+
+    def save(self, *args, **kw):
+        # Each time the email field gets set, set the sig field to the same
+        # value. However the email_sig will pass through ConsistentSigField on
+        # the way to the database.
+        self.email_sig = self.email
+        super(Buyer, self).save(*args, **kw)

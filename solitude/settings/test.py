@@ -65,6 +65,11 @@ REQUIRE_OAUTH = False
 STATIC_URL = '/'
 STATIC_ROOT = '/'
 
+# Not using bcrypt for hashing is a major test speed up.
+PASSWORD_HASHERS = (
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+)
+
 
 # Suds keeps a cache of the WSDL around, so after completing the test run,
 # lets remove that so it doesn't affect the next test run.

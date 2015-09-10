@@ -34,6 +34,10 @@ class TestEncryption(TestCase):
         with self.assertRaises(EncryptedField):
             Buyer.objects.filter(email='f@f.c')
 
+    def test_email_sig(self):
+        obj = Buyer.objects.create(email='f@f.c')
+        assert str(obj.email_sig).startswith('consistent:')
+
 
 class TestLockout(TestCase):
 
@@ -117,6 +121,7 @@ class TestClose(TestCase):
         buyer = self.buyer.reget()
         eq_(buyer.active, False)
         eq_(buyer.email, '')
+        eq_(str(buyer.email_sig), '')
         assert buyer.uuid.startswith(ANONYMISED)
 
     def test_repeat(self):
