@@ -61,9 +61,17 @@ class ConsistentSigField(HashFieldBase):
     Like the HashField, but is always a consistent value to allow lookups
     on the field.
     """
+    prefix = 'consistent:'
 
     def get_prep_lookup(self, *args, **kw):
         return super(CharField, self).get_prep_lookup(*args, **kw)
+
+    def get_prep_value(self, value, prepared=False):
+        if (not isinstance(value, HashedData) and
+                value.startswith(self.prefix)):
+            return value
+        return super(ConsistentSigField, self).get_prep_value(
+            value, prepared=False)
 
     def _hash(self, value, salt=None):
         """
@@ -72,12 +80,10 @@ class ConsistentSigField(HashFieldBase):
         """
         if not value:
             return ''
-        if value.startswith('consistent:'):
-            return value
         key_id = max(settings.HMAC_KEYS.keys())
         key_value = settings.HMAC_KEYS[key_id]
         res = hmac.new(key_value, value, hashlib.sha256).hexdigest()
-        return 'consistent:' + res
+        return self.prefix + res
 
 
 class HashedData(object):
