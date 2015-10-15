@@ -38,6 +38,10 @@ class TestEncryption(TestCase):
         obj = Buyer.objects.create(email='f@f.c')
         assert str(obj.email_sig).startswith('consistent:')
 
+    def test_email_sig_consistent(self):
+        obj = Buyer.objects.create(email='consistent:f')
+        assert str(obj.email_sig) != 'consistent:f'
+
 
 class TestLockout(TestCase):
 
