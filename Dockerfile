@@ -12,12 +12,12 @@ ENV IS_DOCKER 1
 COPY requirements /srv/solitude/requirements
 
 # Download this securely from pyprepo first.
-RUN pip install --no-deps --find-links https://pyrepo.addons.mozilla.org/ peep
+RUN pip install --no-deps --find-links https://pyrepo.stage.mozaws.net/ peep
 RUN peep install \
     --no-deps \
     -r /srv/solitude/requirements/dev.txt \
     -r /srv/solitude/requirements/compiled.txt \
-    --find-links https://pyrepo.addons.mozilla.org/
+    --find-links https://pyrepo.stage.mozaws.net/
 
 # Ship the source in the container, its up to docker-compose to override it
 # if it wants to.
