@@ -2,6 +2,7 @@
 Solitude
 ========================================
 
+*Please note:* this project is currently unmaintained and is not (or soon will not) be in active use by Mozilla.
 
 Solitude is a payments server for processing payments for Mozilla's Marketplace
 and Addons site.
